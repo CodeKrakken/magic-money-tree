@@ -2,11 +2,11 @@ interface wallet {
   coins: {
     [key: string]: {
       dollarPrice : number
-      dollarValue? : number
+      dollarValue : number
       volume      : number
     }
   }
-  data?: {
+  data: {
     baseCoin: string
     currentMarket: {}
     prices: {}
@@ -59,7 +59,7 @@ const server = {
       const viableMarketNames: string[] = await fetchMarkets()
       
       if (viableMarketNames.length) {
-        const wallet = simulatedWallet()
+        const wallet: wallet = simulatedWallet()
         tick(wallet, viableMarketNames)
       }
     } catch (error) {
@@ -185,6 +185,11 @@ function simulatedWallet() {
         dollarValue: 1
       }
     },
+    data: {
+      baseCoin: '',
+      currentMarket: {},
+      prices: {}
+    }
   }
 }
 
@@ -248,7 +253,7 @@ async function fetchPrice(marketName: string) {
   }
 }
 
-function displayWallet(wallet) {
+function displayWallet(wallet: wallet) {
   console.log('Wallet')
 
   Object.keys(wallet.coins).filter(coin => wallet.coins[coin].volume).map(name => {
