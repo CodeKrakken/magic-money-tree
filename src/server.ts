@@ -9,9 +9,30 @@ interface wallet {
   data: {
     baseCoin: string
     currentMarket: {}
-    prices: {}
+    prices: {
+      targetPrice?: number
+      highPrice?: number
+      purchasePrice?: number
+      stopLossPrice?: number
+    }
   }
 }
+
+interface histories {
+  [key: string]: string[] | {
+    [key: string]: string[]
+  }
+}
+
+interface data {
+  name: string
+  histories: histories
+}
+
+interface period {
+  
+}
+
 
 require('dotenv').config();
 
@@ -198,7 +219,7 @@ async function tick(wallet: wallet, viableMarketNames: string[]) {
     console.log(`----- Tick at ${timeNow()} -----`)
     await refreshWallet(wallet)
     displayWallet(wallet)
-    let markets = await fetchAllHistory(viableMarketNames, wallet)
+    let markets = await fetchAllHistory(viableMarketNames)
     markets = await addEmaRatio(markets)
     markets = await addShape(markets)
     markets = await filterMarkets(markets)
@@ -269,7 +290,7 @@ function displayWallet(wallet: wallet) {
   }
 }
 
-function getDollarTotal(wallet) {
+function getDollarTotal(wallet: wallet) {
   let total = 0
 
   Object.keys(wallet.coins).map(name => {
@@ -279,7 +300,7 @@ function getDollarTotal(wallet) {
   return total
 }
 
-async function fetchAllHistory(marketNames, wallet) {
+async function fetchAllHistory(marketNames: string[]) {
   const n = marketNames.length
   const returnArray = []
 
@@ -305,9 +326,9 @@ async function fetchAllHistory(marketNames, wallet) {
   return returnArray
 }
 
-async function fetchSingleHistory(symbolName) {
+async function fetchSingleHistory(symbolName: string) {
   try {
-    const histories = {}
+    const histories: histories = {}
 
     for (let i = 0; i < Object.keys(periods).length; i++) {
       const period = Object.keys(periods)[i]
@@ -320,14 +341,14 @@ async function fetchSingleHistory(symbolName) {
   }
 }
 
-async function annotateData(data) {
+async function annotateData(data: data) {
   try {
-    const histories = {}
+    const histories: histories = {}
 
     Object.keys(data.histories).map(periods => {
-      const history = []
+      const history: period[] = []
 
-      data.histories[periods].map(period => {
+      data.histories[periods].map((period: string[])  => {
   
         const average = period.slice(1, 5).reduce((a,b)=>parseFloat(a)+parseFloat(b))/4
 
