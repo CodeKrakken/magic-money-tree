@@ -39,7 +39,7 @@ interface periodObject {
 }
 
 interface histories {
-  [key: string]: period[];
+  [key: string]: any[];
 }
 
 interface market {
