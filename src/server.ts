@@ -9,7 +9,7 @@ interface wallet {
   data: {
     baseCoin: string
     currentMarket: {
-      name?: string
+      name: string
       currentPrice?: number
     }
     prices: {
@@ -71,7 +71,7 @@ const port = process.env.PORT || 8000;
 const minimumDollarVolume = 28000000
 const fee = 0.001
 const stopLossThreshold = 0.78
-const periods = {
+const periods: {[key: string]: string} = {
   // months  : 'M', 
   // weeks   : 'w', 
   // days    : 'd', 
@@ -103,20 +103,20 @@ const server = {
   }
 }
 
-async function run() {
-  try {
-    await record(`---------- Running at ${timeNow()} ----------`)
-    await setupDB();
-    const viableMarketNames = await fetchMarkets()
+// async function run() {
+//   try {
+//     await record(`---------- Running at ${timeNow()} ----------`)
+//     await setupDB();
+//     const viableMarketNames = await fetchMarkets()
     
-    if (viableMarketNames.length) {
-      const wallet: wallet = simulatedWallet()
-      tick(wallet, viableMarketNames)
-    }
-  } catch (error) {
-    console.log(error)
-  }
-}
+//     if (viableMarketNames.length) {
+//       const wallet: wallet = simulatedWallet()
+//       tick(wallet, viableMarketNames)
+//     }
+//   } catch (error) {
+//     console.log(error)
+//   }
+// }
 
 function record(report: string) {
   report = report.concat('\n')
@@ -222,7 +222,9 @@ function simulatedWallet() {
     },
     data: {
       baseCoin: '',
-      currentMarket: {},
+      currentMarket: {
+        name: ''
+      },
       prices: {}
     }
   }
@@ -260,7 +262,9 @@ async function refreshWallet(wallet: wallet) {
   wallet.data.baseCoin = sorted.pop() as string
 
   if (wallet.data.baseCoin === 'USDT') {
-    wallet.data.currentMarket = {}
+    wallet.data.currentMarket = {
+      name: ''
+    }
     wallet.data.prices = {}
   } else {
     wallet.data.currentMarket = { 
@@ -364,7 +368,7 @@ async function annotateData(data: data) {
 
       data.histories[periods].map((period: string[])  => {
   
-        const average: number = period.slice(1, 5).reduce((a,b)=>parseFloat(a)+parseFloat(b))/4
+        const average: number = period.slice(1, 5).map(element => parseFloat(element)).reduce((a,b)=>a+b)/4
 
         history.push(
           {
@@ -581,7 +585,7 @@ async function simulatedBuyOrder(wallet: wallet, market: market) {
 async function simulatedSellOrder(wallet: wallet, sellType: string, market: market) {
 
   try {
-    const asset = wallet.data.currentMarket.name.split('/')[0] as string
+    const asset: string = wallet.data.currentMarket.name.split('/')[0] as string
     const base  = wallet.data.currentMarket.name.split('/')[1]
     console.log(wallet)
     console.log(wallet.coins)
