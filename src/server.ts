@@ -433,16 +433,16 @@ function ratioArray(valueArray: number[]) {
   return ratioArray
 }
 
-function ema(rawData: number[], time: number | null=null, parameter: string | null=null) {
+function ema(rawData: (number|{[key: string] : number})[], time: number | null=null, parameter: string | null=null) {
 
-  const data = +rawData[0] ? rawData : extractData(rawData, parameter as string)
+  const data = +rawData[0] ? rawData : extractData(rawData as {[key: string] : number}[], parameter as string)
   time = time ?? data.length
   const k = 2/(time + 1)
   const emaData = []
   emaData[0] = data[0]
 
   for (let i = 1; i < data.length; i++) {
-    const newPoint: number = (data[i] * k) + (emaData[i-1] * (1-k))
+    const newPoint: number = (data[i] as number * k) + (emaData[i-1] as number * (1-k))
     emaData.push(newPoint)
   }
 
@@ -450,8 +450,10 @@ function ema(rawData: number[], time: number | null=null, parameter: string | nu
   return +currentEma
 }
 
-function extractData(dataArray: number[], key: string) {
+function extractData(dataArray: {[key: string] : number}[], key: string) {
   const outputArray: number[] = []
+
+
 
   dataArray.map((obj) => {
     outputArray.push(obj[key])
