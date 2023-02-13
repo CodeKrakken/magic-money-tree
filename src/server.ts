@@ -434,7 +434,7 @@ function ratioArray(valueArray: number[]) {
   return ratioArray
 }
 
-function ema(data: number[], time: number | null=null, parameter: string | null=null) {
+function ema(data: number[], time: number | null=null) {
 
   time = time ?? data.length
   const k = 2/(time + 1)
@@ -452,11 +452,10 @@ function ema(data: number[], time: number | null=null, parameter: string | null=
 
 function extractData(dataArray: frameObject[], key: string) {
   const outputArray: number[] = []
-
-
-
   dataArray.map((obj) => {
-    outputArray.push(obj[key])
+    if (key === "open" || key === "high" || key === "low" || key === "close" || key === "average") {
+      outputArray.push(obj[key])
+    }
   })
 
   return outputArray
