@@ -23,10 +23,12 @@ interface wallet {
 
 interface data {
   name: string;
-  histories: { [key: string]: string[][] };
+  histories: {
+    [key: string]: any
+  };
 }
 
-interface period {
+interface periodObject {
   startTime: string;
   open: number;
   high: number;
@@ -363,10 +365,13 @@ async function annotateData(data: data) {
   try {
     const histories: histories = {}
 
-    Object.keys(data.histories).map(periods => {
-      const history: period[] = []
+    console.log('data')
+    console.log(data)
 
-      data.histories[periods].map((period: string[])  => {
+    Object.keys(data.histories).map(timeSpan => {
+      const history: periodObject[] = []
+
+      data.histories[timeSpan].map((period: string[])  => {
   
         const average: number = period.slice(1, 5).map(element => parseFloat(element)).reduce((a,b)=>a+b)/4
 
