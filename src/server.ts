@@ -387,7 +387,7 @@ async function annotateData(data: data) {
           }
         )
       })
-      histories[periods] = history
+      histories[timeSpan] = history
     })
 
     return {
