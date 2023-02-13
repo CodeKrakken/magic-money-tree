@@ -28,7 +28,7 @@ interface data {
   };
 }
 
-interface periodObject {
+interface frameObject {
   startTime: string;
   open: number;
   high: number;
@@ -39,7 +39,7 @@ interface periodObject {
 }
 
 interface histories {
-  [key: string]: any[];
+  [key: string]: frameObject[];
 }
 
 interface market {
@@ -73,7 +73,7 @@ const port = process.env.PORT || 8000;
 const minimumDollarVolume = 28000000
 const fee = 0.001
 const stopLossThreshold = 0.78
-const periods: {[key: string]: string} = {
+const timeScales: {[key: string]: string} = {
   // months  : 'M', 
   // weeks   : 'w', 
   // days    : 'd', 
@@ -350,10 +350,10 @@ async function fetchSingleHistory(symbolName: string) {
   try {
     const histories: histories = {}
 
-    for (let i = 0; i < Object.keys(periods).length; i++) {
-      const period = Object.keys(periods)[i]
-      const history = await axios.get(`https://api.binance.com/api/v1/klines?symbol=${symbolName}&interval=1${periods[period]}`, { timeout: 10000 })
-      histories[period] = history.data
+    for (let i = 0; i < Object.keys(timeScales).length; i++) {
+      const timeScale = Object.keys(timeScales)[i]
+      const history = await axios.get(`https://api.binance.com/api/v1/klines?symbol=${symbolName}&interval=1${timeScales[timeScale]}`, { timeout: 10000 })
+      histories[timeScale] = history.data
     }
     return histories
   } catch (error) {
@@ -369,20 +369,20 @@ async function annotateData(data: data) {
     console.log(data)
 
     Object.keys(data.histories).map(timeSpan => {
-      const history: periodObject[] = []
+      const history: frameObject[] = []
 
-      data.histories[timeSpan].map((period: string[])  => {
+      data.histories[timeSpan].map((frame: string[])  => {
   
-        const average: number = period.slice(1, 5).map(element => parseFloat(element)).reduce((a,b)=>a+b)/4
+        const average: number = frame.slice(1, 5).map(element => parseFloat(element)).reduce((a,b)=>a+b)/4
 
         history.push(
           {
-            startTime : period[0],
-            open      : parseFloat(period[1]),
-            high      : parseFloat(period[2]),
-            low       : parseFloat(period[3]),
-            close     : parseFloat(period[4]),
-            endTime   : period[6],
+            startTime : frame[0],
+            open      : parseFloat(frame[1]),
+            high      : parseFloat(frame[2]),
+            low       : parseFloat(frame[3]),
+            close     : parseFloat(frame[4]),
+            endTime   : frame[6],
             average   : average
           }
         )
@@ -409,14 +409,15 @@ async function addEmaRatio(markets: market[]) {
     ]
     
     markets.map(market => {
-      const periodRatioEmas = Object.keys(periods).map(period => {
+      const frameRatioEmas = Object.keys(timeScales).map((timeScale: string) => {
         const emas = spans.map((span: number) => 
-          ema(market.histories[period], span,  'average')
+          
+          ema(extractData(market.histories[timeScale], 'average'), span)
         )
         return ema(ratioArray(emas as number[]))
       })
 
-      market.emaRatio = ema(periodRatioEmas as number[])
+      market.emaRatio = ema(frameRatioEmas as number[])
     })
     return markets
   } catch (error) {
@@ -433,9 +434,8 @@ function ratioArray(valueArray: number[]) {
   return ratioArray
 }
 
-function ema(rawData: (number|{[key: string] : number})[], time: number | null=null, parameter: string | null=null) {
+function ema(data: number[], time: number | null=null, parameter: string | null=null) {
 
-  const data = +rawData[0] ? rawData : extractData(rawData as {[key: string] : number}[], parameter as string)
   time = time ?? data.length
   const k = 2/(time + 1)
   const emaData = []
@@ -450,7 +450,7 @@ function ema(rawData: (number|{[key: string] : number})[], time: number | null=n
   return +currentEma
 }
 
-function extractData(dataArray: {[key: string] : number}[], key: string) {
+function extractData(dataArray: frameObject[], key: string) {
   const outputArray: number[] = []
 
 
@@ -466,19 +466,19 @@ async function addShape(markets: market[]) {
 
   markets.map(market => {
 
-    const shapes = Object.keys(periods).map(period => {
+    const shapes = Object.keys(timeScales).map(timeScale => {
 
-      const m = market.histories[period].length
-      const totalChange = market.histories[period][m - 1].average - market.histories[period][0].average
-      const percentageChange = totalChange / market.histories[period][0].average * 100
+      const m = market.histories[timeScale].length
+      const totalChange = market.histories[timeScale][m - 1].average - market.histories[timeScale][0].average
+      const percentageChange = totalChange / market.histories[timeScale][0].average * 100
       let straightLineIncrement = totalChange / m
 
       let deviations: number[] = []
-      let straightLine = market.histories[period][0].average
+      let straightLine = market.histories[timeScale][0].average
   
-      market.histories[period].map(thisPeriod => {
+      market.histories[timeScale].map(frame => {
         straightLine += straightLineIncrement
-        deviations.push(thisPeriod.low < straightLine ? thisPeriod.low / straightLine : -(Math.abs(thisPeriod.high / straightLine)))
+        deviations.push(frame.low < straightLine ? frame.low / straightLine : -(Math.abs(frame.high / straightLine)))
       })
   
       const shape = percentageChange * ema(deviations)
