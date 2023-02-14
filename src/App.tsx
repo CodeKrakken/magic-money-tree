@@ -1,5 +1,10 @@
+import { useEffect } from 'react';
 import './App.css';
-import server from 'server';
+import { run } from './components/server/server';
+
+useEffect(() => {
+  run()
+}, [])
 
 function App() {
 

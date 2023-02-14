@@ -56,9 +56,10 @@ interface market {
   strength  : number
 }
 
+interface collection { [key: string]: Function }
+
 require('dotenv').config();
 
-const fs = require('fs');
 const ccxt = require('ccxt');
 const axios = require('axios')
 const { MongoClient } = require('mongodb');
@@ -67,7 +68,8 @@ const password = process.env.MONGODB_PASSWORD
 const uri = `mongodb+srv://${username}:${password}@cluster0.ra0fk.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const mongo = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 let db
-let collection: { [key: string]: Function } = {}
+let priceData: { [key: string]: Function } = {}
+let tradeHistory: { [key: string]: Function } = {}
 const dbName = "magic-money-tree";
 const express = require('express');
 const app = express();
@@ -90,43 +92,19 @@ const binance = new ccxt.binance({
   'enableRateLimit': true,
 });
 
-const server = {
-  run: async function() {
-    try {
-      await record(`---------- Running at ${timeNow()} ----------`)
-      await setupDB();
-      const viableMarketNames = await fetchMarkets()
-      
-      if (viableMarketNames.length) {
-        const wallet = simulatedWallet()
-        tick(wallet, viableMarketNames)
-      }
-    } catch (error) {
-      console.log(error)
-    }
-  }
-}
-
-// async function run() {
-//   try {
-//     await record(`---------- Running at ${timeNow()} ----------`)
-//     await setupDB();
-//     const viableMarketNames = await fetchMarkets()
+export async function run() {
+  try {
+    await setupDB();
+    await dbAppend(tradeHistory, timeNow(), 'Running')
+    const viableMarketNames = await fetchMarkets()
     
-//     if (viableMarketNames.length) {
-//       const wallet: wallet = simulatedWallet()
-//       tick(wallet, viableMarketNames)
-//     }
-//   } catch (error) {
-//     console.log(error)
-//   }
-// }
-
-function record(report: string) {
-  report = report.concat('\n')
-  fs.appendFile(`server-trade-history.txt`, report, function(err: Error) {
-    if (err) return console.log(err);
-  })
+    if (viableMarketNames.length) {
+      const wallet: wallet = simulatedWallet()
+      tick(wallet, viableMarketNames)
+    }
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 function timeNow() {
@@ -139,17 +117,23 @@ async function setupDB() {
   console.log('Setting up database ...')
   await mongo.connect()
   db = mongo.db(dbName);
-  collection = db.collection("price-data")
-  await dbOverwrite({sessionStart: timeNow()})
+  priceData = db.collection("price-data")  
+  tradeHistory = db.collection("trade-history")
+  await dbOverwrite(priceData,    {sessionStart: timeNow()})
+  await dbOverwrite(tradeHistory, {sessionStart: timeNow()})
   console.log("Database setup complete")
 }
 
-async function dbOverwrite(data: {[key: string]: string}) {
+async function dbOverwrite(collection: collection, data: {[key: string]: string}) {
   const query = { key: data.key };
   const options = {
     upsert: true,
   };
   await collection.replaceOne(query, data, options);
+}
+
+async function dbAppend(collection: collection, value: string, key: string=timeNow(), ) {
+  await collection.insert({[key]: value});
 }
 
 async function fetchMarkets() {
@@ -279,7 +263,7 @@ async function refreshWallet(wallet: wallet) {
     }
     
     if (!Object.keys(wallet.data.prices).length) {
-      const data = await collection.find().toArray();
+      const data = await priceData.find().toArray();
       wallet.data.prices = data[0]      
     }
   }
@@ -570,10 +554,10 @@ async function simulatedBuyOrder(wallet: wallet, market: market) {
       }
 
       wallet.data.currentMarket = market
-      await dbOverwrite(wallet.data.prices as {})
-      const tradeReport = `${timeNow()} - Bought ${wallet.coins[asset].volume} ${asset} @ ${currentPrice} ($${baseVolume * (1 - fee)}) [${market.shape}]`
+      await dbOverwrite(priceData, wallet.data.prices as {})
+      const tradeReport = `Bought ${wallet.coins[asset].volume} ${asset} @ ${currentPrice} ($${baseVolume * (1 - fee)}) [${market.shape}]`
       console.log(tradeReport)
-      await record(tradeReport)
+      await dbAppend(tradeHistory, tradeReport)
     }
   } catch (error) {
     console.log(error)
@@ -593,10 +577,10 @@ async function simulatedSellOrder(wallet: wallet, sellType: string, market: mark
     const assetVolume = wallet.coins[asset].volume
     wallet.coins[base].volume += assetVolume * (1 - fee) * wallet.coins[asset].dollarPrice
     wallet.data.prices = {}
-    await dbOverwrite(wallet.data.prices as {})
+    await dbOverwrite(priceData, wallet.data.prices as {})
     const tradeReport = `${timeNow()} - Sold   ${assetVolume} ${asset} @ ${wallet.coins[asset].dollarPrice} ($${wallet.coins[base].volume}) ${market.shape ? `[${market.shape}]` : ''} [${sellType}]`
     console.log(tradeReport)
-    record(tradeReport)
+    await dbAppend(tradeHistory, tradeReport)
     delete wallet.coins[asset]
   } catch (error) {
     console.log(error)
@@ -604,5 +588,3 @@ async function simulatedSellOrder(wallet: wallet, sellType: string, market: mark
 }
 
 app.listen(port);
-
-export default server
