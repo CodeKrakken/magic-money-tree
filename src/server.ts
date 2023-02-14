@@ -21,29 +21,35 @@ interface wallet {
   }
 }
 
-interface data {
-  name: string;
-  histories: {
-    [key: string]: any
-  };
-}
+type rawFrame = [
+  number,
+  string,
+  string,
+  string,
+  string,
+  string,
+  number,
+  string,
+  number,
+  string,
+  string,
+  string
+];
 
-interface frameObject {
-  startTime: string;
+interface indexedFrame {
+  startTime: number;
   open: number;
   high: number;
   low: number;
   close: number;
-  endTime: string;
+  endTime: number;
   average: number;
 }
 
-interface histories {
-  [key: string]: frameObject[];
-}
-
 interface market {
-  histories: histories
+  histories: {
+    [key: string]: indexedFrame[]
+  }
   emaRatio: number
   shape: number
   name: string
@@ -70,7 +76,7 @@ const dbName = "magic-money-tree";
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 8000;
-const minimumDollarVolume = 28000000
+const minimumDollarVolume = 1000000
 const fee = 0.001
 const stopLossThreshold = 0.78
 const timeScales: {[key: string]: string} = {
@@ -176,7 +182,7 @@ function isGoodMarketName(marketName: string, markets: {[key: string]: { active:
   && !marketName.includes('TUSD')
   && !marketName.includes('USDC')
   && !marketName.includes(':')
-  // && marketName === 'GBP/USDT'
+  && marketName === 'GBP/USDT'
   // && !marketName.includes('BNB')
 }
 
@@ -332,12 +338,11 @@ async function fetchAllHistory(marketNames: string[]) {
       if (response === 'No response.') {
         console.log(response)
       } else { 
-        const symbolObject = await annotateData({
-          name      : marketNames[i],
-          histories : response
+        const indexedHistories = await indexData(response)
+        returnArray.push({
+          name: marketNames[i],
+          histories: indexedHistories
         })
-
-        returnArray.push(symbolObject)
       }
     } catch (error) {
       console.log(error)
@@ -348,7 +353,7 @@ async function fetchAllHistory(marketNames: string[]) {
 
 async function fetchSingleHistory(symbolName: string) {
   try {
-    const histories: histories = {}
+    const histories: { [key: string]: rawFrame[]} = {}
 
     for (let i = 0; i < Object.keys(timeScales).length; i++) {
       const timeScale = Object.keys(timeScales)[i]
@@ -361,19 +366,16 @@ async function fetchSingleHistory(symbolName: string) {
   }
 }
 
-async function annotateData(data: data) {
+async function indexData(rawHistories: { [key: string]: rawFrame[]}) {
   try {
-    const histories: histories = {}
+    const indexedHistories: {  [key: string]: indexedFrame[]} = {}
 
-    console.log('data')
-    console.log(data)
+    Object.keys(indexedHistories).map(timeSpan => {
+      const history: indexedFrame[] = []
 
-    Object.keys(data.histories).map(timeSpan => {
-      const history: frameObject[] = []
-
-      data.histories[timeSpan].map((frame: string[])  => {
+      rawHistories[timeSpan].map((frame: rawFrame)  => {
   
-        const average: number = frame.slice(1, 5).map(element => parseFloat(element)).reduce((a,b)=>a+b)/4
+        const average: number = frame.slice(1, 5).map(element => parseFloat(element as string)).reduce((a,b)=>a+b)/4
 
         history.push(
           {
@@ -387,14 +389,10 @@ async function annotateData(data: data) {
           }
         )
       })
-      histories[timeSpan] = history
+      indexedHistories[timeSpan] = history
     })
+    return indexedHistories
 
-    return {
-      name      : data.name,
-      histories : histories
-    }
-  
   } catch(error) {
     console.log(error)
   }
@@ -450,7 +448,7 @@ function ema(data: number[], time: number | null=null) {
   return +currentEma
 }
 
-function extractData(dataArray: frameObject[], key: string) {
+function extractData(dataArray: indexedFrame[], key: string) {
   const outputArray: number[] = []
   dataArray.map((obj) => {
     if (key === "open" || key === "high" || key === "low" || key === "close" || key === "average") {
