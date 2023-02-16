@@ -60,7 +60,7 @@ interface collection { [key: string]: Function }
 
 require('dotenv').config();
 
-import ccxt from 'ccxt';
+const ccxt = require('ccxt');
 const axios = require('axios')
 const { MongoClient } = require('mongodb');
 const username = process.env.MONGODB_USERNAME
