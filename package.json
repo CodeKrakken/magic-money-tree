@@ -29,7 +29,8 @@
     "stream": "^0.0.2",
     "timers": "^0.1.1",
     "typescript": "^4.9.5",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "zlib": "^1.0.5"
   },
   "engines": {
     "node": "^15.11.0"
