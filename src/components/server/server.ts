@@ -58,8 +58,6 @@ interface market {
 
 interface collection { [key: string]: Function }
 
-require('dotenv').config();
-
 const ccxt = require('ccxt');
 const axios = require('axios')
 const { MongoClient } = require('mongodb');
