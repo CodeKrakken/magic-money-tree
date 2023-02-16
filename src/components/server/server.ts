@@ -60,11 +60,11 @@ interface collection { [key: string]: Function }
 
 const ccxt = require('ccxt');
 const axios = require('axios')
-const { MongoClient } = require('mongodb');
-const username = process.env.MONGODB_USERNAME
-const password = process.env.MONGODB_PASSWORD
-const uri = `mongodb+srv://${username}:${password}@cluster0.ra0fk.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
-const mongo = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+// const { MongoClient } = require('mongodb');
+// const username = process.env.MONGODB_USERNAME
+// const password = process.env.MONGODB_PASSWORD
+// const uri = `mongodb+srv://${username}:${password}@cluster0.ra0fk.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+// const mongo = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 let db
 let priceData: { [key: string]: Function } = {}
 let tradeHistory: { [key: string]: Function } = {}
@@ -92,8 +92,8 @@ const binance = new ccxt.binance({
 
 export async function run() {
   try {
-    await setupDB();
-    await dbAppend(tradeHistory, timeNow(), 'Running')
+    // await setupDB();
+    // await dbAppend(tradeHistory, timeNow(), 'Running')
     const viableMarketNames = await fetchMarkets()
     
     if (viableMarketNames.length) {
@@ -113,26 +113,26 @@ function timeNow() {
 
 async function setupDB() {
   console.log('Setting up database ...')
-  await mongo.connect()
-  db = mongo.db(dbName);
-  priceData = db.collection("price-data")  
-  tradeHistory = db.collection("trade-history")
-  await dbOverwrite(priceData,    {sessionStart: timeNow()})
-  await dbOverwrite(tradeHistory, {sessionStart: timeNow()})
+  // await mongo.connect()
+  // db = mongo.db(dbName);
+  // priceData = db.collection("price-data")  
+  // tradeHistory = db.collection("trade-history")
+  // await dbOverwrite(priceData,    {sessionStart: timeNow()})
+  // await dbOverwrite(tradeHistory, {sessionStart: timeNow()})
   console.log("Database setup complete")
 }
 
-async function dbOverwrite(collection: collection, data: {[key: string]: string}) {
-  const query = { key: data.key };
-  const options = {
-    upsert: true,
-  };
-  await collection.replaceOne(query, data, options);
-}
+// async function dbOverwrite(collection: collection, data: {[key: string]: string}) {
+//   const query = { key: data.key };
+//   const options = {
+//     upsert: true,
+//   };
+//   await collection.replaceOne(query, data, options);
+// }
 
-async function dbAppend(collection: collection, value: string, key: string=timeNow(), ) {
-  await collection.insert({[key]: value});
-}
+// async function dbAppend(collection: collection, value: string, key: string=timeNow(), ) {
+//   await collection.insert({[key]: value});
+// }
 
 async function fetchMarkets() {
   try {
@@ -552,10 +552,10 @@ async function simulatedBuyOrder(wallet: wallet, market: market) {
       }
 
       wallet.data.currentMarket = market
-      await dbOverwrite(priceData, wallet.data.prices as {})
+      // await dbOverwrite(priceData, wallet.data.prices as {})
       const tradeReport = `Bought ${wallet.coins[asset].volume} ${asset} @ ${currentPrice} ($${baseVolume * (1 - fee)}) [${market.shape}]`
       console.log(tradeReport)
-      await dbAppend(tradeHistory, tradeReport)
+      // await dbAppend(tradeHistory, tradeReport)
     }
   } catch (error) {
     console.log(error)
@@ -575,10 +575,10 @@ async function simulatedSellOrder(wallet: wallet, sellType: string, market: mark
     const assetVolume = wallet.coins[asset].volume
     wallet.coins[base].volume += assetVolume * (1 - fee) * wallet.coins[asset].dollarPrice
     wallet.data.prices = {}
-    await dbOverwrite(priceData, wallet.data.prices as {})
+    // await dbOverwrite(priceData, wallet.data.prices as {})
     const tradeReport = `${timeNow()} - Sold   ${assetVolume} ${asset} @ ${wallet.coins[asset].dollarPrice} ($${wallet.coins[base].volume}) ${market.shape ? `[${market.shape}]` : ''} [${sellType}]`
     console.log(tradeReport)
-    await dbAppend(tradeHistory, tradeReport)
+    // await dbAppend(tradeHistory, tradeReport)
     delete wallet.coins[asset]
   } catch (error) {
     console.log(error)
