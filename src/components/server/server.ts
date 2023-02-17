@@ -58,7 +58,6 @@ interface market {
 
 interface collection { [key: string]: Function }
 
-const ccxt = require('ccxt');
 const axios = require('axios')
 // const { MongoClient } = require('mongodb');
 // const username = process.env.MONGODB_USERNAME
@@ -83,12 +82,6 @@ const timeScales: {[key: string]: string} = {
   minutes : 'm',
   seconds : 's'
 }
-
-const binance = new ccxt.binance({
-  apiKey: process.env.API_KEY,
-  secret: process.env.API_SECRET,
-  'enableRateLimit': true,
-});
 
 export async function run() {
   try {
@@ -136,13 +129,19 @@ async function setupDB() {
 
 async function fetchMarkets() {
   try {
-    const markets: {} = await binance.load_markets()
+    const markets: {} = await loadMarkets()
     const viableMarketNames = await analyseMarkets(markets)
     return viableMarketNames
   } catch (error) {
     console.log(error)
     return []
   }
+}
+
+async function loadMarkets() {
+  const url = 'https://api.binance.com/api/v3/exchangeInfo';
+  const response = await axios.get(url);
+  return response.data;
 }
 
 async function analyseMarkets(allMarkets: {[key: string]: { active: boolean }}) {

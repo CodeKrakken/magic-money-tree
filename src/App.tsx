@@ -2,11 +2,11 @@ import { useEffect } from 'react';
 import './App.css';
 import { run } from './components/server/server';
 
-useEffect(() => {
-  run()
-}, [])
-
 function App() {
+
+  useEffect(() => {
+    run()
+  }, [])
 
   return <>
     MAGIC MONEY TREE
