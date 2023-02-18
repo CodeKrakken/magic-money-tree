@@ -95,11 +95,11 @@ export async function run() {
   try {
     // await setupDB();
     // await dbAppend(tradeHistory, timeNow(), 'Running')
-    const viableMarketNames = await fetchMarkets() as string[]
+    const viableSymbols = await fetchSymbols() as string[]
     
-    if (viableMarketNames?.length) {
+    if (viableSymbols?.length) {
       const wallet: wallet = simulatedWallet()
-      tick(wallet, viableMarketNames)
+      tick(wallet, viableSymbols)
     }
   } catch (error) {
     console.log(error)
@@ -135,12 +135,12 @@ async function setupDB() {
 //   await collection.insert({[key]: value});
 // }
 
-async function fetchMarkets() {
+async function fetchSymbols() {
   try {
     const {data: markets}: { data: { symbols: rawMarket[]}} = await axios.get('https://api.binance.com/api/v3/exchangeInfo');
     if (markets) {
-      const viableMarketNames = await analyseMarkets(markets.symbols)
-      return viableMarketNames
+      const viableSymbols = await analyseMarkets(markets.symbols)
+      return viableSymbols
     }
   } catch (error) {
     console.log(error)
@@ -229,14 +229,13 @@ function simulatedWallet() {
   }
 }
 
-async function tick(wallet: wallet, viableMarketNames: string[]) {
+async function tick(wallet: wallet, viableSymbols: string[]) {
   try {
     console.log(`----- Tick at ${timeNow()} -----`)
     await refreshWallet(wallet)
     displayWallet(wallet)
-    let markets = await fetchAllHistory(viableMarketNames) as market[]
+    let markets = await fetchAllHistory(viableSymbols) as market[]
     if (markets.length) {
-      console.log(markets)
       markets = await addEmaRatio(markets) as market[]
       markets = await addShape(markets)
       markets = await filterMarkets(markets)
@@ -247,7 +246,7 @@ async function tick(wallet: wallet, viableMarketNames: string[]) {
   } catch (error) {
     console.log(error)
   }
-  tick(wallet, viableMarketNames)
+  tick(wallet, viableSymbols)
 }
 
 async function refreshWallet(wallet: wallet) {
@@ -270,7 +269,7 @@ async function refreshWallet(wallet: wallet) {
     wallet.data.prices = {}
   } else {
     wallet.data.currentMarket = { 
-      name: `${wallet.data.baseCoin}/USDT`,
+      name: `${wallet.data.baseCoin}USDT`,
       currentPrice: wallet.coins[wallet.data.baseCoin].dollarPrice
     }
     
