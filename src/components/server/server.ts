@@ -1,3 +1,6 @@
+import axios from 'axios'
+import { useState } from 'react'
+
 interface wallet {
   coins: {
     [key: string]: {
@@ -19,6 +22,11 @@ interface wallet {
       stopLossPrice?  : number
     }
   }
+}
+
+type rawMarket = {
+  status: string, 
+  symbol: string
 }
 
 type rawFrame = [
@@ -58,7 +66,7 @@ interface market {
 
 interface collection { [key: string]: Function }
 
-const axios = require('axios')
+
 // const { MongoClient } = require('mongodb');
 // const username = process.env.MONGODB_USERNAME
 // const password = process.env.MONGODB_PASSWORD
@@ -71,7 +79,7 @@ const dbName = "magic-money-tree";
 // const express = require('express');
 // const app = express();
 const port = process.env.PORT || 8000;
-const minimumDollarVolume = 1000000
+const minimumDollarVolume = 28000000
 const fee = 0.001
 const stopLossThreshold = 0.78
 const timeScales: {[key: string]: string} = {
@@ -87,9 +95,9 @@ export async function run() {
   try {
     // await setupDB();
     // await dbAppend(tradeHistory, timeNow(), 'Running')
-    const viableMarketNames = await fetchMarkets()
+    const viableMarketNames = await fetchMarkets() as string[]
     
-    if (viableMarketNames.length) {
+    if (viableMarketNames?.length) {
       const wallet: wallet = simulatedWallet()
       tick(wallet, viableMarketNames)
     }
@@ -129,39 +137,37 @@ async function setupDB() {
 
 async function fetchMarkets() {
   try {
-    const markets: {} = await loadMarkets()
-    const viableMarketNames = await analyseMarkets(markets)
-    return viableMarketNames
+    const {data: markets}: { data: { symbols: rawMarket[]}} = await axios.get('https://api.binance.com/api/v3/exchangeInfo');
+    if (markets) {
+      const viableMarketNames = await analyseMarkets(markets.symbols)
+      return viableMarketNames
+    }
   } catch (error) {
     console.log(error)
     return []
   }
 }
 
-async function loadMarkets() {
-  const url = 'https://api.binance.com/api/v3/exchangeInfo';
-  const response = await axios.get(url);
-  return response.data;
-}
-
-async function analyseMarkets(allMarkets: {[key: string]: { active: boolean }}) {
-  const goodMarketNames = Object.keys(allMarkets).filter(
-    marketName => allMarkets[marketName].active 
-    && isGoodMarketName(marketName)
+async function analyseMarkets(allMarkets: rawMarket[]) {
+  const goodMarketNames = allMarkets.filter(
+    market => market.status === 'TRADING' 
+    && isGoodMarketName(market.symbol)
   )
+  .map(market => market.symbol)
   const viableMarketNames = await getViableMarketNames(goodMarketNames)  
   return viableMarketNames
 }
 
 function isGoodMarketName(marketName: string) {
-  return marketName.includes('/USDT') 
+  return marketName.includes('USDT')
+  && marketName.indexOf('USDT') 
   && !marketName.includes('UP') 
   && !marketName.includes('DOWN') 
   && !marketName.includes('BUSD')
   && !marketName.includes('TUSD')
   && !marketName.includes('USDC')
   && !marketName.includes(':')
-  && marketName === 'GBP/USDT'
+  // && marketName === 'GBP/USDT'
   // && !marketName.includes('BNB')
 }
 
@@ -169,23 +175,29 @@ async function getViableMarketNames(marketNames: string[]) {
   const viableMarketNames = []
   const n = marketNames.length
 
-  for (let i = 0; i < n; i++) {
-    const symbolName = marketNames[i].replace('/', '')
-    console.log(`Checking volume of ${i+1}/${n} - ${marketNames[i]}`)
-    const response = await checkVolume(symbolName)
+  if (!n) { 
+    console.log('No viable markets.') 
+  } else {
 
-    if (!response.includes("Insufficient") && response !== "No response.") {
-      viableMarketNames.push(marketNames[i])
-      console.log('Market included.')
-    } else {
-      console.log(response)
+    for (let i = 0; i < n; i++) {
+      const symbolName = marketNames[i].replace('/', '')
+
+      console.log(`Checking volume of ${i+1}/${n} - ${marketNames[i]}`)
+      const response = await checkVolume(symbolName)
+
+      if (!response.includes("Insufficient") && response !== "No response.") {
+        viableMarketNames.push(marketNames[i])
+        console.log('Market included.')
+      } else {
+        console.log(response)
+      }
     }
+    return viableMarketNames
   }
-  return viableMarketNames
 }
 
 async function checkVolume(symbolName: string) {
-  const twentyFourHour = await fetch24Hour(symbolName)
+  const twentyFourHour = await fetch24Hour(symbolName) as { data: {quoteVolume: number}}
   return twentyFourHour.data ? `${twentyFourHour.data.quoteVolume < minimumDollarVolume ? 'Ins' : 'S'}ufficient volume.` : "No response."
 }
 

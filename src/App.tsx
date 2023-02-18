@@ -4,9 +4,12 @@ import { run } from './components/server/server';
 
 function App() {
 
-  useEffect(() => {
+  let running = false
+
+  if (!running) {
+    running = true
     run()
-  }, [])
+  }
 
   return <>
     MAGIC MONEY TREE
