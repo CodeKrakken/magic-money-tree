@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { useState } from 'react'
 
 interface wallet {
   coins: {
@@ -64,7 +63,7 @@ interface market {
   strength  : number
 }
 
-interface collection { [key: string]: Function }
+// interface collection { [key: string]: Function }
 
 
 // const { MongoClient } = require('mongodb');
