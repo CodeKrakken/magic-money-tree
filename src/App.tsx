@@ -2,9 +2,11 @@ import { useEffect } from 'react';
 import './App.css';
 import { run } from './components/server/server';
 
+let running = false
+
+
 function App() {
 
-  let running = false
 
   if (!running) {
     running = true
