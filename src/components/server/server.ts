@@ -545,9 +545,9 @@ function sortMarkets(markets: market[]) {
 
 async function simulatedBuyOrder(wallet: wallet, market: market) {
   try {
-    const asset = market.name.split('/')[0]
-    const base  = market.name.split('/')[1]
-    const response = await fetchPrice(`${asset}${base}`)
+    const asset = market.name.replace(wallet.data.baseCoin, '')
+    const base  = wallet.data.baseCoin
+    const response = await fetchPrice(market.name)
 
     if (response) {
       const currentPrice = response as number
