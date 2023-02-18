@@ -167,7 +167,7 @@ function isGoodMarketName(marketName: string) {
   && !marketName.includes('TUSD')
   && !marketName.includes('USDC')
   && !marketName.includes(':')
-  // && marketName === 'GBP/USDT'
+  // && marketName === 'GBPUSDT'
   // && !marketName.includes('BNB')
 }
 
@@ -235,12 +235,15 @@ async function tick(wallet: wallet, viableMarketNames: string[]) {
     await refreshWallet(wallet)
     displayWallet(wallet)
     let markets = await fetchAllHistory(viableMarketNames) as market[]
-    markets = await addEmaRatio(markets) as market[]
-    markets = await addShape(markets)
-    markets = await filterMarkets(markets)
-    markets = sortMarkets(markets)
-    await displayMarkets(markets)
-    await trade(markets, wallet)
+    if (markets.length) {
+      console.log(markets)
+      markets = await addEmaRatio(markets) as market[]
+      markets = await addShape(markets)
+      markets = await filterMarkets(markets)
+      markets = sortMarkets(markets)
+      await displayMarkets(markets)
+      await trade(markets, wallet)
+    }
   } catch (error) {
     console.log(error)
   }
@@ -328,7 +331,7 @@ async function fetchAllHistory(marketNames: string[]) {
 
       if (response === 'No response.') {
         console.log(response)
-      } else { 
+      } else {
         const indexedHistories = await indexData(response)
         returnArray.push({
           name: marketNames[i],
@@ -361,7 +364,7 @@ async function indexData(rawHistories: { [key: string]: rawFrame[]}) {
   try {
     const indexedHistories: {  [key: string]: indexedFrame[]} = {}
 
-    Object.keys(indexedHistories).map(timeSpan => {
+    Object.keys(rawHistories).map(timeSpan => {
       const history: indexedFrame[] = []
 
       rawHistories[timeSpan].map(frame  => {
