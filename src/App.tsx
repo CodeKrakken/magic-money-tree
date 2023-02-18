@@ -1,6 +1,6 @@
 import './App.css';
 import axios from 'axios'
-
+import { useState } from 'react';
 
 interface wallet {
   coins: {
@@ -71,6 +71,8 @@ let running = false
 
 function App() {
 
+  const [log, setLog] = useState(['Log created'])
+
   // const { MongoClient } = require('mongodb');
   // const username = process.env.MONGODB_USERNAME
   // const password = process.env.MONGODB_PASSWORD
@@ -117,14 +119,23 @@ function App() {
   }
   
   async function setupDB() {
-    console.log('Setting up database ...')
+
+    logEntry('Setting up database ...')
+
     // await mongo.connect()
     // db = mongo.db(dbName);
     // priceData = db.collection("price-data")  
     // tradeHistory = db.collection("trade-history")
     // await dbOverwrite(priceData,    {sessionStart: timeNow()})
     // await dbOverwrite(tradeHistory, {sessionStart: timeNow()})
-    console.log("Database setup complete")
+    logEntry("Database setup complete")
+  }
+
+  function logEntry (entry: string) {
+    const updatedLog = Array.from(log)
+    updatedLog.push(entry)
+    setLog(updatedLog)
+    console.log(entry)
   }
   
   // async function dbOverwrite(collection: collection, data: {[key: string]: string}) {
@@ -180,20 +191,20 @@ function App() {
     const n = marketNames.length
   
     if (!n) { 
-      console.log('No viable markets.') 
+      logEntry('No viable markets.') 
     } else {
   
       for (let i = 0; i < n; i++) {
         const symbolName = marketNames[i].replace('/', '')
   
-        console.log(`Checking volume of ${i+1}/${n} - ${marketNames[i]}`)
+        logEntry(`Checking volume of ${i+1}/${n} - ${marketNames[i]}`)
         const response = await checkVolume(symbolName)
   
         if (!response.includes("Insufficient") && response !== "No response.") {
           viableMarketNames.push(marketNames[i])
-          console.log('Market included.')
+          logEntry('Market included.')
         } else {
-          console.log(response)
+          logEntry(response)
         }
       }
       return viableMarketNames
@@ -235,7 +246,7 @@ function App() {
   
   async function tick(wallet: wallet, viableSymbols: string[]) {
     try {
-      console.log(`----- Tick at ${timeNow()} -----`)
+      logEntry(`----- Tick at ${timeNow()} -----`)
       await refreshWallet(wallet)
       displayWallet(wallet)
       let markets = await fetchAllHistory(viableSymbols) as market[]
@@ -288,7 +299,7 @@ function App() {
   async function fetchPrice(marketName: string) {
     try {
       const symbolName = marketName.replace('/', '')
-      console.log(`Fetching price for ${marketName}`)
+      logEntry(`Fetching price for ${marketName}`)
       const rawPrice = await axios.get(`https://api.binance.com/api/v3/ticker/price?symbol=${symbolName}`) 
       const price = parseFloat(rawPrice.data.price)
       return price
@@ -298,18 +309,18 @@ function App() {
   }
   
   function displayWallet(wallet: wallet) {
-    console.log('Wallet')
+    logEntry('Wallet')
   
     Object.keys(wallet.coins).filter(coin => wallet.coins[coin].volume).map(name => {
-      console.log(`${wallet.coins[name].volume} ${name} @ ${wallet.coins[name].dollarPrice} = $${wallet.coins[name].dollarValue}`)
+      logEntry(`${wallet.coins[name].volume} ${name} @ ${wallet.coins[name].dollarPrice} = $${wallet.coins[name].dollarValue}`)
     })
-    console.log(`Total = $${getDollarTotal(wallet)}`)
+    logEntry(`Total = $${getDollarTotal(wallet)}`)
   
     if (wallet.data.baseCoin !== 'USDT') {
-      console.log(`Target Price    - ${wallet.data.prices.targetPrice}`)
-      console.log(`High Price      - ${wallet.data.prices.highPrice}`)
-      console.log(`Purchase Price  - ${wallet.data.prices.purchasePrice}`)
-      console.log(`Stop Loss Price - ${wallet.data.prices.stopLossPrice}`)
+      logEntry(`Target Price    - ${wallet.data.prices.targetPrice}`)
+      logEntry(`High Price      - ${wallet.data.prices.highPrice}`)
+      logEntry(`Purchase Price  - ${wallet.data.prices.purchasePrice}`)
+      logEntry(`Stop Loss Price - ${wallet.data.prices.stopLossPrice}`)
     }
   }
   
@@ -329,11 +340,11 @@ function App() {
   
     for (let i = 0; i < n; i++) {
       try {
-        console.log(`Fetching history for ${i+1}/${marketNames.length} - ${marketNames[i]} ...`)
+        logEntry(`Fetching history for ${i+1}/${marketNames.length} - ${marketNames[i]} ...`)
         const response = await fetchSingleHistory(marketNames[i].replace('/', ''))
   
         if (response === 'No response.') {
-          console.log(response)
+          logEntry(response)
         } else {
           const indexedHistories = await indexData(response)
           returnArray.push({
@@ -492,7 +503,7 @@ function App() {
   
   function displayMarkets(markets: market[]) {
     markets.map(market => {
-      console.log(`${market.name} ... shape ${market.shape} * ema ratio ${market.emaRatio} = strength ${market.strength}`)
+      logEntry(`${market.name} ... shape ${market.shape} * ema ratio ${market.emaRatio} = strength ${market.strength}`)
     })
   }
   
@@ -505,7 +516,7 @@ function App() {
     if (wallet.data.baseCoin === 'USDT') {   
   
       if (!targetMarket) {
-        console.log('No bullish markets')
+        logEntry('No bullish markets')
       } else if (wallet.coins[wallet.data.baseCoin].volume > 10) {
         await simulatedBuyOrder(wallet, targetMarket)
       } 
@@ -515,7 +526,7 @@ function App() {
   
         if (!targetMarket) {
   
-          console.log('No bullish markets')
+          logEntry('No bullish markets')
           await simulatedSellOrder(wallet, 'Current market bearish', currentMarket)
   
         } else {
@@ -571,7 +582,7 @@ function App() {
         wallet.data.currentMarket = market
         // await dbOverwrite(priceData, wallet.data.prices as {})
         const tradeReport = `Bought ${wallet.coins[asset].volume} ${asset} @ ${currentPrice} ($${baseVolume * (1 - fee)}) [${market.shape}]`
-        console.log(tradeReport)
+        logEntry(tradeReport)
         // await dbAppend(tradeHistory, tradeReport)
       }
     } catch (error) {
@@ -594,7 +605,7 @@ function App() {
       wallet.data.prices = {}
       // await dbOverwrite(priceData, wallet.data.prices as {})
       const tradeReport = `${timeNow()} - Sold   ${assetVolume} ${asset} @ ${wallet.coins[asset].dollarPrice} ($${wallet.coins[base].volume}) ${market.shape ? `[${market.shape}]` : ''} [${sellType}]`
-      console.log(tradeReport)
+      logEntry(tradeReport)
       // await dbAppend(tradeHistory, tradeReport)
       delete wallet.coins[asset]
     } catch (error) {
@@ -611,6 +622,10 @@ function App() {
 
   return <>
     MAGIC MONEY TREE
+
+    {
+      log.map((entry: string) => <div>{entry}</div>)
+    }
   </>
 }
 
