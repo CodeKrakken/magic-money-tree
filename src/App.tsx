@@ -1,6 +1,6 @@
 import './App.css';
 import axios from 'axios'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface wallet {
   coins: {
@@ -69,9 +69,10 @@ interface market {
 
 let running = false
 
+
 function App() {
 
-  const [log, setLog] = useState(['Log created'])
+  const [log, setLog] = useState<string[]>([`Running at ${timeNow()}`])
 
   // const { MongoClient } = require('mongodb');
   // const username = process.env.MONGODB_USERNAME
@@ -98,6 +99,7 @@ function App() {
   }
 
   async function run() {
+    setLog([...log, 'Running'])
     try {
       // await setupDB();
       // await dbAppend(tradeHistory, timeNow(), 'Running')
@@ -132,10 +134,9 @@ function App() {
   }
 
   function logEntry (entry: string) {
-    const updatedLog = Array.from(log)
-    updatedLog.push(entry)
-    setLog(updatedLog)
-    console.log(entry)
+    console.log(log)
+    setLog([...log, entry])
+    console.log(log)
   }
   
   // async function dbOverwrite(collection: collection, data: {[key: string]: string}) {
@@ -614,12 +615,14 @@ function App() {
   }
   
   // app.listen(port);
-  
-  if (!running) {
-    running = true
-    run()
-  }
 
+  useEffect(() => {
+    if (!running) {
+      running = true
+      run()
+    }
+  }, [])
+  
   return <>
     MAGIC MONEY TREE
 
