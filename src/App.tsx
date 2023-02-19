@@ -69,7 +69,6 @@ interface market {
 
 let running = false
 
-
 function App() {
 
   const [log, setLog] = useState<string[]>([`Running at ${timeNow()}`])
@@ -79,13 +78,13 @@ function App() {
   // const password = process.env.MONGODB_PASSWORD
   // const uri = `mongodb+srv://${username}:${password}@cluster0.ra0fk.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
   // const mongo = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-  let db
-  let priceData: { [key: string]: Function } = {}
-  let tradeHistory: { [key: string]: Function } = {}
-  const dbName = "magic-money-tree";
+  // let db
+  // let priceData: { [key: string]: Function } = {}
+  // let tradeHistory: { [key: string]: Function } = {}
+  // const dbName = "magic-money-tree";
   // const express = require('express');
   // const app = express();
-  const port = process.env.PORT || 8000;
+  // const port = process.env.PORT || 8000;
   const minimumDollarVolume = 28000000
   const fee = 0.001
   const stopLossThreshold = 0.78
@@ -136,7 +135,7 @@ function App() {
   function logEntry (entry: string) {
     console.log(log)
     setLog([...log, entry])
-    console.log(log)
+    console.log(entry)
   }
   
   // async function dbOverwrite(collection: collection, data: {[key: string]: string}) {
@@ -289,10 +288,10 @@ function App() {
         currentPrice: wallet.coins[wallet.data.baseCoin].dollarPrice
       }
       
-      if (!Object.keys(wallet.data.prices).length) {
-        const data = await priceData.find().toArray();
-        wallet.data.prices = data[0]      
-      }
+      // if (!Object.keys(wallet.data.prices).length) {
+      //   const data = await priceData.find().toArray();
+      //   wallet.data.prices = data[0]      
+      // }
     }
     return wallet
   }
@@ -616,15 +615,17 @@ function App() {
   
   // app.listen(port);
 
-  useEffect(() => {
-    if (!running) {
-      running = true
-      run()
-    }
-  }, [])
+  // useEffect(() => {
+  //   if (!running) {
+  //     running = true
+  //     run()
+  //   }
+  // }, [])
   
   return <>
     MAGIC MONEY TREE
+
+    <button onClick={run}>Run</button>
 
     {
       log.map((entry: string) => <div>{entry}</div>)
