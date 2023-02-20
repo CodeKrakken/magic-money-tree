@@ -637,7 +637,12 @@ function App() {
 
   useEffect(() => {
     if (listRef.current) {
-      listRef.current.scrollTop = listRef.current?.scrollHeight as number;
+      const { scrollTop, offsetHeight, scrollHeight } = listRef.current;
+      const isScrolledToBottom = scrollTop + offsetHeight >= scrollHeight * 0.8;
+
+      if (isScrolledToBottom) {
+        listRef.current.scrollTop = listRef.current.scrollHeight;
+      }
     }
   }, [log]);
   
