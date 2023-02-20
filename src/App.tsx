@@ -1,6 +1,6 @@
 import './App.css';
 import axios from 'axios'
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 interface wallet {
   coins: {
@@ -73,6 +73,8 @@ function App() {
 
   const [log, setLog] = useState<string[]>([])
 
+  const listRef = useRef<HTMLDivElement>(null);
+
   // const { MongoClient } = require('mongodb');
   // const username = process.env.MONGODB_USERNAME
   // const password = process.env.MONGODB_PASSWORD
@@ -85,7 +87,7 @@ function App() {
   // const express = require('express');
   // const app = express();
   // const port = process.env.PORT || 8000;
-  const minimumDollarVolume = 1000000
+  const minimumDollarVolume = 28000000
   const fee = 0.001
   const stopLossThreshold = 0.78
   const timeScales: {[key: string]: string} = {
@@ -152,16 +154,19 @@ function App() {
   
   async function fetchSymbols() {
     try {
-      const {data: markets}: { data: { symbols: rawMarket[]}} = await axios.get('https://api.binance.com/api/v3/exchangeInfo');
-      if (markets) {
-        const viableSymbols = await analyseMarkets(markets.symbols)
-        return viableSymbols
+      if (running) {
+        const {data: markets}: { data: { symbols: rawMarket[]}} = await axios.get('https://api.binance.com/api/v3/exchangeInfo');
+        if (markets) {
+          const viableSymbols = await analyseMarkets(markets.symbols)
+          return viableSymbols
+        }
       }
     } catch (error) {
       console.log(error)
       return []
     }
   }
+  
   
   async function analyseMarkets(allMarkets: rawMarket[]) {
     const goodMarketNames = allMarkets.filter(
@@ -182,7 +187,7 @@ function App() {
     && !marketName.includes('TUSD')
     && !marketName.includes('USDC')
     && !marketName.includes(':')
-    && marketName === 'GBPUSDT'
+    // && marketName === 'GBPUSDT'
     // && !marketName.includes('BNB')
   }
   
@@ -218,12 +223,15 @@ function App() {
   
   async function fetch24Hour(symbolName: string) {
     try {
-      const twentyFourHour = await axios.get(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symbolName}`, { timeout: 10000 })
-      return twentyFourHour
+      if (running) {
+        const twentyFourHour = await axios.get(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symbolName}`, { timeout: 10000 })
+        return twentyFourHour
+      }
     } catch (error) {
       return 'Invalid market.'
     }
   }
+  
   
   function simulatedWallet() {
     return {
@@ -302,11 +310,13 @@ function App() {
   
   async function fetchPrice(marketName: string) {
     try {
-      const symbolName = marketName.replace('/', '')
-      logEntry(`Fetching price for ${marketName}`)
-      const rawPrice = await axios.get(`https://api.binance.com/api/v3/ticker/price?symbol=${symbolName}`) 
-      const price = parseFloat(rawPrice.data.price)
-      return price
+      if (running) {
+        const symbolName = marketName.replace('/', '')
+        logEntry(`Fetching price for ${marketName}`)
+        const rawPrice = await axios.get(`https://api.binance.com/api/v3/ticker/price?symbol=${symbolName}`) 
+        const price = parseFloat(rawPrice.data.price)
+        return price
+      }
     } catch (error) {
       console.log(error)
     }
@@ -344,17 +354,20 @@ function App() {
   
     for (let i = 0; i < n; i++) {
       try {
-        logEntry(`Fetching history for ${i+1}/${marketNames.length} - ${marketNames[i]} ...`)
-        const response = await fetchSingleHistory(marketNames[i].replace('/', ''))
+        if (running) {
+          logEntry(`Fetching history for ${i+1}/${marketNames.length} - ${marketNames[i]} ...`)
+          
+          const response = await fetchSingleHistory(marketNames[i].replace('/', ''))
   
-        if (response === 'No response.') {
-          logEntry(response)
-        } else {
-          const indexedHistories = await indexData(response)
-          returnArray.push({
-            name: marketNames[i],
-            histories: indexedHistories
-          })
+          if (response === 'No response.') {
+            logEntry(response)
+          } else {
+            const indexedHistories = await indexData(response)
+            returnArray.push({
+              name: marketNames[i],
+              histories: indexedHistories
+            })
+          }
         }
       } catch (error) {
         console.log(error)
@@ -366,7 +379,7 @@ function App() {
   async function fetchSingleHistory(symbolName: string) {
     try {
       const histories: { [key: string]: rawFrame[]} = {}
-  
+
       for (let i = 0; i < Object.keys(timeScales).length; i++) {
         const timeScale = Object.keys(timeScales)[i]
         const history = await axios.get(`https://api.binance.com/api/v1/klines?symbol=${symbolName}&interval=1${timeScales[timeScale]}`, { timeout: 10000 })
@@ -622,23 +635,23 @@ function App() {
     if (running) run()
   }
 
-  // app.listen(port);
-
-  // useEffect(() => {
-  //   if (!running) {
-  //     running = true
-  //     run()
-  //   }
-  // }, [])
+  useEffect(() => {
+    if (listRef.current) {
+      listRef.current.scrollTop = listRef.current?.scrollHeight as number;
+    }
+  }, [log]);
   
   return <>
     MAGIC MONEY TREE
 
     <button onClick={startStop}>Run/Stop</button>
     <br /><br />
-    {
-      log.reverse().map((entry: string) => <div>{entry}</div>)
-    }
+    <div ref={listRef} style={{ overflowY: 'scroll'}}>
+      {
+        log.map((entry: string, key: number) => <div key={key}>{entry}</div>)
+      }
+    </div>
+    
   </>
 }
 
