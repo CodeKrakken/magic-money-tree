@@ -1,0 +1,4 @@
+.data-container {
+  height: 80vh;
+  overflow-y: scroll;
+}

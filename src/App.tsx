@@ -1,6 +1,7 @@
 import './App.css';
 import axios from 'axios'
 import { useEffect, useState, useRef } from 'react';
+import Readout from './components/Readout/Readout';
 
 interface wallet {
   coins: {
@@ -651,11 +652,7 @@ function App() {
 
     <button onClick={startStop}>Run/Stop</button>
     <br /><br />
-    <div ref={listRef} style={{ overflowY: 'scroll', maxHeight: window.innerHeight * 0.8}}>
-      {
-        log.map((entry: string, key: number) => <div key={key}>{entry}</div>)
-      }
-    </div>
+    <Readout data={log} />
     
   </>
 }
