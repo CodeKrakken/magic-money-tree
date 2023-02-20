@@ -1,0 +1,39 @@
+import { useState, useEffect } from 'react';
+
+interface Item {
+  id: number;
+  name: string;
+}
+
+function MyComponent() {
+  const [data, setData] = useState<Item[]>([]);
+
+  useEffect(() => {
+    const endpoints: string[] = ['https://my-api.com/data1', 'https://my-api.com/data2', 'https://my-api.com/data3'];
+
+    const fetchData = async () => {
+      for (let i = 0; i < endpoints.length; i++) {
+        const endpoint = endpoints[i];
+        try {
+          const response = await fetch(endpoint);
+          const item = await response.json();
+          setData(prevData => [...prevData, item]);
+          console.log(`Data for endpoint ${endpoint} loaded`);
+          // perform operations on the data as needed
+        } catch (error) {
+          console.error(error);
+        }
+      }
+      // repeat the process infinitely
+      setTimeout(fetchData, 10000);
+    }
+
+    fetchData();
+  }, []);
+
+  return (
+    <div>
+      {data.map(item => <div key={item.id}>{item.name}</div>)}
+    </div>
+  );
+}

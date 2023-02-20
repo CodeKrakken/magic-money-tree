@@ -67,11 +67,9 @@ interface market {
 
 // interface collection { [key: string]: Function }
 
-let running = false
-
 function App() {
 
-  const [log, setLog] = useState<string[]>([`Running at ${timeNow()}`])
+  const [log, setLog] = useState<string[]>([])
 
   // const { MongoClient } = require('mongodb');
   // const username = process.env.MONGODB_USERNAME
@@ -98,7 +96,7 @@ function App() {
   }
 
   async function run() {
-    setLog([...log, 'Running'])
+    logEntry(`Running at ${timeNow()}`)
     try {
       // await setupDB();
       // await dbAppend(tradeHistory, timeNow(), 'Running')
@@ -133,9 +131,7 @@ function App() {
   }
 
   function logEntry (entry: string) {
-    console.log(log)
-    setLog([...log, entry])
-    console.log(entry)
+    setLog(prevData => [...prevData, entry])    
   }
   
   // async function dbOverwrite(collection: collection, data: {[key: string]: string}) {
@@ -628,7 +624,7 @@ function App() {
     <button onClick={run}>Run</button>
 
     {
-      log.map((entry: string) => <div>{entry}</div>)
+      log.reverse().map((entry: string) => <div>{entry}</div>)
     }
   </>
 }
