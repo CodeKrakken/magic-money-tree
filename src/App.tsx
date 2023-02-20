@@ -67,6 +67,8 @@ interface market {
 
 // interface collection { [key: string]: Function }
 
+let running = false
+
 function App() {
 
   const [log, setLog] = useState<string[]>([])
@@ -83,7 +85,7 @@ function App() {
   // const express = require('express');
   // const app = express();
   // const port = process.env.PORT || 8000;
-  const minimumDollarVolume = 28000000
+  const minimumDollarVolume = 1000000
   const fee = 0.001
   const stopLossThreshold = 0.78
   const timeScales: {[key: string]: string} = {
@@ -96,6 +98,7 @@ function App() {
   }
 
   async function run() {
+    const i = 0
     logEntry(`Running at ${timeNow()}`)
     try {
       // await setupDB();
@@ -104,7 +107,7 @@ function App() {
       
       if (viableSymbols?.length) {
         const wallet: wallet = simulatedWallet()
-        tick(wallet, viableSymbols)
+        tick(wallet, viableSymbols, i)
       }
     } catch (error) {
       console.log(error)
@@ -131,6 +134,7 @@ function App() {
   }
 
   function logEntry (entry: string) {
+    console.log(entry)
     setLog(prevData => [...prevData, entry])    
   }
   
@@ -178,7 +182,7 @@ function App() {
     && !marketName.includes('TUSD')
     && !marketName.includes('USDC')
     && !marketName.includes(':')
-    // && marketName === 'GBPUSDT'
+    && marketName === 'GBPUSDT'
     // && !marketName.includes('BNB')
   }
   
@@ -240,24 +244,28 @@ function App() {
     }
   }
   
-  async function tick(wallet: wallet, viableSymbols: string[]) {
-    try {
-      logEntry(`----- Tick at ${timeNow()} -----`)
-      await refreshWallet(wallet)
-      displayWallet(wallet)
-      let markets = await fetchAllHistory(viableSymbols) as market[]
-      if (markets.length) {
-        markets = await addEmaRatio(markets) as market[]
-        markets = await addShape(markets)
-        markets = await filterMarkets(markets)
-        markets = sortMarkets(markets)
-        await displayMarkets(markets)
-        await trade(markets, wallet)
+  async function tick(wallet: wallet, viableSymbols: string[], i: number) {
+    if (running) {
+      try {
+        logEntry(''+i)
+        i++
+        logEntry(`----- Tick at ${timeNow()} -----`)
+        await refreshWallet(wallet)
+        displayWallet(wallet)
+        let markets = await fetchAllHistory(viableSymbols) as market[]
+        if (markets.length) {
+          markets = await addEmaRatio(markets) as market[]
+          markets = await addShape(markets)
+          markets = await filterMarkets(markets)
+          markets = sortMarkets(markets)
+          await displayMarkets(markets)
+          await trade(markets, wallet)
+        }
+      } catch (error) {
+        console.log(error)
       }
-    } catch (error) {
-      console.log(error)
+      tick(wallet, viableSymbols, i)
     }
-    tick(wallet, viableSymbols)
   }
   
   async function refreshWallet(wallet: wallet) {
@@ -609,6 +617,11 @@ function App() {
     }
   }
   
+  function startStop() {
+    running = !running
+    if (running) run()
+  }
+
   // app.listen(port);
 
   // useEffect(() => {
@@ -621,8 +634,8 @@ function App() {
   return <>
     MAGIC MONEY TREE
 
-    <button onClick={run}>Run</button>
-
+    <button onClick={startStop}>Run/Stop</button>
+    <br /><br />
     {
       log.reverse().map((entry: string) => <div>{entry}</div>)
     }
