@@ -25,20 +25,6 @@ app.use(cors({
 
 // mongoose.connect(process.env.MONGODB_URI || uri)
 
-app.get('/', (req, res) => {
-  res.json({ message: 'Hello, World!'})
-})
-
-app.get('/api/data', (req, res) => {
-  const data = [
-    { id: 1, name: 'Item 1' },
-    { id: 2, name: 'Item 2' },
-    { id: 3, name: 'Item 3' },
-  ]
-
-  res.json(data)
-})
-
 app.get('/api/log', (req, res) => {
   res.json(log)
 })
