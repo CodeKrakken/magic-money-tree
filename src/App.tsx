@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import Readout from "./components/Readout/Readout"
 
 export default function App() {
 
@@ -26,14 +27,6 @@ export default function App() {
   }, [])
 
   return <>
-    <div>
-      {log && (
-        <ul>
-          {log.map((item, i) => (
-            <li key={i}>{item}</li>
-          ))}
-        </ul>
-      )}
-    </div>
+    <Readout data={log} />
   </>
 }
