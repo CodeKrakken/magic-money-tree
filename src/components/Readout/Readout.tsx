@@ -1,5 +1,4 @@
 import React, { useRef, useEffect, useState } from 'react';
-import './Readout.css';
 
 interface IReadoutProps {
   data: string[];
@@ -26,10 +25,21 @@ const Readout: React.FC<IReadoutProps> = ({ data }) => {
   }
 
   return (
-    <div className="data-container" ref={containerRef} onScroll={handleScroll}>
-      {data.map((item, index) => (
-        <div key={index}>{item}</div>
-      ))}
+    <div 
+      style={{
+        height: '60vh',
+        overflowY: 'scroll'
+      }} 
+      ref={containerRef} onScroll={handleScroll}
+    >
+      <ol>
+        {
+          data.map((item, index) => (
+            <li key={index}>{item}</li>
+          ))
+        }
+      </ol>
+      
     </div>
   );
 };
