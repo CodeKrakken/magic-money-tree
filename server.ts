@@ -135,17 +135,17 @@ async function fetchSymbols() {
   }
 }
 
-async function analyseMarkets(allMarkets) {
+async function analyseMarkets(allMarkets: any) {
   const goodMarketNames = allMarkets.filter(
-    market => market.status === 'TRADING' 
+    (market: any) => market.status === 'TRADING' 
     && isGoodMarketName(market.symbol)
   )
-  .map(market => market.symbol)
+  .map((market: any) => market.symbol)
   const viableMarketNames = await getViableMarketNames(goodMarketNames)  
   return viableMarketNames
 }
 
-function isGoodMarketName(marketName) {
+function isGoodMarketName(marketName: any) {
   return marketName.includes('USDT')
   && marketName.indexOf('USDT') 
   && !marketName.includes('UP') 
@@ -158,7 +158,7 @@ function isGoodMarketName(marketName) {
   // && !marketName.includes('BNB')
 }
 
-async function getViableMarketNames(marketNames) {
+async function getViableMarketNames(marketNames: any) {
   const viableMarketNames: string[] = []
   const n = marketNames.length
 
@@ -183,12 +183,12 @@ async function getViableMarketNames(marketNames) {
   }
 }
 
-async function checkVolume(symbolName) {
+async function checkVolume(symbolName: any) {
   const twentyFourHour = await fetch24Hour(symbolName)
   return twentyFourHour.data ? `${twentyFourHour.data.quoteVolume < minimumDollarVolume ? 'Ins' : 'S'}ufficient volume.` : "No response."
 }
 
-async function fetch24Hour(symbolName) {
+async function fetch24Hour(symbolName: any) {
   try {
       const twentyFourHour = await axios.get(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symbolName}`, { timeout: 10000 })
       return twentyFourHour
@@ -217,7 +217,7 @@ function simulatedWallet() {
   }
 }
 
-async function tick(wallet, viableSymbols, i) {
+async function tick(wallet: any, viableSymbols: any, i: any) {
     try {
       logEntry(''+i)
       i++
@@ -239,7 +239,7 @@ async function tick(wallet, viableSymbols, i) {
     tick(wallet, viableSymbols, i)
 }
 
-async function refreshWallet(wallet) {
+async function refreshWallet(wallet: any) {
   const n = Object.keys(wallet.coins).length
 
   for (let i = 0; i < n; i ++) {
@@ -271,7 +271,7 @@ async function refreshWallet(wallet) {
   return wallet
 }
 
-async function fetchPrice(marketName) {
+async function fetchPrice(marketName: any) {
   try {
       const symbolName = marketName.replace('/', '')
       logEntry(`Fetching price for ${marketName}`)
@@ -283,7 +283,7 @@ async function fetchPrice(marketName) {
   }
 }
 
-function displayWallet(wallet) {
+function displayWallet(wallet: any) {
   logEntry('Wallet')
 
   Object.keys(wallet.coins).filter(coin => wallet.coins[coin].volume).map(name => {
@@ -299,7 +299,7 @@ function displayWallet(wallet) {
   }
 }
 
-function getDollarTotal(wallet) {
+function getDollarTotal(wallet: any) {
   let total = 0
 
   Object.keys(wallet.coins).map(name => {
@@ -335,14 +335,14 @@ async function fetchAllHistory(marketNames: string[]) {
   return returnArray
 }
 
-async function fetchSingleHistory(symbolName) {
+async function fetchSingleHistory(symbolName: any) {
   try {
     const histories = {}
 
     for (let i = 0; i < Object.keys(timeScales).length; i++) {
       const timeScale = Object.keys(timeScales)[i]
-      const history = await axios.get(`https://api.binance.com/api/v1/klines?symbol=${symbolName}&interval=1${timeScales[timeScale]}`, { timeout: 10000 })
-      histories[timeScale] = history.data
+      const history = await axios.get(`https://api.binance.com/api/v1/klines?symbol=${symbolName}&interval=1${timeScales[timeScale as any]}`, { timeout: 10000 })
+      histories[timeScale as any] = history.data
     }
     return histories
   } catch (error) {
@@ -350,16 +350,16 @@ async function fetchSingleHistory(symbolName) {
   }
 }
 
-async function indexData(rawHistories) {
+async function indexData(rawHistories: any) {
   try {
     const indexedHistories = {}
 
     Object.keys(rawHistories).map(timeSpan => {
       const history: indexedFrame[] = []
 
-      rawHistories[timeSpan].map(frame  => {
+      rawHistories[timeSpan].map((frame: any)  => {
   
-        const average = frame.slice(1, 5).map(element => parseFloat(element)).reduce((a,b)=>a+b)/4
+        const average = frame.slice(1, 5).map((element: any) => parseFloat(element)).reduce((a: any,b: any)=>a+b)/4
 
         history.push(
           {
@@ -373,7 +373,7 @@ async function indexData(rawHistories) {
           }
         )
       })
-      indexedHistories[timeSpan] = history
+      indexedHistories[timeSpan as any] = history
     })
     return indexedHistories
 
@@ -443,9 +443,9 @@ function extractData(dataArray: indexedFrame[], key: string) {
   return outputArray
 }
 
-async function addShape(markets) {
+async function addShape(markets: any) {
 
-  markets.map(market => {
+  markets.map((market: any) => {
 
     const shapes = Object.keys(timeScales).map(timeScale => {
 
@@ -456,7 +456,7 @@ async function addShape(markets) {
       let deviations: number[] = []
       let straightLine = market.histories[timeScale][0].average
   
-      market.histories[timeScale].map(frame => {
+      market.histories[timeScale].map((frame: any) => {
         straightLine += straightLineIncrement
         deviations.push(frame.low < straightLine ? frame.low / straightLine : -(Math.abs(frame.high / straightLine)))
       })
@@ -469,23 +469,23 @@ async function addShape(markets) {
   return markets
 }
 
-function filterMarkets(markets) {
-  return markets.filter(market => 
+function filterMarkets(markets: any) {
+  return markets.filter((market: any) => 
     market.shape > 0 
     && 
     market.emaRatio > 1
   )
 }
 
-function displayMarkets(markets) {
-  markets.map(market => {
+function displayMarkets(markets: any) {
+  markets.map((market: any) => {
     logEntry(`${market.name} ... shape ${market.shape} * ema ratio ${market.emaRatio} = strength ${market.strength}`)
   })
 }
 
 // TRADE FUNCTIONS
 
-async function trade(markets, wallet) {
+async function trade(markets: any, wallet: any) {
   
   const targetMarket = markets[0].strength > 0 ? markets[0] : null
 
@@ -498,7 +498,7 @@ async function trade(markets, wallet) {
     } 
   } else {
     try {
-      const currentMarket = markets.filter(market => market.name === wallet.data.currentMarket.name)[0]
+      const currentMarket = markets.filter((market: any) => market.name === wallet.data.currentMarket.name)[0]
 
       if (!targetMarket) {
 
@@ -523,17 +523,17 @@ async function trade(markets, wallet) {
   }
 }
 
-function sortMarkets(markets) {
+function sortMarkets(markets: any) {
 
-  markets = markets.map(market => {
+  markets = markets.map((market: any) => {
     market.strength = market.emaRatio * market.shape
     return market
   })
-  markets = markets.sort((a,b) => b.strength - a.strength)
+  markets = markets.sort((a: any,b: any) => b.strength - a.strength)
   return markets
 }
 
-async function simulatedBuyOrder(wallet, market) {
+async function simulatedBuyOrder(wallet: any, market: any) {
   try {
     const asset = market.name.replace(wallet.data.baseCoin, '')
     const base  = wallet.data.baseCoin
