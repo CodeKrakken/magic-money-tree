@@ -43,7 +43,7 @@ app.use(cors());
 
 app.use(express.static(path.join(__dirname, "build")));
 
-app.get("/log", (req, res) => {
+app.get("/log", (req: any, res: any) => {
   const logJSON = JSON.stringify(log);
   res.setHeader('Content-Type', 'application/json');
   res.send(logJSON);
@@ -566,7 +566,7 @@ async function simulatedBuyOrder(wallet, market) {
   }
 }
 
-async function simulatedSellOrder(wallet, sellType, market) {
+async function simulatedSellOrder(wallet: any, sellType: any, market: any) {
 
   try {
     const asset = wallet.data.currentMarket.name.split('/')[0]
@@ -590,3 +590,5 @@ async function simulatedSellOrder(wallet, sellType, market) {
 }
 
 run()
+
+export{}
