@@ -62,7 +62,6 @@ app.use(express.static(path.join(__dirname, "build")));
 app.get("/log", (req: any, res: any) => {
   const logJSON = JSON.stringify(log);
   res.setHeader('Content-Type', 'application/json');
-  console.log(logJSON)
   res.send(logJSON);
 });
 
@@ -503,7 +502,6 @@ function displayMarkets(markets: any) {
 // TRADE FUNCTIONS
 
 async function trade(markets: any, wallet: any) {
-  console.log(markets)
   const targetMarket = markets[0].strength > 0 ? markets[0] : null
 
   if (wallet.data.baseCoin === 'USDT') {   
