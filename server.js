@@ -25,7 +25,6 @@ app.use(express.static(path.join(__dirname, "build")));
 
 app.get("/", (req, res) => {
   const logJSON = JSON.stringify(log); // Convert the log array to a JSON string
-  console.log(logJSON)
   res.send(logJSON); // Send the log JSON as a response
 });
 

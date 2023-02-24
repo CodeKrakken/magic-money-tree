@@ -13,8 +13,11 @@ export default function App() {
   useEffect(() => {
     const fetchLog = async () => {
       fetch('/')
-      .then(response => response.json())
-      .then(data => setLog(data))
+      .then(response => {
+        console.log(response)
+        response.json()
+      })
+      // .then(data => setLog(data))
     }
     
     fetchLog()
