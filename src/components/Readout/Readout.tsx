@@ -34,8 +34,8 @@ const Readout: React.FC<IReadoutProps> = ({ data }) => {
     >
       <ul>
         {
-          data.map((item, index) => (
-            <li key={index}>{item}</li>
+          data.map((item, i) => (
+            <li title={''+i+1} key={i}>{item}</li>
           ))
         }
       </ul>
