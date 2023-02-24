@@ -29,6 +29,12 @@ export default function App() {
 
   return <>
     <Text text='Magic Money Tree' tag='h1' />
-    <Readout data={log} />
+    <ol>
+      {
+        log.map((item, index) => (
+          <li key={index}>{item}</li>
+        ))
+      }
+    </ol>
   </>
 }

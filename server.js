@@ -1,9 +1,4 @@
-const axios = require('axios')
-
 // interface collection { [key: string]: Function }
-
-const log = []
-
 // const { MongoClient } = require('mongodb');
 // const username = process.env.MONGODB_USERNAME
 // const password = process.env.MONGODB_PASSWORD
@@ -13,30 +8,30 @@ const log = []
 // let priceData: { [key: string]: Function } = {}
 // let tradeHistory: { [key: string]: Function } = {}
 // const dbName = "magic-money-tree";
-const express = require('express');
 // const mongoose = require('mongoose');
-const app = express();
-app.use(express.json());
-const cors = require('cors')
-const path = require('path')
-
-app.use(cors({
-  origin: 'https://magic-money-tree.herokuapp.com/'
-}))
-
 // mongoose.connect(process.env.MONGODB_URI || uri)
 
-app.use(express.static(path.join(__dirname, 'build')))
+const log = [];
+const axios = require("axios");
+const express = require("express");
+const app = express();
+app.use(express.json());
+const cors = require("cors");
+const path = require("path");
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
-})
+app.use(cors());
+
+app.use(express.static(path.join(__dirname, "build")));
+
+app.get("/", (req, res) => {
+  res.send(log); // Send the log array as a response
+});
 
 const port = process.env.PORT || 5000;
 
 app.listen(port, () => {
-  logEntry(`Server listening on port ${port}`)
-})
+  logEntry(`Server listening on port ${port}`);
+});
 
 const minimumDollarVolume = 28000000
 const fee = 0.001
