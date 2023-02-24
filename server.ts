@@ -62,6 +62,7 @@ app.use(express.static(path.join(__dirname, "build")));
 app.get("/log", (req: any, res: any) => {
   const logJSON = JSON.stringify(log);
   res.setHeader('Content-Type', 'application/json');
+  console.log(logJSON)
   res.send(logJSON);
 });
 
@@ -247,7 +248,7 @@ async function tick(wallet: any, viableSymbols: any, i: any) {
         markets = await filterMarkets(markets)
         markets = sortMarkets(markets)
         await displayMarkets(markets)
-        await trade(markets, wallet)
+        if (markets.length) await trade(markets, wallet)
       }
     } catch (error) {
       console.log(error)
@@ -502,7 +503,7 @@ function displayMarkets(markets: any) {
 // TRADE FUNCTIONS
 
 async function trade(markets: any, wallet: any) {
-  
+  console.log(markets)
   const targetMarket = markets[0].strength > 0 ? markets[0] : null
 
   if (wallet.data.baseCoin === 'USDT') {   
