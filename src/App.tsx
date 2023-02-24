@@ -10,22 +10,22 @@ export default function App() {
   }
   const [log, setLog] = useState([] as string[])
 
-  // useEffect(() => {
-  //   const fetchLog = async () => {
-  //     fetch('http://localhost:5000/api/log')
-  //     .then(response => response.json())
-  //     .then(data => setLog(data))
-  //   }
+  useEffect(() => {
+    const fetchLog = async () => {
+      fetch('http://localhost:5000/api/log')
+      .then(response => response.json())
+      .then(data => setLog(data))
+    }
     
-  //   fetchLog()
+    fetchLog()
 
-  //   const intervalId = setInterval(() => {
-  //     fetchLog()
-  //   }, 1000)
+    const intervalId = setInterval(() => {
+      fetchLog()
+    }, 1000)
 
-  //   return () => clearInterval(intervalId)
+    return () => clearInterval(intervalId)
 
-  // }, [])
+  }, [])
 
   return <>
     <Text text='Magic Money Tree' tag='h1' />
