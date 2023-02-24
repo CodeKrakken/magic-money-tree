@@ -32,13 +32,13 @@ const Readout: React.FC<IReadoutProps> = ({ data }) => {
       }} 
       ref={containerRef} onScroll={handleScroll}
     >
-      <ol>
+      <ul>
         {
           data.map((item, index) => (
             <li key={index}>{item}</li>
           ))
         }
-      </ol>
+      </ul>
       
     </div>
   );
