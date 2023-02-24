@@ -12,7 +12,7 @@ export default function App() {
 
   useEffect(() => {
     const fetchLog = async () => {
-      fetch('http://localhost:5000/api/log')
+      fetch('/api/log')
       .then(response => response.json())
       .then(data => setLog(data))
     }
