@@ -18,6 +18,7 @@ const express = require('express');
 const app = express();
 app.use(express.json());
 const cors = require('cors')
+const path = require('path')
 
 app.use(cors({
   origin: 'https://magic-money-tree.herokuapp.com/'
@@ -25,8 +26,10 @@ app.use(cors({
 
 // mongoose.connect(process.env.MONGODB_URI || uri)
 
-app.get('/api', (req, res) => {
-  res.json(log)
+app.use(express.static(path.join(__dirname, 'build')))
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
 })
 
 const port = process.env.PORT || 5000;
