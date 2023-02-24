@@ -24,7 +24,9 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, "build")));
 
 app.get("/", (req, res) => {
-  res.send(log); // Send the log array as a response
+  const logJSON = JSON.stringify(log); // Convert the log array to a JSON string
+  console.log(logJSON)
+  res.send(logJSON); // Send the log JSON as a response
 });
 
 const port = process.env.PORT || 5000;

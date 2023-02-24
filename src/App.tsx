@@ -18,7 +18,6 @@ export default function App() {
     }
     
     fetchLog()
-
     const intervalId = setInterval(() => {
       fetchLog()
     }, 1000)
