@@ -14,6 +14,7 @@ export default function App() {
     const fetchLog = async () => {
       const response = await fetch('/');
       const data = await response.text();
+      console.log(data)
       try {
         const log = JSON.parse(data);
         setLog(log);
