@@ -1,4 +1,74 @@
+import axios from 'axios'
+
+interface wallet {
+  coins: {
+    [key: string]: {
+      dollarPrice : number
+      dollarValue : number
+      volume      : number
+    }
+  }
+  data: {
+    baseCoin      : string
+    currentMarket : {
+      name          : string
+      currentPrice? : number
+    }
+    prices        : {
+      targetPrice?    : number
+      highPrice?      : number
+      purchasePrice?  : number
+      stopLossPrice?  : number
+    }
+  }
+}
+
+type rawMarket = {
+  status: string, 
+  symbol: string
+}
+
+type rawFrame = [
+  number,
+  string,
+  string,
+  string,
+  string,
+  string,
+  number,
+  string,
+  number,
+  string,
+  string,
+  string
+];
+
+interface indexedFrame {
+  startTime : number;
+  open      : number;
+  high      : number;
+  low       : number;
+  close     : number;
+  endTime   : number;
+  average   : number;
+}
+
+interface market {
+  histories: {
+    [key: string]: indexedFrame[]
+  }
+  emaRatio  : number
+  shape     : number
+  name      : string
+  strength  : number
+}
+
 // interface collection { [key: string]: Function }
+
+let running = false
+
+const log: string[] = []
+
 // const { MongoClient } = require('mongodb');
 // const username = process.env.MONGODB_USERNAME
 // const password = process.env.MONGODB_PASSWORD
@@ -8,37 +78,13 @@
 // let priceData: { [key: string]: Function } = {}
 // let tradeHistory: { [key: string]: Function } = {}
 // const dbName = "magic-money-tree";
-// const mongoose = require('mongoose');
-// mongoose.connect(process.env.MONGODB_URI || uri)
-
-const log = [];
-const axios = require("axios");
-const express = require("express");
-const app = express();
-app.use(express.json());
-const cors = require("cors");
-const path = require("path");
-
-app.use(cors());
-
-app.use(express.static(path.join(__dirname, "build")));
-
-app.get("/log", (req, res) => {
-  const logJSON = JSON.stringify(log);
-  res.setHeader('Content-Type', 'application/json');
-  res.send(logJSON);
-});
-
-const port = process.env.PORT || 5000;
-
-app.listen(port, () => {
-  logEntry(`Server listening on port ${port}`);
-});
-
+// const express = require('express');
+// const app = express();
+// const port = process.env.PORT || 8000;
 const minimumDollarVolume = 28000000
 const fee = 0.001
 const stopLossThreshold = 0.78
-const timeScales = {
+const timeScales: {[key: string]: string} = {
   // months  : 'M', 
   // weeks   : 'w', 
   // days    : 'd', 
@@ -53,11 +99,10 @@ async function run() {
   try {
     // await setupDB();
     // await dbAppend(tradeHistory, timeNow(), 'Running')
-    const viableSymbols = await fetchSymbols()
-
+    const viableSymbols = await fetchSymbols() as string[]
+    
     if (viableSymbols?.length) {
-
-      const wallet = simulatedWallet()
+      const wallet: wallet = simulatedWallet()
       tick(wallet, viableSymbols, i)
     }
   } catch (error) {
@@ -84,7 +129,7 @@ async function setupDB() {
   logEntry("Database setup complete")
 }
 
-function logEntry (entry) {
+function logEntry (entry: string) {
   console.log(entry)
   log.push(entry)    
 }
@@ -102,20 +147,22 @@ function logEntry (entry) {
 // }
 
 async function fetchSymbols() {
-
   try {
-      const markets = await axios.get('https://api.binance.com/api/v3/exchangeInfo');
+    if (running) {
+      const {data: markets}: { data: { symbols: rawMarket[]}} = await axios.get('https://api.binance.com/api/v3/exchangeInfo');
       if (markets) {
-        const viableSymbols = await analyseMarkets(markets.data.symbols)
+        const viableSymbols = await analyseMarkets(markets.symbols)
         return viableSymbols
       }
+    }
   } catch (error) {
     console.log(error)
     return []
   }
 }
 
-async function analyseMarkets(allMarkets) {
+
+async function analyseMarkets(allMarkets: rawMarket[]) {
   const goodMarketNames = allMarkets.filter(
     market => market.status === 'TRADING' 
     && isGoodMarketName(market.symbol)
@@ -125,7 +172,7 @@ async function analyseMarkets(allMarkets) {
   return viableMarketNames
 }
 
-function isGoodMarketName(marketName) {
+function isGoodMarketName(marketName: string) {
   return marketName.includes('USDT')
   && marketName.indexOf('USDT') 
   && !marketName.includes('UP') 
@@ -138,7 +185,7 @@ function isGoodMarketName(marketName) {
   // && !marketName.includes('BNB')
 }
 
-async function getViableMarketNames(marketNames) {
+async function getViableMarketNames(marketNames: string[]) {
   const viableMarketNames = []
   const n = marketNames.length
 
@@ -163,15 +210,17 @@ async function getViableMarketNames(marketNames) {
   }
 }
 
-async function checkVolume(symbolName) {
-  const twentyFourHour = await fetch24Hour(symbolName)
+async function checkVolume(symbolName: string) {
+  const twentyFourHour = await fetch24Hour(symbolName) as { data: {quoteVolume: number}}
   return twentyFourHour.data ? `${twentyFourHour.data.quoteVolume < minimumDollarVolume ? 'Ins' : 'S'}ufficient volume.` : "No response."
 }
 
-async function fetch24Hour(symbolName) {
+async function fetch24Hour(symbolName: string) {
   try {
+    if (running) {
       const twentyFourHour = await axios.get(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symbolName}`, { timeout: 10000 })
       return twentyFourHour
+    }
   } catch (error) {
     return 'Invalid market.'
   }
@@ -197,16 +246,17 @@ function simulatedWallet() {
   }
 }
 
-async function tick(wallet, viableSymbols, i) {
+async function tick(wallet: wallet, viableSymbols: string[], i: number) {
+  if (running) {
     try {
       logEntry(''+i)
       i++
       logEntry(`----- Tick at ${timeNow()} -----`)
       await refreshWallet(wallet)
       displayWallet(wallet)
-      let markets = await fetchAllHistory(viableSymbols)
+      let markets = await fetchAllHistory(viableSymbols) as market[]
       if (markets.length) {
-        markets = await addEmaRatio(markets)
+        markets = await addEmaRatio(markets) as market[]
         markets = await addShape(markets)
         markets = await filterMarkets(markets)
         markets = sortMarkets(markets)
@@ -217,20 +267,21 @@ async function tick(wallet, viableSymbols, i) {
       console.log(error)
     }
     tick(wallet, viableSymbols, i)
+  }
 }
 
-async function refreshWallet(wallet) {
+async function refreshWallet(wallet: wallet) {
   const n = Object.keys(wallet.coins).length
 
   for (let i = 0; i < n; i ++) {
     const coin = Object.keys(wallet.coins)[i]
-    wallet.coins[coin].dollarPrice = coin === 'USDT' ? 1 : await fetchPrice(`${coin}USDT`)
+    wallet.coins[coin].dollarPrice = coin === 'USDT' ? 1 : await fetchPrice(`${coin}USDT`) as number
     wallet.coins[coin].dollarValue = wallet.coins[coin].volume * wallet.coins[coin].dollarPrice
   }
 
   const sorted = Object.keys(wallet.coins).sort((a, b) => wallet.coins[a].dollarValue - wallet.coins[b].dollarValue)
   wallet.data = wallet.data || {}
-  wallet.data.baseCoin = sorted.pop()
+  wallet.data.baseCoin = sorted.pop() as string
 
   if (wallet.data.baseCoin === 'USDT') {
     wallet.data.currentMarket = {
@@ -251,19 +302,21 @@ async function refreshWallet(wallet) {
   return wallet
 }
 
-async function fetchPrice(marketName) {
+async function fetchPrice(marketName: string) {
   try {
+    if (running) {
       const symbolName = marketName.replace('/', '')
       logEntry(`Fetching price for ${marketName}`)
       const rawPrice = await axios.get(`https://api.binance.com/api/v3/ticker/price?symbol=${symbolName}`) 
       const price = parseFloat(rawPrice.data.price)
       return price
+    }
   } catch (error) {
     console.log(error)
   }
 }
 
-function displayWallet(wallet) {
+function displayWallet(wallet: wallet) {
   logEntry('Wallet')
 
   Object.keys(wallet.coins).filter(coin => wallet.coins[coin].volume).map(name => {
@@ -279,7 +332,7 @@ function displayWallet(wallet) {
   }
 }
 
-function getDollarTotal(wallet) {
+function getDollarTotal(wallet: wallet) {
   let total = 0
 
   Object.keys(wallet.coins).map(name => {
@@ -289,12 +342,13 @@ function getDollarTotal(wallet) {
   return total
 }
 
-async function fetchAllHistory(marketNames) {
+async function fetchAllHistory(marketNames: string[]) {
   const n = marketNames.length
   const returnArray = []
 
   for (let i = 0; i < n; i++) {
     try {
+      if (running) {
         logEntry(`Fetching history for ${i+1}/${marketNames.length} - ${marketNames[i]} ...`)
         
         const response = await fetchSingleHistory(marketNames[i].replace('/', ''))
@@ -308,6 +362,7 @@ async function fetchAllHistory(marketNames) {
             histories: indexedHistories
           })
         }
+      }
     } catch (error) {
       console.log(error)
     }
@@ -315,9 +370,9 @@ async function fetchAllHistory(marketNames) {
   return returnArray
 }
 
-async function fetchSingleHistory(symbolName) {
+async function fetchSingleHistory(symbolName: string) {
   try {
-    const histories = {}
+    const histories: { [key: string]: rawFrame[]} = {}
 
     for (let i = 0; i < Object.keys(timeScales).length; i++) {
       const timeScale = Object.keys(timeScales)[i]
@@ -330,16 +385,16 @@ async function fetchSingleHistory(symbolName) {
   }
 }
 
-async function indexData(rawHistories) {
+async function indexData(rawHistories: { [key: string]: rawFrame[]}) {
   try {
-    const indexedHistories = {}
+    const indexedHistories: {  [key: string]: indexedFrame[]} = {}
 
     Object.keys(rawHistories).map(timeSpan => {
-      const history = []
+      const history: indexedFrame[] = []
 
       rawHistories[timeSpan].map(frame  => {
   
-        const average = frame.slice(1, 5).map(element => parseFloat(element)).reduce((a,b)=>a+b)/4
+        const average = frame.slice(1, 5).map(element => parseFloat(element as string)).reduce((a,b)=>a+b)/4
 
         history.push(
           {
@@ -362,7 +417,7 @@ async function indexData(rawHistories) {
   }
 }
 
-async function addEmaRatio(markets) {
+async function addEmaRatio(markets: market[]) {
 
   try {
     const spans = [
@@ -387,16 +442,16 @@ async function addEmaRatio(markets) {
   }
 }
 
-function ratioArray(valueArray) {
+function ratioArray(valueArray: number[]) {
 
-  const ratioArray = []
+  const ratioArray: number [] = []
   for (let i = 0; i < valueArray.length-1; i++) {
     ratioArray.push(valueArray[i+1]/valueArray[i])
   }
   return ratioArray
 }
 
-function ema(data, time=null) {
+function ema(data: number[], time: number|null=null) {
 
   time = time ?? data.length
   const k = 2/(time + 1)
@@ -404,16 +459,16 @@ function ema(data, time=null) {
   emaData[0] = data[0]
 
   for (let i = 1; i < data.length; i++) {
-    const newPoint = (data[i] * k) + (emaData[i-1] * (1-k))
+    const newPoint: number = (data[i] * k) + (emaData[i-1] * (1-k))
     emaData.push(newPoint)
   }
 
-  const currentEma = [...emaData].pop()
+  const currentEma = [...emaData].pop() as number
   return +currentEma
 }
 
-function extractData(dataArray, key) {
-  const outputArray = []
+function extractData(dataArray: indexedFrame[], key: string) {
+  const outputArray: number[] = []
   dataArray.map(obj => {
     if (key === "open" || key === "high" || key === "low" || key === "close" || key === "average") {
       outputArray.push(obj[key])
@@ -423,7 +478,7 @@ function extractData(dataArray, key) {
   return outputArray
 }
 
-async function addShape(markets) {
+async function addShape(markets: market[]) {
 
   markets.map(market => {
 
@@ -433,7 +488,7 @@ async function addShape(markets) {
       const totalChange = market.histories[timeScale][m - 1].average - market.histories[timeScale][0].average
       const percentageChange = totalChange / market.histories[timeScale][0].average * 100
       let straightLineIncrement = totalChange / m
-      let deviations = []
+      let deviations: number[] = []
       let straightLine = market.histories[timeScale][0].average
   
       market.histories[timeScale].map(frame => {
@@ -449,7 +504,7 @@ async function addShape(markets) {
   return markets
 }
 
-function filterMarkets(markets) {
+function filterMarkets(markets: market[]) {
   return markets.filter(market => 
     market.shape > 0 
     && 
@@ -457,7 +512,7 @@ function filterMarkets(markets) {
   )
 }
 
-function displayMarkets(markets) {
+function displayMarkets(markets: market[]) {
   markets.map(market => {
     logEntry(`${market.name} ... shape ${market.shape} * ema ratio ${market.emaRatio} = strength ${market.strength}`)
   })
@@ -465,7 +520,7 @@ function displayMarkets(markets) {
 
 // TRADE FUNCTIONS
 
-async function trade(markets, wallet) {
+async function trade(markets: market[], wallet: wallet) {
   
   const targetMarket = markets[0].strength > 0 ? markets[0] : null
 
@@ -488,12 +543,12 @@ async function trade(markets, wallet) {
       } else {
 
         if (!currentMarket) {
-          await simulatedSellOrder(wallet, 'No response for current market', wallet.data.currentMarket)
+          await simulatedSellOrder(wallet, 'No response for current market', wallet.data.currentMarket as market)
         } else if (targetMarket.name !== wallet.data.currentMarket.name) { 
           await simulatedSellOrder(wallet, 'Better market found', currentMarket)
         } else if (!wallet.data.prices.targetPrice || !wallet.data.prices.stopLossPrice) {
           await simulatedSellOrder(wallet, 'Price information undefined', currentMarket)
-        } else if (wallet.data.currentMarket.currentPrice < wallet.data.prices.stopLossPrice) {
+        } else if (wallet.data.currentMarket.currentPrice as number < wallet.data.prices.stopLossPrice) {
           await simulatedSellOrder(wallet, 'Below Stop Loss', currentMarket)
         }
       }
@@ -503,7 +558,7 @@ async function trade(markets, wallet) {
   }
 }
 
-function sortMarkets(markets) {
+function sortMarkets(markets: market[]) {
 
   markets = markets.map(market => {
     market.strength = market.emaRatio * market.shape
@@ -513,14 +568,14 @@ function sortMarkets(markets) {
   return markets
 }
 
-async function simulatedBuyOrder(wallet, market) {
+async function simulatedBuyOrder(wallet: wallet, market: market) {
   try {
     const asset = market.name.replace(wallet.data.baseCoin, '')
     const base  = wallet.data.baseCoin
     const response = await fetchPrice(market.name)
 
     if (response) {
-      const currentPrice = response
+      const currentPrice = response as number
       const baseVolume = wallet.coins[base].volume
       if (!wallet.coins[asset]) wallet.coins[asset] = { volume: 0, dollarPrice: 0, dollarValue: 0 }
       wallet.coins[base].volume = 0
@@ -546,7 +601,7 @@ async function simulatedBuyOrder(wallet, market) {
   }
 }
 
-async function simulatedSellOrder(wallet, sellType, market) {
+async function simulatedSellOrder(wallet: wallet, sellType: string, market: market) {
 
   try {
     const asset = wallet.data.currentMarket.name.split('/')[0]
@@ -568,5 +623,3 @@ async function simulatedSellOrder(wallet, sellType, market) {
     console.log(error)
   }
 }
-
-run()
