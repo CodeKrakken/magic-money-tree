@@ -12,19 +12,21 @@ export default function App() {
 
   useEffect(() => {
     const fetchLog = async () => {
-      await fetch('/')
-      .then(response => response.json())
-      .then(data => setLog(data))
-    }
+      const response = await fetch('/');
+      const data = await response.text();
+      try {
+        const log = JSON.parse(data);
+        setLog(log);
+      } catch (error) {
+        console.error(error);
+      }
+    };
     
-    fetchLog()
-    const intervalId = setInterval(() => {
-      fetchLog()
-    }, 1000)
-
-    return () => clearInterval(intervalId)
-
-  }, [])
+    fetchLog();
+    const intervalId = setInterval(fetchLog, 1000);
+  
+    return () => clearInterval(intervalId);
+  }, []);
 
   return <>
     <Text text='Magic Money Tree' tag='h1' />
