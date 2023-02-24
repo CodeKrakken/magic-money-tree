@@ -24,7 +24,7 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, "build")));
 
 app.get("/", (req, res) => {
-  const logJSON = JSON.stringify(log); // Convert the log array to a JSON string
+  const logJSON = JSON.stringify(['Example log entry']); // Convert the log array to a JSON string
   res.send(logJSON); // Send the log JSON as a response
 });
 
