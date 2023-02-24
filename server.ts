@@ -31,7 +31,6 @@ interface market {
 // const mongoose = require('mongoose');
 // mongoose.connect(process.env.MONGODB_URI || uri)
 
-
 const log: string[] = [];
 const axios = require("axios");
 const express = require("express");
