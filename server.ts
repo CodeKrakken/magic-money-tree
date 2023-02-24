@@ -81,6 +81,7 @@ interface market {
 // mongoose.connect(process.env.MONGODB_URI || uri)
 
 const log: string[] = [];
+const wallet: wallet = simulatedWallet()
 const axios = require("axios");
 const express = require("express");
 const app = express();
@@ -92,8 +93,11 @@ app.use(cors());
 
 app.use(express.static(path.join(__dirname, "build")));
 
-app.get("/log", (req: Request, res: Response) => {
-  const logJSON = JSON.stringify(log);
+app.get("/data", (req: Request, res: Response) => {
+  const logJSON = JSON.stringify({
+    log   : log,
+    wallet: wallet
+  });
   res.setHeader('Content-Type', 'application/json');
   res.send(logJSON);
 });
@@ -125,8 +129,6 @@ async function run() {
     const viableSymbols = await fetchSymbols()
 
     if (viableSymbols?.length) {
-
-      const wallet = simulatedWallet()
       tick(wallet, viableSymbols, i)
     }
   } catch (error) {
