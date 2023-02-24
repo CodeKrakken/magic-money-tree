@@ -12,16 +12,10 @@ export default function App() {
 
   useEffect(() => {
     const fetchLog = async () => {
-      const response = await fetch('/');
-      const data = await response.text();
-      console.log(data)
-      try {
-        const log = JSON.parse(data);
-        setLog(log);
-      } catch (error) {
-        console.error(error);
-      }
-    };
+      await fetch('/log')
+        .then(response => response.json())
+        .then(data => setLog(data))
+    }
     
     fetchLog();
     const intervalId = setInterval(fetchLog, 1000);
