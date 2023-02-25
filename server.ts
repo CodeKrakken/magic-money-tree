@@ -81,6 +81,7 @@ interface market {
 // mongoose.connect(process.env.MONGODB_URI || uri)
 
 const log: string[] = [];
+let currentTask: string = ''
 const wallet: wallet = simulatedWallet()
 const axios = require("axios");
 const express = require("express");
@@ -95,8 +96,8 @@ app.use(express.static(path.join(__dirname, "build")));
 
 app.get("/data", (req: Request, res: Response) => {
   const dataJSON = JSON.stringify({
-    log   : log,
-    wallet: wallet
+    currentTask : currentTask,
+    wallet      : wallet
   });
   res.setHeader('Content-Type', 'application/json');
   res.send(dataJSON);
@@ -105,7 +106,8 @@ app.get("/data", (req: Request, res: Response) => {
 const port = process.env.PORT || 5000;
 
 app.listen(port, () => {
-  logEntry(`Server listening on port ${port}`);
+  const currentTask = `Server listening on port ${port}`
+  logEntry(currentTask);
 });
 
 const minimumDollarVolume = 28000000
@@ -121,7 +123,8 @@ const timeScales: {[key: string]: string} = {
 }
 
 async function run() {
-  logEntry(`Running at ${timeNow()}`)
+  currentTask = `Running at ${timeNow()}`
+  logEntry(currentTask)
   try {
     // await setupDB();
     // await dbAppend(tradeHistory, timeNow(), 'Running')
@@ -143,7 +146,8 @@ function timeNow() {
 
 async function setupDB() {
 
-  logEntry('Setting up database ...')
+  currentTask = 'Setting up database ...'
+  logEntry(currentTask)
 
   // await mongo.connect()
   // db = mongo.db(dbName);
@@ -151,7 +155,8 @@ async function setupDB() {
   // tradeHistory = db.collection("trade-history")
   // await dbOverwrite(priceData,    {sessionStart: timeNow()})
   // await dbOverwrite(tradeHistory, {sessionStart: timeNow()})
-  logEntry("Database setup complete")
+  currentTask = "Database setup complete"
+  logEntry(currentTask)
 }
 
 function logEntry (entry: string) {
@@ -212,7 +217,7 @@ async function getViableMarketNames(marketNames: string[]) {
   const viableMarketNames: string[] = []
   const n = marketNames.length
 
-  if (!n) { 
+  if (!n) {
     logEntry('No viable markets.') 
   } else {
 
@@ -224,10 +229,12 @@ async function getViableMarketNames(marketNames: string[]) {
         viableMarketNames.push(marketNames[i])
       }
 
-      logEntry(`
+      currentTask = `
         Checking volume of ${i+1}/${n} - ${marketNames[i]} ... 
         ${!response.includes("Insufficient") && response !== "No response." ? 'Market included.' : response}
-      `)
+      `
+
+      logEntry(currentTask)
     }
     return viableMarketNames
   }
@@ -321,7 +328,8 @@ async function refreshWallet(wallet: wallet) {
 async function fetchPrice(marketName: string) {
   try {
       const symbolName = marketName.replace('/', '')
-      logEntry(`Fetching price for ${marketName}`)
+      currentTask = `Fetching price for ${marketName}`
+      logEntry(currentTask)
       const rawPrice = await axios.get(`https://api.binance.com/api/v3/ticker/price?symbol=${symbolName}`) 
       const price = parseFloat(rawPrice.data.price)
       return price
@@ -337,7 +345,8 @@ async function fetchAllHistory(marketNames: string[]) {
   for (let i = 0; i < n; i++) {
     try {
       const response = await fetchSingleHistory(marketNames[i].replace('/', ''))
-      logEntry(`Fetching history for ${i+1}/${marketNames.length} - ${marketNames[i]} ... ${response === 'No response.' ? response : ''}`)
+      currentTask = `Fetching history for ${i+1}/${marketNames.length} - ${marketNames[i]} ... ${response === 'No response.' ? response : ''}`
+      logEntry(currentTask)
 
       if (response !== 'No response.') {
         const indexedHistories = await indexData(response)
