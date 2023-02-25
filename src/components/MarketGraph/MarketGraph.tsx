@@ -25,27 +25,22 @@ const MarketGraph = ({ history }: { history: any }) => {
 
   const series = [
     {
-      x: new Date('2022-01-01'),
-      y: [500, 550, 450, 510],
-      open: 500,
-      high: 550,
-      low: 450,
-      close: 510,
-    },
-    {
-      x: new Date('2022-01-02'),
-      y: [510, 560, 490, 520],
-      open: 510,
-      high: 560,
-      low: 490,
-      close: 520,
-    },
-    // ...
-  ];
+      data: history.map((candle: indexedFrame) => [
+        candle.time,
+        candle.open,
+        candle.high,
+        candle.low,
+        candle.close,
+      ]),
+    }
+  ]
 
-  return (
-    <Chart options={options} series={series} type="candlestick" height={350} />
-  );
+  console.log(series)
+
+
+  return <>
+    {/* <Chart options={options} series={series} type="candlestick" height={350} /> */}
+  </>;
 };
 
 export default MarketGraph;
