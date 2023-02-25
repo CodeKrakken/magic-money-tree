@@ -23,13 +23,13 @@ export default function Wallet({wallet}: {wallet: wallet}) {
 
     <div>Total = ${getDollarTotal(wallet)}</div>
   
-    {
+    {/* {
       wallet.data.baseCoin !== 'USDT' && <>
         Target Price    - ${wallet.data.prices.targetPrice}   <br />
         High Price      - ${wallet.data.prices.highPrice}     <br />
         Purchase Price  - ${wallet.data.prices.purchasePrice} <br />
         Stop Loss Price - ${wallet.data.prices.stopLossPrice}
       </>
-    }
+    } */}
   </> : <>No wallet data</>
 }
