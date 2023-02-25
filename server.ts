@@ -5,7 +5,7 @@ type rawMarket = {
   symbol: string
 }
 
-interface wallet {
+export interface wallet {
   coins: {
     [key: string]: {
       dollarPrice : number

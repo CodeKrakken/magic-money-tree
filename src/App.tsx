@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react"
 import Readout from "./components/Readout/Readout"
 import Text from "./components/Text/Text"
+import { wallet } from 'server'
+import Wallet from "./components/Wallet/Wallet"
 
 export default function App() {
 
@@ -8,13 +10,18 @@ export default function App() {
     id  : number,
     name: string
   }
-  const [log, setLog] = useState([] as string[])
+
+  const [log, setLog] = useState([] as string[])  
+  const [wallet, setWallet] = useState({} as wallet)
 
   useEffect(() => {
     const fetchLog = async () => {
-      await fetch('/log')
-        .then(response => response.json())
-        .then(data => setLog(data))
+      await fetch('/data')
+      .then(response => response.json())
+      .then(data => {
+        setLog(data.log)
+        setWallet(data.wallet)
+      })
     }
     
     fetchLog();
@@ -26,5 +33,6 @@ export default function App() {
   return <>
     <Text text='Magic Money Tree' tag='h1' />
     <Readout data={log} />
+    <Wallet wallet={wallet} />
   </>
 }
