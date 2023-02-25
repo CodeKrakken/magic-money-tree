@@ -219,16 +219,16 @@ async function getViableMarketNames(marketNames: string[]) {
 
     for (let i = 0; i < n; i++) {
       const symbolName = marketNames[i].replace('/', '')
-
-      logEntry(`Checking volume of ${i+1}/${n} - ${marketNames[i]}`)
       const response = await checkVolume(symbolName)
 
-      if (!response.includes("Insufficient") && response !== "No response.") {
+      if (!response.includes("Insufficient") && response !== "No response."){
         viableMarketNames.push(marketNames[i])
-        logEntry('Market included.')
-      } else {
-        logEntry(response)
       }
+
+      logEntry(`
+        Checking volume of ${i+1}/${n} - ${marketNames[i]} ... 
+        ${!response.includes("Insufficient") && response !== "No response." ? 'Market included.' : response}
+      `)
     }
     return viableMarketNames
   }
@@ -268,13 +268,10 @@ function simulatedWallet() {
   }
 }
 
-async function tick(wallet: wallet, viableSymbols: string[], i: number) {
+async function tick(wallet: wallet, viableSymbols: string[]) {
     try {
-      logEntry(''+i)
-      i++
       logEntry(`----- Tick at ${timeNow()} -----`)
       await refreshWallet(wallet)
-      // displayWallet(wallet)
       let markets = await fetchAllHistory(viableSymbols) as market[]
       if (markets.length) {
         markets = await addEmaRatio(markets) as market[]
@@ -287,7 +284,7 @@ async function tick(wallet: wallet, viableSymbols: string[], i: number) {
     } catch (error) {
       console.log(error)
     }
-    tick(wallet, viableSymbols, i)
+    tick(wallet, viableSymbols)
 }
 
 async function refreshWallet(wallet: wallet) {
@@ -340,19 +337,16 @@ async function fetchAllHistory(marketNames: string[]) {
 
   for (let i = 0; i < n; i++) {
     try {
-        logEntry(`Fetching history for ${i+1}/${marketNames.length} - ${marketNames[i]} ...`)
-        
-        const response = await fetchSingleHistory(marketNames[i].replace('/', ''))
+      const response = await fetchSingleHistory(marketNames[i].replace('/', ''))
+      logEntry(`Fetching history for ${i+1}/${marketNames.length} - ${marketNames[i]} ... ${response === 'No response.' ? response : ''}`)
 
-        if (response === 'No response.') {
-          logEntry(response)
-        } else {
-          const indexedHistories = await indexData(response)
-          returnArray.push({
-            name: marketNames[i],
-            histories: indexedHistories
-          })
-        }
+      if (response !== 'No response.') {
+        const indexedHistories = await indexData(response)
+        returnArray.push({
+          name: marketNames[i],
+          histories: indexedHistories
+        })
+      }
     } catch (error) {
       console.log(error)
     }
