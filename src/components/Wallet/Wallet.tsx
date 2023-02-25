@@ -13,7 +13,7 @@ export default function Wallet({wallet}: {wallet: wallet}) {
   }
 
   console.log(wallet)
-  return wallet?.coins?.length ? <>
+  return wallet?.coins ? <>
     Wallet
     {
       Object.keys(wallet.coins).filter(coin => wallet.coins[coin].volume).map(name => 
