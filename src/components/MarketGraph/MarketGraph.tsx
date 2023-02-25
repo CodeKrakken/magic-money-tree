@@ -1,6 +1,9 @@
 import Chart from 'react-apexcharts';
 
 const MarketGraph = ({ history }: { history: any }) => {
+
+  console.log('hello')
+  console.log(history)
   const options: {} = {
     chart: {
       type: 'candlestick',

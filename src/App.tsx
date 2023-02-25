@@ -28,7 +28,6 @@ export default function App() {
     }
     
     fetchData();
-    console.log(histories)
     const intervalId = setInterval(fetchData, 200);
   
     return () => clearInterval(intervalId);
