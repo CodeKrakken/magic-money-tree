@@ -619,7 +619,7 @@ async function simulatedSellOrder(wallet: wallet, sellType: string, market: mark
     wallet.data.prices = {}
     // await dbOverwrite(priceData, wallet.data.prices as {})
     const tradeReport = `${timeNow()} - Sold   ${assetVolume} ${asset} @ ${wallet.coins[asset].dollarPrice} ($${wallet.coins[base].volume}) ${market.shape ? `[${market.shape}]` : ''} [${sellType}]`
-    logEntry(tradeReport)
+    logEntry(tradeReport, 'transactions')
     // await dbAppend(tradeHistory, tradeReport)
     delete wallet.coins[asset]
   } catch (error) {
