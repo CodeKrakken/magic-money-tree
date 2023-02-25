@@ -328,8 +328,7 @@ async function refreshWallet(wallet: wallet) {
 async function fetchPrice(marketName: string) {
   try {
       const symbolName = marketName.replace('/', '')
-      currentTask = `Fetching price for ${marketName}`
-      logEntry(currentTask)
+      logEntry(`Fetching price for ${marketName}`)
       const rawPrice = await axios.get(`https://api.binance.com/api/v3/ticker/price?symbol=${symbolName}`) 
       const price = parseFloat(rawPrice.data.price)
       return price
