@@ -4,11 +4,13 @@ import Text from "./components/Text/Text"
 import { wallet } from 'server'
 import Wallet from "./components/Wallet/Wallet"
 import CurrentTask from "./components/CurrentTask/CurrentTask"
+import TransactionLog from "./components/TransactionLog/TransactionLog"
 
 export default function App() {
 
   const [wallet,   setWallet] = useState({} as wallet)
   const [currentTask, setcurrentTask] = useState('Fetching data')
+  const [transactionLog, setTransactionLog] = useState([] as string[])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -17,6 +19,7 @@ export default function App() {
       .then(data => {
         setWallet(data.wallet)
         setcurrentTask(data.currentTask)
+        setTransactionLog(data.transactionLog)
       })
     }
     
@@ -28,8 +31,9 @@ export default function App() {
 
   return <>
     <Text text='Magic Money Tree' tag='h1' />
+    <CurrentTask currentTask={currentTask} />
     <Wallet wallet={wallet} />
     <br />
-    <CurrentTask currentTask={currentTask} />
+    <TransactionLog log={transactionLog} />
   </>
 }

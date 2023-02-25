@@ -53,10 +53,6 @@ interface indexedFrame {
   average   : number;
 }
 
-
-
-
-
 interface market {
   histories: {
     [key: string]: indexedFrame[]
@@ -66,6 +62,8 @@ interface market {
   name      : string
   strength  : number
 }
+
+type LogTopic = 'general' | 'transactions';
 
 // interface collection { [key: string]: Function }
 // const { MongoClient } = require('mongodb');
@@ -80,7 +78,13 @@ interface market {
 // const mongoose = require('mongoose');
 // mongoose.connect(process.env.MONGODB_URI || uri)
 
-const log: string[] = [];
+const log: {
+  [key in LogTopic]: string[]
+} = {
+  general: [],
+  transactions: [],
+};
+
 let currentTask: string = ''
 const wallet: wallet = simulatedWallet()
 const axios = require("axios");
@@ -96,8 +100,9 @@ app.use(express.static(path.join(__dirname, "build")));
 
 app.get("/data", (req: Request, res: Response) => {
   const dataJSON = JSON.stringify({
-    currentTask : currentTask,
-    wallet      : wallet
+    currentTask     : currentTask,
+    wallet          : wallet,
+    transactionLog  : log.transactions
   });
   res.setHeader('Content-Type', 'application/json');
   res.send(dataJSON);
@@ -155,9 +160,9 @@ async function setupDB() {
   logEntry(currentTask)
 }
 
-function logEntry (entry: string) {
+function logEntry (entry: string, topic: LogTopic='general') {
   console.log(entry)
-  log.push(entry)    
+  log[topic].push(entry)    
 }
 
 // async function dbOverwrite(collection: collection, data: {[key: string]: string}) {
@@ -586,7 +591,7 @@ async function simulatedBuyOrder(wallet: wallet, market: market) {
       wallet.data.currentMarket = market
       // await dbOverwrite(priceData, wallet.data.prices as {})
       const tradeReport = `Bought ${wallet.coins[asset].volume} ${asset} @ ${currentPrice} ($${baseVolume * (1 - fee)}) [${market.shape}]`
-      logEntry(tradeReport)
+      logEntry(tradeReport, 'transactions')
       // await dbAppend(tradeHistory, tradeReport)
     }
   } catch (error) {
