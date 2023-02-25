@@ -13,7 +13,7 @@ export default function Wallet({wallet}: {wallet: wallet}) {
   }
 
   console.log(wallet)
-  return <>
+  return Object.keys(wallet.coins).length ? <>
     Wallet
     {
       Object.keys(wallet.coins).filter(coin => wallet.coins[coin].volume).map(name => 
@@ -30,5 +30,5 @@ export default function Wallet({wallet}: {wallet: wallet}) {
         Stop Loss Price - ${wallet.data.prices.stopLossPrice}
       </>
     }
-  </>
+  </> : <>No wallet data</>
 }
