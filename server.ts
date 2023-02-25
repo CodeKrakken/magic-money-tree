@@ -86,7 +86,7 @@ const log: {
 };
 
 let currentTask: string = ''
-let histories: { seconds?: []} = {seconds: []}
+let histories: { [key: string]: []} = {seconds: []}
 const wallet: wallet = simulatedWallet()
 const axios = require("axios");
 const express = require("express");
