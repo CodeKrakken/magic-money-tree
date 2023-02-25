@@ -107,7 +107,8 @@ app.get("/data", (req: Request, res: Response) => {
     histories       : histories
   });
   res.setHeader('Content-Type', 'application/json');
-  console.log(histories.seconds[0])
+  console.log('lope')
+  console.log(histories.seconds)
   res.send(dataJSON);
 });
 
