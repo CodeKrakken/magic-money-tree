@@ -43,7 +43,7 @@ export default function App() {
     <TransactionLog log={transactionLog} />
 
     {
-      wallet.data.baseCoin !== 'USDT' && <MarketGraph history={history} />
+      wallet?.data?.baseCoin !== 'USDT' && <MarketGraph history={history} />
     }
   </>
 }
