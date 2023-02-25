@@ -38,10 +38,7 @@ export default function App() {
     <CurrentTask currentTask={currentTask} />
     <Wallet wallet={wallet} />
     <br />
-    <TransactionLog log={transactionLog} />
-
-    {
-      Object.keys(histories).length ? <MarketGraph history={histories['seconds']} /> : null
-    }
+    {transactionLog.length ? <TransactionLog log={transactionLog} /> : null}
+    {Object.keys(histories).length ? <MarketGraph history={histories['seconds']} /> : null}
   </>
 }

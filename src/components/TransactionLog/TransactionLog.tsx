@@ -1,11 +1,10 @@
 export default function TransactionLog({log}: {log: string[]}) {
-  return log.length ? <>
-
+  return <>
     <h2>Transactions</h2>
     {
       log.map(transaction =>
         <div>{transaction}</div>
       )
     }
-  </> : null
+  </>
 }
