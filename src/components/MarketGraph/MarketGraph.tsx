@@ -23,15 +23,10 @@ const MarketGraph = ({ history }: { history: any }) => {
     },
   };
 
-  const data = history.map((candle: indexedFrame) => [
-    candle.time,
-    candle.open,
-    candle.high,
-    candle.low,
-    candle.close,
-  ])
-
-  console.log(data)
+  const data = history.map((candle: indexedFrame) => ({
+    x: new Date(candle.time),
+    y: [candle.open, candle.high, candle.low, candle.close],
+  }))
 
   const series = [
     {
