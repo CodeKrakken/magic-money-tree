@@ -86,7 +86,7 @@ const log: {
 };
 
 let currentTask: string = ''
-let histories: {} = {}
+let histories: { seconds: []} = {seconds: []}
 const wallet: wallet = simulatedWallet()
 const axios = require("axios");
 const express = require("express");
@@ -107,7 +107,7 @@ app.get("/data", (req: Request, res: Response) => {
     histories       : histories
   });
   res.setHeader('Content-Type', 'application/json');
-  console.log(histories)
+  console.log(histories.seconds[0])
   res.send(dataJSON);
 });
 
@@ -294,8 +294,6 @@ async function tick(wallet: wallet) {
         await displayMarkets(markets)
         if (markets.length) await trade(markets, wallet)
         if (wallet.data.currentMarket.name) histories = markets.filter(market => market.name === wallet.data.currentMarket.name)[0].histories
-        console.log(wallet)
-        console.log(histories)
       }
     }
   } catch (error) {

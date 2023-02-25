@@ -39,6 +39,7 @@ export default function App() {
     <Wallet wallet={wallet} />
     <br />
     {transactionLog.length ? <TransactionLog log={transactionLog} /> : null}
+    <br />
     {Object.keys(histories).length ? <MarketGraph history={histories['seconds']} /> : null}
   </>
 }
