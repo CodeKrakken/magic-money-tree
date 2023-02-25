@@ -101,9 +101,10 @@ app.use(express.static(path.join(__dirname, "build")));
 
 app.get("/data", (req: Request, res: Response) => {
   const dataJSON = JSON.stringify({
-    currentTask     : currentTask,
     wallet          : wallet,
+    currentTask     : currentTask,
     transactionLog  : log.transactions,
+    histories       : histories
   });
   res.setHeader('Content-Type', 'application/json');
   res.send(dataJSON);
@@ -290,8 +291,10 @@ async function tick(wallet: wallet) {
         markets = await filterMarkets(markets)
         markets = sortMarkets(markets)
         await displayMarkets(markets)
-        if (wallet.data.currentMarket.name) histories = markets.filter(market => market.name === wallet.data.currentMarket.name)[0].histories
         if (markets.length) await trade(markets, wallet)
+        if (wallet.data.currentMarket.name) histories = markets.filter(market => market.name === wallet.data.currentMarket.name)[0].histories
+        console.log(wallet)
+        console.log(histories)
       }
     }
   } catch (error) {
@@ -604,8 +607,8 @@ async function simulatedSellOrder(wallet: wallet, sellType: string, market: mark
 
   try {
     await refreshWallet(wallet)
-    const asset = wallet.data.currentMarket.name.split('/')[0]
-    const base  = wallet.data.currentMarket.name.split('/')[1]
+    const asset = wallet.data.currentMarket.name.replace('USDT', '')
+    const base  = 'USDT'
     console.log(wallet)
     console.log(wallet.coins)
     console.log(asset)
