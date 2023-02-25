@@ -41,7 +41,7 @@ const MarketGraph = ({ history }: { history: any }) => {
 
 
   return <>
-    {/* <Chart options={options} series={series} type="candlestick" height={350} /> */}
+    <Chart options={options} series={series} type="candlestick" height={350} />
   </>;
 };
 
