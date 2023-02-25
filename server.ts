@@ -274,7 +274,7 @@ async function tick(wallet: wallet, viableSymbols: string[], i: number) {
       i++
       logEntry(`----- Tick at ${timeNow()} -----`)
       await refreshWallet(wallet)
-      displayWallet(wallet)
+      // displayWallet(wallet)
       let markets = await fetchAllHistory(viableSymbols) as market[]
       if (markets.length) {
         markets = await addEmaRatio(markets) as market[]
@@ -332,32 +332,6 @@ async function fetchPrice(marketName: string) {
   } catch (error) {
     console.log(error)
   }
-}
-
-function displayWallet(wallet: wallet) {
-  logEntry('Wallet')
-
-  Object.keys(wallet.coins).filter(coin => wallet.coins[coin].volume).map(name => {
-    logEntry(`${wallet.coins[name].volume} ${name} @ ${wallet.coins[name].dollarPrice} = $${wallet.coins[name].dollarValue}`)
-  })
-  logEntry(`Total = $${getDollarTotal(wallet)}`)
-
-  if (wallet.data.baseCoin !== 'USDT') {
-    logEntry(`Target Price    - ${wallet.data.prices.targetPrice}`)
-    logEntry(`High Price      - ${wallet.data.prices.highPrice}`)
-    logEntry(`Purchase Price  - ${wallet.data.prices.purchasePrice}`)
-    logEntry(`Stop Loss Price - ${wallet.data.prices.stopLossPrice}`)
-  }
-}
-
-function getDollarTotal(wallet: wallet) {
-  let total = 0
-
-  Object.keys(wallet.coins).map(name => {
-    total += wallet.coins[name].dollarValue
-  })
-
-  return total
 }
 
 async function fetchAllHistory(marketNames: string[]) {
