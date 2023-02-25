@@ -15,7 +15,6 @@ const MarketGraph = ({ history }: { history: any }) => {
         }))
       }
     ])
-    console.log(history)
   }, [history])
 
   const options: {} = {

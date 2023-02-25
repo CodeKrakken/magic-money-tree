@@ -107,6 +107,7 @@ app.get("/data", (req: Request, res: Response) => {
     histories       : histories
   });
   res.setHeader('Content-Type', 'application/json');
+  console.log(histories)
   res.send(dataJSON);
 });
 
