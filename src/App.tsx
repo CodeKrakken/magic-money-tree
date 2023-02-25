@@ -6,14 +6,16 @@ import Wallet from "./components/Wallet/Wallet"
 import CurrentTask from "./components/CurrentTask/CurrentTask"
 import TransactionLog from "./components/TransactionLog/TransactionLog"
 import MarketGraph from "./components/MarketGraph/MarketGraph"
+import { indexedFrame } from "server"
 
 export default function App() {
+
+
 
   const [wallet,                 setWallet] = useState({} as wallet)
   const [currentTask,       setcurrentTask] = useState('Fetching data')
   const [transactionLog, setTransactionLog] = useState([] as string[])
-  const [history,               setHistory] = useState({})
-  const [markets,               setMarkets] = useState({})
+  const [histories,           setHistories] = useState({} as {[key: string]: indexedFrame[]})
 
   useEffect(() => {
     const fetchData = async () => {
@@ -23,9 +25,7 @@ export default function App() {
         setWallet(data.wallet)
         setcurrentTask(data.currentTask)
         setTransactionLog(data.transactionLog)
-        setHistory(data.history)
-        setMarkets(data.markets)
-        console.log(markets)
+        setHistories(data.histories)
       })
     }
     
@@ -43,7 +43,7 @@ export default function App() {
     <TransactionLog log={transactionLog} />
 
     {
-      wallet?.data?.baseCoin !== 'USDT' && <MarketGraph history={history} />
+      wallet?.data?.baseCoin !== 'USDT' && <MarketGraph history={histories['seconds']} />
     }
   </>
 }

@@ -43,7 +43,8 @@ type rawFrame = [
   string
 ];
 
-interface indexedFrame {
+
+export interface indexedFrame {
   open    : number;
   high    : number;
   low     : number;
@@ -85,6 +86,7 @@ const log: {
 };
 
 let currentTask: string = ''
+let histories: {} = {}
 const wallet: wallet = simulatedWallet()
 const axios = require("axios");
 const express = require("express");
@@ -97,14 +99,11 @@ app.use(cors());
 
 app.use(express.static(path.join(__dirname, "build")));
 
-let markets: any
-
 app.get("/data", (req: Request, res: Response) => {
   const dataJSON = JSON.stringify({
     currentTask     : currentTask,
     wallet          : wallet,
     transactionLog  : log.transactions,
-    markets         : markets
   });
   res.setHeader('Content-Type', 'application/json');
   res.send(dataJSON);
@@ -284,14 +283,14 @@ async function tick(wallet: wallet) {
     const viableSymbols = await fetchSymbols()
 
     if (viableSymbols?.length) {
-      markets = await fetchAllHistory(viableSymbols) as market[]
-      console.log(markets)
+      let markets = await fetchAllHistory(viableSymbols) as market[]
       if (markets.length) {
         markets = await addEmaRatio(markets) as market[]
         markets = await addShape(markets)
         markets = await filterMarkets(markets)
         markets = sortMarkets(markets)
         await displayMarkets(markets)
+        if (wallet.data.currentMarket.name) histories = markets.filter(market => market.name === wallet.data.currentMarket.name)[0].histories
         if (markets.length) await trade(markets, wallet)
       }
     }
