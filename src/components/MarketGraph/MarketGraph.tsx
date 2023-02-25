@@ -31,13 +31,14 @@ const MarketGraph = ({ history }: { history: any }) => {
     candle.close,
   ])
 
+  console.log(data)
+
   const series = [
     {
       data: data
     }
   ]
 
-  console.log(series)
 
 
   return <>
