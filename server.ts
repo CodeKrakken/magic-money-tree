@@ -44,13 +44,12 @@ type rawFrame = [
 ];
 
 interface indexedFrame {
-  startTime : number;
-  open      : number;
-  high      : number;
-  low       : number;
-  close     : number;
-  endTime   : number;
-  average   : number;
+  open    : number;
+  high    : number;
+  low     : number;
+  close   : number;
+  time    : number;
+  average : number;
 }
 
 interface market {
@@ -98,11 +97,14 @@ app.use(cors());
 
 app.use(express.static(path.join(__dirname, "build")));
 
+let markets: any
+
 app.get("/data", (req: Request, res: Response) => {
   const dataJSON = JSON.stringify({
     currentTask     : currentTask,
     wallet          : wallet,
-    transactionLog  : log.transactions
+    transactionLog  : log.transactions,
+    markets         : markets
   });
   res.setHeader('Content-Type', 'application/json');
   res.send(dataJSON);
@@ -282,7 +284,8 @@ async function tick(wallet: wallet) {
     const viableSymbols = await fetchSymbols()
 
     if (viableSymbols?.length) {
-      let markets = await fetchAllHistory(viableSymbols) as market[]
+      markets = await fetchAllHistory(viableSymbols) as market[]
+      console.log(markets)
       if (markets.length) {
         markets = await addEmaRatio(markets) as market[]
         markets = await addShape(markets)
@@ -396,12 +399,11 @@ async function indexData(rawHistories: { [key: string]: rawFrame[]}) {
 
         history.push(
           {
-            startTime : frame[0],
             open      : parseFloat(frame[1]),
             high      : parseFloat(frame[2]),
             low       : parseFloat(frame[3]),
             close     : parseFloat(frame[4]),
-            endTime   : frame[6],
+            time      : frame[6],
             average   : average
           }
         )
@@ -625,4 +627,4 @@ async function simulatedSellOrder(wallet: wallet, sellType: string, market: mark
 
 run()
 
-export{}
+export {}
