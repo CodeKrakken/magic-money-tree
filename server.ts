@@ -128,11 +128,7 @@ async function run() {
   try {
     // await setupDB();
     // await dbAppend(tradeHistory, timeNow(), 'Running')
-    const viableSymbols = await fetchSymbols()
-
-    if (viableSymbols?.length) {
-      tick(wallet, viableSymbols)
-    }
+    tick(wallet)
   } catch (error) {
     console.log(error)
   }
@@ -179,11 +175,11 @@ function logEntry (entry: string) {
 async function fetchSymbols() {
 
   try {
-      const markets = await axios.get('https://api.binance.com/api/v3/exchangeInfo');
-      if (markets) {
-        const viableSymbols = await analyseMarkets(markets.data.symbols)
-        return viableSymbols
-      }
+    const markets = await axios.get('https://api.binance.com/api/v3/exchangeInfo');
+    if (markets) {
+      const viableSymbols = await analyseMarkets(markets.data.symbols)
+      return viableSymbols
+    }
   } catch (error) {
     console.log(error)
     return []
@@ -235,6 +231,7 @@ async function getViableMarketNames(marketNames: string[]) {
       `
 
       logEntry(currentTask)
+      await refreshWallet(wallet)
     }
     return viableMarketNames
   }
@@ -274,10 +271,12 @@ function simulatedWallet() {
   }
 }
 
-async function tick(wallet: wallet, viableSymbols: string[]) {
-    try {
-      logEntry(`----- Tick at ${timeNow()} -----`)
-      await refreshWallet(wallet)
+async function tick(wallet: wallet) {
+  try {
+    logEntry(`----- Tick at ${timeNow()} -----`)
+    const viableSymbols = await fetchSymbols()
+
+    if (viableSymbols?.length) {
       let markets = await fetchAllHistory(viableSymbols) as market[]
       if (markets.length) {
         markets = await addEmaRatio(markets) as market[]
@@ -287,10 +286,11 @@ async function tick(wallet: wallet, viableSymbols: string[]) {
         await displayMarkets(markets)
         if (markets.length) await trade(markets, wallet)
       }
-    } catch (error) {
-      console.log(error)
     }
-    tick(wallet, viableSymbols)
+  } catch (error) {
+    console.log(error)
+  }
+  tick(wallet)
 }
 
 async function refreshWallet(wallet: wallet) {
@@ -355,9 +355,11 @@ async function fetchAllHistory(marketNames: string[]) {
           histories: indexedHistories
         })
       }
+      await refreshWallet(wallet)
     } catch (error) {
       console.log(error)
     }
+
   }
   return returnArray
 }
@@ -564,6 +566,7 @@ async function simulatedBuyOrder(wallet: wallet, market: market) {
     const asset = market.name.replace(wallet.data.baseCoin, '')
     const base  = wallet.data.baseCoin
     const response = await fetchPrice(market.name)
+    await refreshWallet(wallet)
 
     if (response) {
       const currentPrice = response as number
@@ -595,6 +598,7 @@ async function simulatedBuyOrder(wallet: wallet, market: market) {
 async function simulatedSellOrder(wallet: wallet, sellType: string, market: market) {
 
   try {
+    await refreshWallet(wallet)
     const asset = wallet.data.currentMarket.name.split('/')[0]
     const base  = wallet.data.currentMarket.name.split('/')[1]
     console.log(wallet)

@@ -29,6 +29,7 @@ export default function App() {
   return <>
     <Text text='Magic Money Tree' tag='h1' />
     <Wallet wallet={wallet} />
+    <br />
     <CurrentTask currentTask={currentTask} />
   </>
 }
