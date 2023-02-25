@@ -13,7 +13,7 @@ export default function App() {
   const [currentTask,       setcurrentTask] = useState('Fetching data')
   const [transactionLog, setTransactionLog] = useState([] as string[])
   const [history,               setHistory] = useState({})
-  const [markets,               setMarkets] = useState([])
+  const [markets,               setMarkets] = useState({})
 
   useEffect(() => {
     const fetchData = async () => {
