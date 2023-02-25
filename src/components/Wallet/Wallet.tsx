@@ -16,9 +16,9 @@ export default function Wallet({wallet}: {wallet: wallet}) {
   return <>
     Wallet
     {
-      Object.keys(wallet.coins).filter(coin => wallet.coins[coin].volume).map(name => {
+      Object.keys(wallet.coins).filter(coin => wallet.coins[coin].volume).map(name => 
         `${wallet.coins[name].volume} ${name} @ ${wallet.coins[name].dollarPrice} = $${wallet.coins[name].dollarValue}`
-      })
+      )
     }
     Total = ${getDollarTotal(wallet)}
   
