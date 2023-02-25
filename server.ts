@@ -94,12 +94,12 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, "build")));
 
 app.get("/data", (req: Request, res: Response) => {
-  const logJSON = JSON.stringify({
+  const dataJSON = JSON.stringify({
     log   : log,
     wallet: wallet
   });
   res.setHeader('Content-Type', 'application/json');
-  res.send(logJSON);
+  res.send(dataJSON);
 });
 
 const port = process.env.PORT || 5000;
@@ -121,7 +121,6 @@ const timeScales: {[key: string]: string} = {
 }
 
 async function run() {
-  const i = 0
   logEntry(`Running at ${timeNow()}`)
   try {
     // await setupDB();
@@ -129,7 +128,7 @@ async function run() {
     const viableSymbols = await fetchSymbols()
 
     if (viableSymbols?.length) {
-      tick(wallet, viableSymbols, i)
+      tick(wallet, viableSymbols)
     }
   } catch (error) {
     console.log(error)
