@@ -1,9 +1,8 @@
 import Chart from 'react-apexcharts';
+import { indexedFrame } from 'server';
 
 const MarketGraph = ({ history }: { history: any }) => {
 
-  console.log('hello')
-  console.log(history)
   const options: {} = {
     chart: {
       type: 'candlestick',
@@ -25,7 +24,13 @@ const MarketGraph = ({ history }: { history: any }) => {
 
   const series = [
     {
-      data: history,
+      data: history.map((candle: indexedFrame) => [
+        candle.time,
+        candle.open,
+        candle.high,
+        candle.low,
+        candle.close,
+      ]),
     },
   ];
 
