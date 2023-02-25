@@ -9,7 +9,7 @@ import MarketGraph from "./components/MarketGraph/MarketGraph"
 import { indexedFrame } from "server"
 
 export default function App() {
-  
+
   const [wallet,                 setWallet] = useState({} as wallet)
   const [currentTask,       setcurrentTask] = useState('Fetching data')
   const [transactionLog, setTransactionLog] = useState([] as string[])
@@ -28,6 +28,7 @@ export default function App() {
     }
     
     fetchData();
+    console.log(histories)
     const intervalId = setInterval(fetchData, 200);
   
     return () => clearInterval(intervalId);
