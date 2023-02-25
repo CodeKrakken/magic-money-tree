@@ -86,7 +86,7 @@ const log: {
 };
 
 let currentTask: string = ''
-let histories: { seconds: []} = {seconds: []}
+let histories: { seconds?: []} = {seconds: []}
 const wallet: wallet = simulatedWallet()
 const axios = require("axios");
 const express = require("express");
@@ -107,7 +107,8 @@ app.get("/data", (req: Request, res: Response) => {
     histories       : histories
   });
   res.setHeader('Content-Type', 'application/json');
-  console.log(histories.seconds[0])
+  console.log('lope')
+  console.log(histories.seconds)
   res.send(dataJSON);
 });
 
