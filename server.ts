@@ -254,12 +254,12 @@ function simulatedWallet() {
     coins: {
       USDT: {
         volume: 1000,
-        dollarPrice: 1000,
-        dollarValue: 1
+        dollarPrice: 1,
+        dollarValue: 1000
       }
     },
     data: {
-      baseCoin: '',
+      baseCoin: 'USDT',
       currentMarket: {
         name: ''
       },
