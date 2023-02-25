@@ -2,7 +2,5 @@ export default function Text({tag, text}: {tag? : keyof JSX.IntrinsicElements, t
 
   const Tag = tag || 'div'
 
-  console.log(Tag)
-
   return <Tag>{text}</Tag>
 }
