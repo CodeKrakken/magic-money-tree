@@ -9,9 +9,9 @@ const MarketGraph = ({ history }: { history: any }) => {
   useEffect(() => {
     setSeries([
       {
-        data: history.map((candle: indexedFrame) => ({
-          x: new Date(candle.time),
-          y: [candle.open, candle.high, candle.low, candle.close],
+        data: history.map((frame: indexedFrame) => ({
+          x: new Date(frame.time),
+          y: [frame.open, frame.high, frame.low, frame.close],
         }))
       }
     ])

@@ -41,7 +41,7 @@ export default function App() {
     <TransactionLog log={transactionLog} />
 
     {
-      Object.keys(histories).length && <MarketGraph history={histories['seconds']} />
+      Object.keys(histories).length ? <MarketGraph history={histories['seconds']} /> : null
     }
   </>
 }
