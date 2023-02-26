@@ -511,7 +511,7 @@ async function addShape(markets: market[]) {
       const shape = percentageChange * ema(deviations)
       return shape
     })
-    market.shape = ema(shapes)/100
+    market.shape = ema(shapes)
   })
   return markets
 }
