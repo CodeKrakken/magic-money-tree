@@ -603,7 +603,7 @@ async function simulatedBuyOrder(wallet: wallet, market: market) {
 
       wallet.data.currentMarket = market
       // await dbOverwrite(priceData, wallet.data.prices as {})
-      const tradeReport = `Bought ${wallet.coins[asset].volume} ${asset} @ ${currentPrice} ($${baseVolume * (1 - fee)}) [${market.shape}]`
+      const tradeReport = `${timeNow()} - Bought ${wallet.coins[asset].volume} ${asset} @ ${currentPrice} ($${baseVolume * (1 - fee)}) [${market.shape}]`
       logEntry(tradeReport, 'transactions')
       // await dbAppend(tradeHistory, tradeReport)
     }
