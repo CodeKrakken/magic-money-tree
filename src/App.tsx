@@ -41,7 +41,7 @@ export default function App() {
     {transactionLog.length ? <TransactionLog log={transactionLog} /> : null}
     <br />
     {
-      typeof wallet !== 'undefined' &&
+      // typeof wallet !== 'undefined' &&
       wallet &&
       Object.keys(wallet).length &&
       wallet.data &&
