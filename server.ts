@@ -603,7 +603,7 @@ async function simulatedBuyOrder(wallet: wallet, market: market) {
 
       wallet.data.currentMarket = market
       // await dbOverwrite(priceData, wallet.data.prices as {})
-      const tradeReport = `${timeNow()} - Bought ${wallet.coins[asset].volume} ${asset} @ ${currentPrice} ($${baseVolume * (1 - fee)}) ... Strength - ${market.strength}`
+      const tradeReport = `${timeNow()} - Bought ${wallet.coins[asset].volume} ${asset} @ ${currentPrice} = $${baseVolume * (1 - fee)} ... Strength - ${market.strength}`
       logEntry(tradeReport, 'transactions')
       // await dbAppend(tradeHistory, tradeReport)
     }
@@ -627,7 +627,7 @@ async function simulatedSellOrder(wallet: wallet, sellType: string, market: mark
     wallet.coins[base].volume += assetVolume * (1 - fee) * wallet.coins[asset].dollarPrice
     wallet.data.prices = {}
     // await dbOverwrite(priceData, wallet.data.prices as {})
-    const tradeReport = `${timeNow()} - Sold   ${assetVolume} ${asset} @ ${wallet.coins[asset].dollarPrice} ($${wallet.coins[base].volume}) ... Strength - ${market.strength}} ... ${sellType}`
+    const tradeReport = `${timeNow()} - Sold   ${assetVolume} ${asset} @ ${wallet.coins[asset].dollarPrice} = $${wallet.coins[base].volume} ... Strength - ${market.strength}} ... ${sellType}`
     logEntry(tradeReport, 'transactions')
     // await dbAppend(tradeHistory, tradeReport)
     delete wallet.coins[asset]
