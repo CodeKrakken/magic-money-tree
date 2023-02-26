@@ -228,10 +228,7 @@ async function getViableMarketNames(marketNames: string[]) {
         viableMarketNames.push(marketNames[i])
       }
 
-      currentTask = `
-        Checking volume of ${i+1}/${n} - ${marketNames[i]} ... 
-        ${!response.includes("Insufficient") && response !== "No response." ? 'Market included.' : response}
-      `
+      currentTask = `Checking volume of ${i+1}/${n} - ${marketNames[i]} ... ${!response.includes("Insufficient") && response !== "No response." ? 'Market included.' : response}`
 
       logEntry(currentTask)
       await refreshWallet(wallet)
@@ -328,10 +325,11 @@ async function refreshWallet(wallet: wallet) {
       wallet.data.prices = {}
     } else {
       const histories = await fetchSingleHistory(`${wallet.data.baseCoin}USDT`)  
-      const indexedHistories = await indexData(histories as {[key: string]: rawFrame[];})
-
+      if (histories !== 'No response.') {
+        const indexedHistories = await indexData(histories as {[key: string]: rawFrame[];})
+        wallet.data.currentMarket.histories = indexedHistories as {[key: string]: indexedFrame[]}
+      }
       wallet.data.currentMarket.name = `${wallet.data.baseCoin}USDT`
-      wallet.data.currentMarket.histories = indexedHistories as {[key: string]: indexedFrame[]}
       wallet.data.currentMarket.currentPrice = wallet.coins[wallet.data.baseCoin].dollarPrice
       
       // if (!Object.keys(wallet.data.prices).length) {
