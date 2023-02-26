@@ -38,6 +38,6 @@ export default function App() {
     <br />
     {transactionLog.length ? <TransactionLog log={transactionLog} /> : null}
     <br />
-    {Object.keys(wallet.data.currentMarket.histories).length ? <MarketGraph history={wallet.data.currentMarket.histories['seconds']} /> : null}
+    {Object.keys(wallet?.data?.currentMarket?.histories).length ? <MarketGraph history={wallet.data.currentMarket.histories['seconds']} /> : null}
   </>
 }
