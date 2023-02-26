@@ -15,10 +15,7 @@ export interface wallet {
   }
   data: {
     baseCoin      : string
-    currentMarket : {
-      name          : string
-      currentPrice? : number
-    }
+    currentMarket : market
     prices        : {
       targetPrice?    : number
       highPrice?      : number
@@ -57,10 +54,11 @@ interface market {
   histories: {
     [key: string]: indexedFrame[]
   }
-  emaRatio  : number
-  shape     : number
-  name      : string
-  strength  : number
+  emaRatio?      : number
+  shape?         : number
+  name          : string
+  strength?      : number
+  currentPrice  :  number
 }
 
 type LogTopic = 'general' | 'transactions';
@@ -86,7 +84,6 @@ const log: {
 };
 
 let currentTask: string = ''
-let histories: { [key: string]: indexedFrame[]} = {seconds: []}
 const wallet: wallet = simulatedWallet()
 const axios = require("axios");
 const express = require("express");
@@ -104,7 +101,6 @@ app.get("/data", (req: Request, res: Response) => {
     wallet          : wallet,
     currentTask     : currentTask,
     transactionLog  : log.transactions,
-    histories       : histories
   });
   res.setHeader('Content-Type', 'application/json');
   res.send(dataJSON);
@@ -271,7 +267,12 @@ function simulatedWallet() {
     data: {
       baseCoin: 'USDT',
       currentMarket: {
-        name: ''
+        name: '',
+        histories: {},
+        emaRatio: NaN,
+        shape: NaN,
+        strength: NaN,
+        currentPrice: NaN
       },
       prices: {}
     }
@@ -292,7 +293,6 @@ async function tick(wallet: wallet) {
         markets = sortMarkets(markets)
         await displayMarkets(markets)
         if (markets.length) await trade(markets, wallet)
-        if (wallet.data.currentMarket.name) histories = markets.filter(market => market.name === wallet.data.currentMarket.name)[0].histories
       }
     }
   } catch (error) {
@@ -302,35 +302,47 @@ async function tick(wallet: wallet) {
 }
 
 async function refreshWallet(wallet: wallet) {
-  const n = Object.keys(wallet.coins).length
-
-  for (let i = 0; i < n; i ++) {
-    const coin = Object.keys(wallet.coins)[i]
-    wallet.coins[coin].dollarPrice = coin === 'USDT' ? 1 : await fetchPrice(`${coin}USDT`) as number
-    wallet.coins[coin].dollarValue = wallet.coins[coin].volume * wallet.coins[coin].dollarPrice
-  }
-
-  const sorted = Object.keys(wallet.coins).sort((a, b) => wallet.coins[a].dollarValue - wallet.coins[b].dollarValue)
-  wallet.data = wallet.data || {}
-  wallet.data.baseCoin = sorted.pop() as string
-
-  if (wallet.data.baseCoin === 'USDT') {
-    wallet.data.currentMarket = {
-      name: ''
-    }
-    wallet.data.prices = {}
-  } else {
-    wallet.data.currentMarket = { 
-      name: `${wallet.data.baseCoin}USDT`,
-      currentPrice: wallet.coins[wallet.data.baseCoin].dollarPrice
-    }
+  try {
     
-    // if (!Object.keys(wallet.data.prices).length) {
-    //   const data = await priceData.find().toArray();
-    //   wallet.data.prices = data[0]      
-    // }
-  }
-  return wallet
+    const n = Object.keys(wallet.coins).length
+
+    for (let i = 0; i < n; i ++) {
+      const coin = Object.keys(wallet.coins)[i]
+      wallet.coins[coin].dollarPrice = coin === 'USDT' ? 1 : await fetchPrice(`${coin}USDT`) as number
+      wallet.coins[coin].dollarValue = wallet.coins[coin].volume * wallet.coins[coin].dollarPrice
+    }
+
+    const sorted = Object.keys(wallet.coins).sort((a, b) => wallet.coins[a].dollarValue - wallet.coins[b].dollarValue)
+    wallet.data = wallet.data || {}
+    wallet.data.baseCoin = sorted.pop() as string
+
+    if (wallet.data.baseCoin === 'USDT') {
+      wallet.data.currentMarket = {
+        histories     : {},
+        emaRatio      : NaN,
+        shape         : NaN,
+        name          : '',
+        strength      : NaN,
+        currentPrice  : NaN
+      }
+      wallet.data.prices = {}
+    } else {
+      const histories = await fetchSingleHistory(`${wallet.data.baseCoin}USDT`)  
+      const indexedHistories = await indexData(histories as {[key: string]: rawFrame[];})
+
+      wallet.data.currentMarket.name = `${wallet.data.baseCoin}USDT`
+      wallet.data.currentMarket.histories = indexedHistories as {[key: string]: indexedFrame[]}
+      wallet.data.currentMarket.currentPrice = wallet.coins[wallet.data.baseCoin].dollarPrice
+      
+      // if (!Object.keys(wallet.data.prices).length) {
+      //   const data = await priceData.find().toArray();
+      //   wallet.data.prices = data[0]      
+      // }
+    }
+    return wallet
+  } catch (error) {
+      console.log(error)
+  }  
 }
 
 async function fetchPrice(marketName: string) {
@@ -506,9 +518,9 @@ async function addShape(markets: market[]) {
 
 function filterMarkets(markets: market[]) {
   return markets.filter(market => 
-    market.shape > 0 
+    market.shape as number > 0 
     && 
-    market.emaRatio > 1
+    market.emaRatio as number > 1
   )
 }
 
@@ -521,7 +533,7 @@ function displayMarkets(markets: market[]) {
 // TRADE FUNCTIONS
 
 async function trade(markets: market[], wallet: wallet) {
-  const targetMarket = markets[0].strength > 0 ? markets[0] : null
+  const targetMarket = markets[0].strength as number > 0 ? markets[0] : null
 
   if (wallet.data.baseCoin === 'USDT') {   
 
@@ -558,12 +570,13 @@ async function trade(markets: market[], wallet: wallet) {
 }
 
 function sortMarkets(markets: market[]) {
-
   markets = markets.map(market => {
-    market.strength = market.emaRatio * market.shape
-    return market
+    const emaRatio = market.emaRatio as number | undefined;
+    const shape = market.shape as number | undefined;
+    market.strength = emaRatio && shape ? emaRatio * shape : 0;
+    return market;
   })
-  markets = markets.sort((a,b) => b.strength - a.strength)
+  markets = markets.sort((a,b) => (b.strength as number) - (a.strength as number))
   return markets
 }
 

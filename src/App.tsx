@@ -13,7 +13,6 @@ export default function App() {
   const [wallet,                 setWallet] = useState({} as wallet)
   const [currentTask,       setcurrentTask] = useState('Fetching data')
   const [transactionLog, setTransactionLog] = useState([] as string[])
-  const [histories,           setHistories] = useState({} as {[key: string]: indexedFrame[]})
 
   useEffect(() => {
     const fetchData = async () => {
@@ -23,7 +22,6 @@ export default function App() {
         setWallet(data.wallet)
         setcurrentTask(data.currentTask)
         setTransactionLog(data.transactionLog)
-        setHistories(data.histories)
       })
     }
     
@@ -40,6 +38,6 @@ export default function App() {
     <br />
     {transactionLog.length ? <TransactionLog log={transactionLog} /> : null}
     <br />
-    {Object.keys(histories).length ? <MarketGraph history={histories['seconds']} /> : null}
+    {Object.keys(wallet.data.currentMarket.histories).length ? <MarketGraph history={wallet.data.currentMarket.histories['seconds']} /> : null}
   </>
 }
