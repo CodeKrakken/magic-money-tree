@@ -41,7 +41,7 @@ export default function App() {
     {transactionLog.length ? <TransactionLog log={transactionLog} /> : null}
     <br />
     {
-      wallet?.data?.currentMarket?.histories
+      wallet?.data?.currentMarket?.histories?.seconds
       ? <MarketGraph history={wallet.data.currentMarket.histories.seconds} />
       : null
     }
