@@ -46,9 +46,8 @@ export default function App() {
       // Object.keys(wallet).length &&
       wallet.data &&
       wallet.data.currentMarket &&
-      wallet.data.currentMarket.histories 
-      // &&
-      // wallet.data.currentMarket.histories.seconds &&
+      wallet.data.currentMarket.histories &&
+      wallet.data.currentMarket.histories.seconds
       // wallet.data.currentMarket.histories.seconds.length 
       ?
       <MarketGraph history={wallet.data.currentMarket.histories.seconds} /> : null
