@@ -31,6 +31,8 @@ export default function App() {
     return () => clearInterval(intervalId);
   }, []);
 
+  console.log(wallet)
+
   return <>
     <Text text='Magic Money Tree' tag='h1' />
     <CurrentTask currentTask={currentTask} />
@@ -38,6 +40,6 @@ export default function App() {
     <br />
     {transactionLog.length ? <TransactionLog log={transactionLog} /> : null}
     <br />
-    {Object.keys(wallet?.data?.currentMarket?.histories).length ? <MarketGraph history={wallet.data.currentMarket.histories['seconds']} /> : null}
+    {/* {Object.keys(wallet?.data?.currentMarket?.histories).length ? <MarketGraph history={wallet.data.currentMarket.histories['seconds']} /> : null} */}
   </>
 }
