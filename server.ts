@@ -84,6 +84,7 @@ const log: {
 };
 
 let currentTask: string = ''
+let ranking: string[] = []
 const wallet: wallet = simulatedWallet()
 const axios = require("axios");
 const express = require("express");
@@ -101,6 +102,7 @@ app.get("/data", (req: Request, res: Response) => {
     wallet          : wallet,
     currentTask     : currentTask,
     transactionLog  : log.transactions,
+    ranking         : ranking
   });
   res.setHeader('Content-Type', 'application/json');
   res.send(dataJSON);
@@ -523,8 +525,10 @@ function filterMarkets(markets: market[]) {
 }
 
 function displayMarkets(markets: market[]) {
-  markets.map(market => {
-    logEntry(`${market.name} ... shape ${market.shape} * ema ratio ${market.emaRatio} = strength ${market.strength}`)
+  ranking = markets.map(market => {
+    const report = `${market.name} ... shape ${market.shape} * ema ratio ${market.emaRatio} = strength ${market.strength}`
+    logEntry(report)
+    return report
   })
 }
 
