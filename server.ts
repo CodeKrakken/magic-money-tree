@@ -288,9 +288,9 @@ async function tick(wallet: wallet) {
       if (markets.length) {
         markets = await addEmaRatio(markets) as market[]
         markets = await addShape(markets)
-        markets = await filterMarkets(markets)
         markets = sortMarkets(markets)
         await displayMarkets(markets)
+        markets = await filterMarkets(markets)
         if (markets.length) await trade(markets, wallet)
       }
     }
