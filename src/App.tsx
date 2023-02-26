@@ -40,6 +40,16 @@ export default function App() {
     <br />
     {transactionLog.length ? <TransactionLog log={transactionLog} /> : null}
     <br />
-    {/* {wallet?.data?.baseCoin !== 'USDT' && Object.keys(wallet?.data?.currentMarket?.histories).length ? <MarketGraph history={wallet.data.currentMarket.histories['seconds']} /> : null} */}
+    {
+      typeof wallet !== 'undefined' &&
+      wallet &&
+      Object.keys(wallet).length &&
+      wallet.data &&
+      wallet.data.currentMarket &&
+      wallet.data.currentMarket.histories &&
+      wallet.data.currentMarket.histories.seconds &&
+      wallet.data.currentMarket.histories.seconds.length ?
+      <MarketGraph history={wallet.data.currentMarket.histories.seconds} /> : null
+    }
   </>
 }
