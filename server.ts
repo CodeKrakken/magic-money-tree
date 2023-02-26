@@ -575,7 +575,7 @@ function sortMarkets(markets: market[]) {
   markets = markets.map(market => {
     const emaRatio = market.emaRatio as number | undefined;
     const shape = market.shape as number | undefined;
-    market.strength = emaRatio && shape ? emaRatio * shape * 100 : 0;
+    market.strength = emaRatio && shape ? emaRatio * shape : 0;
     return market;
   })
   markets = markets.sort((a,b) => (b.strength as number) - (a.strength as number))
