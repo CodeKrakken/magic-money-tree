@@ -43,7 +43,7 @@ export default function App() {
     {
       // typeof wallet !== 'undefined' &&
       // wallet &&
-      Object.keys(wallet).length &&
+      // Object.keys(wallet).length &&
       wallet.data &&
       wallet.data.currentMarket &&
       wallet.data.currentMarket.histories &&
