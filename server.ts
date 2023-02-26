@@ -571,7 +571,7 @@ function sortMarkets(markets: market[]) {
   markets = markets.map(market => {
     const emaRatio = market.emaRatio as number | undefined;
     const shape = market.shape as number | undefined;
-    market.strength = emaRatio && shape ? emaRatio * shape : 0;
+    market.strength = emaRatio && shape ? emaRatio * shape * 100 : 0;
     return market;
   })
   markets = markets.sort((a,b) => (b.strength as number) - (a.strength as number))
@@ -603,7 +603,7 @@ async function simulatedBuyOrder(wallet: wallet, market: market) {
 
       wallet.data.currentMarket = market
       // await dbOverwrite(priceData, wallet.data.prices as {})
-      const tradeReport = `${timeNow()} - Bought ${wallet.coins[asset].volume} ${asset} @ ${currentPrice} ($${baseVolume * (1 - fee)}) [${market.shape}]`
+      const tradeReport = `${timeNow()} - Bought ${wallet.coins[asset].volume} ${asset} @ ${currentPrice} ($${baseVolume * (1 - fee)}) ... Strength - ${market.strength}`
       logEntry(tradeReport, 'transactions')
       // await dbAppend(tradeHistory, tradeReport)
     }
@@ -627,7 +627,7 @@ async function simulatedSellOrder(wallet: wallet, sellType: string, market: mark
     wallet.coins[base].volume += assetVolume * (1 - fee) * wallet.coins[asset].dollarPrice
     wallet.data.prices = {}
     // await dbOverwrite(priceData, wallet.data.prices as {})
-    const tradeReport = `${timeNow()} - Sold   ${assetVolume} ${asset} @ ${wallet.coins[asset].dollarPrice} ($${wallet.coins[base].volume}) ${market.shape ? `[${market.shape}]` : ''} [${sellType}]`
+    const tradeReport = `${timeNow()} - Sold   ${assetVolume} ${asset} @ ${wallet.coins[asset].dollarPrice} ($${wallet.coins[base].volume}) ... Strength - ${market.strength}} ... ${sellType}`
     logEntry(tradeReport, 'transactions')
     // await dbAppend(tradeHistory, tradeReport)
     delete wallet.coins[asset]
