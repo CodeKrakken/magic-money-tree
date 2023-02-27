@@ -289,7 +289,9 @@ async function tick(wallet: wallet) {
         markets = await addEmaRatio(markets) as market[]
         markets = await addShape(markets)
         markets = sortMarkets(markets)
-        await logMarkets(markets)
+        logMarkets(markets)
+        markets = roundObjects(markets, 'emaRatio')
+        formatMarketDisplay(markets)
         markets = await filterMarkets(markets)
         if (markets.length) await trade(markets, wallet)
       }
@@ -525,18 +527,50 @@ function filterMarkets(markets: market[]) {
 }
 
 function logMarkets(markets: market[]) {
-  ranking = markets.map(market => {
-    const report = `${market.name} ... shape ${n(market.shape as number)} * ema ratio ${n(market.emaRatio as number)} = strength ${n(market.strength as number)}`
+  markets.map(market => {
+    const report = `${market.name} ... shape ${round(market.shape as number)} * ema ratio ${round(market.emaRatio as number)} = strength ${round(market.strength as number)}`
     logEntry(report)
     return report
   })
 }
 
-function n(number: number, decimals: number=2) {
+function round(number: number, decimals: number=2) {
   let outputNumber = parseFloat(number.toFixed(decimals))
-  if (!outputNumber) {outputNumber = n(number, decimals+1) as number}
+  if (!outputNumber) {outputNumber = round(number, decimals+1) as number}
   return outputNumber
 }
+
+function roundObjects(inArray: market[], key: 'shape'|'strength'|'currentPrice'|'emaRatio') {
+  const outArray: market[] = []
+
+  inArray.map(inObj => {
+    const outObj: any = { ...inObj }
+    outObj[key] = round(inObj[key] as number)
+    outArray.push(outObj)
+  })
+
+  function round(inNumber: number, decimals: number=2) {
+    if (!inNumber) {
+      return inNumber
+    }
+    let outNumber = parseFloat(inNumber.toFixed(decimals))
+    if ((!outNumber || outArray.some(outObj => outObj[key] === outNumber) || inArray.some(inObj => inObj[key] === outNumber)) && decimals < 100) {
+      outNumber = round(inNumber, decimals+1)
+    }
+    return outNumber
+  }
+
+  return outArray
+}
+
+function formatMarketDisplay(markets: market[]) {
+  ranking = markets.map(market => {
+    const report = `${market.name} ... shape ${round(market.shape as number)} * ema ratio ${round(market.emaRatio as number)} = strength ${round(market.strength as number)}`
+    logEntry(report)
+    return report
+  })
+}
+
 
 // TRADE FUNCTIONS
 
@@ -613,7 +647,7 @@ async function simulatedBuyOrder(wallet: wallet, market: market) {
 
       wallet.data.currentMarket = market
       // await dbOverwrite(priceData, wallet.data.prices as {})
-      const tradeReport = `${timeNow()} - Bought ${n(wallet.coins[asset].volume)} ${asset} @ ${n(currentPrice)} = $${n(baseVolume * (1 - fee))} ... Strength - ${n(market.strength as number)}`
+      const tradeReport = `${timeNow()} - Bought ${round(wallet.coins[asset].volume)} ${asset} @ ${round(currentPrice)} = $${round(baseVolume * (1 - fee))} ... Strength - ${round(market.strength as number)}`
       logEntry(tradeReport, 'transactions')
       // await dbAppend(tradeHistory, tradeReport)
     }
@@ -637,7 +671,7 @@ async function simulatedSellOrder(wallet: wallet, sellType: string, market: mark
     wallet.coins[base].volume += assetVolume * (1 - fee) * wallet.coins[asset].dollarPrice
     wallet.data.prices = {}
     // await dbOverwrite(priceData, wallet.data.prices as {})
-    const tradeReport = `${timeNow()} - Sold   ${n(assetVolume)} ${asset} @ ${n(wallet.coins[asset].dollarPrice)} = $${n(wallet.coins[base].volume)} ... Strength - ${n(market.strength as number)}} ... ${sellType}`
+    const tradeReport = `${timeNow()} - Sold   ${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)} ... Strength - ${round(market.strength as number)}} ... ${sellType}`
     logEntry(tradeReport, 'transactions')
     // await dbAppend(tradeHistory, tradeReport)
     delete wallet.coins[asset]
