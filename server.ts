@@ -302,6 +302,21 @@ async function tick(wallet: wallet) {
   tick(wallet)
 }
 
+function logMarkets(markets: market[]) {
+  markets.map(market => {
+    const report = `${market.name} ... shape ${round(market.shape as number)} * ema ratio ${market.emaRatio} = strength ${round(market.strength as number)}`
+    logEntry(report)
+    return report
+  })
+}
+
+function formatMarketDisplay(markets: market[]) {
+  ranking = markets.map(market => {
+    const report = `${market.name} ... shape ${round(market.shape as number)} * ema ratio ${market.emaRatio} = strength ${round(market.strength as number)}`
+    return report
+  })
+}
+
 async function refreshWallet(wallet: wallet) {
   try {
     
@@ -526,13 +541,7 @@ function filterMarkets(markets: market[]) {
   )
 }
 
-function logMarkets(markets: market[]) {
-  markets.map(market => {
-    const report = `${market.name} ... shape ${round(market.shape as number)} * ema ratio ${round(market.emaRatio as number)} = strength ${round(market.strength as number)}`
-    logEntry(report)
-    return report
-  })
-}
+
 
 function round(number: number, decimals: number=2) {
   let outputNumber = parseFloat(number.toFixed(decimals))
@@ -563,13 +572,7 @@ function roundObjects(inArray: market[], key: 'shape'|'strength'|'currentPrice'|
   return outArray
 }
 
-function formatMarketDisplay(markets: market[]) {
-  ranking = markets.map(market => {
-    const report = `${market.name} ... shape ${round(market.shape as number)} * ema ratio ${round(market.emaRatio as number)} = strength ${round(market.strength as number)}`
-    logEntry(report)
-    return report
-  })
-}
+
 
 
 // TRADE FUNCTIONS
