@@ -37,9 +37,9 @@ export default function App() {
   console.log(wallet)
 
   return <>
-    {/* <Text text='Magic Money Tree' tag='h1' />
+    <Text text='Magic Money Tree' tag='h1' />
     <CurrentTask currentTask={currentTask} />
-    <Wallet wallet={wallet} />
+    {/* <Wallet wallet={wallet} /> */}
     <br />
     {ranking.length ? <Ranking ranking={ranking} /> : null}
     <br />
@@ -49,6 +49,6 @@ export default function App() {
       wallet?.data?.currentMarket?.histories?.minutes
       ? <MarketGraph history={wallet.data.currentMarket.histories.minutes} />
       : null
-    } */}
+    }
   </>
 }
