@@ -526,10 +526,16 @@ function filterMarkets(markets: market[]) {
 
 function logMarkets(markets: market[]) {
   ranking = markets.map(market => {
-    const report = `${market.name} ... shape ${market.shape} * ema ratio ${market.emaRatio} = strength ${market.strength}`
+    const report = `${market.name} ... shape ${n(market.shape as number)} * ema ratio ${n(market.emaRatio as number)} = strength ${n(market.strength as number)}`
     logEntry(report)
     return report
   })
+}
+
+function n(number: number, decimals: number=2) {
+  let outputNumber = parseFloat(number.toFixed(decimals))
+  if (!outputNumber) {outputNumber = n(number, decimals+1) as number}
+  return outputNumber
 }
 
 // TRADE FUNCTIONS
@@ -607,7 +613,7 @@ async function simulatedBuyOrder(wallet: wallet, market: market) {
 
       wallet.data.currentMarket = market
       // await dbOverwrite(priceData, wallet.data.prices as {})
-      const tradeReport = `${timeNow()} - Bought ${wallet.coins[asset].volume} ${asset} @ ${currentPrice} = $${baseVolume * (1 - fee)} ... Strength - ${market.strength}`
+      const tradeReport = `${timeNow()} - Bought ${n(wallet.coins[asset].volume)} ${asset} @ ${n(currentPrice)} = $${n(baseVolume * (1 - fee))} ... Strength - ${n(market.strength as number)}`
       logEntry(tradeReport, 'transactions')
       // await dbAppend(tradeHistory, tradeReport)
     }
@@ -631,7 +637,7 @@ async function simulatedSellOrder(wallet: wallet, sellType: string, market: mark
     wallet.coins[base].volume += assetVolume * (1 - fee) * wallet.coins[asset].dollarPrice
     wallet.data.prices = {}
     // await dbOverwrite(priceData, wallet.data.prices as {})
-    const tradeReport = `${timeNow()} - Sold   ${assetVolume} ${asset} @ ${wallet.coins[asset].dollarPrice} = $${wallet.coins[base].volume} ... Strength - ${market.strength}} ... ${sellType}`
+    const tradeReport = `${timeNow()} - Sold   ${n(assetVolume)} ${asset} @ ${n(wallet.coins[asset].dollarPrice)} = $${n(wallet.coins[base].volume)} ... Strength - ${n(market.strength as number)}} ... ${sellType}`
     logEntry(tradeReport, 'transactions')
     // await dbAppend(tradeHistory, tradeReport)
     delete wallet.coins[asset]
