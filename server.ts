@@ -537,7 +537,7 @@ function filterMarkets(markets: market[]) {
   return markets.filter(market => 
     market.shape as number > 0 
     && 
-    market.emaRatio as number > 1
+    market.emaRatio as number >= 1
   )
 }
 
@@ -651,7 +651,7 @@ async function simulatedBuyOrder(wallet: wallet, market: market) {
 
       wallet.data.currentMarket = market
       // await dbOverwrite(priceData, wallet.data.prices as {})
-      const tradeReport = `${timeNow()} - Bought ${round(wallet.coins[asset].volume)} ${asset} @ ${round(currentPrice)} = $${round(baseVolume * (1 - fee))} ... Strength - ${round(market.strength as number)}`
+      const tradeReport = `${timeNow()} - Bought ${round(wallet.coins[asset].volume)} ${asset} @ ${round(currentPrice)} = $${round(baseVolume * (1 - fee))} ... Strength ${round(market.strength as number)}`
       logEntry(tradeReport, 'transactions')
       // await dbAppend(tradeHistory, tradeReport)
     }
@@ -675,7 +675,7 @@ async function simulatedSellOrder(wallet: wallet, sellType: string, market: mark
     wallet.coins[base].volume += assetVolume * (1 - fee) * wallet.coins[asset].dollarPrice
     wallet.data.prices = {}
     // await dbOverwrite(priceData, wallet.data.prices as {})
-    const tradeReport = `${timeNow()} - Sold ${' '}${' '}  ${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)} ... Strength - ${round(market.strength as number)} ... ${sellType}`
+    const tradeReport = `${timeNow()} - Sold ${' '}${' '}  ${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)} ... Strength ${round(market.strength as number)} ... ${sellType}`
     logEntry(tradeReport, 'transactions')
     // await dbAppend(tradeHistory, tradeReport)
     delete wallet.coins[asset]

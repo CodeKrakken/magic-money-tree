@@ -39,7 +39,7 @@ export default function App() {
   return <>
     <Text text='Magic Money Tree' tag='h1' />
     <CurrentTask currentTask={currentTask} />
-    {/* <Wallet wallet={wallet} /> */}
+    <Wallet wallet={wallet} />
     <br />
     {ranking.length ? <Ranking ranking={ranking} /> : null}
     <br />
