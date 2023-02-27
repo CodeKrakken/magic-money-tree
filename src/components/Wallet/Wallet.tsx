@@ -2,8 +2,10 @@ import { wallet } from 'server'
 
 export default function Wallet({wallet}: {wallet: wallet}) {
 
-  function n(n: number) {
-    return n.toFixed(2);
+  function n(number: number, decimals: number=2) {
+    let outputNumber = parseFloat(number.toFixed(decimals))
+    if (!outputNumber) {outputNumber = n(number, decimals+1) as number}
+    return outputNumber
   }
 
   function getDollarTotal(wallet: wallet) {
