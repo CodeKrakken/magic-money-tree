@@ -675,7 +675,7 @@ async function simulatedSellOrder(wallet: wallet, sellType: string, market: mark
     wallet.coins[base].volume += assetVolume * (1 - fee) * wallet.coins[asset].dollarPrice
     wallet.data.prices = {}
     // await dbOverwrite(priceData, wallet.data.prices as {})
-    const tradeReport = `${timeNow()} - Sold   ${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)} ... Strength - ${round(market.strength as number)}} ... ${sellType}`
+    const tradeReport = `${timeNow()} - Sold ${' '}${' '}  ${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)} ... Strength - ${round(market.strength as number)} ... ${sellType}`
     logEntry(tradeReport, 'transactions')
     // await dbAppend(tradeHistory, tradeReport)
     delete wallet.coins[asset]
