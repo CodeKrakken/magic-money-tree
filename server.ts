@@ -289,7 +289,7 @@ async function tick(wallet: wallet) {
         markets = await addEmaRatio(markets) as market[]
         markets = await addShape(markets)
         markets = sortMarkets(markets)
-        await displayMarkets(markets)
+        await logMarkets(markets)
         markets = await filterMarkets(markets)
         if (markets.length) await trade(markets, wallet)
       }
@@ -524,7 +524,7 @@ function filterMarkets(markets: market[]) {
   )
 }
 
-function displayMarkets(markets: market[]) {
+function logMarkets(markets: market[]) {
   ranking = markets.map(market => {
     const report = `${market.name} ... shape ${market.shape} * ema ratio ${market.emaRatio} = strength ${market.strength}`
     logEntry(report)

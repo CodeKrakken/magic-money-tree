@@ -2,6 +2,10 @@ import { wallet } from 'server'
 
 export default function Wallet({wallet}: {wallet: wallet}) {
 
+  function n(n: number) {
+    return n.toFixed(2);
+  }
+
   function getDollarTotal(wallet: wallet) {
     let total = 0
   
@@ -17,11 +21,11 @@ export default function Wallet({wallet}: {wallet: wallet}) {
 
     {
       Object.keys(wallet.coins).filter(coin => wallet.coins[coin].volume).map(name => 
-        `${wallet.coins[name].volume} ${name} @ ${wallet.coins[name].dollarPrice} = $${wallet.coins[name].dollarValue}`
+        `${n(wallet.coins[name].volume)} ${name} @ ${n(wallet.coins[name].dollarPrice)} = $${n(wallet.coins[name].dollarValue)}`
       )
     }
 
-    <div>Total = ${getDollarTotal(wallet)}</div>
+    <div>Total = ${n(getDollarTotal(wallet))}</div>
   
     {/* {
       wallet.data.baseCoin !== 'USDT' && <>
