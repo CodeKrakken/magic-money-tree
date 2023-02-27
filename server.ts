@@ -290,7 +290,7 @@ async function tick(wallet: wallet) {
         markets = await addShape(markets)
         markets = sortMarkets(markets)
         logMarkets(markets)
-        markets = roundObjects(markets, 'emaRatio')
+        markets = roundObjects(markets, ['emaRatio', 'shape', 'strength'])
         formatMarketDisplay(markets)
         markets = await filterMarkets(markets)
         if (markets.length) await trade(markets, wallet)
@@ -304,7 +304,7 @@ async function tick(wallet: wallet) {
 
 function logMarkets(markets: market[]) {
   markets.map(market => {
-    const report = `${market.name} ... shape ${round(market.shape as number)} * ema ratio ${market.emaRatio} = strength ${round(market.strength as number)}`
+    const report = `${market.name} ... shape ${market.shape as number} * ema ratio ${market.emaRatio} = strength ${market.strength as number}`
     logEntry(report)
     return report
   })
@@ -312,7 +312,7 @@ function logMarkets(markets: market[]) {
 
 function formatMarketDisplay(markets: market[]) {
   ranking = markets.map(market => {
-    const report = `${market.name} ... shape ${round(market.shape as number)} * ema ratio ${market.emaRatio} = strength ${round(market.strength as number)}`
+    const report = `${market.name} ... shape ${(market.shape as number)} * ema ratio ${market.emaRatio} = strength ${market.strength as number}`
     return report
   })
 }
@@ -549,12 +549,14 @@ function round(number: number, decimals: number=2) {
   return outputNumber
 }
 
-function roundObjects(inArray: market[], key: 'shape'|'strength'|'currentPrice'|'emaRatio') {
+function roundObjects(inArray: market[], keys: ('shape'|'strength'|'currentPrice'|'emaRatio')[]) {
   const outArray: market[] = []
 
   inArray.map(inObj => {
     const outObj: any = { ...inObj }
-    outObj[key] = round(inObj[key] as number)
+    keys.forEach(key => {
+      outObj[key] = round(inObj[key] as number)
+    })
     outArray.push(outObj)
   })
 
@@ -563,7 +565,7 @@ function roundObjects(inArray: market[], key: 'shape'|'strength'|'currentPrice'|
       return inNumber
     }
     let outNumber = parseFloat(inNumber.toFixed(decimals))
-    if ((!outNumber || outArray.some(outObj => outObj[key] === outNumber) || inArray.some(inObj => inObj[key] === outNumber)) && decimals < 100) {
+    if ((!outNumber || outArray.some(outObj => keys.some(key => outObj[key] === outNumber)) || inArray.some(inObj => keys.some(key => inObj[key] === outNumber))) && decimals < 100) {
       outNumber = round(inNumber, decimals+1)
     }
     return outNumber
@@ -571,7 +573,6 @@ function roundObjects(inArray: market[], key: 'shape'|'strength'|'currentPrice'|
 
   return outArray
 }
-
 
 
 
