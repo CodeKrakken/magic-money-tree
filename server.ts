@@ -69,12 +69,14 @@ export interface wallet {
   }
   data: {
     baseCoin      : string
-    currentMarket : market
     prices        : {
       targetPrice?    : number
       highPrice?      : number
       purchasePrice?  : number
       stopLossPrice?  : number
+    }
+    currentMarket: {
+      name: string
     }
   }
 }
@@ -236,7 +238,7 @@ async function rollingTick(i: number = 0) {
     }
 
     await refreshWallet()
-    if (wallet.data.currentMarket) {await updateMarket(wallet.data.currentMarket.name.replace('/', ''))}
+    if (wallet.data.baseCoin !== 'USDT') {await updateMarket(`${wallet.data.baseCoin}USDT`)}
 
     let sortedMarkets = sortMarkets()
     logMarkets(sortedMarkets)
@@ -296,15 +298,10 @@ function simulatedWallet() {
     },
     data: {
       baseCoin: 'USDT',
+      prices: {},
       currentMarket: {
-        name: '',
-        histories: {},
-        emaRatio: NaN,
-        shape: NaN,
-        strength: NaN,
-        currentPrice: NaN
-      },
-      prices: {}
+        name: ''
+      }
     }
   }
 }
@@ -358,25 +355,17 @@ async function refreshWallet() {
     wallet.data.baseCoin = sorted.pop() as string
 
     if (wallet.data.baseCoin === 'USDT') {
-      wallet.data.currentMarket = {
-        histories     : {},
-        emaRatio      : NaN,
-        shape         : NaN,
-        name          : '',
-        strength      : NaN,
-        currentPrice  : NaN
-      }
       wallet.data.prices = {}
     } else {
       const histories = await fetchSingleHistory(`${wallet.data.baseCoin}USDT`)  
       
       if (histories !== 'No response.') {
         const indexedHistories = indexData(histories as {[key: string]: rawFrame[];})
-        wallet.data.currentMarket.histories = indexedHistories as {[key: string]: indexedFrame[]}
+        markets[`${wallet.data.baseCoin}USDT`] = markets[`${wallet.data.baseCoin}USDT`] || {}
+        markets[`${wallet.data.baseCoin}USDT`].histories = indexedHistories as {[key: string]: indexedFrame[]}
 
       }
       wallet.data.currentMarket.name = `${wallet.data.baseCoin}USDT`
-      wallet.data.currentMarket.currentPrice = wallet.coins[wallet.data.baseCoin].dollarPrice
       
       // if (!Object.keys(wallet.data.prices).length) {
       //   const data = await priceData.find().toArray();
@@ -571,11 +560,12 @@ function roundObjects(inArray: market[], keys: ('shape'|'strength'|'currentPrice
 
 // TRADE FUNCTIONS
 
-async function trade(markets: market[]) {
-  const targetMarket = markets[0].strength as number > 0 ? markets[0] : null
+async function trade(sortedMarkets: market[]) {
+  console.log(sortedMarkets)
+  const targetMarket = sortedMarkets[0].strength as number > 0 ? markets[0] : null
+  console.log(wallet.data.baseCoin)
 
   if (wallet.data.baseCoin === 'USDT') {   
-
     if (!targetMarket) {
       logEntry('No bullish markets')
     } else if (wallet.coins[wallet.data.baseCoin].volume > 10) {
@@ -583,7 +573,7 @@ async function trade(markets: market[]) {
     } 
   } else {
     try {
-      const currentMarket = markets.filter((market: market) => market.name === wallet.data.currentMarket.name)[0]
+      const currentMarket = sortedMarkets.filter((market: market) => market.name === wallet.data.currentMarket.name)[0]
 
       if (!targetMarket) {
 
@@ -593,13 +583,13 @@ async function trade(markets: market[]) {
       } else {
 
         if (!currentMarket) {
-          simulatedSellOrder('No response for current market', wallet.data.currentMarket as market)
+          simulatedSellOrder('No response for current market', markets[wallet.data.currentMarket.name])
         } else if (targetMarket.name !== wallet.data.currentMarket.name) { 
-          simulatedSellOrder('Better market found', currentMarket)
+          simulatedSellOrder('Better market found', markets[wallet.data.currentMarket.name])
         } else if (!wallet.data.prices.targetPrice || !wallet.data.prices.stopLossPrice) {
-          simulatedSellOrder('Price information undefined', currentMarket)
-        } else if (wallet.data.currentMarket.currentPrice as number < wallet.data.prices.stopLossPrice) {
-          simulatedSellOrder('Below Stop Loss', currentMarket)
+          simulatedSellOrder('Price information undefined', markets[wallet.data.currentMarket.name])
+        } else if (wallet.coins[wallet.data.baseCoin].dollarPrice as number < wallet.data.prices.stopLossPrice) {
+          simulatedSellOrder('Below Stop Loss', markets[wallet.data.currentMarket.name])
         }
       }
     } catch(error) {
@@ -644,7 +634,7 @@ async function simulatedBuyOrder(market: market) {
         highPrice     : currentPrice
       }
 
-      wallet.data.currentMarket = market
+      wallet.data.currentMarket.name = market.name
       // await dbOverwrite(priceData, wallet.data.prices as {})
       const tradeReport = `${timeNow()} - Bought ${round(wallet.coins[asset].volume)} ${asset} @ ${round(currentPrice)} = $${round(baseVolume * (1 - fee))} ... Strength ${round(market.strength as number)}`
       logEntry(tradeReport, 'transactions')
