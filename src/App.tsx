@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import Log from "./components/Log/Log"
 import Text from "./components/Text/Text"
-import { wallet } from 'server'
+import { wallet, market } from 'server'
 import Wallet from "./components/Wallet/Wallet"
 import CurrentTask from "./components/CurrentTask/CurrentTask"
 import TransactionLog from "./components/TransactionLog/TransactionLog"
@@ -15,6 +15,7 @@ export default function App() {
   const [currentTask,       setcurrentTask] = useState('Fetching data')
   const [transactionLog, setTransactionLog] = useState([] as string[])
   const [ranking,               setRanking] = useState([] as string[])
+  const [currentMarket,   setCurrentMarket] = useState({} as market)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,6 +26,7 @@ export default function App() {
         setcurrentTask(data.currentTask)
         setTransactionLog(data.transactionLog)
         setRanking(data.ranking)
+        setCurrentMarket(data.currentMarket)
       })
     }
     
@@ -46,8 +48,8 @@ export default function App() {
     {transactionLog.length ? <TransactionLog log={transactionLog} /> : null}
     <br />
     {
-      wallet?.data?.currentMarket?.histories?.minutes
-      ? <MarketGraph history={wallet.data.currentMarket.histories.minutes} />
+      currentMarket
+      ? <MarketGraph history={currentMarket.histories.minutes} />
       : null
     }
   </>

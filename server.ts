@@ -20,7 +20,8 @@ app.get("/data", (req: Request, res: Response) => {
     wallet          : wallet,
     currentTask     : currentTask,
     transactionLog  : log.transactions,
-    ranking         : ranking
+    ranking         : ranking,
+    currentMarket   : markets[wallet.data.currentMarket.name] ?? null
   });
   res.setHeader('Content-Type', 'application/json');
   res.send(dataJSON);
@@ -105,7 +106,7 @@ export interface indexedFrame {
   average : number;
 }
 
-interface market {
+export interface market {
   histories: {
     [key: string]: indexedFrame[]
   }
