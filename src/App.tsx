@@ -8,6 +8,7 @@ import TransactionLog from "./components/TransactionLog/TransactionLog"
 import MarketGraph from "./components/MarketGraph/MarketGraph"
 import { indexedFrame } from "server"
 import Ranking from "./components/Ranking/Ranking"
+import './App.css'
 
 export default function App() {
 
@@ -39,18 +40,29 @@ export default function App() {
   console.log(wallet)
 
   return <>
-    <Text text='Magic Money Tree' tag='h1' />
-    <CurrentTask currentTask={currentTask} />
-    <Wallet wallet={wallet} />
-    <br />
-    {ranking.length ? <Ranking ranking={ranking} /> : null}
-    <br />
-    {transactionLog.length ? <TransactionLog log={transactionLog} /> : null}
-    <br />
-    {
-      currentMarket?.histories?.minutes
-      ? <MarketGraph history={currentMarket.histories.minutes} />
-      : null
-    }
+    <div className="container">
+      <div className="row">
+        <div className="col">
+          {ranking.length ? <Ranking ranking={ranking} /> : null}
+        </div>
+        <div className="col">
+          <Text text='Magic Money Tree' tag='h1' />
+          <CurrentTask currentTask={currentTask} />
+          <Wallet wallet={wallet} />
+        </div>
+        <div className="col">
+          {transactionLog.length ? <TransactionLog log={transactionLog} /> : null}
+        </div>
+      </div>
+      <div className="row">
+        <div className="full-width">
+          {
+            currentMarket?.histories?.minutes
+            ? <MarketGraph history={currentMarket.histories.minutes} />
+            : null
+          }
+        </div>
+      </div>
+    </div>
   </>
 }
