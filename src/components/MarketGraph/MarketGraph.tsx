@@ -2,7 +2,7 @@ import Chart from 'react-apexcharts';
 import { indexedFrame } from 'server';
 import { useEffect, useState } from 'react';
 
-const MarketGraph = ({ history }: { history: any }) => {
+const MarketGraph = ({ history, title }: { history: any, title: string }) => {
 
   const [series, setSeries] = useState([{data:[]}])
 
@@ -23,7 +23,7 @@ const MarketGraph = ({ history }: { history: any }) => {
       height: 350,
     },
     title: {
-      text: 'Market Graph',
+      text: title,
       align: 'left',
     },
     xaxis: {

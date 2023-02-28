@@ -58,7 +58,7 @@ export default function App() {
         <div className="full-width">
           {
             currentMarket?.histories?.minutes
-            ? <MarketGraph history={currentMarket.histories.minutes} />
+            ? <MarketGraph title={currentMarket.name} history={currentMarket.histories.minutes} />
             : null
           }
         </div>
