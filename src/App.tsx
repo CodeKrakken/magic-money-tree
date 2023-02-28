@@ -45,7 +45,7 @@ export default function App() {
         <div className="col">
           {ranking.length ? <Ranking ranking={ranking} /> : null}
         </div>
-        <div className="col">
+        <div className="col center">
           <Text text='Magic Money Tree' tag='h1' />
           <CurrentTask currentTask={currentTask} />
           <Wallet wallet={wallet} />

@@ -24,10 +24,15 @@
 .col {
   flex: 1 1 0; /* set flex-grow to 1, flex-shrink to 1, and flex-basis to 0 */
   overflow: auto; /* allow overflow content to scroll */
+  max-width: calc(100% / 3); /* limit the width of each column to one-third of the container width */
 }
 
 /* set the fourth column to full width and height of the container */
 .full-width {
   flex: 1 1 100%; /* set flex-grow to 1, flex-shrink to 1, and flex-basis to 100% */
   overflow: auto; /* allow overflow content to scroll */
+}
+
+.center {
+  text-align: center
 }
