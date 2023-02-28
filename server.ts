@@ -40,7 +40,6 @@ type rawFrame = [
   string
 ];
 
-
 export interface indexedFrame {
   open    : number;
   high    : number;
@@ -215,30 +214,6 @@ function isGoodMarketName(marketName: string) {
   // && !marketName.includes('BNB')
 }
 
-async function getViableMarketNames(marketNames: string[]) {
-  const viableMarketNames: string[] = []
-  const n = marketNames.length
-
-  if (!n) {
-    logEntry('No viable markets.') 
-  } else {
-
-    for (let i = 0; i < n; i++) {
-      const symbolName = marketNames[i].replace('/', '')
-      const response = await checkVolume(symbolName)
-
-      if (!response.includes("Insufficient") && response !== "No response."){
-        viableMarketNames.push(marketNames[i])
-      }
-
-      currentTask = `Checking volume of ${i+1}/${n} - ${marketNames[i]} ... ${!response.includes("Insufficient") && response !== "No response." ? 'Market included.' : response}`
-
-      logEntry(currentTask)
-    }
-    return viableMarketNames
-  }
-}
-
 async function checkVolume(symbolName: string) {
   const twentyFourHour = await fetch24Hour(symbolName)
   return twentyFourHour.data ? `${twentyFourHour.data.quoteVolume < minimumDollarVolume ? 'Ins' : 'S'}ufficient volume.` : "No response."
@@ -252,7 +227,6 @@ async function fetch24Hour(symbolName: string) {
     return 'Invalid market.'
   }
 }
-
 
 function simulatedWallet() {
   return {
@@ -278,31 +252,6 @@ function simulatedWallet() {
   }
 }
 
-// async function tick() {
-//   try {
-//     logEntry(`----- Tick at ${timeNow()} -----`)
-//     const viableSymbols = await fetchSymbols()
-
-//     if (viableSymbols?.length) {
-//       let markets = await fetchAllHistory(viableSymbols) as market[]
-//       if (markets.length) {
-//         markets = await addEmaRatio(markets) as market[]
-//         markets = await addShape(markets)
-//         markets = sortMarkets(markets)
-//         logMarkets(markets)
-//         markets = roundObjects(markets, ['emaRatio', 'shape', 'strength'])
-//         formatMarketDisplay(markets)
-//         markets = await filterMarkets(markets)
-//         if (markets.length) await trade(markets)
-//       }
-//     }
-//   } catch (error) {
-//     console.log(error)
-//   }
-//   tick()
-// }
-
-
 async function rollingTick(i: number = 0) {
   try {
     if (!viableSymbols[i]) {
@@ -311,35 +260,24 @@ async function rollingTick(i: number = 0) {
       viableSymbols = await fetchSymbols() as string[]
     }
     const symbolName = viableSymbols[i].replace('/', '')
+
     const isVoluminous = await checkVolume(symbolName)
 
     currentTask = `Checking volume of ${i+1}/${viableSymbols.length} - ${symbolName} ... ${!isVoluminous.includes("Insufficient") && isVoluminous !== "No response." ? 'Market included.' : isVoluminous}`
     logEntry(currentTask)
 
     if (!isVoluminous.includes("Insufficient") && isVoluminous !== "No response.") {
-
-      const response = await fetchSingleHistory(viableSymbols[i].replace('/', ''))
-      currentTask = `Fetching history for ${i+1}/${viableSymbols.length} - ${symbolName} ... ${response === 'No response.' ? response : ''}`
-      logEntry(currentTask)
-
-      if (response !== 'No response.') {
-        const indexedHistories = await indexData(response) as {[key: string]: indexedFrame[]}
-        let market = {
-          name: symbolName,
-          histories: indexedHistories
-        }
-        market = await addEmaRatio(market) as market
-        market = await addShape(market)
-        markets[symbolName] = market
-      }
+      updateMarket(viableSymbols[i].replace('/', ''), i)
     }
+
+    await refreshWallet()
+    if (wallet.data.currentMarket) {updateMarket(wallet.data.currentMarket.name.replace('/', ''))}
 
     let sortedMarkets = sortMarkets()
     logMarkets(sortedMarkets)
     sortedMarkets = roundObjects(sortedMarkets, ['emaRatio', 'shape', 'strength'])
     formatMarketDisplay(sortedMarkets)
     sortedMarkets = await filterMarkets(sortedMarkets)
-    await refreshWallet()
     if (sortedMarkets.length) await trade(sortedMarkets)
   } catch (error) {
     console.log(error)
@@ -347,44 +285,22 @@ async function rollingTick(i: number = 0) {
   rollingTick(i+1)
 }
 
+async function updateMarket(symbolName: string, i: number|null=null) {
+  const response = await fetchSingleHistory(symbolName)
+  if (i) currentTask = `Fetching history for ${i+1}/${viableSymbols.length} - ${symbolName} ... ${response === 'No response.' ? response : ''}`
+  logEntry(currentTask)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  if (response !== 'No response.') {
+    const indexedHistories = await indexData(response) as {[key: string]: indexedFrame[]}
+    let market = {
+      name: symbolName,
+      histories: indexedHistories
+    }
+    market = await addEmaRatio(market) as market
+    market = await addShape(market)
+    markets[symbolName] = market
+  }
+}
 
 function logMarkets(markets: market[]) {
   markets.map(market => {
@@ -455,31 +371,6 @@ async function fetchPrice(marketName: string) {
   } catch (error) {
     console.log(error)
   }
-}
-
-async function fetchAllHistory(marketNames: string[]) {
-  const n = marketNames.length
-  const returnArray: {}[] = []
-
-  for (let i = 0; i < n; i++) {
-    try {
-      const response = await fetchSingleHistory(marketNames[i].replace('/', ''))
-      currentTask = `Fetching history for ${i+1}/${marketNames.length} - ${marketNames[i]} ... ${response === 'No response.' ? response : ''}`
-      logEntry(currentTask)
-
-      if (response !== 'No response.') {
-        const indexedHistories = await indexData(response)
-        returnArray.push({
-          name: marketNames[i],
-          histories: indexedHistories
-        })
-      }
-    } catch (error) {
-      console.log(error)
-    }
-
-  }
-  return returnArray
 }
 
 async function fetchSingleHistory(symbolName: string) {
@@ -618,8 +509,6 @@ function filterMarkets(markets: market[]) {
   )
 }
 
-
-
 function round(number: number, decimals: number=2) {
   let outputNumber = parseFloat(number.toFixed(decimals))
   if (!outputNumber) {outputNumber = round(number, decimals+1) as number}
@@ -650,8 +539,6 @@ function roundObjects(inArray: market[], keys: ('shape'|'strength'|'currentPrice
 
   return outArray
 }
-
-
 
 // TRADE FUNCTIONS
 
