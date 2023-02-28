@@ -48,7 +48,7 @@ export default function App() {
     {transactionLog.length ? <TransactionLog log={transactionLog} /> : null}
     <br />
     {
-      currentMarket
+      currentMarket?.histories?.minutes
       ? <MarketGraph history={currentMarket.histories.minutes} />
       : null
     }
