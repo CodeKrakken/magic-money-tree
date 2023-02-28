@@ -1,6 +1,6 @@
 export default function TransactionLog({log}: {log: string[]}) {
   return <>
-    <h2>Transactions</h2>
+    <h1>Transactions</h1>
     {
       log.map(transaction =>
         <div>{transaction}</div>

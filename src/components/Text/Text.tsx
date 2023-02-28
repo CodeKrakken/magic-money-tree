@@ -1,6 +1,18 @@
-export default function Text({tag, text}: {tag? : keyof JSX.IntrinsicElements, text: string}) {
+import './Text.css'
+
+export default function Text(
+  {
+    tag, 
+    text, 
+    attrs
+  } : {
+    tag?  : keyof JSX.IntrinsicElements, 
+    text  : string, 
+    attrs?: {[key: string]: string}
+  }
+) {
 
   const Tag = tag || 'div'
 
-  return <Tag>{text}</Tag>
+  return <Tag {...attrs}>{text}</Tag>
 }

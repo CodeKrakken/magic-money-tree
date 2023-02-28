@@ -19,7 +19,7 @@ export default function Wallet({wallet}: {wallet: wallet}) {
   }
 
   return wallet?.coins ? <>
-    <h2>Wallet</h2>
+    <h1>Wallet</h1>
 
     {
       Object.keys(wallet.coins).filter(coin => wallet.coins[coin].volume).map(name => 
