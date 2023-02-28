@@ -561,9 +561,7 @@ function roundObjects(inArray: market[], keys: ('shape'|'strength'|'currentPrice
 // TRADE FUNCTIONS
 
 async function trade(sortedMarkets: market[]) {
-  console.log(sortedMarkets)
-  const targetMarket = sortedMarkets[0].strength as number > 0 ? markets[0] : null
-  console.log(wallet.data.baseCoin)
+  const targetMarket = sortedMarkets[0].strength as number > 0 ? sortedMarkets[0] : null
 
   if (wallet.data.baseCoin === 'USDT') {   
     if (!targetMarket) {
