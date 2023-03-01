@@ -59,7 +59,7 @@
   flex: 1;
   display: flex;
   flex-wrap: wrap;
-  overflow: hidden; /* hide overflow content */
+  /* overflow: hidden; hide overflow content */
   margin: 0; /* remove the margin */
   padding: 0; /* remove the padding */
 }
