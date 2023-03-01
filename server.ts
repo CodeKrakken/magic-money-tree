@@ -253,10 +253,6 @@ async function rollingTick(i: number = 0) {
   rollingTick(i+1)
 }
 
-
-
-
-
 function analyseMarkets(allMarkets: rawMarket[]) {
   const goodMarketNames = allMarkets.filter(
     market => market.status === 'TRADING' 
@@ -358,14 +354,6 @@ async function refreshWallet() {
     if (wallet.data.baseCoin === 'USDT') {
       wallet.data.prices = {}
     } else {
-      const histories = await fetchSingleHistory(`${wallet.data.baseCoin}USDT`)  
-      
-      if (histories !== 'No response.') {
-        const indexedHistories = indexData(histories as {[key: string]: rawFrame[];})
-        markets[`${wallet.data.baseCoin}USDT`] = markets[`${wallet.data.baseCoin}USDT`] || {}
-        markets[`${wallet.data.baseCoin}USDT`].histories = indexedHistories as {[key: string]: indexedFrame[]}
-
-      }
       wallet.data.currentMarket.name = `${wallet.data.baseCoin}USDT`
       
       // if (!Object.keys(wallet.data.prices).length) {
