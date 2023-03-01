@@ -37,17 +37,17 @@ export default function App() {
   return <>
     <div className="container">
       <div className="row">
-        <div className="row">
-          <div className="col">
-            <Text text='Markets' tag='h1' />
-          </div>
-          <div className="col">
-            <Text text='Magic Money Tree' tag='h1' attrs={{className: 'title'}} />
-          </div>
-          <div className="col">
-            <Text text='Transactions' tag='h1' />
-          </div>
+        <div className="col">
+          <Text text='Markets' tag='h1' />
         </div>
+        <div className="col">
+          <Text text='Magic Money Tree' tag='h1' attrs={{className: 'title'}} />
+        </div>
+        <div className="col">
+          <Text text='Transactions' tag='h1' />
+        </div>
+      </div>
+      <div className="row">
         <div className="col">
           {
             ranking.length ? (
