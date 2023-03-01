@@ -11,8 +11,8 @@ export default function App() {
 
   const [wallet,                 setWallet] = useState({} as wallet)
   const [currentTask,       setcurrentTask] = useState('Fetching data')
-  const [transactionLog, setTransactionLog] = useState([] as string[])
-  const [ranking,               setRanking] = useState([] as string[])
+  const [transactions,     setTransactions] = useState([] as string[])
+  const [marketChart,               setMarketChart] = useState([] as string[])
   const [currentMarket,   setCurrentMarket] = useState({} as market)
 
   useEffect(() => {
@@ -22,8 +22,8 @@ export default function App() {
       .then(data => {
         setWallet(data.wallet)
         setcurrentTask(data.currentTask)
-        setTransactionLog(data.transactionLog)
-        setRanking(data.ranking)
+        setTransactions(data.transactions)
+        setMarketChart(data.marketChart)
         setCurrentMarket(data.currentMarket)
       })
     }
@@ -50,9 +50,9 @@ export default function App() {
       <div className="row">
         <div className="col">
           {
-            ranking.length ? (
+            marketChart.length ? (
               <StringList 
-                list={ranking} 
+                list={marketChart} 
                 title='Chart' 
                 attrs={{
                   title: {
@@ -71,10 +71,10 @@ export default function App() {
         </div>
         <div className="col">
           {
-            transactionLog.length ? (
+            transactions.length ? (
               <StringList 
-                list={transactionLog} 
-                title='Transactions' 
+              list={transactions} 
+              title='Transactions' 
                 attrs={{
                   title: {
                     className: 'center'

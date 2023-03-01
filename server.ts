@@ -19,8 +19,8 @@ app.get("/data", (req: Request, res: Response) => {
   const dataJSON = JSON.stringify({
     wallet          : wallet,
     currentTask     : currentTask,
-    transactionLog  : log.transactions,
-    ranking         : ranking,
+    transactions  : log.transactions,
+    marketChart         : marketChart,
     currentMarket   : markets[wallet.data.currentMarket.name] ?? null
   });
   res.setHeader('Content-Type', 'application/json');
@@ -131,7 +131,7 @@ const log: {
 };
 
 let currentTask: string = ''
-let ranking: string[] = []
+let marketChart: string[] = []
 let viableSymbols: string[] = []
 let markets: { [key: string]: market } = {}
 const wallet: wallet = simulatedWallet()
@@ -331,7 +331,7 @@ function logMarkets(markets: market[]) {
 }
 
 function formatMarketDisplay(markets: market[]) {
-  ranking = markets.map(market => {
+  marketChart = markets.map(market => {
     const report = `${market.name} ... shape ${(market.shape as number)} * ema ratio ${market.emaRatio} = strength ${market.strength as number}`
     return report
   })
