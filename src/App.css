@@ -81,7 +81,6 @@
   overflow: auto;
 }
 
-
 /* set the fourth column to full width and height of the container */
 .full-width {
   flex: 1 1 100%; /* set flex-grow to 1, flex-shrink to 1, and flex-basis to 100% */
