@@ -86,9 +86,10 @@
 
 .flex-grow {
   flex: 1 1 auto;
+  overflow: hidden;
 }
 
 /* add overflow property to individual columns */
-.col:hover {
+.col:hover .flex-grow {
   overflow: auto;
 }
