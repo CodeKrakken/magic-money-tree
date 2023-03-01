@@ -36,7 +36,7 @@ export default function App() {
 
   return <>
     <div className="container">
-      <div className="row">
+      <div className="row flex-no-grow">
         <div className="col center">
           <Text text='Markets' tag='h1' />
         </div>
@@ -47,7 +47,7 @@ export default function App() {
           <Text text='Transactions' tag='h1' />
         </div>
       </div>
-      <div className="row">
+      <div className="row flex-grow">
         <div className="col">
           {
             marketChart.length ? (
@@ -85,7 +85,7 @@ export default function App() {
           }
         </div>
       </div>
-      <div className="row">
+      <div className="row flex-no-grow">
         <div className="full-width">
           {
             currentMarket?.histories?.minutes

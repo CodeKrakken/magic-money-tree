@@ -84,3 +84,12 @@
 .center {
   text-align: center
 }
+
+.flex-no-grow {
+  flex: 0 0 auto
+}
+
+.flex-grow {
+  flex: 1 1 auto;
+  overflow: auto
+}
