@@ -37,13 +37,13 @@ export default function App() {
   return <>
     <div className="container">
       <div className="row">
-        <div className="col">
+        <div className="col center">
           <Text text='Markets' tag='h1' />
         </div>
-        <div className="col">
+        <div className="col center">
           <Text text='Magic Money Tree' tag='h1' attrs={{className: 'title'}} />
         </div>
-        <div className="col">
+        <div className="col center">
           <Text text='Transactions' tag='h1' />
         </div>
       </div>
