@@ -48,7 +48,7 @@ export default function App() {
         </div>
       </div>
       <div className="row flex-grow">
-        <div className="col">
+        <div className="col center">
           {
             marketChart.length ? (
               <StringList 
@@ -69,7 +69,7 @@ export default function App() {
           <br />
           <Wallet wallet={wallet} />
         </div>
-        <div className="col">
+        <div className="col center">
           {
             transactions.length ? (
               <StringList 
