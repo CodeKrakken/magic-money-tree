@@ -570,13 +570,13 @@ async function trade(sortedMarkets: market[]) {
       } else {
 
         if (!currentMarket) {
-          simulatedSellOrder('No response for current market', markets[wallet.data.currentMarket.name])
+          // simulatedSellOrder('No response for current market', markets[wallet.data.currentMarket.name])
         } else if (targetMarket.name !== wallet.data.currentMarket.name) { 
-          simulatedSellOrder('Better market found', markets[wallet.data.currentMarket.name])
+          // simulatedSellOrder('Better market found', markets[wallet.data.currentMarket.name])
         } else if (!wallet.data.prices.targetPrice || !wallet.data.prices.stopLossPrice) {
-          simulatedSellOrder('Price information undefined', markets[wallet.data.currentMarket.name])
+          // simulatedSellOrder('Price information undefined', markets[wallet.data.currentMarket.name])
         } else if (wallet.coins[wallet.data.baseCoin].dollarPrice as number < wallet.data.prices.stopLossPrice) {
-          simulatedSellOrder('Below Stop Loss', markets[wallet.data.currentMarket.name])
+          // simulatedSellOrder('Below Stop Loss', markets[wallet.data.currentMarket.name])
         }
       }
     } catch(error) {
