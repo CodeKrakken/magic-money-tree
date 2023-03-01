@@ -67,10 +67,14 @@
 /* create columns with flexbox and set their width to auto */
 .col {
   flex: 1 1 0; /* set flex-grow to 1, flex-shrink to 1, and flex-basis to 0 */
-  overflow: auto; /* allow overflow content to scroll */
+   /* overflow: auto;allow overflow content to scroll */
   max-width: calc(100% / 3); /* limit the width of each column to one-third of the container width */
   margin: 0; /* remove the margin */
   padding: 0; /* remove the padding */
+}
+
+.col:hover {
+  overflow: auto;
 }
 
 /* set the fourth column to full width and height of the container */
