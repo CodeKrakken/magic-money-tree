@@ -53,7 +53,7 @@ export default function App() {
           }
         </div>
         <div className="col center">
-          <Text text='Magic Money Tree' tag='h1' attrs={{className: 'title'}} />
+          {/* <Text text='Magic Money Tree' tag='h1' attrs={{className: 'title'}} /> */}
           <CurrentTask currentTask={currentTask} />
           <br />
           <Wallet wallet={wallet} />

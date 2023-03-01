@@ -12,7 +12,7 @@ export default function StringList({
   }
 }) {
   return <>
-    <h1 {...attrs?.title}>{title}</h1>
+    {/* <h1 {...attrs?.title}>{title}</h1> */}
     {
       list.map(item =>
         <li {...attrs?.content}>{item}</li>
