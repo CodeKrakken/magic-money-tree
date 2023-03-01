@@ -1,9 +1,21 @@
-export default function StringList({list, title}: {list: string[], title: string}) {
+export default function StringList({
+  list, 
+  title,
+  attrs
+} : {
+  list: string[], 
+  title: string,
+  attrs?: {
+    [key: string]: {
+      [key: string]: string
+    }
+  }
+}) {
   return <>
-    <h1>{title}</h1>
+    <h1 {...attrs?.title}>{title}</h1>
     {
       list.map(item =>
-        <li>{item}</li>
+        <li {...attrs?.content}>{item}</li>
       )
     }
   </>

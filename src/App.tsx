@@ -34,13 +34,23 @@ export default function App() {
     return () => clearInterval(intervalId);
   }, []);
 
-  console.log(wallet)
-
   return <>
     <div className="container">
       <div className="row">
         <div className="col">
-          {ranking.length ? <StringList list={ranking} title='Chart' /> : null}
+          {
+            ranking.length ? (
+              <StringList 
+                list={ranking} 
+                title='Chart' 
+                attrs={{
+                  title: {
+                    className: 'center'
+                  }
+                }}
+              />
+            ) : null
+          }
         </div>
         <div className="col center">
           <Text text='Magic Money Tree' tag='h1' attrs={{className: 'title'}} />
@@ -49,7 +59,19 @@ export default function App() {
           <Wallet wallet={wallet} />
         </div>
         <div className="col">
-          {transactionLog.length ? <StringList list={transactionLog} title='Transactions' /> : null}
+          {
+            transactionLog.length ? (
+              <StringList 
+                list={transactionLog} 
+                title='Transactions' 
+                attrs={{
+                  title: {
+                    className: 'center'
+                  }  
+                }} 
+              />
+            ) : null
+          }
         </div>
       </div>
       <div className="row">
