@@ -1,14 +1,11 @@
 import { useState, useEffect } from "react"
-import Log from "./components/Log/Log"
 import Text from "./components/Text/Text"
 import { wallet, market } from 'server'
 import Wallet from "./components/Wallet/Wallet"
 import CurrentTask from "./components/CurrentTask/CurrentTask"
-import TransactionLog from "./components/TransactionLog/TransactionLog"
 import MarketGraph from "./components/MarketGraph/MarketGraph"
-import { indexedFrame } from "server"
-import Ranking from "./components/Ranking/Ranking"
 import './App.css'
+import StringList from "./components/StringList/StringList"
 
 export default function App() {
 
@@ -43,7 +40,7 @@ export default function App() {
     <div className="container">
       <div className="row">
         <div className="col">
-          {ranking.length ? <Ranking ranking={ranking} /> : null}
+          {ranking.length ? <StringList list={ranking} title='Chart' /> : null}
         </div>
         <div className="col center">
           <Text text='Magic Money Tree' tag='h1' attrs={{className: 'title'}} />
@@ -52,7 +49,7 @@ export default function App() {
           <Wallet wallet={wallet} />
         </div>
         <div className="col">
-          {transactionLog.length ? <TransactionLog log={transactionLog} /> : null}
+          {transactionLog.length ? <StringList list={transactionLog} title='Transactions' /> : null}
         </div>
       </div>
       <div className="row">
