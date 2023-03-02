@@ -565,7 +565,7 @@ async function trade(sortedMarkets: market[]) {
       if (!targetMarket) {
 
         logEntry('No bullish markets')
-        simulatedSellOrder('Current market bearish', currentMarket)
+        simulatedSellOrder('Current market bearish', markets[`${wallet.data.baseCoin}USDT`])
 
       } else {
 
