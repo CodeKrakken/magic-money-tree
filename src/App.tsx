@@ -53,6 +53,12 @@ export default function App() {
             marketChart.length ? (
               <StringList 
                 list={marketChart} 
+                title='Chart' 
+                attrs={{
+                  title: {
+                    className: 'center'
+                  }
+                }}
               />
             ) : null
           }
@@ -67,7 +73,13 @@ export default function App() {
           {
             transactions.length ? (
               <StringList 
-                list={transactions} 
+              list={transactions} 
+              title='Transactions' 
+                attrs={{
+                  title: {
+                    className: 'center'
+                  }  
+                }} 
               />
             ) : null
           }
