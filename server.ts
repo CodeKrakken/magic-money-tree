@@ -271,7 +271,7 @@ function isGoodMarketName(marketName: string) {
   && !marketName.includes('TUSD')
   && !marketName.includes('USDC')
   && !marketName.includes(':')
-  // && marketName === 'GBPUSDT'
+  && marketName === 'GBPUSDT'
   // && !marketName.includes('BNB')
 }
 
@@ -560,24 +560,26 @@ async function trade(sortedMarkets: market[]) {
     } 
   } else {
     try {
-      const currentMarket = sortedMarkets.filter((market: market) => market.name === wallet.data.currentMarket.name)[0]
+      console.log(targetMarket)
+      console.log(sortedMarkets)
+      const currentMarket = markets[`${wallet.data.baseCoin}USDT`]
+      console.log(currentMarket)
+      if (
+        currentMarket.strength as number < 0 ?? 
+        currentMarket.shape as number < 0 ?? 
+        currentMarket.emaRatio as number < 1
+      ) {
 
-      if (!targetMarket) {
-
-        logEntry('No bullish markets')
         simulatedSellOrder('Current market bearish', markets[`${wallet.data.baseCoin}USDT`])
 
-      } else {
-
-        if (!currentMarket) {
-          // simulatedSellOrder('No response for current market', markets[wallet.data.currentMarket.name])
-        } else if (targetMarket.name !== wallet.data.currentMarket.name) { 
-          // simulatedSellOrder('Better market found', markets[wallet.data.currentMarket.name])
-        } else if (!wallet.data.prices.targetPrice || !wallet.data.prices.stopLossPrice) {
-          // simulatedSellOrder('Price information undefined', markets[wallet.data.currentMarket.name])
-        } else if (wallet.coins[wallet.data.baseCoin].dollarPrice as number < wallet.data.prices.stopLossPrice) {
-          // simulatedSellOrder('Below Stop Loss', markets[wallet.data.currentMarket.name])
-        }
+      } else if (!currentMarket) {
+        // simulatedSellOrder('No response for current market', markets[wallet.data.currentMarket.name])
+      } else if (targetMarket?.name !== wallet.data.currentMarket.name) { 
+        // simulatedSellOrder('Better market found', markets[wallet.data.currentMarket.name])
+      } else if (!wallet.data.prices.targetPrice || !wallet.data.prices.stopLossPrice) {
+        // simulatedSellOrder('Price information undefined', markets[wallet.data.currentMarket.name])
+      } else if (wallet.coins[wallet.data.baseCoin].dollarPrice as number < wallet.data.prices.stopLossPrice) {
+        // simulatedSellOrder('Below Stop Loss', markets[wallet.data.currentMarket.name])
       }
     } catch(error) {
       console.log(error)
@@ -637,10 +639,11 @@ function simulatedSellOrder(sellType: string, market: market) {
     const asset = wallet.data.currentMarket.name.replace('USDT', '')
     const base  = 'USDT'
     const assetVolume = wallet.coins[asset].volume
+    wallet.coins[base] = wallet.coins[base] ?? {volume: 0}
     wallet.coins[base].volume += assetVolume * (1 - fee) * wallet.coins[asset].dollarPrice
     wallet.data.prices = {}
     // await dbOverwrite(priceData, wallet.data.prices as {})
-    const tradeReport = `${timeNow()} - Sold  ${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)} ... Strength ${round(market.strength as number)} ... ${sellType}`
+    const tradeReport = `${timeNow()} - Sold   ${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)} ... Strength ${round(market.strength as number)} ... ${sellType}`
     logEntry(tradeReport, 'transactions')
     // await dbAppend(tradeHistory, tradeReport)
     delete wallet.coins[asset]
