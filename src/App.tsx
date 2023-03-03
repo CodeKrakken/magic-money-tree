@@ -14,10 +14,12 @@ export default function App() {
   const [transactions,     setTransactions] = useState([] as string[])
   const [marketChart,               setMarketChart] = useState([] as string[])
   const [currentMarket,   setCurrentMarket] = useState({} as market)
+  const [log, setLog] = useState([] as string[])
 
   useEffect(() => {
+
     const fetchData = async () => {
-      await fetch('/data')
+      const data = await fetch('/data')
       .then(response => response.json())
       .then(data => {
         setWallet(data.wallet)
@@ -29,6 +31,7 @@ export default function App() {
     }
     
     fetchData();
+    
     const intervalId = setInterval(fetchData, 200);
   
     return () => clearInterval(intervalId);
