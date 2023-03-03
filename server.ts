@@ -271,7 +271,7 @@ function isGoodMarketName(marketName: string) {
   && !marketName.includes('TUSD')
   && !marketName.includes('USDC')
   && !marketName.includes(':')
-  && marketName === 'GBPUSDT'
+  // && marketName === 'GBPUSDT'
   // && !marketName.includes('BNB')
 }
 
@@ -402,7 +402,7 @@ function indexData(rawHistories: { [key: string]: rawFrame[]}) {
 
       rawHistories[timeSpan].map(frame => {
   
-        const average = frame.slice(1, 5).map(element => parseFloat(element as string)).reduce((a,b)=>a+b)/4
+        const average = [frame[1], frame[4]].map(element => parseFloat(element as string)).reduce((a,b)=>a+b)/2
 
         history.push(
           {
@@ -487,15 +487,21 @@ function addShape(market: market) {
   const shapes = Object.keys(timeScales).map(timeScale => {
 
     const m = market.histories[timeScale].length
-    const totalChange = market.histories[timeScale][m - 1].average - market.histories[timeScale][0].average
-    const percentageChange = totalChange / market.histories[timeScale][0].average * 100
+    const totalChange = market.histories[timeScale][m - 1].close - market.histories[timeScale][0].open
+    const percentageChange = market.histories[timeScale][m - 1].close / market.histories[timeScale][0].open
     let straightLineIncrement = totalChange / m
     let deviations: number[] = []
-    let straightLine = market.histories[timeScale][0].average
+    let straightLine = market.histories[timeScale][0].open
 
     market.histories[timeScale].map(frame => {
       straightLine += straightLineIncrement
-      deviations.push(frame.low < straightLine ? frame.low / straightLine : -(Math.abs(frame.high / straightLine)))
+      deviations.push(
+        frame.average === straightLine ? 1 : 
+        frame.average < straightLine ? frame.average / straightLine : 
+        market.name.includes(wallet.data.baseCoin) ?
+        frame.average / straightLine :
+        straightLine / frame.average
+      )
     })
 
     const shape = percentageChange * ema(deviations)
