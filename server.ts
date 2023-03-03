@@ -593,7 +593,7 @@ async function trade(sortedMarkets: market[]) {
         simulatedSellOrder('Current market bearish', currentMarket)
       } else if (!currentMarket) {
         // simulatedSellOrder('No response for current market', markets[wallet.data.currentMarket.name])
-      } else if (targetMarket?.name !== currentMarket.name) { //  && (currentMarket.currentPrice as number) >= (wallet.data.prices.targetPrice as number)) { 
+      } else if (targetMarket?.name !== currentMarket.name && (currentMarket.currentPrice as number) >= (wallet.data.prices.targetPrice as number)) { 
         simulatedSellOrder('Better market found', currentMarket)
       } else if (!wallet.data.prices.targetPrice || !wallet.data.prices.stopLossPrice) {
         // simulatedSellOrder('Price information undefined', markets[wallet.data.currentMarket.name])
