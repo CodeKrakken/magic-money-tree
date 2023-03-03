@@ -499,15 +499,21 @@ function addShape(market: market) {
   const shapes = Object.keys(timeScales).map(timeScale => {
 
     const m = market.histories[timeScale].length
-    const totalChange = market.histories[timeScale][m - 1].average - market.histories[timeScale][0].average
-    const percentageChange = totalChange / market.histories[timeScale][0].average * 100
+    const totalChange = market.histories[timeScale][m - 1].close - market.histories[timeScale][0].open
+    const percentageChange = market.histories[timeScale][m - 1].close / market.histories[timeScale][0].open
     let straightLineIncrement = totalChange / m
     let deviations: number[] = []
-    let straightLine = market.histories[timeScale][0].average
+    let straightLine = market.histories[timeScale][0].open
 
     market.histories[timeScale].map(frame => {
       straightLine += straightLineIncrement
-      deviations.push(frame.low < straightLine ? frame.low / straightLine : -(Math.abs(frame.high / straightLine)))
+      deviations.push(
+        frame.average === straightLine ? 1 : 
+        frame.average < straightLine ? frame.average / straightLine : 
+        market.name.includes(wallet.data.baseCoin) ?
+        frame.average / straightLine :
+        straightLine / frame.average
+      )
     })
 
     const shape = percentageChange * ema(deviations)
@@ -520,9 +526,9 @@ function addShape(market: market) {
 
 function filterMarkets(markets: market[]) {
   return markets.filter(market => 
-    market.shape as number > 0 
+    market.shape as number > 1 
     && 
-    market.emaRatio as number >= 1
+    market.emaRatio as number > 1
   )
 }
 
