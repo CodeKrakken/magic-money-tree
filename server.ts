@@ -11,21 +11,33 @@ app.use(express.json());
 const cors = require("cors");
 const path = require("path");
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000'
+}));
 
-app.use(express.static(path.join(__dirname, "build")));
+// app.use(express.static(path.join(__dirname, "build")));
 
-app.get("/data", (req: Request, res: Response) => {
-  const dataJSON = JSON.stringify({
+// app.get("/data", (req: Request, res: Response) => {
+//   const dataJSON = JSON.stringify({
+//     wallet          : wallet,
+//     currentTask     : currentTask,
+//     transactions  : log.transactions,
+//     marketChart         : marketChart,
+//     currentMarket   : markets[wallet.data.currentMarket.name] ?? null
+//   });
+//   res.setHeader('Content-Type', 'application/json');
+//   res.send(dataJSON);
+// });
+
+app.get('/data', (req: Request, res: Response) => {
+  res.json({
     wallet          : wallet,
     currentTask     : currentTask,
-    transactions  : log.transactions,
-    marketChart         : marketChart,
+    transactions    : log.transactions,
+    marketChart     : marketChart,
     currentMarket   : markets[wallet.data.currentMarket.name] ?? null
-  });
-  res.setHeader('Content-Type', 'application/json');
-  res.send(dataJSON);
-});
+  })
+})
 
 const port = process.env.PORT || 5000;
 
@@ -146,7 +158,7 @@ const timeScales: {[key: string]: string} = {
   minutes : 'm',
   seconds : 's'
 }
-let trading = false
+let trading = true
 
 
 
@@ -604,7 +616,6 @@ async function simulatedBuyOrder(market: market) {
     const asset = market.name.replace(wallet.data.baseCoin, '')
     const base  = wallet.data.baseCoin
     const response = await fetchPrice(market.name)
-
     if (response) {
       const currentPrice = response as number
       const baseVolume = wallet.coins[base].volume
