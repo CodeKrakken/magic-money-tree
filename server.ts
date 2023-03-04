@@ -93,6 +93,7 @@ export interface wallet {
     currentMarket: {
       name: string
     }
+    purchaseTime: number
   }
 }
 
@@ -312,7 +313,8 @@ function simulatedWallet() {
       prices: {},
       currentMarket: {
         name: ''
-      }
+      },
+      purchaseTime: 0
     }
   }
 }
@@ -514,7 +516,7 @@ function addShape(market: market) {
       deviations.push(
         frame.average === straightLine ? 1 : 
         frame.average < straightLine ? frame.average / straightLine : 
-        market.name.includes(wallet.data.baseCoin) ?
+        market.name.includes(wallet.data.baseCoin) && frame.time > wallet.data.purchaseTime ?
         frame.average / straightLine :
         straightLine / frame.average
       )
@@ -643,6 +645,8 @@ async function simulatedBuyOrder(market: market) {
       }
 
       wallet.data.currentMarket.name = market.name
+
+      wallet.data.purchaseTime = Date.now()
       // await dbOverwrite(priceData, wallet.data.prices as {})
       const tradeReport = `${timeNow()} - Bought ${round(wallet.coins[asset].volume)} ${asset} @ ${round(currentPrice)} = $${round(baseVolume * (1 - fee))} ... Strength ${round(market.strength as number)}`
       logEntry(tradeReport, 'transactions')
@@ -665,6 +669,7 @@ function simulatedSellOrder(sellType: string, market: market) {
     logEntry(tradeReport, 'transactions')
     // await dbAppend(tradeHistory, tradeReport)
     delete wallet.coins[asset]
+    wallet.data.purchaseTime = 0
   } catch (error) {
     console.log(error)
   }
