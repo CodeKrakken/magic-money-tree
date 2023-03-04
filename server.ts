@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-
+require('dotenv').config()
 
 
 // Server
