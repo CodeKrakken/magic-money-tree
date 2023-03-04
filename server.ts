@@ -532,9 +532,9 @@ function addShape(market: market) {
 
 function filterMarkets(markets: market[]) {
   return markets.filter(market => 
-    market.shape as number > 1 
+    market.shape as number >= 1 
     && 
-    market.emaRatio as number > 1
+    market.emaRatio as number >= 1
   )
 }
 
