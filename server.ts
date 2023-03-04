@@ -55,7 +55,6 @@ const password = process.env.MONGODB_PASSWORD
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = `mongodb+srv://${username}:${password}@magic-money-tree.ohcuy3y.mongodb.net/?retryWrites=true&w=majority`;
-console.log(uri)
 const mongo = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 let db
