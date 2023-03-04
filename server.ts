@@ -52,18 +52,18 @@ app.listen(port, () => {
 
 // Database
 
-// interface collection { [key: string]: Function }
-// const { MongoClient } = require('mongodb');
-// const username = process.env.MONGODB_USERNAME
-// const password = process.env.MONGODB_PASSWORD
-// const uri = `mongodb+srv://${username}:${password}@cluster0.ra0fk.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
-// const mongo = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-// let db
-// let priceData: { [key: string]: Function } = {}
-// let tradeHistory: { [key: string]: Function } = {}
-// const dbName = "magic-money-tree";
-// const mongoose = require('mongoose');
-// mongoose.connect(process.env.MONGODB_URI || uri)
+interface collection { [key: string]: Function }
+const { MongoClient } = require('mongodb');
+const username = process.env.MONGODB_USERNAME
+const password = process.env.MONGODB_PASSWORD
+const uri = `mongodb+srv://${username}:${password}@cluster0.ra0fk.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+const mongo = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+let db
+let priceData: { [key: string]: Function } = {}
+let tradeHistory: { [key: string]: Function } = {}
+const dbName = "magic-money-tree";
+const mongoose = require('mongoose');
+mongoose.connect(process.env.MONGODB_URI || uri)
 
 
 
@@ -172,8 +172,8 @@ async function run() {
   currentTask = `Running at ${timeNow()}`
   logEntry(currentTask)
   try {
-    // await setupDB();
-    // await dbAppend(tradeHistory, timeNow(), 'Running')
+    await setupDB();
+    await dbAppend(tradeHistory, timeNow(), 'Running')
     viableSymbols = await fetchSymbols() as string[]
     rollingTick()
   } catch (error) {
@@ -211,27 +211,27 @@ async function setupDB() {
   currentTask = 'Setting up database ...'
   logEntry(currentTask)
 
-  // await mongo.connect()
-  // db = mongo.db(dbName);
-  // priceData = db.collection("price-data")  
-  // tradeHistory = db.collection("trade-history")
-  // await dbOverwrite(priceData,    {sessionStart: timeNow()})
-  // await dbOverwrite(tradeHistory, {sessionStart: timeNow()})
+  await mongo.connect()
+  db = mongo.db(dbName);
+  priceData = db.collection("price-data")  
+  tradeHistory = db.collection("trade-history")
+  await dbOverwrite(priceData,    {sessionStart: timeNow()})
+  await dbOverwrite(tradeHistory, {sessionStart: timeNow()})
   currentTask = "Database setup complete"
   logEntry(currentTask)
 }
 
-// async function dbAppend(collection: collection, value: string, key: string=timeNow(), ) {
-//   await collection.insert({[key]: value});
-// }
+async function dbAppend(collection: collection, value: string, key: string=timeNow(), ) {
+  await collection.insert({[key]: value});
+}
 
-// async function dbOverwrite(collection: collection, data: {[key: string]: string}) {
-//   const query = { key: data.key };
-//   const options = {
-//     upsert: true,
-//   };
-//   await collection.replaceOne(query, data, options);
-// }
+async function dbOverwrite(collection: collection, data: {[key: string]: string}) {
+  const query = { key: data.key };
+  const options = {
+    upsert: true,
+  };
+  await collection.replaceOne(query, data, options);
+}
 
 async function rollingTick(i: number = 0) {
   try {
@@ -375,10 +375,10 @@ async function refreshWallet() {
     } else {
       wallet.data.currentMarket.name = `${wallet.data.baseCoin}USDT`
       
-      // if (!Object.keys(wallet.data.prices).length) {
-      //   const data = await priceData.find().toArray();
-      //   wallet.data.prices = data[0]      
-      // }
+      if (!Object.keys(wallet.data.prices).length) {
+        const data = await priceData.find().toArray();
+        wallet.data.prices = data[0]      
+      }
     }
   } catch (error) {
       console.log(error)
@@ -532,9 +532,9 @@ function addShape(market: market) {
 
 function filterMarkets(markets: market[]) {
   return markets.filter(market => 
-    market.shape as number >= 1 
+    market.shape as number > 1 
     && 
-    market.emaRatio as number >= 1
+    market.emaRatio as number > 1
   )
 }
 
@@ -592,11 +592,11 @@ async function trade(sortedMarkets: market[]) {
       const currentMarket = markets[wallet.data.currentMarket.name]
       
       if (currentMarket.shape as number < 1 ?? currentMarket.emaRatio as number < 1 ?? currentMarket.strength as number < 1) {
-        simulatedSellOrder('Current market bearish', currentMarket)
+        await simulatedSellOrder('Current market bearish', currentMarket)
       } else if (!currentMarket) {
         // simulatedSellOrder('No response for current market', markets[wallet.data.currentMarket.name])
       } else if (targetMarket?.name !== currentMarket.name && (currentMarket.currentPrice as number) >= (wallet.data.prices.targetPrice as number)) { 
-        simulatedSellOrder('Better market found', currentMarket)
+        await simulatedSellOrder('Better market found', currentMarket)
       } else if (!wallet.data.prices.targetPrice || !wallet.data.prices.stopLossPrice) {
         // simulatedSellOrder('Price information undefined', markets[wallet.data.currentMarket.name])
       } else if (wallet.coins[wallet.data.baseCoin].dollarPrice as number < wallet.data.prices.stopLossPrice) {
@@ -647,27 +647,27 @@ async function simulatedBuyOrder(market: market) {
       wallet.data.currentMarket.name = market.name
 
       wallet.data.purchaseTime = Date.now()
-      // await dbOverwrite(priceData, wallet.data.prices as {})
+      await dbOverwrite(priceData, wallet.data.prices as {})
       const tradeReport = `${timeNow()} - Bought ${round(wallet.coins[asset].volume)} ${asset} @ ${round(currentPrice)} = $${round(baseVolume * (1 - fee))} ... Strength ${round(market.strength as number)}`
       logEntry(tradeReport, 'transactions')
-      // await dbAppend(tradeHistory, tradeReport)
+      await dbAppend(tradeHistory, tradeReport)
     }
   } catch (error) {
     console.log(error)
   }
 }
 
-function simulatedSellOrder(sellType: string, market: market) {
+async function simulatedSellOrder(sellType: string, market: market) {
   try {
     const asset = wallet.data.currentMarket.name.replace('USDT', '')
     const base  = 'USDT'
     const assetVolume = wallet.coins[asset].volume
     wallet.coins[base].volume += assetVolume * (1 - fee) * wallet.coins[asset].dollarPrice
     wallet.data.prices = {}
-    // await dbOverwrite(priceData, wallet.data.prices as {})
+    await dbOverwrite(priceData, wallet.data.prices as {})
     const tradeReport = `${timeNow()} - Sold  ${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)} ... Strength ${round(market.strength as number)} ... ${sellType}`
     logEntry(tradeReport, 'transactions')
-    // await dbAppend(tradeHistory, tradeReport)
+    await dbAppend(tradeHistory, tradeReport)
     delete wallet.coins[asset]
     wallet.data.purchaseTime = 0
   } catch (error) {
