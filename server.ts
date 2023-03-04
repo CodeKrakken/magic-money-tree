@@ -647,27 +647,27 @@ async function simulatedBuyOrder(market: market) {
       wallet.data.currentMarket.name = market.name
 
       wallet.data.purchaseTime = Date.now()
-      // await dbOverwrite(priceData, wallet.data.prices as {})
+      await dbOverwrite(priceData, wallet.data.prices as {})
       const tradeReport = `${timeNow()} - Bought ${round(wallet.coins[asset].volume)} ${asset} @ ${round(currentPrice)} = $${round(baseVolume * (1 - fee))} ... Strength ${round(market.strength as number)}`
       logEntry(tradeReport, 'transactions')
-      // await dbAppend(tradeHistory, tradeReport)
+      await dbAppend(tradeHistory, tradeReport)
     }
   } catch (error) {
     console.log(error)
   }
 }
 
-function simulatedSellOrder(sellType: string, market: market) {
+async function simulatedSellOrder(sellType: string, market: market) {
   try {
     const asset = wallet.data.currentMarket.name.replace('USDT', '')
     const base  = 'USDT'
     const assetVolume = wallet.coins[asset].volume
     wallet.coins[base].volume += assetVolume * (1 - fee) * wallet.coins[asset].dollarPrice
     wallet.data.prices = {}
-    // await dbOverwrite(priceData, wallet.data.prices as {})
+    await dbOverwrite(priceData, wallet.data.prices as {})
     const tradeReport = `${timeNow()} - Sold  ${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)} ... Strength ${round(market.strength as number)} ... ${sellType}`
     logEntry(tradeReport, 'transactions')
-    // await dbAppend(tradeHistory, tradeReport)
+    await dbAppend(tradeHistory, tradeReport)
     delete wallet.coins[asset]
     wallet.data.purchaseTime = 0
   } catch (error) {
