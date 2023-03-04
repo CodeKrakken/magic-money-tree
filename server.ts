@@ -11,33 +11,35 @@ app.use(express.json());
 const cors = require("cors");
 const path = require("path");
 
-app.use(cors({
-  origin: 'http://localhost:3000'
-}));
+app.use(cors(
+//   {
+//   origin: 'http://localhost:3000'
+// }
+));
 
-// app.use(express.static(path.join(__dirname, "build")));
+app.use(express.static(path.join(__dirname, "build")));
 
-// app.get("/data", (req: Request, res: Response) => {
-//   const dataJSON = JSON.stringify({
-//     wallet          : wallet,
-//     currentTask     : currentTask,
-//     transactions  : log.transactions,
-//     marketChart         : marketChart,
-//     currentMarket   : markets[wallet.data.currentMarket.name] ?? null
-//   });
-//   res.setHeader('Content-Type', 'application/json');
-//   res.send(dataJSON);
-// });
-
-app.get('/data', (req: Request, res: Response) => {
-  res.json({
+app.get("/data", (req: Request, res: Response) => {
+  const dataJSON = JSON.stringify({
     wallet          : wallet,
     currentTask     : currentTask,
-    transactions    : log.transactions,
-    marketChart     : marketChart,
+    transactions  : log.transactions,
+    marketChart         : marketChart,
     currentMarket   : markets[wallet.data.currentMarket.name] ?? null
-  })
-})
+  });
+  res.setHeader('Content-Type', 'application/json');
+  res.send(dataJSON);
+});
+
+// app.get('/data', (req: Request, res: Response) => {
+//   res.json({
+//     wallet          : wallet,
+//     currentTask     : currentTask,
+//     transactions    : log.transactions,
+//     marketChart     : marketChart,
+//     currentMarket   : markets[wallet.data.currentMarket.name] ?? null
+//   })
+// })
 
 const port = process.env.PORT || 5000;
 
@@ -56,10 +58,15 @@ const password = process.env.MONGODB_PASSWORD
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = `mongodb+srv://${username}:${password}@magic-money-tree.ohcuy3y.mongodb.net/?retryWrites=true&w=majority`;
 const mongo = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-let db
+let database
+let collection: collection
 const dbName = "magic-money-tree";
 
 // Types
+
+interface collection {
+  [key: string]: any
+}
 
 type rawMarket = {
   status: string, 
@@ -129,7 +136,7 @@ type LogTopic = 'general' | 'transactions';
 
 // Data
 
-const log: {
+let log: {
   [key in LogTopic]: string[]
 } = {
   general       : [],
@@ -141,6 +148,7 @@ let marketChart: string[] = []
 let viableSymbols: string[] = []
 let markets: { [key: string]: market } = {}
 let wallet: wallet = simulatedWallet()
+let i: number = 0
 const minimumDollarVolume = 28000000
 const fee = 0.001
 const stopLossThreshold = 0.78
@@ -165,6 +173,7 @@ async function run() {
   try {
     await setupDB();
     viableSymbols = await fetchSymbols() as string[]
+    await checkDatabase();
     rollingTick()
   } catch (error) {
     console.log(error)
@@ -197,16 +206,25 @@ async function fetchSymbols() {
 }
 
 async function setupDB() {
-
   currentTask = 'Setting up database ...'
   logEntry(currentTask)
   await mongo.connect()
-  db = mongo.db(dbName);
+  database = mongo.db(dbName);
+  collection = database.collection('data')
   currentTask = "Database setup complete"
   logEntry(currentTask)
 }
 
-async function rollingTick(i: number = 0) {
+async function checkDatabase() {
+  const data = await collection.findOne({});
+  if (data.data.wallet) { wallet = data.data.wallet}
+  if (data.data.markets) { markets = data.data.markets}
+  if (data.data.log) { log = data.data.log}
+  if (data.data.i) { i = data.data.i} else { console.log(data.data.i)}
+  if (data.data.viableSymbols) { viableSymbols = data.data.viableSymbols}
+}
+
+async function rollingTick() {
   try {
     if (!viableSymbols[i]) {
       logEntry(`----- Tick at ${timeNow()} -----`)
@@ -238,7 +256,15 @@ async function rollingTick(i: number = 0) {
   } catch (error) {
     console.log(error)
   }
-  rollingTick(i+1)
+  i++
+  await collection.replaceOne({}, { data: {
+    wallet: wallet,
+    markets: markets,
+    log: log,
+    i: i,
+    viableSymbols: viableSymbols
+  } });
+  rollingTick()
 }
 
 function analyseMarkets(allMarkets: rawMarket[]) {
