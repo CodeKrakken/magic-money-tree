@@ -669,7 +669,7 @@ async function simulatedBuyOrder(market: market) {
       }
 
       wallet.data.currentMarket.name = market.name
-      const tradeReport = `${timeNow()}  |  $${baseVolume * (1 - fee)} @ ${currentPrice} = ${wallet.coins[asset].volume} ${asset}  |  Strength ${market.strength as number}`
+      const tradeReport = `${timeNow()}  |  $${round(baseVolume * (1 - fee))} @ ${round(currentPrice)} = ${round(wallet.coins[asset].volume)} ${asset}  |  Strength ${market.strength as number}`
       logEntry(tradeReport, 'transactions')
     }
   } catch (error) {
@@ -684,7 +684,7 @@ async function simulatedSellOrder(sellType: string, market: market) {
     const assetVolume = wallet.coins[asset].volume
     wallet.coins[base].volume += assetVolume * (1 - fee) * wallet.coins[asset].dollarPrice
     wallet.data.prices = {}
-    const tradeReport = `${timeNow()}  |  ${assetVolume} ${asset} @ ${wallet.coins[asset].dollarPrice} = $${wallet.coins[base].volume}  |  Strength ${market.strength as number}  |  ${sellType}`
+    const tradeReport = `${timeNow()}  |  ${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)}  |  Strength ${market.strength as number}  |  ${sellType}`
     logEntry(tradeReport, 'transactions')
     delete wallet.coins[asset]
   } catch (error) {
