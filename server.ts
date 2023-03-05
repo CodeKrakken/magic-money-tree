@@ -85,7 +85,7 @@ export interface wallet {
     baseCoin      : string
     prices        : {
       targetPrice?    : number
-      highPrice?      : number
+      currentPrice?   : number
       purchasePrice?  : number
       stopLossPrice?  : number
     }
@@ -161,7 +161,7 @@ const timeScales: {[key: string]: string} = {
   minutes : 'm',
   seconds : 's'
 }
-let trading = false
+let trading = true
 
 
 
@@ -226,6 +226,7 @@ async function checkDatabase() {
 }
 
 async function rollingTick() {
+
   try {
     if (!viableSymbols[i]) {
       logEntry(`----- Tick at ${timeNow()} -----`)
@@ -584,8 +585,12 @@ async function trade(sortedMarkets: market[]) {
         simulatedSellOrder('Current market bearish', currentMarket)
       } else if (!currentMarket) {
         // simulatedSellOrder('No response for current market', markets[wallet.data.currentMarket.name])
-      } else if (targetMarket?.name !== currentMarket.name && (currentMarket.currentPrice as number) >= (wallet.data.prices.targetPrice as number)) { 
-        simulatedSellOrder('Better market found', currentMarket)
+      } else if (
+        targetMarket?.name !== currentMarket.name && 
+        (targetMarket?.strength as number) > (currentMarket.strength as number) && 
+        (wallet.coins[wallet.data.baseCoin].dollarPrice as number) >= (wallet?.data?.prices?.targetPrice as number)
+      ) { 
+        simulatedSellOrder('Trading up', currentMarket)
       } else if (!wallet.data.prices.targetPrice || !wallet.data.prices.stopLossPrice) {
         // simulatedSellOrder('Price information undefined', markets[wallet.data.currentMarket.name])
       } else if (wallet.coins[wallet.data.baseCoin].dollarPrice as number < wallet.data.prices.stopLossPrice) {
@@ -630,7 +635,7 @@ async function simulatedBuyOrder(market: market) {
         targetPrice   : targetVolume / wallet.coins[asset].volume,
         purchasePrice : currentPrice,
         stopLossPrice : currentPrice * stopLossThreshold,
-        highPrice     : currentPrice
+        currentPrice  : currentPrice
       }
 
       wallet.data.currentMarket.name = market.name
@@ -649,7 +654,7 @@ async function simulatedSellOrder(sellType: string, market: market) {
     const assetVolume = wallet.coins[asset].volume
     wallet.coins[base].volume += assetVolume * (1 - fee) * wallet.coins[asset].dollarPrice
     wallet.data.prices = {}
-    const tradeReport = `${timeNow()} - Sold  ${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)} ... Strength ${round(market.strength as number)} ... ${sellType}`
+    const tradeReport = `${timeNow()} - Sold    ${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)} ... Strength ${round(market.strength as number)} ... ${sellType}`
     logEntry(tradeReport, 'transactions')
     delete wallet.coins[asset]
     wallet.data.purchaseTime = 0
