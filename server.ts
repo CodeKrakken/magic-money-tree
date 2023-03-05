@@ -45,7 +45,7 @@ const port = process.env.PORT || 5000;
 
 app.listen(port, () => {
   const currentTask = `Server listening on port ${port}`
-  logEntry(currentTask);
+  console.log(currentTask);
 });
 
 
@@ -161,7 +161,7 @@ const timeScales: {[key: string]: string} = {
   minutes : 'm',
   seconds : 's'
 }
-let trading = true
+let trading: Boolean
 
 
 
@@ -170,11 +170,12 @@ let trading = true
 async function run() {
 
   currentTask = `Running at ${timeNow()}`
-  logEntry(currentTask)
+  console.log(currentTask)
   try {
-    await setupDB();
     viableSymbols = await fetchSymbols() as string[]
-    await checkDatabase();
+    await setupDB();
+    await pullFromDatabase();
+    trading = Boolean(Object.keys(markets).length)
     rollingTick()
   } catch (error) {
     console.log(error)
@@ -212,25 +213,45 @@ async function setupDB() {
   await mongo.connect()
   database = mongo.db(dbName);
   collection = database.collection('data')
+  const count = await collection.countDocuments();
+  if (count === 0) {
+    console.log('Setting up blank database')
+    await collection.insertOne({
+      data: {}
+    });
+  }
   currentTask = "Database setup complete"
   logEntry(currentTask)
 }
 
-async function checkDatabase() {
+async function pullFromDatabase() {
+  logEntry("Fetching data ...")
   const data = await collection.findOne({});
-  if (data.data.wallet) { wallet = data.data.wallet}
-  if (data.data.markets) { markets = data.data.markets}
-  if (data.data.log) { log = data.data.log}
-  if (data.data.i) { i = data.data.i} else { console.log(data.data.i)}
-  if (data.data.viableSymbols) { viableSymbols = data.data.viableSymbols}
+  if (data?.data?.wallet) { wallet = data.data.wallet}
+  if (data?.data?.markets) { markets = data.data.markets}
+  if (data?.data?.log) { log = data.data.log}
+  if (data?.data?.i) { i = data.data.i}
+  if (data?.data?.viableSymbols) { viableSymbols = data.data.viableSymbols}
 }
 
 async function rollingTick() {
 
   try {
+
     if (!viableSymbols[i]) {
-      logEntry(`----- Tick at ${timeNow()} -----`)
+
+      await collection.replaceOne({}, { data: {
+        wallet: wallet,
+        markets: markets,
+        log: log,
+        i: i,
+        viableSymbols: viableSymbols
+      } });
+
+      console.log(`----- Tick at ${timeNow()} -----`)
+
       i = 0
+
       viableSymbols = await fetchSymbols() as string[]
       trading = true
     }
@@ -240,7 +261,7 @@ async function rollingTick() {
     const isVoluminous = await checkVolume(symbolName)
 
     currentTask = `Checking volume of ${i+1}/${viableSymbols.length} - ${symbolName} ... ${!isVoluminous.includes("Insufficient") && isVoluminous !== "No response." ? 'Market included.' : isVoluminous}`
-    logEntry(currentTask)
+    console.log(currentTask)
 
     if (!isVoluminous.includes("Insufficient") && isVoluminous !== 'Invalid market.' && isVoluminous !== "No response.") {
       await updateMarket(viableSymbols[i].replace('/', ''), i+1)
@@ -259,13 +280,6 @@ async function rollingTick() {
     console.log(error)
   }
   i++
-  await collection.replaceOne({}, { data: {
-    wallet: wallet,
-    markets: markets,
-    log: log,
-    i: i,
-    viableSymbols: viableSymbols
-  } });
   rollingTick()
 }
 
@@ -324,7 +338,7 @@ async function updateMarket(symbolName: string, id: number|null=null) {
   const response = await fetchSingleHistory(symbolName)
   if (id) {
     currentTask = `Fetching history for ${id}/${viableSymbols.length} - ${symbolName} ... ${response === 'No response.' ? response : ''}`
-    logEntry(currentTask)
+    console.log(currentTask)
   }
 
   if (response !== 'No response.') {
@@ -341,15 +355,15 @@ async function updateMarket(symbolName: string, id: number|null=null) {
 
 function logMarkets(markets: market[]) {
   markets.map(market => {
-    const report = `${market.name} ... shape ${market.shape as number} * ema ratio ${market.emaRatio} = strength ${market.strength as number}`
-    logEntry(report)
+    const report = `${market.name} ... shape ${market.shape as number} * ema ${market.emaRatio} = strength ${market.strength as number}`
+    console.log(report)
     return report
   })
 }
 
 function formatMarketDisplay(markets: market[]) {
   marketChart = markets.map(market => {
-    const report = `${market.name} ... shape ${(market.shape as number)} * ema ratio ${market.emaRatio} = strength ${market.strength as number}`
+    const report = `${market.name} ... shape ${(market.shape as number)} * ema ${market.emaRatio} = strength ${market.strength as number}`
     return report
   })
 }
@@ -537,29 +551,50 @@ function round(number: number, decimals: number=2) {
   return outputNumber
 }
 
-function roundObjects(inArray: market[], keys: ('shape'|'strength'|'currentPrice'|'emaRatio')[]) {
-  const outArray: market[] = []
+function roundObjects(inMarkets: market[], keys: ('shape'|'strength'|'currentPrice'|'emaRatio')[]) {
+  
+  const midMarkets: market[] = []
+  const outMarkets: market[] = []
 
-  inArray.map(inObj => {
-    const outObj: any = { ...inObj }
+  inMarkets.map(market => {
+    const outMarket: market = { ...market }
+
     keys.forEach(key => {
-      outObj[key] = round(inObj[key] as number)
+      outMarket[key] = round(market[key] as number)
     })
-    outArray.push(outObj)
+    midMarkets.push(outMarket)
   })
 
-  function round(inNumber: number, decimals: number=2) {
+  inMarkets.map(market => {
+    const outMarket: market = { ...market }
+    
+    keys.forEach(key => {
+      const length = Math.max(...midMarkets.map(market => (''+market[key]).split('.')[1]?.length ?? 0))
+      outMarket[key] = round(market[key] as number, length)
+    })
+    outMarkets.push(outMarket)
+  })
+  
+  function round(inNumber: number, decimals: number = 2) {
     if (!inNumber) {
       return inNumber
     }
-    let outNumber = parseFloat(inNumber.toFixed(decimals))
-    if ((!outNumber || outArray.some(outObj => keys.some(key => outObj[key] === outNumber)) || inArray.some(inObj => keys.some(key => inObj[key] === outNumber))) && decimals < 100) {
-      outNumber = round(inNumber, decimals+1)
+    let outNumber = Math.floor(inNumber * Math.pow(10, decimals)) / Math.pow(10, decimals)
+    if (
+      (!outNumber ||
+        midMarkets.some(outObj =>
+          keys.some(key => outObj[key] === outNumber)
+        ) ||
+        inMarkets.some(inObj =>
+          keys.some(key => inObj[key] === outNumber)
+        )) &&
+      decimals < 100
+    ) {
+      outNumber = round(inNumber, decimals + 1)
     }
     return outNumber
   }
-
-  return outArray
+  return outMarkets
 }
 
 
@@ -573,23 +608,19 @@ async function trade(sortedMarkets: market[]) {
   if (wallet.data.baseCoin === 'USDT') {   
 
     if (!targetMarket) {
-      logEntry('No bullish markets')
+      console.log('No bullish markets')
     } else if (wallet.coins[wallet.data.baseCoin].volume > 10) {
       await simulatedBuyOrder(targetMarket)
     } 
   } else {
     try {
       const currentMarket = markets[wallet.data.currentMarket.name]
-      
+
       if (currentMarket.shape as number < 1 ?? currentMarket.emaRatio as number < 1 ?? currentMarket.strength as number < 1) {
-        simulatedSellOrder('Current market bearish', currentMarket)
+        simulatedSellOrder('Bear', currentMarket)
       } else if (!currentMarket) {
         // simulatedSellOrder('No response for current market', markets[wallet.data.currentMarket.name])
-      } else if (
-        targetMarket?.name !== currentMarket.name && 
-        (targetMarket?.strength as number) > (currentMarket.strength as number) && 
-        (wallet.coins[wallet.data.baseCoin].dollarPrice as number) >= (wallet?.data?.prices?.targetPrice as number)
-      ) { 
+      } else if (targetMarket?.name !== currentMarket.name && wallet.coins[wallet.data.baseCoin].dollarPrice >= (wallet.data.prices.targetPrice as number)) { 
         simulatedSellOrder('Trading up', currentMarket)
       } else if (!wallet.data.prices.targetPrice || !wallet.data.prices.stopLossPrice) {
         // simulatedSellOrder('Price information undefined', markets[wallet.data.currentMarket.name])
