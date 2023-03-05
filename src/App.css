@@ -50,35 +50,27 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  margin: 0;
-  padding: 0;
+  margin: 0; /* remove the margin */
+  padding: 0; /* remove the padding */
 }
 
+/* create rows with flexbox */
 .row {
+  flex: 1;
   display: flex;
   flex-wrap: wrap;
-  margin: 0;
-  padding: 0;
+  overflow: hidden; /* hide overflow content */
+  margin: 0; /* remove the margin */
+  padding: 0; /* remove the padding */
 }
 
-/* The first and third rows should adjust their height to fit their content */
-.row:first-of-type, .row:last-of-type {
-  flex: 0 0 auto;
-}
-
-/* The middle row should expand to fill the remaining space */
-.row:nth-of-type(2) {
-  flex: 1 1 auto;
-  overflow: hidden;
-}
-
-/* Create columns with flexbox and set their width to one-third of the container width */
+/* create columns with flexbox and set their width to auto */
 .col {
-  flex: 1 1 0;
-  max-width: calc(100% / 3);
-  margin: 0;
-  padding: 0;
-  overflow: auto;
+  flex: 1 1 0; /* set flex-grow to 1, flex-shrink to 1, and flex-basis to 0 */
+  overflow: auto; /* allow overflow content to scroll */
+  max-width: calc(100% / 3); /* limit the width of each column to one-third of the container width */
+  margin: 0; /* remove the margin */
+  padding: 0; /* remove the padding */
 }
 
 /* set the fourth column to full width and height of the container */
