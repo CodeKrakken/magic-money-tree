@@ -12,34 +12,34 @@ const cors = require("cors");
 const path = require("path");
 
 app.use(cors(
-  {
-    origin: 'http://localhost:3000'
-  }
+  // {
+  //   origin: 'http://localhost:3000'
+  // }
 ));
 
-// app.use(express.static(path.join(__dirname, "build")));
+app.use(express.static(path.join(__dirname, "build")));
 
-// app.get("/data", (req: Request, res: Response) => {
-//   const dataJSON = JSON.stringify({
-//     wallet          : wallet,
-//     currentTask     : currentTask,
-//     transactions  : log.transactions,
-//     marketChart         : marketChart,
-//     currentMarket   : markets[wallet.data.currentMarket.name] ?? null
-//   });
-//   res.setHeader('Content-Type', 'application/json');
-//   res.send(dataJSON);
-// });
-
-app.get('/data', (req: Request, res: Response) => {
-  res.json({
+app.get("/data", (req: Request, res: Response) => {
+  const dataJSON = JSON.stringify({
     wallet          : wallet,
     currentTask     : currentTask,
-    transactions    : log.transactions,
-    marketChart     : marketChart,
+    transactions  : log.transactions,
+    marketChart         : marketChart,
     currentMarket   : markets[wallet.data.currentMarket.name] ?? null
-  })
-})
+  });
+  res.setHeader('Content-Type', 'application/json');
+  res.send(dataJSON);
+});
+
+// app.get('/data', (req: Request, res: Response) => {
+//   res.json({
+//     wallet          : wallet,
+//     currentTask     : currentTask,
+//     transactions    : log.transactions,
+//     marketChart     : marketChart,
+//     currentMarket   : markets[wallet.data.currentMarket.name] ?? null
+//   })
+// })
 
 const port = process.env.PORT || 5000;
 
@@ -547,26 +547,37 @@ function round(number: number, decimals: number=2) {
 
 function roundObjects(inArray: market[], keys: ('shape'|'strength'|'currentPrice'|'emaRatio')[]) {
   const outArray: market[] = []
+  let finalLength
 
   inArray.map(inObj => {
     const outObj: any = { ...inObj }
     keys.forEach(key => {
       outObj[key] = round(inObj[key] as number)
+      
     })
     outArray.push(outObj)
   })
 
-  function round(inNumber: number, decimals: number=2) {
+  function round(inNumber: number, decimals: number = 2) {
     if (!inNumber) {
       return inNumber
     }
-    let outNumber = parseFloat(inNumber.toFixed(decimals))
-    if ((!outNumber || outArray.some(outObj => keys.some(key => outObj[key] === outNumber)) || inArray.some(inObj => keys.some(key => inObj[key] === outNumber))) && decimals < 100) {
-      outNumber = round(inNumber, decimals+1)
+    let outNumber = Math.floor(inNumber * Math.pow(10, decimals)) / Math.pow(10, decimals)
+    if (
+      (!outNumber ||
+        outArray.some(outObj =>
+          keys.some(key => outObj[key] === outNumber)
+        ) ||
+        inArray.some(inObj =>
+          keys.some(key => inObj[key] === outNumber)
+        )) &&
+      decimals < 100
+    ) {
+      outNumber = round(inNumber, decimals + 1)
     }
     return outNumber
   }
-
+  
   return outArray
 }
 
