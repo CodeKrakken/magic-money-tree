@@ -12,34 +12,34 @@ const cors = require("cors");
 const path = require("path");
 
 app.use(cors(
-  // {
-  //   origin: 'http://localhost:3000'
-  // }
+  {
+    origin: 'http://localhost:3000'
+  }
 ));
 
-app.use(express.static(path.join(__dirname, "build")));
+// app.use(express.static(path.join(__dirname, "build")));
 
-app.get("/data", (req: Request, res: Response) => {
-  const dataJSON = JSON.stringify({
-    wallet          : wallet,
-    currentTask     : currentTask,
-    transactions  : log.transactions,
-    marketChart         : marketChart,
-    currentMarket   : markets[wallet.data.currentMarket.name] ?? null
-  });
-  res.setHeader('Content-Type', 'application/json');
-  res.send(dataJSON);
-});
-
-// app.get('/data', (req: Request, res: Response) => {
-//   res.json({
+// app.get("/data", (req: Request, res: Response) => {
+//   const dataJSON = JSON.stringify({
 //     wallet          : wallet,
 //     currentTask     : currentTask,
-//     transactions    : log.transactions,
-//     marketChart     : marketChart,
+//     transactions  : log.transactions,
+//     marketChart         : marketChart,
 //     currentMarket   : markets[wallet.data.currentMarket.name] ?? null
-//   })
-// })
+//   });
+//   res.setHeader('Content-Type', 'application/json');
+//   res.send(dataJSON);
+// });
+
+app.get('/data', (req: Request, res: Response) => {
+  res.json({
+    wallet          : wallet,
+    currentTask     : currentTask,
+    transactions    : log.transactions,
+    marketChart     : marketChart,
+    currentMarket   : markets[wallet.data.currentMarket.name] ?? null
+  })
+})
 
 const port = process.env.PORT || 5000;
 
@@ -231,12 +231,15 @@ async function pullFromDatabase() {
   if (data?.data?.log) { log = data.data.log}
   if (data?.data?.i) { i = data.data.i}
   if (data?.data?.viableSymbols) { viableSymbols = data.data.viableSymbols}
-
 }
 
 async function rollingTick() {
+
+
   try {
+
     if (!viableSymbols[i]) {
+
       await collection.replaceOne({}, { data: {
         wallet: wallet,
         markets: markets,
@@ -244,9 +247,11 @@ async function rollingTick() {
         i: i,
         viableSymbols: viableSymbols
       } });
+
       console.log(`----- Tick at ${timeNow()} -----`)
 
       i = 0
+
       viableSymbols = await fetchSymbols() as string[]
       trading = true
     }
@@ -349,7 +354,7 @@ async function updateMarket(symbolName: string, id: number|null=null) {
 
 function logMarkets(markets: market[]) {
   markets.map(market => {
-    const report = `${market.name} ... shape ${market.shape as number} * ema ratio ${market.emaRatio} = strength ${market.strength as number}`
+    const report = `${market.name} ... shape ${market.shape as number} * ema ${market.emaRatio} = strength ${market.strength as number}`
     console.log(report)
     return report
   })
@@ -357,7 +362,7 @@ function logMarkets(markets: market[]) {
 
 function formatMarketDisplay(markets: market[]) {
   marketChart = markets.map(market => {
-    const report = `${market.name} ... shape ${(market.shape as number)} * ema ratio ${market.emaRatio} = strength ${market.strength as number}`
+    const report = `${market.name} ... shape ${(market.shape as number)} * ema ${market.emaRatio} = strength ${market.strength as number}`
     return report
   })
 }
@@ -545,19 +550,30 @@ function round(number: number, decimals: number=2) {
   return outputNumber
 }
 
-function roundObjects(inArray: market[], keys: ('shape'|'strength'|'currentPrice'|'emaRatio')[]) {
-  const outArray: market[] = []
-  let finalLength
+function roundObjects(inMarkets: market[], keys: ('shape'|'strength'|'currentPrice'|'emaRatio')[]) {
+  
+  const midMarkets: market[] = []
+  const outMarkets: market[] = []
 
-  inArray.map(inObj => {
-    const outObj: any = { ...inObj }
+  inMarkets.map(market => {
+    const outMarket: market = { ...market }
+
     keys.forEach(key => {
-      outObj[key] = round(inObj[key] as number)
-      
+      outMarket[key] = round(market[key] as number)
     })
-    outArray.push(outObj)
+    midMarkets.push(outMarket)
   })
 
+  inMarkets.map(market => {
+    const outMarket: market = { ...market }
+    
+    keys.forEach(key => {
+      const length = Math.max(...midMarkets.map(market => (''+market[key]).split('.')[1]?.length ?? 0))
+      outMarket[key] = round(market[key] as number, length)
+    })
+    outMarkets.push(outMarket)
+  })
+  
   function round(inNumber: number, decimals: number = 2) {
     if (!inNumber) {
       return inNumber
@@ -565,10 +581,10 @@ function roundObjects(inArray: market[], keys: ('shape'|'strength'|'currentPrice
     let outNumber = Math.floor(inNumber * Math.pow(10, decimals)) / Math.pow(10, decimals)
     if (
       (!outNumber ||
-        outArray.some(outObj =>
+        midMarkets.some(outObj =>
           keys.some(key => outObj[key] === outNumber)
         ) ||
-        inArray.some(inObj =>
+        inMarkets.some(inObj =>
           keys.some(key => inObj[key] === outNumber)
         )) &&
       decimals < 100
@@ -577,8 +593,7 @@ function roundObjects(inArray: market[], keys: ('shape'|'strength'|'currentPrice
     }
     return outNumber
   }
-  
-  return outArray
+  return outMarkets
 }
 
 
