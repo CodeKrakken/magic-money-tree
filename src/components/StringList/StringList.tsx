@@ -1,22 +1,23 @@
 import './StringList.css'
 
-export default function StringList({
-  list, 
-  attrs
-} : {
-  list: string[], 
+type transaction = {
+  text: string,
+  time: string
+}
 
-  attrs?: {
-    [key: string]: {
-      [key: string]: string
-    }
+export default function StringList({list} : {list: string[]|transaction[]}) {
+
+  function isTransaction(entry: string|transaction): entry is transaction {
+    return (entry as transaction).time !== undefined;
   }
-}) {
+
   return <ul>
     {
-      list.map(item =>
-        <li {...attrs?.content}>{item}</li>
-      )
+      list.map(item => {
+        return isTransaction(item)
+        ? <li title={item.time}>${item.text}</li>
+        : <li>{item}</li>
+      })
     }
   </ul>
 }

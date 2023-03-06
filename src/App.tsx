@@ -19,7 +19,8 @@ export default function App() {
   useEffect(() => {
 
     const fetchData = async () => {
-      const data = await fetch('http://localhost:5000/data')
+      // const data = await fetch('/data')                       //  heroku
+      const data = await fetch('http://localhost:5000/data')  //  local
       .then(response => response.json())
       .then(data => {
         setWallet(data.wallet)
@@ -61,7 +62,6 @@ export default function App() {
           }
         </div>
         <div className="col center">
-          {/* <Text text='Magic Money Tree' tag='h1' attrs={{className: 'title'}} /> */}
           <CurrentTask currentTask={currentTask} />
           <br />
           <Wallet wallet={wallet} />
