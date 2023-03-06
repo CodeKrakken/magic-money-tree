@@ -12,34 +12,34 @@ const cors = require("cors");
 const path = require("path");
 
 app.use(cors(
-  {
-    origin: 'http://localhost:3000'
-  }
+  // {
+  //   origin: 'http://localhost:3000'
+  // }
 ));
 
-// app.use(express.static(path.join(__dirname, "build")));
+app.use(express.static(path.join(__dirname, "build")));
 
-// app.get("/data", (req: Request, res: Response) => {
-//   const dataJSON = JSON.stringify({
-//     wallet          : wallet,
-//     currentTask     : currentTask,
-//     transactions  : log.transactions,
-//     marketChart         : marketChart,
-//     currentMarket   : markets[wallet.data.currentMarket.name] ?? null
-//   });
-//   res.setHeader('Content-Type', 'application/json');
-//   res.send(dataJSON);
-// });
-
-app.get('/data', (req: Request, res: Response) => {
-  res.json({
+app.get("/data", (req: Request, res: Response) => {
+  const dataJSON = JSON.stringify({
     wallet          : wallet,
     currentTask     : currentTask,
-    transactions    : log.transactions,
-    marketChart     : marketChart,
+    transactions  : log.transactions,
+    marketChart         : marketChart,
     currentMarket   : markets[wallet.data.currentMarket.name] ?? null
-  })
-})
+  });
+  res.setHeader('Content-Type', 'application/json');
+  res.send(dataJSON);
+});
+
+// app.get('/data', (req: Request, res: Response) => {
+//   res.json({
+//     wallet          : wallet,
+//     currentTask     : currentTask,
+//     transactions    : log.transactions,
+//     marketChart     : marketChart,
+//     currentMarket   : markets[wallet.data.currentMarket.name] ?? null
+//   })
+// })
 
 const port = process.env.PORT || 5000;
 
@@ -669,7 +669,7 @@ async function simulatedBuyOrder(market: market) {
       }
 
       wallet.data.currentMarket.name = market.name
-      const tradeReport = `${timeNow()} - Bought ${round(wallet.coins[asset].volume)} ${asset} @ ${round(currentPrice)} = $${round(baseVolume * (1 - fee))} ... Strength ${round(market.strength as number)}`
+      const tradeReport = `${timeNow()}  |  $${round(baseVolume * (1 - fee))} @ ${round(currentPrice)} = ${round(wallet.coins[asset].volume)} ${asset}  |  Strength ${market.strength as number}`
       logEntry(tradeReport, 'transactions')
     }
   } catch (error) {
@@ -684,7 +684,7 @@ async function simulatedSellOrder(sellType: string, market: market) {
     const assetVolume = wallet.coins[asset].volume
     wallet.coins[base].volume += assetVolume * (1 - fee) * wallet.coins[asset].dollarPrice
     wallet.data.prices = {}
-    const tradeReport = `${timeNow()} - Sold  ${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)} ... Strength ${round(market.strength as number)} ... ${sellType}`
+    const tradeReport = `${timeNow()}  |  ${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)}  |  Strength ${market.strength as number}  |  ${sellType}`
     logEntry(tradeReport, 'transactions')
     delete wallet.coins[asset]
   } catch (error) {
