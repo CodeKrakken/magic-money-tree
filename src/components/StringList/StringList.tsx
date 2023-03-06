@@ -15,7 +15,7 @@ export default function StringList({list} : {list: string[]|transaction[]}) {
     {
       list.map(item => {
         return isTransaction(item)
-        ? <li title={item.time}>${item.text}</li>
+        ? <li title={item.time}>{item.text}</li>
         : <li>{item}</li>
       })
     }
