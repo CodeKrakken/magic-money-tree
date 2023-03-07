@@ -14,7 +14,6 @@ export default function App() {
   const [transactions,     setTransactions] = useState([] as string[])
   const [marketChart,               setMarketChart] = useState([] as string[])
   const [currentMarket,   setCurrentMarket] = useState({} as market)
-  const [log, setLog] = useState([] as string[])
 
   useEffect(() => {
 

@@ -1,7 +1,6 @@
 require('dotenv').config();
 import { Request, Response } from 'express';
-const local = process.env.LOCAL || false
-
+const local = process.env.ENVIRONMENT === 'local'
 
 // Server
 
@@ -11,7 +10,6 @@ const app = express();
 app.use(express.json());
 const cors = require("cors");
 const path = require("path");
-
 
 app.use(local ? cors({origin: 'http://localhost:3000'}) : cors());
 
@@ -60,6 +58,7 @@ let database
 let collection: collection
 const dbName = "magic-money-tree";
 const collectionName = local ? 'local-data' : 'data'
+console.log(collectionName)
 
 // Types
 
