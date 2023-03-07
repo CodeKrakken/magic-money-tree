@@ -1,6 +1,6 @@
 require('dotenv').config();
 import { Request, Response } from 'express';
-const local = process.env.LOCAL
+const local = process.env.LOCAL || false
 
 
 
@@ -13,7 +13,7 @@ app.use(express.json());
 const cors = require("cors");
 const path = require("path");
 
-app.use(local? cors({origin: 'http://localhost:3000'}) : cors());
+app.use(local ? cors({origin: 'http://localhost:3000'}) : cors());
 
 if (!local) app.use(express.static(path.join(__dirname, "build")));
 
