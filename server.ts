@@ -289,7 +289,7 @@ async function tick() {
     logMarkets(sortedMarkets)
     sortedMarkets = roundObjects(sortedMarkets, ['emaRatio', 'shape', 'strength'])
     formatMarketDisplay(sortedMarkets)
-    sortedMarkets = filterMarkets(sortedMarkets)
+    // sortedMarkets = filterMarkets(sortedMarkets)
     if ((sortedMarkets.length && trading) || wallet.data.baseCoin !== 'USDT') await trade(sortedMarkets)  } catch (error) {
     console.log(error)
   }
@@ -357,13 +357,13 @@ async function updateMarket(symbolName: string, id: number|null=null) {
 
   if (response !== 'No response.') {
     const indexedHistories = indexData(response) as {[key: string]: indexedFrame[]}
-    let market = {
+    let market: market = {
       name: symbolName,
       histories: indexedHistories
     }
     market = addEmaRatio(market) as market
     market = addShape(market)
-    market.trendScore = calculateTrendScore(market.histories[0])
+    market.trendScore = calculateTrendScore(extractData(market.histories['seconds'], 'average'))
     console.log(market)
     markets[symbolName] = market
   }
@@ -371,7 +371,7 @@ async function updateMarket(symbolName: string, id: number|null=null) {
 
 function logMarkets(markets: market[]) {
   markets.map(market => {
-    const report = `${market.name} ... shape ${market.shape as number} * ema ${market.emaRatio} = strength ${market.strength as number}`
+    const report = `${market.name.replace('USDT', '')} ... trend ${market.trendScore}`
     console.log(report)
     return report
   })
@@ -379,7 +379,7 @@ function logMarkets(markets: market[]) {
 
 function formatMarketDisplay(markets: market[]) {
   marketChart = markets.map(market => {
-    const report = `${market.name} ... shape ${(market.shape as number)} * ema ${market.emaRatio} = strength ${market.strength as number}`
+    const report = `${market.name.replace('USDT', '')} ... trend ${market.trendScore}`
     return report
   })
 }
@@ -587,7 +587,7 @@ function filterMarkets(markets: market[]) {
   return markets.filter(market => 
     market.shape    as number >= 1.002  && 
     market.emaRatio as number >= 1.002  &&
-    market.strength as number >= 1.002  &&
+    market.strength as number >= 1.002
   )
 }
 
@@ -689,7 +689,7 @@ function sortMarkets() {
     market.strength = emaRatio && shape ? emaRatio * shape : 0;
     return market;
   })
-  const sortedMarkets = marketsToSort.sort((a,b) => (b.strength as number) - (a.strength as number))
+  const sortedMarkets = marketsToSort.sort((a,b) => (b.trendScore as number) - (a.trendScore as number))
   return sortedMarkets
 }
 
@@ -717,7 +717,7 @@ async function simulatedBuyOrder(market: market) {
       wallet.data.currentMarket.name = market.name
       const tradeReport: transaction = {
         time: timeNow(),
-        text: `${round(wallet.coins[asset].volume)} ${asset} @ ${round(currentPrice)} = $${round(baseVolume * (1 - fee))}  |  Strength ${round(market.strength as number)}`
+        text: `${round(wallet.coins[asset].volume)} ${asset} @ ${round(currentPrice)} = $${round(baseVolume * (1 - fee))}  |  Trend ${market.trendScore as number}`
       }      
       logEntry(tradeReport, 'transactions')
     }
@@ -735,7 +735,7 @@ async function simulatedSellOrder(sellType: string, market: market) {
     wallet.data.prices = {}
     const tradeReport = {
       time: timeNow(),
-      text: `${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)}  |  Strength ${round(market.strength as number)}  |  ${sellType}`
+      text: `${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)}  |   |  ${sellType}`
     }
     logEntry(tradeReport, 'transactions')
     delete wallet.coins[asset]
