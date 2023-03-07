@@ -183,7 +183,6 @@ async function run() {
     viableSymbols = await fetchSymbols() as string[]
     await setupDB();
     await pullFromDatabase();
-    console.log(markets)
     trading = Boolean(Object.keys(markets).length)
     tick()
   } catch (error) {
@@ -555,9 +554,11 @@ function addShape(market: market) {
 
 function filterMarkets(markets: market[]) {
   return markets.filter(market => 
-    market.shape as number > 1.002
+    market.shape as number > 1
     && 
-    market.emaRatio as number > 1.002
+    market.emaRatio as number > 1
+    &&
+    market.strength as number >= 1.002
   )
 }
 
@@ -631,10 +632,8 @@ async function trade(sortedMarkets: market[]) {
   } else {
     try {
       const currentMarket = markets[wallet.data.currentMarket.name]
-      console.log(currentMarket)
 
-      if (currentMarket.shape as number < 1.002 || currentMarket.emaRatio as number < 1.002 || currentMarket.strength as number < 1.002) {
-        console.log('trying this')
+      if (currentMarket.shape as number < 1 || currentMarket.emaRatio as number < 1 || currentMarket.strength as number < 1) {
         simulatedSellOrder('Bear', currentMarket)
       } else if (!currentMarket) {
         // simulatedSellOrder('No response for current market', markets[wallet.data.currentMarket.name])
