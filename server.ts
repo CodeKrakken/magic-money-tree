@@ -127,6 +127,7 @@ export interface market {
   name          : string
   strength?     : number
   currentPrice? : number
+  trendScore?   : number
 }
 
 type LogTopic = 'general' | 'transactions';
@@ -362,6 +363,8 @@ async function updateMarket(symbolName: string, id: number|null=null) {
     }
     market = addEmaRatio(market) as market
     market = addShape(market)
+    market.trendScore = calculateTrendScore(market.histories[0])
+    console.log(market)
     markets[symbolName] = market
   }
 }
@@ -550,11 +553,41 @@ function addShape(market: market) {
   return market
 }
 
+function calculateTrendScore(values: number[]): number {
+  let trendScore = 0;
+  let trendDirection = 0;
+  let lastValue = values[0];
+
+  for (let i = 1; i < values.length; i++) {
+    const currentValue = values[i];
+
+    if (currentValue > lastValue) {
+      if (trendDirection < 0) {
+        trendScore = 0;
+      }
+      trendScore += currentValue - lastValue;
+      trendDirection = 1;
+    } else if (currentValue < lastValue) {
+      if (trendDirection > 0) {
+        trendScore = 0;
+      }
+      trendScore += lastValue - currentValue;
+      trendDirection = -1;
+    } else {
+      trendDirection = 0;
+    }
+
+    lastValue = currentValue;
+  }
+
+  return trendScore;
+}
+
 function filterMarkets(markets: market[]) {
   return markets.filter(market => 
-    market.shape    as number >= 1.002 && 
-    market.emaRatio as number >= 1.002 &&
-    market.strength as number >= 1.002
+    market.shape    as number >= 1.002  && 
+    market.emaRatio as number >= 1.002  &&
+    market.strength as number >= 1.002  &&
   )
 }
 
