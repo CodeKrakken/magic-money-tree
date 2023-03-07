@@ -363,7 +363,7 @@ async function updateMarket(symbolName: string, id: number|null=null) {
     }
     market = addEmaRatio(market) as market
     market = addShape(market)
-    market.trendScore = calculateTrendScore(extractData(market.histories['minutes'], 'average'))
+    market.trendScore = calculateTrendScore(ratioArray(extractData(market.histories['minutes'], 'average')))
     console.log(market)
     markets[symbolName] = market
   }
