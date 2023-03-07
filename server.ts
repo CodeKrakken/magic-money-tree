@@ -251,10 +251,7 @@ async function pullFromDatabase() {
 }
 
 async function tick() {
-
-
   try {
-
     if (!viableSymbols[i]) {
 
       await collection.replaceOne({}, { data: {
@@ -265,33 +262,28 @@ async function tick() {
       } });
 
       console.log(`----- Tick at ${timeNow()} -----`)
-
       i = 0
-
       viableSymbols = await fetchSymbols() as string[]
       trading = true
     }
 
     const symbolName = viableSymbols[i].replace('/', '')
-
     const isVoluminous = await checkVolume(symbolName)
-
     currentTask = `Checking volume of ${i+1}/${viableSymbols.length} - ${symbolName} ... ${!isVoluminous.includes("Insufficient") && isVoluminous !== "No response." ? 'Market included.' : isVoluminous}`
     console.log(currentTask)
-
+    
     if (!isVoluminous.includes("Insufficient") && isVoluminous !== 'Invalid market.' && isVoluminous !== "No response.") {
       await updateMarket(viableSymbols[i].replace('/', ''), i+1)
     }
-
+    
     await refreshWallet()
     if (wallet.data.baseCoin !== 'USDT') {await updateMarket(`${wallet.data.baseCoin}USDT`)}
-
     let sortedMarkets = sortMarkets()
     logMarkets(sortedMarkets)
     sortedMarkets = roundObjects(sortedMarkets, ['emaRatio', 'shape', 'strength'])
     formatMarketDisplay(sortedMarkets)
     sortedMarkets = filterMarkets(sortedMarkets)
-    if (sortedMarkets.length && trading) await trade(sortedMarkets)
+    if ((sortedMarkets.length && trading) || wallet.data.baseCoin !== 'USDT') await trade(sortedMarkets)
   } catch (error) {
     console.log(error)
   }
@@ -554,10 +546,8 @@ function addShape(market: market) {
 
 function filterMarkets(markets: market[]) {
   return markets.filter(market => 
-    market.shape as number > 1
-    && 
-    market.emaRatio as number > 1
-    &&
+    market.shape    as number >= 1.002 && 
+    market.emaRatio as number >= 1.002 &&
     market.strength as number >= 1.002
   )
 }
@@ -620,7 +610,7 @@ function roundObjects(inMarkets: market[], keys: ('shape'|'strength'|'currentPri
 
 async function trade(sortedMarkets: market[]) {
 
-  const targetMarket = sortedMarkets[0].strength as number > 0 ? sortedMarkets[0] : null
+  const targetMarket = sortedMarkets[0]?.strength as number > 0 ? sortedMarkets[0] : null
   
   if (wallet.data.baseCoin === 'USDT') {   
 
