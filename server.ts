@@ -16,29 +16,32 @@ const path = require("path");
 app.use(local ? cors({origin: 'http://localhost:3000'}) : cors());
 
 
-if (!local) app.use(express.static(path.join(__dirname, "build")));
+// Comment out for local use
+// app.use(express.static(path.join(__dirname, "build")));
 
-app.get("/data", (req: Request, res: Response) => {
-  const dataJSON = JSON.stringify({
-    wallet          : wallet,
-    currentTask     : currentTask,
-    transactions  : log.transactions,
-    marketChart         : marketChart,
-    currentMarket   : markets[wallet.data.currentMarket.name] ?? null
+if (local) {
+  app.get('/data', (req: Request, res: Response) => {
+    res.json({
+      wallet          : wallet,
+      currentTask     : currentTask,
+      transactions    : log.transactions,
+      marketChart     : marketChart,
+      currentMarket   : markets[wallet.data.currentMarket.name] ?? null
+    })
+  })
+} else {
+  app.get("/data", (req: Request, res: Response) => {
+    const dataJSON = JSON.stringify({
+      wallet          : wallet,
+      currentTask     : currentTask,
+      transactions  : log.transactions,
+      marketChart         : marketChart,
+      currentMarket   : markets[wallet.data.currentMarket.name] ?? null
+    });
+    res.setHeader('Content-Type', 'application/json');
+    res.send(dataJSON);
   });
-  res.setHeader('Content-Type', 'application/json');
-  res.send(dataJSON);
-});
-
-// app.get('/data', (req: Request, res: Response) => {
-//   res.json({
-//     wallet          : wallet,
-//     currentTask     : currentTask,
-//     transactions    : log.transactions,
-//     marketChart     : marketChart,
-//     currentMarket   : markets[wallet.data.currentMarket.name] ?? null
-//   })
-// })
+}
 
 const port = process.env.PORT || 5000;
 

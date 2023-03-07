@@ -17,17 +17,17 @@ app.use(local ? cors({origin: 'http://localhost:3000'}) : cors());
 
 if (!local) app.use(express.static(path.join(__dirname, "build")));
 
-// if (local) {
-  // app.get('/data', (req: Request, res: Response) => {
-  //   res.json({
-  //     wallet          : wallet,
-  //     currentTask     : currentTask,
-  //     transactions    : log.transactions,
-  //     marketChart     : marketChart,
-  //     currentMarket   : markets[wallet.data.currentMarket.name] ?? null
-  //   })
-  // })
-// } else {
+if (local) {
+  app.get('/data', (req: Request, res: Response) => {
+    res.json({
+      wallet          : wallet,
+      currentTask     : currentTask,
+      transactions    : log.transactions,
+      marketChart     : marketChart,
+      currentMarket   : markets[wallet.data.currentMarket.name] ?? null
+    })
+  })
+} else {
   app.get("/data", (req: Request, res: Response) => {
     const dataJSON = JSON.stringify({
       wallet          : wallet,
