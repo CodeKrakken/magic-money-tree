@@ -1,5 +1,6 @@
 require('dotenv').config();
 import { Request, Response } from 'express';
+const local = process.env.LOCAL || false
 
 
 // Server
@@ -10,7 +11,6 @@ const app = express();
 app.use(express.json());
 const cors = require("cors");
 const path = require("path");
-const local = process.env.LOCAL || false
 
 
 app.use(local ? cors({origin: 'http://localhost:3000'}) : cors());
