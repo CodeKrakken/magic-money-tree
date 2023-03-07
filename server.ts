@@ -136,13 +136,22 @@ export interface market {
 
 type LogTopic = 'general' | 'transactions';
 
+type transaction = {
+  text: string,
+  time: string
+}
 
+type logEntryType = string | transaction;
+
+interface log {
+  general: string[];
+  transactions: transaction[];
+  [key: string]: logEntryType[] | undefined;
+};
 
 // Data
 
-let log: {
-  [key in LogTopic]: string[]
-} = {
+let log: log = {
   general       : [],
   transactions  : [],
 };
@@ -179,7 +188,7 @@ async function run() {
     await setupDB();
     await pullFromDatabase();
     trading = Boolean(Object.keys(markets).length)
-    rollingTick()
+    tick()
   } catch (error) {
     console.log(error)
   }
@@ -191,9 +200,18 @@ function timeNow() {
   return prettyTime
 }
 
-function logEntry (entry: string, topic: LogTopic='general') {
-  console.log(entry)
-  log[topic].push(entry)    
+function logEntry(entry: logEntryType, topic: string = 'general') {
+  console.log(
+    isTransaction(entry)
+      ? `${entry.time}  |  ${entry.text}`
+      : entry
+  );
+  log[topic] = log[topic] ?? [];
+  log[topic]?.push(entry);
+}
+
+function isTransaction(entry: logEntryType): entry is transaction {
+  return (entry as transaction).time !== undefined;
 }
 
 async function fetchSymbols() {
@@ -233,11 +251,10 @@ async function pullFromDatabase() {
   if (data?.data?.wallet) { wallet = data.data.wallet}
   if (data?.data?.markets) { markets = data.data.markets}
   if (data?.data?.log) { log = data.data.log}
-  if (data?.data?.i) { i = data.data.i}
   if (data?.data?.viableSymbols) { viableSymbols = data.data.viableSymbols}
 }
 
-async function rollingTick() {
+async function tick() {
 
   try {
 
@@ -247,7 +264,6 @@ async function rollingTick() {
         wallet: wallet,
         markets: markets,
         log: log,
-        i: i,
         viableSymbols: viableSymbols
       } });
 
@@ -278,12 +294,11 @@ async function rollingTick() {
     sortedMarkets = roundObjects(sortedMarkets, ['emaRatio', 'shape', 'strength'])
     formatMarketDisplay(sortedMarkets)
     sortedMarkets = filterMarkets(sortedMarkets)
-    if (sortedMarkets.length && trading) await trade(sortedMarkets)
-  } catch (error) {
+    if ((sortedMarkets.length && trading) || wallet.data.baseCoin !== 'USDT') await trade(sortedMarkets)  } catch (error) {
     console.log(error)
   }
   i++
-  rollingTick()
+  tick()
 }
 
 function analyseMarkets(allMarkets: rawMarket[]) {
@@ -542,9 +557,9 @@ function addShape(market: market) {
 
 function filterMarkets(markets: market[]) {
   return markets.filter(market => 
-    market.shape as number > 1 
-    && 
-    market.emaRatio as number > 1
+    market.shape    as number >= 1.002 && 
+    market.emaRatio as number >= 1.002 &&
+    market.strength as number >= 1.002
   )
 }
 
@@ -606,12 +621,11 @@ function roundObjects(inMarkets: market[], keys: ('shape'|'strength'|'currentPri
 
 async function trade(sortedMarkets: market[]) {
 
-  const targetMarket = sortedMarkets[0].strength as number > 0 ? sortedMarkets[0] : null
-  
+  const targetMarket = sortedMarkets[0]?.strength as number > 0 ? sortedMarkets[0] : null  
   if (wallet.data.baseCoin === 'USDT') {   
 
     if (!targetMarket) {
-      console.log('No bullish markets')
+      console.log('No bulls')
     } else if (wallet.coins[wallet.data.baseCoin].volume > 10) {
       await simulatedBuyOrder(targetMarket)
     } 
@@ -619,12 +633,12 @@ async function trade(sortedMarkets: market[]) {
     try {
       const currentMarket = markets[wallet.data.currentMarket.name]
 
-      if (currentMarket.shape as number < 1 ?? currentMarket.emaRatio as number < 1 ?? currentMarket.strength as number < 1) {
+      if (currentMarket.shape as number < 1 || currentMarket.emaRatio as number < 1 || currentMarket.strength as number < 1) {
         simulatedSellOrder('Bear', currentMarket)
       } else if (!currentMarket) {
         // simulatedSellOrder('No response for current market', markets[wallet.data.currentMarket.name])
       } else if (targetMarket?.name !== currentMarket.name && wallet.coins[wallet.data.baseCoin].dollarPrice >= (wallet.data.prices.targetPrice as number)) { 
-        simulatedSellOrder('Trading up', currentMarket)
+        simulatedSellOrder('New Bull', currentMarket)
       } else if (!wallet.data.prices.targetPrice || !wallet.data.prices.stopLossPrice) {
         // simulatedSellOrder('Price information undefined', markets[wallet.data.currentMarket.name])
       } else if (wallet.coins[wallet.data.baseCoin].dollarPrice as number < wallet.data.prices.stopLossPrice) {
@@ -673,7 +687,10 @@ async function simulatedBuyOrder(market: market) {
       }
 
       wallet.data.currentMarket.name = market.name
-      const tradeReport = `${timeNow()}  |  $${round(baseVolume * (1 - fee))} @ ${round(currentPrice)} = ${round(wallet.coins[asset].volume)} ${asset}  |  Strength ${market.strength as number}`
+      const tradeReport: transaction = {
+        time: timeNow(),
+        text: `${round(wallet.coins[asset].volume)} ${asset} @ ${round(currentPrice)} = $${round(baseVolume * (1 - fee))}  |  Strength ${round(market.strength as number)}`
+      }      
       logEntry(tradeReport, 'transactions')
     }
   } catch (error) {
@@ -688,7 +705,10 @@ async function simulatedSellOrder(sellType: string, market: market) {
     const assetVolume = wallet.coins[asset].volume
     wallet.coins[base].volume += assetVolume * (1 - fee) * wallet.coins[asset].dollarPrice
     wallet.data.prices = {}
-    const tradeReport = `${timeNow()}  |  ${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)}  |  Strength ${market.strength as number}  |  ${sellType}`
+    const tradeReport = {
+      time: timeNow(),
+      text: `${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)}  |  Strength ${round(market.strength as number)}  |  ${sellType}`
+    }
     logEntry(tradeReport, 'transactions')
     delete wallet.coins[asset]
     wallet.data.purchaseTime = 0
