@@ -665,8 +665,8 @@ async function trade(sortedMarkets: market[]) {
         // simulatedSellOrder('Bear', currentMarket)
       } else if (!currentMarket) {
         // simulatedSellOrder('No response for current market', markets[wallet.data.currentMarket.name])
-      } else if (targetMarket?.name !== currentMarket.name && wallet.coins[wallet.data.baseCoin].dollarPrice >= (wallet.data.prices.targetPrice as number)) { 
-        // simulatedSellOrder('New Bull', currentMarket)
+      } else if (targetMarket?.name !== currentMarket.name) { // && wallet.coins[wallet.data.baseCoin].dollarPrice >= (wallet.data.prices.targetPrice as number)) { 
+        simulatedSellOrder('New Bull', currentMarket)
       } else if (!wallet.data.prices.targetPrice || !wallet.data.prices.stopLossPrice) {
         // simulatedSellOrder('Price information undefined', markets[wallet.data.currentMarket.name])
       } else if (wallet.coins[wallet.data.baseCoin].dollarPrice as number < wallet.data.prices.stopLossPrice) {
