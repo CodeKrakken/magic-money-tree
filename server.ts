@@ -59,8 +59,8 @@ const mongo = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: 
 let database
 let collection: collection
 const dbName = "magic-money-tree";
-const collectionName = local? 'local-data' : 'data'
-
+const collectionName = local ? 'local-data' : 'data'
+console.log(collectionName)
 
 
 // Types
