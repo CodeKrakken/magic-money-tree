@@ -61,7 +61,7 @@ const mongo = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: 
 let database
 let collection: collection
 const dbName = "magic-money-tree";
-// const collectionName = local? 'local-data' : 'data'
+const collectionName = local? 'local-data' : 'data'
 
 
 
@@ -215,7 +215,7 @@ async function setupDB() {
   logEntry(currentTask)
   await mongo.connect()
   database = mongo.db(dbName);
-  collection = database.collection('data')
+  collection = database.collection(collectionName)
   const count = await collection.countDocuments();
   if (count === 0) {
     console.log('Setting up blank database')
