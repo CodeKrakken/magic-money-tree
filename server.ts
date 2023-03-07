@@ -16,7 +16,7 @@ const path = require("path");
 app.use(local ? cors({origin: 'http://localhost:3000'}) : cors());
 
 
-app.use(express.static(path.join(__dirname, "build")));
+if (!local) app.use(express.static(path.join(__dirname, "build")));
 
 app.get("/data", (req: Request, res: Response) => {
   const dataJSON = JSON.stringify({
