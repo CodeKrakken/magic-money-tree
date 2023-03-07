@@ -17,31 +17,29 @@ app.use(local ? cors({origin: 'http://localhost:3000'}) : cors());
 
 
 // Comment out for local use
-// app.use(express.static(path.join(__dirname, "build")));
+app.use(express.static(path.join(__dirname, "build")));
 
-if (local) {
-  app.get('/data', (req: Request, res: Response) => {
-    res.json({
-      wallet          : wallet,
-      currentTask     : currentTask,
-      transactions    : log.transactions,
-      marketChart     : marketChart,
-      currentMarket   : markets[wallet.data.currentMarket.name] ?? null
-    })
-  })
-} else {
-  app.get("/data", (req: Request, res: Response) => {
-    const dataJSON = JSON.stringify({
-      wallet          : wallet,
-      currentTask     : currentTask,
-      transactions  : log.transactions,
-      marketChart         : marketChart,
-      currentMarket   : markets[wallet.data.currentMarket.name] ?? null
-    });
-    res.setHeader('Content-Type', 'application/json');
-    res.send(dataJSON);
+app.get("/data", (req: Request, res: Response) => {
+  const dataJSON = JSON.stringify({
+    wallet          : wallet,
+    currentTask     : currentTask,
+    transactions  : log.transactions,
+    marketChart         : marketChart,
+    currentMarket   : markets[wallet.data.currentMarket.name] ?? null
   });
-}
+  res.setHeader('Content-Type', 'application/json');
+  res.send(dataJSON);
+});
+
+app.get('/local-data', (req: Request, res: Response) => {
+  res.json({
+    wallet          : wallet,
+    currentTask     : currentTask,
+    transactions    : log.transactions,
+    marketChart     : marketChart,
+    currentMarket   : markets[wallet.data.currentMarket.name] ?? null
+  })
+})
 
 const port = process.env.PORT || 5000;
 
@@ -63,6 +61,9 @@ const mongo = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: 
 let database
 let collection: collection
 const dbName = "magic-money-tree";
+// const collectionName = local? 'local-data' : 'data'
+
+
 
 // Types
 
