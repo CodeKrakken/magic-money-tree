@@ -1,5 +1,7 @@
 require('dotenv').config();
 import { Request, Response } from 'express';
+const local = process.env.LOCAL || false
+
 
 
 // Server
@@ -10,35 +12,34 @@ const app = express();
 app.use(express.json());
 const cors = require("cors");
 const path = require("path");
-const local = process.env.LOCAL || false
-
 
 app.use(local ? cors({origin: 'http://localhost:3000'}) : cors());
 
+if (!local) app.use(express.static(path.join(__dirname, "build")));
 
-app.use(express.static(path.join(__dirname, "build")));
-
-app.get("/data", (req: Request, res: Response) => {
-  const dataJSON = JSON.stringify({
-    wallet          : wallet,
-    currentTask     : currentTask,
-    transactions  : log.transactions,
-    marketChart         : marketChart,
-    currentMarket   : markets[wallet.data.currentMarket.name] ?? null
+// if (local) {
+  // app.get('/data', (req: Request, res: Response) => {
+  //   res.json({
+  //     wallet          : wallet,
+  //     currentTask     : currentTask,
+  //     transactions    : log.transactions,
+  //     marketChart     : marketChart,
+  //     currentMarket   : markets[wallet.data.currentMarket.name] ?? null
+  //   })
+  // })
+// } else {
+  app.get("/data", (req: Request, res: Response) => {
+    const dataJSON = JSON.stringify({
+      wallet          : wallet,
+      currentTask     : currentTask,
+      transactions  : log.transactions,
+      marketChart         : marketChart,
+      currentMarket   : markets[wallet.data.currentMarket.name] ?? null
+    });
+    res.setHeader('Content-Type', 'application/json');
+    res.send(dataJSON);
   });
-  res.setHeader('Content-Type', 'application/json');
-  res.send(dataJSON);
-});
-
-// app.get('/data', (req: Request, res: Response) => {
-//   res.json({
-//     wallet          : wallet,
-//     currentTask     : currentTask,
-//     transactions    : log.transactions,
-//     marketChart     : marketChart,
-//     currentMarket   : markets[wallet.data.currentMarket.name] ?? null
-//   })
-// })
+// }
 
 const port = process.env.PORT || 5000;
 
@@ -58,8 +59,10 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = `mongodb+srv://${username}:${password}@magic-money-tree.ohcuy3y.mongodb.net/?retryWrites=true&w=majority`;
 const mongo = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 let database
+
 let collection: collection
 const dbName = "magic-money-tree";
+const collectionName = local? 'local-data' : 'data'
 
 // Types
 
@@ -84,14 +87,13 @@ export interface wallet {
     baseCoin      : string
     prices        : {
       targetPrice?    : number
-      currentPrice?   : number
+      highPrice?      : number
       purchasePrice?  : number
       stopLossPrice?  : number
     }
     currentMarket: {
       name: string
     }
-    purchaseTime: number
   }
 }
 
@@ -130,15 +132,22 @@ export interface market {
   currentPrice? : number
 }
 
-type LogTopic = 'general' | 'transactions';
+type transaction = {
+  text: string,
+  time: string
+}
 
+type logEntryType = string | transaction;
 
+interface log {
+  general: string[];
+  transactions: transaction[];
+  [key: string]: logEntryType[] | undefined;
+};
 
 // Data
 
-let log: {
-  [key in LogTopic]: string[]
-} = {
+let log: log = {
   general       : [],
   transactions  : [],
 };
@@ -175,7 +184,7 @@ async function run() {
     await setupDB();
     await pullFromDatabase();
     trading = Boolean(Object.keys(markets).length)
-    rollingTick()
+    tick()
   } catch (error) {
     console.log(error)
   }
@@ -187,9 +196,18 @@ function timeNow() {
   return prettyTime
 }
 
-function logEntry (entry: string, topic: LogTopic='general') {
-  console.log(entry)
-  log[topic].push(entry)    
+function logEntry(entry: logEntryType, topic: string = 'general') {
+  console.log(
+    isTransaction(entry)
+      ? `${entry.time}  |  ${entry.text}`
+      : entry
+  );
+  log[topic] = log[topic] ?? [];
+  log[topic]?.push(entry);
+}
+
+function isTransaction(entry: logEntryType): entry is transaction {
+  return (entry as transaction).time !== undefined;
 }
 
 async function fetchSymbols() {
@@ -211,7 +229,7 @@ async function setupDB() {
   logEntry(currentTask)
   await mongo.connect()
   database = mongo.db(dbName);
-  collection = database.collection('data')
+  collection = database.collection(collectionName)
   const count = await collection.countDocuments();
   if (count === 0) {
     console.log('Setting up blank database')
@@ -229,57 +247,48 @@ async function pullFromDatabase() {
   if (data?.data?.wallet) { wallet = data.data.wallet}
   if (data?.data?.markets) { markets = data.data.markets}
   if (data?.data?.log) { log = data.data.log}
-  if (data?.data?.i) { i = data.data.i}
   if (data?.data?.viableSymbols) { viableSymbols = data.data.viableSymbols}
 }
 
-async function rollingTick() {
-
+async function tick() {
   try {
-
     if (!viableSymbols[i]) {
 
       await collection.replaceOne({}, { data: {
         wallet: wallet,
         markets: markets,
         log: log,
-        i: i,
         viableSymbols: viableSymbols
       } });
 
       console.log(`----- Tick at ${timeNow()} -----`)
-
       i = 0
-
       viableSymbols = await fetchSymbols() as string[]
       trading = true
     }
 
     const symbolName = viableSymbols[i].replace('/', '')
-
     const isVoluminous = await checkVolume(symbolName)
-
     currentTask = `Checking volume of ${i+1}/${viableSymbols.length} - ${symbolName} ... ${!isVoluminous.includes("Insufficient") && isVoluminous !== "No response." ? 'Market included.' : isVoluminous}`
     console.log(currentTask)
-
+    
     if (!isVoluminous.includes("Insufficient") && isVoluminous !== 'Invalid market.' && isVoluminous !== "No response.") {
       await updateMarket(viableSymbols[i].replace('/', ''), i+1)
     }
-
+    
     await refreshWallet()
     if (wallet.data.baseCoin !== 'USDT') {await updateMarket(`${wallet.data.baseCoin}USDT`)}
-
     let sortedMarkets = sortMarkets()
     logMarkets(sortedMarkets)
     sortedMarkets = roundObjects(sortedMarkets, ['emaRatio', 'shape', 'strength'])
     formatMarketDisplay(sortedMarkets)
     sortedMarkets = filterMarkets(sortedMarkets)
-    if (sortedMarkets.length && trading) await trade(sortedMarkets)
+    if ((sortedMarkets.length && trading) || wallet.data.baseCoin !== 'USDT') await trade(sortedMarkets)
   } catch (error) {
     console.log(error)
   }
   i++
-  rollingTick()
+  tick()
 }
 
 function analyseMarkets(allMarkets: rawMarket[]) {
@@ -327,8 +336,7 @@ function simulatedWallet() {
       prices: {},
       currentMarket: {
         name: ''
-      },
-      purchaseTime: 0
+      }
     }
   }
 }
@@ -522,7 +530,7 @@ function addShape(market: market) {
       deviations.push(
         frame.average === straightLine ? 1 : 
         frame.average < straightLine ? frame.average / straightLine : 
-        market.name.includes(wallet.data.baseCoin) && frame.time > wallet.data.purchaseTime ?
+        market.name.includes(wallet.data.baseCoin) ?
         frame.average / straightLine :
         straightLine / frame.average
       )
@@ -538,9 +546,9 @@ function addShape(market: market) {
 
 function filterMarkets(markets: market[]) {
   return markets.filter(market => 
-    market.shape as number > 1 
-    && 
-    market.emaRatio as number > 1
+    market.shape    as number >= 1.002 && 
+    market.emaRatio as number >= 1.002 &&
+    market.strength as number >= 1.002
   )
 }
 
@@ -602,12 +610,12 @@ function roundObjects(inMarkets: market[], keys: ('shape'|'strength'|'currentPri
 
 async function trade(sortedMarkets: market[]) {
 
-  const targetMarket = sortedMarkets[0].strength as number > 0 ? sortedMarkets[0] : null
+  const targetMarket = sortedMarkets[0]?.strength as number > 0 ? sortedMarkets[0] : null
   
   if (wallet.data.baseCoin === 'USDT') {   
 
     if (!targetMarket) {
-      console.log('No bullish markets')
+      console.log('No bulls')
     } else if (wallet.coins[wallet.data.baseCoin].volume > 10) {
       await simulatedBuyOrder(targetMarket)
     } 
@@ -615,12 +623,12 @@ async function trade(sortedMarkets: market[]) {
     try {
       const currentMarket = markets[wallet.data.currentMarket.name]
 
-      if (currentMarket.shape as number < 1 ?? currentMarket.emaRatio as number < 1 ?? currentMarket.strength as number < 1) {
+      if (currentMarket.shape as number < 1 || currentMarket.emaRatio as number < 1 || currentMarket.strength as number < 1) {
         simulatedSellOrder('Bear', currentMarket)
       } else if (!currentMarket) {
         // simulatedSellOrder('No response for current market', markets[wallet.data.currentMarket.name])
       } else if (targetMarket?.name !== currentMarket.name && wallet.coins[wallet.data.baseCoin].dollarPrice >= (wallet.data.prices.targetPrice as number)) { 
-        simulatedSellOrder('Trading up', currentMarket)
+        simulatedSellOrder('New Bull', currentMarket)
       } else if (!wallet.data.prices.targetPrice || !wallet.data.prices.stopLossPrice) {
         // simulatedSellOrder('Price information undefined', markets[wallet.data.currentMarket.name])
       } else if (wallet.coins[wallet.data.baseCoin].dollarPrice as number < wallet.data.prices.stopLossPrice) {
@@ -665,11 +673,14 @@ async function simulatedBuyOrder(market: market) {
         targetPrice   : targetVolume / wallet.coins[asset].volume,
         purchasePrice : currentPrice,
         stopLossPrice : currentPrice * stopLossThreshold,
-        currentPrice  : currentPrice
+        highPrice     : currentPrice
       }
 
       wallet.data.currentMarket.name = market.name
-      const tradeReport = `${timeNow()}  |  $${round(baseVolume * (1 - fee))} @ ${round(currentPrice)} = ${round(wallet.coins[asset].volume)} ${asset}  |  Strength ${market.strength as number}`
+      const tradeReport: transaction = {
+        time: timeNow(),
+        text: `${round(wallet.coins[asset].volume)} ${asset} @ ${round(currentPrice)} = $${round(baseVolume * (1 - fee))}  |  Strength ${round(market.strength as number)}`
+      }
       logEntry(tradeReport, 'transactions')
     }
   } catch (error) {
@@ -684,10 +695,12 @@ async function simulatedSellOrder(sellType: string, market: market) {
     const assetVolume = wallet.coins[asset].volume
     wallet.coins[base].volume += assetVolume * (1 - fee) * wallet.coins[asset].dollarPrice
     wallet.data.prices = {}
-    const tradeReport = `${timeNow()}  |  ${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)}  |  Strength ${market.strength as number}  |  ${sellType}`
+    const tradeReport = {
+      time: timeNow(),
+      text: `${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)}  |  Strength ${round(market.strength as number)}  |  ${sellType}`
+    }
     logEntry(tradeReport, 'transactions')
     delete wallet.coins[asset]
-    wallet.data.purchaseTime = 0
   } catch (error) {
     console.log(error)
   }
