@@ -736,7 +736,7 @@ async function simulatedSellOrder(sellType: string, market: market) {
     wallet.data.prices = {}
     const tradeReport = {
       time: timeNow(),
-      text: `${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)}  |   |  ${sellType}`
+      text: `${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)}  |  ${sellType}`
     }
     logEntry(tradeReport, 'transactions')
     delete wallet.coins[asset]
