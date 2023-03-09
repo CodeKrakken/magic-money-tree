@@ -19,7 +19,7 @@ app.get("/data", (req: Request, res: Response) => {
   const dataJSON = JSON.stringify({
     wallet        : wallet,
     currentTask   : currentTask,
-    transactions  : log.transactions,
+    transactions  : { lines: log.transactions, headers: ['Value', 'Asset', '$', 'Strength'] },
     marketChart   : marketChart,
     currentMarket : markets[wallet.data.currentMarket.name] ?? null
   });
@@ -31,7 +31,7 @@ app.get('/local-data', (req: Request, res: Response) => {
   res.json({
     wallet        : wallet,
     currentTask   : currentTask,
-    transactions  : log.transactions,
+    transactions  : { lines: log.transactions, headers: ['Value', 'Asset', '$', 'Strength'] },
     marketChart   : marketChart,
     currentMarket : markets[wallet.data.currentMarket.name] ?? null
   })
@@ -134,7 +134,7 @@ export interface market {
 
 type LogTopic = 'general' | 'transactions';
 
-type transaction = {
+export type transaction = {
   text: string,
   time: string
 }
@@ -156,7 +156,14 @@ let log: log = {
 
 
 let currentTask: string = ''
-let marketChart: string[] = []
+let marketChart: {
+  headers: string[]
+  lines: (string|number)[][]
+} = {
+  headers: [],
+  lines: []
+}
+
 let viableSymbols: string[] = []
 let markets: { [key: string]: market } = {}
 let wallet: wallet = simulatedWallet()
@@ -387,11 +394,18 @@ function logMarkets(markets: market[]) {
 }
 
 function formatMarketDisplay(markets: market[]) {
-  marketChart = markets.map(market => {
-    const report = `${market.name.replace('USDT', '')} ... ${market.shape} * ${market.emaRatio} * ${market.trendScore} * ${market.geometricMean} = ${market.strength}`
+  marketChart.lines = markets.map(market => {
+    const report = [
+      market.name.replace('USDT', ''), 
+      market.shape          as number, 
+      market.emaRatio       as number, 
+      market.trendScore     as number, 
+      market.geometricMean  as number,
+      market.strength       as number
+    ]
     return report
   })
-  marketChart.unshift('Market | Shape | EMA | Trend | Geo | Strength')
+  marketChart.headers = ['Market', 'Shape','EMA', 'Trend', 'Geo', 'Strength']
 }
 
 async function refreshWallet() {

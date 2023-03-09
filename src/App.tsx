@@ -1,25 +1,30 @@
 import { useState, useEffect } from "react"
 import Text from "./components/Text/Text"
-import { wallet, market } from 'server'
+import { wallet, market, transaction } from 'server'
 import Wallet from "./components/Wallet/Wallet"
 import CurrentTask from "./components/CurrentTask/CurrentTask"
 import MarketGraph from "./components/MarketGraph/MarketGraph"
 import './App.css'
 import StringList from "./components/StringList/StringList"
 
+export interface stringList {
+  lines: ((string|number)[]|transaction)[]
+  headers: string[]
+}
+
 export default function App() {
 
   const [wallet,                 setWallet] = useState({} as wallet)
   const [currentTask,       setcurrentTask] = useState('Fetching data')
-  const [transactions,     setTransactions] = useState([] as string[])
-  const [marketChart,               setMarketChart] = useState([] as string[])
+  const [transactions,     setTransactions] = useState({} as stringList)
+  const [marketChart,       setMarketChart] = useState({} as stringList)
   const [currentMarket,   setCurrentMarket] = useState({} as market)
 
   useEffect(() => {
 
     const fetchData = async () => {
-      // const data = await fetch('http://localhost:5000/local-data')
-      const data = await fetch('/data')
+      const data = await fetch('http://localhost:5000/local-data')
+      // const data = await fetch('/data')
       .then(response => response.json())
       .then(data => {
         setWallet(data.wallet)
@@ -53,7 +58,7 @@ export default function App() {
       <div className="row flex-grow">
         <div className="col center">
           {
-            marketChart.length ? (
+            marketChart?.lines?.length ? (
               <StringList 
                 list={marketChart} 
               />
@@ -68,7 +73,7 @@ export default function App() {
         </div>
         <div className="col center">
           {
-            transactions.length ? (
+            transactions?.lines?.length ? (
               <StringList 
                 list={transactions} 
               />

@@ -1,23 +1,32 @@
 import './StringList.css'
+import { stringList } from 'src/App';
 
-type transaction = {
-  text: string,
-  time: string
-}
+export default function StringList({list} : {list: stringList}) {
 
-export default function StringList({list} : {list: string[]|transaction[]}) {
-
-  function isTransaction(entry: string|transaction): entry is transaction {
-    return (entry as transaction).time !== undefined;
-  }
-
-  return <ul>
-    {
-      list.map(item => {
-        return isTransaction(item)
-        ? <li title={item.time}>{item.text}</li>
-        : <li>{item}</li>
-      })
-    }
-  </ul>
+  return <>
+    <div className="container">
+      <div className="row">
+        {
+          list?.headers?.map(item => 
+            <div className="col">
+              {item}
+            </div>
+          )
+        }
+      </div>
+      {
+        list?.lines?.map(line =>
+          <div className="row">
+            {line
+              // line.map(col => 
+              //   <div className="col">
+              //     {col}
+              //   </div>
+              // )
+            }
+          </div>
+        )
+      }
+    </div>
+  </>
 }
