@@ -293,7 +293,7 @@ async function tick() {
 
     let sortedMarkets = sortMarkets()
     logMarkets(sortedMarkets)
-    sortedMarkets = roundObjects(sortedMarkets, ['emaRatio', 'shape', 'strength', 'trendScore'])
+    sortedMarkets = roundObjects(sortedMarkets, ['emaRatio', 'shape', 'strength', 'trendScore', 'geometricMean'])
     formatMarketDisplay(sortedMarkets)
     sortedMarkets = filterMarkets(sortedMarkets)
     if ((sortedMarkets.length && trading) || wallet.data.baseCoin !== 'USDT') await trade(sortedMarkets)  } catch (error) {
@@ -578,7 +578,7 @@ function round(number: number, decimals: number=2) {
   return outputNumber
 }
 
-function roundObjects(inMarkets: market[], keys: ('shape'|'strength'|'currentPrice'|'emaRatio'|'trendScore')[]) {
+function roundObjects(inMarkets: market[], keys: ('shape'|'strength'|'currentPrice'|'emaRatio'|'trendScore'|'geometricMean')[]) {
   
   const midMarkets: market[] = []
   const outMarkets: market[] = []
