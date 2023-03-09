@@ -132,10 +132,13 @@ export interface market {
   geometricMean?  : number
 }
 
-type LogTopic = 'general' | 'transactions';
+interface stringListItem {
+  time?: string
+  text: (string|number)[]
+}
 
 export type transaction = {
-  text: string,
+  text: (string|number)[],
   time: string
 }
 
@@ -158,7 +161,7 @@ let log: log = {
 let currentTask: string = ''
 let marketChart: {
   headers: string[]
-  lines: (string|number)[][]
+  lines: stringListItem[]
 } = {
   headers: [],
   lines: []
@@ -387,8 +390,8 @@ function calculateGeometricMean(ratios: number[]): number {
 
 function logMarkets(markets: market[]) {
   markets.map(market => {
-    const report = `${market.name.replace('USDT', '')} ... ${market.shape} * ${market.emaRatio} * ${market.trendScore} * ${market.geometricMean} = ${market.strength}`
-    console.log(report)
+    const report = [`${market.name.replace('USDT', '')} ... ${market.shape} * ${market.emaRatio} * ${market.trendScore} * ${market.geometricMean} = ${market.strength}`]
+    console.log(`${market.name.replace('USDT', '')} ... ${market.shape} * ${market.emaRatio} * ${market.trendScore} * ${market.geometricMean} = ${market.strength}`)
     return report
   })
 }
@@ -403,7 +406,7 @@ function formatMarketDisplay(markets: market[]) {
       market.geometricMean  as number,
       market.strength       as number
     ]
-    return report
+    return { text: report }
   })
   marketChart.headers = ['Market', 'Shape','EMA', 'Trend', 'Geo', 'Strength']
 }
@@ -714,7 +717,13 @@ async function simulatedBuyOrder(market: market) {
       wallet.data.currentMarket.name = market.name
       const tradeReport: transaction = {
         time: timeNow(),
-        text: `${round(wallet.coins[asset].volume)} ${asset} @ ${round(currentPrice)} = $${round(baseVolume * (1 - fee))}  |  s ${market.strength as number}`
+        text: [
+          round(wallet.coins[asset].volume), 
+          asset, 
+          round(currentPrice), 
+          round(baseVolume * (1 - fee)), 
+          market.strength as number
+        ]
       }      
       logEntry(tradeReport, 'transactions')
     }
@@ -732,7 +741,13 @@ async function simulatedSellOrder(sellType: string, market: market) {
     wallet.data.prices = {}
     const tradeReport = {
       time: timeNow(),
-      text: `${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)}  |  ${sellType}`
+      text: [
+        round(assetVolume),
+        asset,
+        round(wallet.coins[asset].dollarPrice),
+        round(wallet.coins[base].volume),
+        sellType
+      ]
     }
     logEntry(tradeReport, 'transactions')
     delete wallet.coins[asset]

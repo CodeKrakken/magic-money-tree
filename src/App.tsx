@@ -7,9 +7,16 @@ import MarketGraph from "./components/MarketGraph/MarketGraph"
 import './App.css'
 import StringList from "./components/StringList/StringList"
 
+
+
 export interface stringList {
-  lines: ((string|number)[]|transaction)[]
+  lines: stringListItem[]
   headers: string[]
+}
+
+export interface stringListItem {
+  time?: string
+  text: (string|number)[]
 }
 
 export default function App() {

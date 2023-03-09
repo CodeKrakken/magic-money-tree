@@ -15,16 +15,19 @@ export default function StringList({list} : {list: stringList}) {
         }
       </div>
       {
-        list?.lines?.map(line =>
-          <div className="row">
-            {line
-              // line.map(col => 
-              //   <div className="col">
-              //     {col}
-              //   </div>
-              // )
-            }
-          </div>
+        list?.lines?.map(line => {
+          console.log(line)
+          const columns = line.text
+          return <div className="row">
+              {
+                columns.map(col => 
+                  <div className="col">
+                    {col}
+                  </div>
+                )
+              }
+            </div>
+          }
         )
       }
     </div>
