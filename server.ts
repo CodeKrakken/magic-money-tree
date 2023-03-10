@@ -306,6 +306,8 @@ async function tick() {
     sortedMarkets = roundObjects(sortedMarkets, ['emaRatio', 'shape', 'strength', 'trendScore', 'geometricMean'])
     formatMarketDisplay(sortedMarkets)
     sortedMarkets = filterMarkets(sortedMarkets)
+    console.log(310)
+    console.log(wallet)
     if ((sortedMarkets.length && trading) || wallet.data.baseCoin !== 'USDT') await trade(sortedMarkets)  } catch (error) {
     console.log(error)
   }
@@ -371,15 +373,17 @@ async function updateMarket(symbolName: string, id: number|null=null) {
 
   if (response !== 'No response.') {
     const indexedHistories = indexData(response) as {[key: string]: indexedFrame[]}
+
     let market: market = {
       name: symbolName,
       histories: indexedHistories
     }
-    market = addEMARatio(market) as market
-    market = addShape(market)
-    market.trendScore = getTrendScore(market)
-    market.geometricMean = getGeometricMean(market)
-    markets[symbolName] = market
+
+    market                = addEMARatio(market) as market
+    market                = addShape(market)
+    market.trendScore     = getTrendScore(market)
+    market.geometricMean  = getGeometricMean(market)
+    markets[symbolName]   = market
   }
 }
 
@@ -434,6 +438,10 @@ async function refreshWallet() {
       const coin = Object.keys(wallet.coins)[i]
       wallet.coins[coin].dollarPrice = coin === 'USDT' ? 1 : await fetchPrice(`${coin}USDT`) as number
       wallet.coins[coin].dollarValue = wallet.coins[coin].volume * wallet.coins[coin].dollarPrice
+
+      for (const [key, value] of Object.entries(wallet.coins[coin])) {
+        (wallet.coins[coin] as {[key: string]: number})[key] = value || 0;
+      }
     }
 
     const sorted = Object.keys(wallet.coins).sort((a, b) => wallet.coins[a].dollarValue - wallet.coins[b].dollarValue)
@@ -618,6 +626,7 @@ function roundObjects(inMarkets: market[], keys: ('shape'|'strength'|'currentPri
     const outMarket: market = { ...market }
 
     keys.forEach(key => {
+
       outMarket[key] = round(market[key] as number)
     })
     midMarkets.push(outMarket)
@@ -628,6 +637,7 @@ function roundObjects(inMarkets: market[], keys: ('shape'|'strength'|'currentPri
     
     keys.forEach(key => {
       const length = Math.max(...midMarkets.map(market => (''+market[key]).split('.')[1]?.length ?? 0))
+
       outMarket[key] = round(market[key] as number, length)
     })
     outMarkets.push(outMarket)
@@ -660,6 +670,8 @@ function roundObjects(inMarkets: market[], keys: ('shape'|'strength'|'currentPri
 // TRADE FUNCTIONS
 
 async function trade(sortedMarkets: market[]) {
+  console.log(668)
+  console.log(wallet)
 
   const targetMarket = sortedMarkets[0]?.strength as number > 0 ? sortedMarkets[0] : null  
   if (wallet.data.baseCoin === 'USDT') {   
@@ -672,6 +684,8 @@ async function trade(sortedMarkets: market[]) {
   } else {
     try {
       const currentMarket = markets[wallet.data.currentMarket.name]
+      console.log(680)
+      console.log(wallet)
       if (currentMarket.strength as number < 1) {
         simulatedSellOrder('Bear', currentMarket)
       } else if (targetMarket?.name !== currentMarket.name && wallet.coins[wallet.data.baseCoin].dollarPrice >= (wallet.data.prices.targetPrice as number)) { 
@@ -711,6 +725,7 @@ async function simulatedBuyOrder(market: market) {
       if (!wallet.coins[asset]) wallet.coins[asset] = { volume: 0, dollarPrice: 0, dollarValue: 0 }
       wallet.coins[base].volume = 0
 
+
       wallet.coins[asset].volume += baseVolume * (1 - fee) / currentPrice
       const targetVolume = baseVolume * (1 + (2 * fee))
 
@@ -740,10 +755,14 @@ async function simulatedBuyOrder(market: market) {
 }
 
 async function simulatedSellOrder(sellType: string, market: market) {
+  console.log(754)
+  console.log(wallet)
   try {
     const asset = wallet.data.currentMarket.name.replace('USDT', '')
     const base  = 'USDT'
     const assetVolume = wallet.coins[asset].volume
+    console.log(758)
+    console.log(wallet.coins[base])
     wallet.coins[base].volume += assetVolume * (1 - fee) * wallet.coins[asset].dollarPrice
     wallet.data.prices = {}
     const tradeReport = {
