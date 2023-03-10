@@ -20,7 +20,7 @@ export default function StringList({list} : {list: stringList}) {
           const columns = line.text
           return <div className="col-row">
               {
-                columns.map(col => 
+                columns?.map(col => 
                   <div className="col">
                     {col}
                   </div>
