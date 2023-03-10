@@ -658,16 +658,15 @@ async function trade(sortedMarkets: market[]) {
   } else {
     try {
       const currentMarket = markets[wallet.data.currentMarket.name]
-      if (currentMarket.shape as number < 1 || currentMarket.emaRatio as number < 1 || currentMarket.geometricMean as number < 1 || currentMarket.strength as number < 1) {
-        // simulatedSellOrder('Bear', currentMarket)
-      } else if (!currentMarket) {
-        // simulatedSellOrder('No response for current market', markets[wallet.data.currentMarket.name])
-      } else if (targetMarket?.name !== currentMarket.name && wallet.coins[wallet.data.baseCoin].dollarPrice >= (wallet.data.prices.targetPrice as number)) { 
+      if (Math.min(
+        currentMarket.shape         as number, 
+        currentMarket.emaRatio      as number,
+        currentMarket.geometricMean as number, 
+        currentMarket.strength      as number
+      ) > 1) {
+        simulatedSellOrder('Bear', currentMarket)
+      }else if (targetMarket?.name !== currentMarket.name && wallet.coins[wallet.data.baseCoin].dollarPrice >= (wallet.data.prices.targetPrice as number)) { 
         simulatedSellOrder('New Bull', currentMarket)
-      } else if (!wallet.data.prices.targetPrice || !wallet.data.prices.stopLossPrice) {
-        // simulatedSellOrder('Price information undefined', markets[wallet.data.currentMarket.name])
-      } else if (wallet.coins[wallet.data.baseCoin].dollarPrice as number < wallet.data.prices.stopLossPrice) {
-        // simulatedSellOrder('Below Stop Loss', markets[wallet.data.currentMarket.name])
       }
       
     } catch(error) {
