@@ -375,17 +375,31 @@ async function updateMarket(symbolName: string, id: number|null=null) {
       name: symbolName,
       histories: indexedHistories
     }
-    market = addEmaRatio(market) as market
+    market = addEMARatio(market) as market
     market = addShape(market)
-    market.trendScore = ema(getRatioArray(extractData(market.histories['minutes'], 'average')))
-    market.geometricMean = calculateGeometricMean(getRatioArray(extractData(market.histories['minutes'], 'average')))
+    market.trendScore = getTrendScore(market)
+    market.geometricMean = getGeometricMean(market)
     markets[symbolName] = market
   }
 }
 
-function calculateGeometricMean(ratios: number[]): number {
-  const product = ratios.reduce((acc, ratio) => acc * ratio, 1);
-  return Math.pow(product, 1 / ratios.length);
+function getTrendScore(market: market) {
+  const marketEMAs = Object.values(market.histories).map(history => 
+    ema(getRatioArray(extractData(history, 'average')))
+  )
+  return ema(marketEMAs) 
+}
+
+function getGeometricMean(market: market) {
+
+  const geometricMeans = Object.values(market.histories).map(history => {
+    const ratios = getRatioArray(extractData(history, 'average'))
+    const product = ratios.reduce((acc, ratio) => acc * ratio, 1);
+    return Math.pow(product, 1 / ratios.length);
+  })
+
+  return ema(geometricMeans)
+
 }
 
 function logMarkets(markets: market[]) {
@@ -492,21 +506,21 @@ function indexData(rawHistories: { [key: string]: rawFrame[]}) {
   }
 }
 
-function addEmaRatio(market: market) {
+function addEMARatio(market: market) {
 
   try {
     const spans = [
       500, 377, 233, 144, 89, 55, 34, 
       21, 13, 8, 5, 3, 2, 1
     ]
-    const frameRatioEmas = Object.keys(timeScales).map(timeScale => {
+    const frameRatioEMAs = Object.keys(timeScales).map(timeScale => {
       const emas = spans.map(span => 
         ema(extractData(market.histories[timeScale], 'average'), span)
       )
       return ema(getRatioArray(emas))
     })
 
-    market.emaRatio = ema(frameRatioEmas)
+    market.emaRatio = ema(frameRatioEMAs)
   
     return market
   } catch (error) {
@@ -535,8 +549,8 @@ function ema(data: number[], time: number|null=null) {
     emaData.push(newPoint)
   }
 
-  const currentEma = [...emaData].pop() as number
-  return +currentEma
+  const currentEMA = [...emaData].pop() as number
+  return +currentEMA
 }
 
 function extractData(dataArray: indexedFrame[], key: string) {
