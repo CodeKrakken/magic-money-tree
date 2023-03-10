@@ -73,6 +73,24 @@
   padding: 0; /* remove the padding */
 }
 
+.col-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  margin: 0; /* remove the margin */
+  padding: 0; /* remove the padding */
+  text-align: left
+}
+
+.col-row {
+  display: flex;
+  flex-wrap: wrap;
+  overflow: hidden; /* hide overflow content */
+  margin: 0; /* remove the margin */
+  padding: 0; /* remove the padding */
+}
+
 /* set the fourth column to full width and height of the container */
 .full-width {
   flex: 1 1 100%; /* set flex-grow to 1, flex-shrink to 1, and flex-basis to 100% */
