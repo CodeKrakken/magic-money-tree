@@ -15,14 +15,28 @@ app.use(local ? cors({origin: 'http://localhost:3000'}) : cors());
 
 app.use(express.static(path.join(__dirname, "build")));
 
+const siteData = 
+
 app.get("/data", (req: Request, res: Response) => {
-  const dataJSON = JSON.stringify(siteData);
+  const dataJSON = JSON.stringify({
+    wallet        : wallet,
+    currentTask   : currentTask,
+    transactions  : { lines: log.transactions, headers: ['Value', 'Asset', 'Volume', '$ Value', 'Strength'] },
+    marketChart   : marketChart,
+    currentMarket : markets[wallet.data.currentMarket.name] ?? null
+  });
   res.setHeader('Content-Type', 'application/json');
   res.send(dataJSON);
 });
 
 app.get('/local-data', (req: Request, res: Response) => {
-  res.json(siteData)
+  res.json({
+    wallet        : wallet,
+    currentTask   : currentTask,
+    transactions  : { lines: log.transactions, headers: ['Value', 'Asset', 'Volume', '$ Value', 'Strength'] },
+    marketChart   : marketChart,
+    currentMarket : markets[wallet.data.currentMarket.name] ?? null
+  })
 })
 
 const port = process.env.PORT || 5000;
@@ -172,13 +186,7 @@ const timeScales: {[key: string]: string} = {
 }
 let trading: Boolean
 
-const siteData = {
-  wallet        : wallet,
-  currentTask   : currentTask,
-  transactions  : { lines: log.transactions, headers: ['Value', 'Asset', 'Volume', '$ Value', 'Strength'] },
-  marketChart   : marketChart,
-  currentMarket : markets[wallet.data.currentMarket.name] ?? null
-}
+
 
 // Functions
 

@@ -49,6 +49,8 @@ export default function App() {
     return () => clearInterval(intervalId);
   }, []);
 
+  console.log(currentTask)  
+  
   return <>
     <div className="container">
       <div className="row flex-no-grow">
@@ -64,17 +66,16 @@ export default function App() {
       </div>
       <div className="row flex-grow">
         <div className="col center">
-          {
+          {/* {
             marketChart?.lines?.length ? (
               <StringList 
                 list={marketChart} 
               />
             ) : null
-          }
+          } */}
         </div>
         <div className="col center">
-          {/* <Text text='Magic Money Tree' tag='h1' attrs={{className: 'title'}} /> */}
-          <CurrentTask currentTask={currentTask} />
+         <CurrentTask currentTask={currentTask} />
           <br />
           <Wallet wallet={wallet} />
         </div>
