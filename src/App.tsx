@@ -54,13 +54,13 @@ export default function App() {
   return <>
     <div className="container">
       <div className="row flex-no-grow">
-        <div className="col center">
+        <div className="col center header">
           <Text text='MARKETS' tag='h1' />
         </div>
-        <div className="col center">
+        <div className="col center header">
           <Text text='MAGIC MONEY TREE' tag='h1' attrs={{className: 'title'}} />
         </div>
-        <div className="col center">
+        <div className="col center header">
           <Text text='TRANSACTIONS' tag='h1' />
         </div>
       </div>
