@@ -15,8 +15,6 @@ app.use(local ? cors({origin: 'http://localhost:3000'}) : cors());
 
 app.use(express.static(path.join(__dirname, "build")));
 
-const siteData = 
-
 app.get("/data", (req: Request, res: Response) => {
   const dataJSON = JSON.stringify({
     wallet        : wallet,
