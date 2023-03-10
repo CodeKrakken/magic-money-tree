@@ -212,7 +212,7 @@ function timeNow() {
 function logEntry(entry: logEntryType, topic: string = 'general') {
   console.log(
     isTransaction(entry)
-      ? `${entry.time}  |  ${entry.text}`
+      ? `${entry.time}  |  ${entry.text[0]}  ${entry.text[1]} @ ${entry.text[2]} = ${entry.text[3]} | ${entry.text[4]}`
       : entry
   );
   log[topic] = log[topic] ?? [];
@@ -755,14 +755,10 @@ async function simulatedBuyOrder(market: market) {
 }
 
 async function simulatedSellOrder(sellType: string, market: market) {
-  console.log(754)
-  console.log(wallet)
   try {
     const asset = wallet.data.currentMarket.name.replace('USDT', '')
     const base  = 'USDT'
     const assetVolume = wallet.coins[asset].volume
-    console.log(758)
-    console.log(wallet.coins[base])
     wallet.coins[base].volume += assetVolume * (1 - fee) * wallet.coins[asset].dollarPrice
     wallet.data.prices = {}
     const tradeReport = {
