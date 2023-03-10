@@ -665,7 +665,7 @@ async function trade(sortedMarkets: market[]) {
         currentMarket.strength      as number
       ) > 1) {
         simulatedSellOrder('Bear', currentMarket)
-      }else if (targetMarket?.name !== currentMarket.name && wallet.coins[wallet.data.baseCoin].dollarPrice >= (wallet.data.prices.targetPrice as number)) { 
+      } else if (targetMarket?.name !== currentMarket.name && wallet.coins[wallet.data.baseCoin].dollarPrice >= (wallet.data.prices.targetPrice as number)) { 
         simulatedSellOrder('New Bull', currentMarket)
       }
       
