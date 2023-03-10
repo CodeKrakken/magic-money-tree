@@ -66,13 +66,13 @@ export default function App() {
       </div>
       <div className="row flex-grow">
         <div className="col center">
-          {/* {
+          {
             marketChart?.lines?.length ? (
               <StringList 
                 list={marketChart} 
               />
             ) : null
-          } */}
+          }
         </div>
         <div className="col center">
          <CurrentTask currentTask={currentTask} />
