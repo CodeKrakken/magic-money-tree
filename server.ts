@@ -19,7 +19,7 @@ app.get("/data", (req: Request, res: Response) => {
   const dataJSON = JSON.stringify({
     wallet        : wallet,
     currentTask   : currentTask,
-    transactions  : { lines: log.transactions.reverse(), headers: ['Value', 'Asset', 'Volume', '$ Value', 'Strength'] },
+    transactions  : { lines: log.transactions, headers: ['Value', 'Asset', 'Volume', '$ Value', 'Strength'] },
     marketChart   : marketChart,
     currentMarket : markets[wallet.data.currentMarket.name] ?? null
   });
@@ -31,7 +31,7 @@ app.get('/local-data', (req: Request, res: Response) => {
   res.json({
     wallet        : wallet,
     currentTask   : currentTask,
-    transactions  : { lines: log.transactions.reverse(), headers: ['Value', 'Asset', 'Volume', '$ Value', 'Strength'] },
+    transactions  : { lines: log.transactions, headers: ['Value', 'Asset', 'Volume', '$ Value', 'Strength'] },
     marketChart   : marketChart,
     currentMarket : markets[wallet.data.currentMarket.name] ?? null
   })
