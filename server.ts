@@ -85,13 +85,14 @@ export interface wallet {
     prices        : {
       targetPrice?    : number
       currentPrice?   : number
-      purchasePrice?  : number
+      buyPrice?  : number
       stopLossPrice?  : number
     }
     currentMarket: {
       name: string
     }
-    purchaseTime: number
+    buyTime: number
+    buyStrength: number
   }
 }
 
@@ -174,6 +175,7 @@ let i: number = 0
 const minimumDollarVolume = 28000000
 const fee = 0.001
 const stopLossThreshold = 0.78
+const strengthOfTheBear = 0.99800399201596806387
 const timeScales: {[key: string]: string} = {
   // months  : 'M', 
   // weeks   : 'w', 
@@ -306,8 +308,6 @@ async function tick() {
     sortedMarkets = roundObjects(sortedMarkets, ['emaRatio', 'shape', 'strength', 'trendScore', 'geometricMean'])
     formatMarketDisplay(sortedMarkets)
     sortedMarkets = filterMarkets(sortedMarkets)
-    console.log(310)
-    console.log(wallet)
     if ((sortedMarkets.length && trading) || wallet.data.baseCoin !== 'USDT') await trade(sortedMarkets)  } catch (error) {
     console.log(error)
   }
@@ -359,7 +359,8 @@ function simulatedWallet() {
       currentMarket: {
         name: ''
       },
-      purchaseTime: 0
+      buyTime: 0,
+      buyStrength: 0
     }
   }
 }
@@ -588,7 +589,7 @@ function addShape(market: market) {
       deviations.push(
         frame.average === straightLine ? 1 : 
         frame.average < straightLine ? frame.average / straightLine : 
-        market.name.includes(wallet.data.baseCoin) && frame.time > wallet.data.purchaseTime ?
+        market.name.includes(wallet.data.baseCoin) && frame.time > wallet.data.buyTime ?
         frame.average / straightLine :
         straightLine / frame.average
       )
@@ -670,8 +671,6 @@ function roundObjects(inMarkets: market[], keys: ('shape'|'strength'|'currentPri
 // TRADE FUNCTIONS
 
 async function trade(sortedMarkets: market[]) {
-  console.log(668)
-  console.log(wallet)
 
   const targetMarket = sortedMarkets[0]?.strength as number > 0 ? sortedMarkets[0] : null  
   if (wallet.data.baseCoin === 'USDT') {   
@@ -684,10 +683,9 @@ async function trade(sortedMarkets: market[]) {
   } else {
     try {
       const currentMarket = markets[wallet.data.currentMarket.name]
-      console.log(680)
-      console.log(wallet)
-      if (currentMarket.strength as number < 1) {
-        simulatedSellOrder('Bear', currentMarket)
+
+      if (currentMarket.strength as number < wallet.data.buyStrength * strengthOfTheBear) {
+        simulatedSellOrder(`Bear - ${currentMarket.strength}`, currentMarket)
       } else if (targetMarket?.name !== currentMarket.name && wallet.coins[wallet.data.baseCoin].dollarPrice >= (wallet.data.prices.targetPrice as number)) { 
         simulatedSellOrder('New Bull', currentMarket)
       }
@@ -731,10 +729,12 @@ async function simulatedBuyOrder(market: market) {
 
       wallet.data.prices = {
         targetPrice   : targetVolume / wallet.coins[asset].volume,
-        purchasePrice : currentPrice,
+        buyPrice : currentPrice,
         stopLossPrice : currentPrice * stopLossThreshold,
         currentPrice  : currentPrice
       }
+
+      wallet.data.buyStrength = market.strength as number
 
       wallet.data.currentMarket.name = market.name
       const tradeReport: transaction = {
@@ -773,7 +773,7 @@ async function simulatedSellOrder(sellType: string, market: market) {
     }
     logEntry(tradeReport, 'transactions')
     delete wallet.coins[asset]
-    wallet.data.purchaseTime = 0
+    wallet.data.buyTime = 0
   } catch (error) {
     console.log(error)
   }
