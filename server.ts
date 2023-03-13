@@ -409,8 +409,8 @@ function getGeometricMean(market: market) {
 
 function logMarkets(markets: market[]) {
   markets.map(market => {
-    const report = [`${market.name.replace('USDT', '')} ... ${market.shape} * ${market.emaRatio} * ${market.trendScore} * ${market.geometricMean} = ${market.strength}`]
-    console.log(`${market.name.replace('USDT', '')} ... ${market.shape} * ${market.emaRatio} * ${market.trendScore} * ${market.geometricMean} = ${market.strength}`)
+    const report = [`${market.name.replace('USDT', '')} ... ${/* ${market.shape} */''} * ${market.emaRatio} * ${market.trendScore} * ${market.geometricMean} = ${market.strength}`]
+    console.log(report)
     return report
   })
 }
@@ -419,7 +419,7 @@ function formatMarketDisplay(markets: market[]) {
   marketChart.lines = markets.map(market => {
     const report = [
       market.name.replace('USDT', ''), 
-      market.shape          as number, 
+      // market.shape          as number, 
       market.emaRatio       as number, 
       market.trendScore     as number, 
       market.geometricMean  as number,
@@ -427,7 +427,7 @@ function formatMarketDisplay(markets: market[]) {
     ]
     return { text: report }
   })
-  marketChart.headers = ['Market', 'Shape','EMA', 'Trend', 'Geo', 'Strength']
+  marketChart.headers = ['Market', /*'Shape',*/ 'EMA', 'Trend', 'Geo', 'Strength']
 }
 
 async function refreshWallet() {
@@ -705,7 +705,7 @@ function sortMarkets() {
     const trendScore    = market.trendScore as number | undefined;
     const geometricMean = market.geometricMean as number;
 
-    market.strength   = emaRatio && shape && trendScore ? emaRatio * shape * trendScore * geometricMean : 0;
+    market.strength   = emaRatio && shape && trendScore && geometricMean ? emaRatio /* * shape */ * trendScore * geometricMean : 0;
     return market;
   })
   const sortedMarkets = marketsToSort.sort((a,b) => (b.strength as number) - (a.strength as number))
