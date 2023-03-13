@@ -175,7 +175,7 @@ let i: number = 0
 const minimumDollarVolume = 28000000
 const fee = 0.001
 const stopLossThreshold = 0.78
-const strengthOfTheBear = 0.99800399201596806387
+const strengthOfTheBear = 0.99600798403193612774
 const timeScales: {[key: string]: string} = {
   // months  : 'M', 
   // weeks   : 'w', 
