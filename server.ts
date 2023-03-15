@@ -19,7 +19,7 @@ app.get("/data", (req: Request, res: Response) => {
   const dataJSON = JSON.stringify({
     wallet        : wallet,
     currentTask   : currentTask,
-    transactions  : { lines: log.transactions, headers: ['Value', 'Asset', 'Volume', '$ Value', 'Strength'] },
+    transactions  : { lines: log.transactions, headers: ['Volume', 'Asset', 'Price', '$ Value', 'Strength'] },
     marketChart   : marketChart,
     currentMarket : markets[wallet.data.currentMarket.name] ?? null
   });
@@ -31,7 +31,7 @@ app.get('/local-data', (req: Request, res: Response) => {
   res.json({
     wallet        : wallet,
     currentTask   : currentTask,
-    transactions  : { lines: log.transactions, headers: ['Value', 'Asset', 'Volume', '$ Value', 'Strength'] },
+    transactions  : { lines: log.transactions, headers: ['Volume', 'Asset', 'Price', '$ Value', 'Strength'] },
     marketChart   : marketChart,
     currentMarket : markets[wallet.data.currentMarket.name] ?? null
   })
@@ -301,7 +301,6 @@ async function tick() {
     }
 
     await refreshWallet()
-    if (wallet.data.baseCoin !== 'USDT') {await updateMarket(`${wallet.data.baseCoin}USDT`)}
 
     let sortedMarkets = sortMarkets()
     logMarkets(sortedMarkets)
@@ -409,7 +408,7 @@ function getGeometricMean(market: market) {
 
 function logMarkets(markets: market[]) {
   markets.map(market => {
-    const report = [`${market.name.replace('USDT', '')} ... ${/* ${market.shape} */''} * ${market.emaRatio} * ${market.trendScore} * ${market.geometricMean} = ${market.strength}`]
+    const report = `${market.name.replace('USDT', '')} ... ${/* ${market.shape} */''} ${market.emaRatio} * ${market.trendScore} * ${market.geometricMean} = ${market.strength}`
     console.log(report)
     return report
   })
@@ -444,15 +443,6 @@ async function refreshWallet() {
         (wallet.coins[coin] as {[key: string]: number})[key] = value || 0;
       }
     }
-
-    const sorted = Object.keys(wallet.coins).sort((a, b) => wallet.coins[a].dollarValue - wallet.coins[b].dollarValue)
-    wallet.data.baseCoin = sorted.pop() as string
-
-    if (wallet.data.baseCoin === 'USDT') {
-      wallet.data.prices = {}
-    } else {
-      wallet.data.currentMarket.name = `${wallet.data.baseCoin}USDT`
-    }
   } catch (error) {
       console.log(error)
   }  
@@ -462,6 +452,7 @@ async function fetchPrice(marketName: string) {
   try {
     const symbolName = marketName.replace('/', '')
     const rawPrice = await axios.get(`https://api.binance.com/api/v3/ticker/price?symbol=${symbolName}`) 
+    console.log(rawPrice.data)
     const price = parseFloat(rawPrice.data.price)
     return price
   } catch (error) {

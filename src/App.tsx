@@ -30,8 +30,8 @@ export default function App() {
   useEffect(() => {
 
     const fetchData = async () => {
-      // const data = await fetch('http://localhost:5000/local-data')
-      const data = await fetch('/data')
+      const data = await fetch('http://localhost:5000/local-data')
+      // const data = await fetch('/data')
       .then(response => response.json())
       .then(data => {
         setWallet(data.wallet)
