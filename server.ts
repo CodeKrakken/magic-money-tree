@@ -366,10 +366,8 @@ function simulatedWallet() {
 
 async function updateMarket(symbolName: string, id: number|null=null) {
   const response = await fetchSingleHistory(symbolName)
-  if (id) {
-    currentTask = `Fetching history for ${id}/${viableSymbols.length} - ${symbolName} ... ${response === 'No response.' ? response : ''}`
-    console.log(currentTask)
-  }
+  currentTask = `Fetching history for ${id ? `${id}/${viableSymbols.length} - ` : ''} ${symbolName} ... ${response === 'No response.' ? response : ''}`
+  console.log(currentTask)
 
   if (response !== 'No response.') {
     const indexedHistories = indexData(response) as {[key: string]: indexedFrame[]}
@@ -438,6 +436,7 @@ async function refreshWallet() {
       const coin = Object.keys(wallet.coins)[i]
       wallet.coins[coin].dollarPrice = coin === 'USDT' ? 1 : await fetchPrice(`${coin}USDT`) as number
       wallet.coins[coin].dollarValue = wallet.coins[coin].volume * wallet.coins[coin].dollarPrice
+      if (coin !== 'USDT') await updateMarket(`${coin}USDT`)
 
       for (const [key, value] of Object.entries(wallet.coins[coin])) {
         (wallet.coins[coin] as {[key: string]: number})[key] = value || 0;
