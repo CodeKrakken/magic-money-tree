@@ -2,8 +2,6 @@ require('dotenv').config();
 import { Request, Response } from 'express';
 const local = process.env.LOCAL || false
 
-
-
 // Server
 
 const axios = require("axios");

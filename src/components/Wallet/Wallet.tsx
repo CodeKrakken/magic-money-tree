@@ -23,7 +23,7 @@ export default function Wallet({wallet}: {wallet: wallet}) {
 
     {
       Object.keys(wallet.coins).filter(coin => wallet.coins[coin].volume).map(name => 
-        `${n(wallet.coins[name].volume)} ${name} @ ${n(wallet.coins[name].dollarPrice)} = $${n(wallet.coins[name].dollarValue)}`
+        `${n(wallet.coins[name].volume)} ${name} @ ${n(wallet.coins[name].dollarPrice)} = $${n(wallet.coins[name].dollarValue)}\n`
       )
     }
 
