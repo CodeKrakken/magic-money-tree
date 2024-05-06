@@ -34,8 +34,6 @@ app.listen(port, () => {
   console.log(currentTask);
 });
 
-
-
 // Database
 
 const username = process.env.MONGODB_USERNAME
@@ -203,7 +201,6 @@ async function fetchSymbols() {
     const markets = await axios.get('https://api.binance.com/api/v3/exchangeInfo');
     if (markets) {
       const viableSymbols = analyseMarkets(markets.data.symbols)
-      console.log(viableSymbols)
       return viableSymbols
     }
   } catch (error) {
@@ -299,7 +296,6 @@ function isGoodMarketName(marketName: string) {
   && !marketName.includes('TUSD')
   && !marketName.includes('USDC')
   && !marketName.includes(':')
-  && marketName.includes('BNX')
 
   // && marketName === 'GBPUSDT'
   // && !marketName.includes('BNB')
@@ -373,9 +369,7 @@ async function refreshWallet() {
 
     for (let i = 0; i < n; i ++) {
       const coin = Object.keys(wallet.coins)[i]
-      console.log(`373 wallet.coins[${coin}].dollarPrice): ${wallet.coins[coin].dollarPrice}`)
       wallet.coins[coin].dollarPrice = coin === 'USDT' ? 1 : await fetchPrice(`${coin}USDT`) as number || wallet.coins[coin].dollarPrice
-      console.log(`375 wallet.coins[${coin}].dollarPrice): ${wallet.coins[coin].dollarPrice}`)
       wallet.coins[coin].dollarValue = wallet.coins[coin].volume * wallet.coins[coin].dollarPrice
     }
 
@@ -616,18 +610,18 @@ async function trade(sortedMarkets: market[]) {
   } else {
     try {
       const currentMarket = markets[wallet.data.currentMarket.name]
-      simulatedSellOrder('Bear', currentMarket)
-      // if (currentMarket.shape as number < 1 || currentMarket.emaRatio as number < 1 || currentMarket.strength as number < 1) {
-      //   simulatedSellOrder('Bear', currentMarket)
-      // } else if (!currentMarket) {
-      //   // simulatedSellOrder('No response for current market', markets[wallet.data.currentMarket.name])
-      // } else if (targetMarket?.name !== currentMarket.name && wallet.coins[wallet.data.baseCoin].dollarPrice >= (wallet.data.prices.targetPrice as number)) { 
-      //   simulatedSellOrder('New Bull', currentMarket)
-      // } else if (!wallet.data.prices.targetPrice || !wallet.data.prices.stopLossPrice) {
-      //   // simulatedSellOrder('Price information undefined', markets[wallet.data.currentMarket.name])
-      // } else if (wallet.coins[wallet.data.baseCoin].dollarPrice as number < wallet.data.prices.stopLossPrice) {
-      //   // simulatedSellOrder('Below Stop Loss', markets[wallet.data.currentMarket.name])
-      // }
+
+      if (currentMarket.shape as number < 1 || currentMarket.emaRatio as number < 1 || currentMarket.strength as number < 1) {
+        // simulatedSellOrder('Bear', currentMarket)
+      } else if (!currentMarket) {
+        // simulatedSellOrder('No response for current market', markets[wallet.data.currentMarket.name])
+      } else if (targetMarket?.name !== currentMarket.name && wallet.coins[wallet.data.baseCoin].dollarPrice >= (wallet.data.prices.targetPrice as number)) { 
+        simulatedSellOrder('New Bull', currentMarket)
+      } else if (!wallet.data.prices.targetPrice || !wallet.data.prices.stopLossPrice) {
+        // simulatedSellOrder('Price information undefined', markets[wallet.data.currentMarket.name])
+      } else if (wallet.coins[wallet.data.baseCoin].dollarPrice as number < wallet.data.prices.stopLossPrice) {
+        // simulatedSellOrder('Below Stop Loss', markets[wallet.data.currentMarket.name])
+      }
       
     } catch(error) {
       console.log(error)
@@ -685,7 +679,7 @@ async function simulatedBuyOrder(market: market) {
 }
 
 async function simulatedSellOrder(sellType: string, market: market) {
-  // try {
+  try {
     const asset = wallet.data.currentMarket.name.replace('USDT', '')
     const base  = 'USDT'
     const assetVolume = wallet.coins[asset].volume
@@ -702,9 +696,9 @@ async function simulatedSellOrder(sellType: string, market: market) {
 
     logEntry(tradeReport, 'transactions')
     delete wallet.coins[asset]
-  // } catch (error) {
-    // console.log(error)
-  // }
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 run()
