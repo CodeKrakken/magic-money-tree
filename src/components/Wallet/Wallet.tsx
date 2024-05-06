@@ -19,14 +19,23 @@ export default function Wallet({wallet}: {wallet: wallet}) {
   }
 
   return wallet?.coins ? <>
+<<<<<<< HEAD
     <h1>WALLET</h1>
 
+=======
+    <h1>Wallet</h1>
+>>>>>>> local
     {
       Object.keys(wallet.coins).filter(coin => wallet.coins[coin].volume).map(name => 
-        `${n(wallet.coins[name].volume)} ${name} @ ${n(wallet.coins[name].dollarPrice)} = $${n(wallet.coins[name].dollarValue)}`
-      )
+        <>
+          {
+            `${n(wallet.coins[name].volume)} ${name} @ ${n(wallet.coins[name].dollarPrice)} = $${n(wallet.coins[name].dollarValue)}`
+          }
+          <br />
+        </>
+      ) 
     }
-
+    
     <div>Total = ${n(getDollarTotal(wallet))}</div>
   
     {/* {

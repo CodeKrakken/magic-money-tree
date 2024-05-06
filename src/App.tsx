@@ -30,8 +30,13 @@ export default function App() {
   useEffect(() => {
 
     const fetchData = async () => {
+<<<<<<< HEAD
       // const data = await fetch('http://localhost:5000/local-data')
       const data = await fetch('/data')
+=======
+      // const data = await fetch('/data')                       //  heroku
+      const data = await fetch('http://localhost:5000/data')  //  local
+>>>>>>> local
       .then(response => response.json())
       .then(data => {
         setWallet(data.wallet)
@@ -75,7 +80,11 @@ export default function App() {
           }
         </div>
         <div className="col center">
+<<<<<<< HEAD
          <CurrentTask currentTask={currentTask} />
+=======
+          <CurrentTask currentTask={currentTask} />
+>>>>>>> local
           <br />
           <Wallet wallet={wallet} />
         </div>
