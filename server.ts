@@ -1,6 +1,8 @@
 require('dotenv').config();
 import { Request, Response } from 'express';
+import 'fs'
 const local = process.env.ENVIRONMENT === 'local' || false
+const { writeFile } = require('fs/promises');
 
 // Server
 
@@ -159,6 +161,15 @@ let trading: Boolean
 
 // Functions
 
+async function writeToFile(fileName: any, data: any) {
+  try {
+    await writeFile(fileName, data);
+    console.log(`Wrote data to ${fileName}`);
+  } catch (error: any) {
+    console.error(`Got an error trying to write the file: ${error.message}`);
+  }
+}
+
 async function run() {
 
   currentTask = `Running at ${timeNow()}`
@@ -227,24 +238,58 @@ async function setupDB() {
 }
 
 async function pullFromDatabase() {
+
   logEntry("Fetching data ...")
   const data = await collection.findOne({});
-  if (data?.data?.wallet) { wallet = data.data.wallet}
+  if (data?.data?.wallet) { wallet = data.data.wallet} 
   if (data?.data?.markets) { markets = data.data.markets}
   if (data?.data?.log) { log = data.data.log}
   if (data?.data?.viableSymbols) { viableSymbols = data.data.viableSymbols}
+  console.log(log)
 }
 
+
+
 async function tick() {
-  try {
+  // try {
     if (!viableSymbols[i]) {
 
+      console.log(`wallet`)
+      console.log(wallet)
+
       await collection.replaceOne({}, { data: {
-        wallet: wallet,
-        markets: markets,
-        log: log,
+        wallet: wallet
+      } });
+
+      console.log(`markets`)
+      console.log(markets)
+
+      // await collection.replaceOne({}, { data: {
+      //   markets: markets
+      // } });
+
+      writeToFile('markets.txt', JSON.stringify(markets));
+
+      console.log(`log`)
+      console.log(log)
+
+      await collection.replaceOne({}, { data: {
+        log: log
+      } });
+
+      console.log(`viableSymbols`)
+      console.log(viableSymbols)
+
+      await collection.replaceOne({}, { data: {
         viableSymbols: viableSymbols
       } });
+
+      // await collection.replaceOne({}, { data: {
+      //   wallet: wallet,
+      //   markets: markets,
+      //   log: log,
+      //   viableSymbols: viableSymbols
+      // } });
 
       console.log(`----- Tick at ${timeNow()} -----`)
       i = 0
@@ -270,9 +315,9 @@ async function tick() {
     sortedMarkets = filterMarkets(sortedMarkets)
 
     if ((sortedMarkets.length && trading) || wallet.data.baseCoin !== 'USDT') await trade(sortedMarkets)
-  } catch (error) {
-    console.log(error)
-  }
+  // } catch (error) {
+    // console.log(error)
+  // }
   i++
   
   tick()
