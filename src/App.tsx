@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import Text from "./components/Text/Text"
-import { wallet, market, transaction } from 'server'
+import { wallet, market } from 'server'
 import Wallet from "./components/Wallet/Wallet"
 import CurrentTask from "./components/CurrentTask/CurrentTask"
 import MarketGraph from "./components/MarketGraph/MarketGraph"
@@ -30,13 +30,8 @@ export default function App() {
   useEffect(() => {
 
     const fetchData = async () => {
-<<<<<<< HEAD
-      // const data = await fetch('http://localhost:5000/local-data')
-      const data = await fetch('/data')
-=======
       // const data = await fetch('/data')                       //  heroku
       const data = await fetch('http://localhost:5000/data')  //  local
->>>>>>> local
       .then(response => response.json())
       .then(data => {
         setWallet(data.wallet)
@@ -80,11 +75,7 @@ export default function App() {
           }
         </div>
         <div className="col center">
-<<<<<<< HEAD
-         <CurrentTask currentTask={currentTask} />
-=======
           <CurrentTask currentTask={currentTask} />
->>>>>>> local
           <br />
           <Wallet wallet={wallet} />
         </div>
