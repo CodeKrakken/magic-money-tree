@@ -20,7 +20,7 @@ export default function App() {
 
     const fetchData = async () => {
       // const data = await fetch('/data')                       //  heroku
-      const data = await fetch('http://localhost:5000/data')  //  local
+      const data = await fetch('http://localhost:5001/data')  //  local
       .then(response => response.json())
       .then(data => {
         setWallet(data.wallet)
