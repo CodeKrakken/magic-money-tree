@@ -178,8 +178,8 @@ async function run() {
     await setupDB();
     await pullFromDatabase();
     tick()
-  } catch (error) {
-    console.log(error)
+  } catch (error: any) {
+    console.log(error.message)
   }
 }
 
@@ -211,8 +211,8 @@ async function fetchSymbols() {
       const viableSymbols = analyseMarkets(markets.data.symbols)
       return viableSymbols
     }
-  } catch (error) {
-    console.log(error)
+  } catch (error: any) {
+    console.log(error.message)
     return []
   }
 }
@@ -241,7 +241,6 @@ async function pullFromDatabase() {
   if (data?.data?.wallet) { wallet = data.data.wallet} 
   if (data?.data?.log) { log = data.data.log}
   if (data?.data?.viableSymbols) { viableSymbols = data.data.viableSymbols}
-  console.log(log)
 }
 
 
@@ -278,13 +277,10 @@ async function tick() {
     formatMarketDisplay(sortedMarkets)
     sortedMarkets = filterMarkets(sortedMarkets)
 
-    if ((sortedMarkets.length) || wallet.data.baseCoin !== 'USDT') {
-      await trade(sortedMarkets)
-    } else {
-      console.log('No bulls.')
-    }
-  } catch (error) {
-    console.log(error)
+    if ((sortedMarkets.length) || wallet.data.baseCoin !== 'USDT') await trade(sortedMarkets)
+
+  } catch (error: any) {
+    console.log(error.message)
   }
   i++
   
@@ -394,8 +390,8 @@ async function refreshWallet() {
     } else {
       wallet.data.currentMarket.name = `${wallet.data.baseCoin}USDT`
     }
-  } catch (error) {
-      console.log(error)
+  } catch (error: any) {
+      console.log(error.message)
   }  
 }
 
@@ -406,11 +402,11 @@ async function fetchPrice(marketName: string) {
     const rawPrice = await axios.get(`https://api.binance.com/api/v3/ticker/price?symbol=${symbolName}`) 
     price = parseFloat(rawPrice.data.price)
     return price
-  } catch (error) {
-    console.log(error)
+  } catch (error: any) {
+    console.log(error.message)
     fetchPrice(marketName)
   }
-  console.log(`403 Fetched price: ${price}`)
+  // console.log(`403 Fetched price: ${price}`)
 }
 
 async function fetchSingleHistory(symbolName: string) {
@@ -454,8 +450,8 @@ function indexData(rawHistories: { [key: string]: rawFrame[]}) {
     })
     return indexedHistories
 
-  } catch(error) {
-    console.log(error)
+  } catch(error: any) {
+    console.log(error.message)
   }
 }
 
@@ -476,8 +472,8 @@ function addEmaRatio(market: market) {
     market.emaRatio = ema(frameRatioEmas)
   
     return market
-  } catch (error) {
-    console.log(error)
+  } catch (error: any) {
+    console.log(error.message)
   }
 }
 
@@ -613,7 +609,7 @@ function roundObjects(inMarkets: market[], keys: ('shape'|'strength'|'currentPri
 
 async function trade(sortedMarkets: market[]) {
   const targetMarket = sortedMarkets[0]?.strength as number > 0 ? sortedMarkets[0] : null
-  console.log(`605 wallet.data.baseCoin: ${wallet.data.baseCoin}`)
+  // console.log(`605 wallet.data.baseCoin: ${wallet.data.baseCoin}`)
   if (wallet.data.baseCoin === 'USDT') {   
     if (!targetMarket) {
       console.log('No bulls')
@@ -636,8 +632,8 @@ async function trade(sortedMarkets: market[]) {
         // simulatedSellOrder('Below Stop Loss', markets[wallet.data.currentMarket.name])
       }
       
-    } catch(error) {
-      console.log(error)
+    } catch(error: any) {
+      console.log(error.message)
     }
   }
 }
@@ -682,12 +678,12 @@ async function simulatedBuyOrder(market: market) {
       wallet.data.currentMarket.name = market.name
       const tradeReport: transaction = {
         time: timeNow(),
-        text: `${round(wallet.coins[asset].volume)} ${asset} @ ${round(currentPrice)} = $${round(baseVolume * (1 - fee))}  |  Strength ${round(market.strength as number)}`
+        text: `Bought ${round(wallet.coins[asset].volume)} ${asset} @ ${round(currentPrice)} = $${round(baseVolume * (1 - fee))}  |  Strength ${round(market.strength as number)}`
       }
       logEntry(tradeReport, 'transactions')
     }
-  } catch (error) {
-    console.log(error)
+  } catch (error: any) {
+    console.log(error.message)
   }
 }
 
@@ -697,20 +693,20 @@ async function simulatedSellOrder(sellType: string, market: market) {
     const base  = 'USDT'
     const assetVolume = wallet.coins[asset].volume
 
-    console.log(`691 wallet.coins[${base}].volume: ${wallet.coins[base].volume}`)
+    // console.log(`691 wallet.coins[${base}].volume: ${wallet.coins[base].volume}`)
     wallet.coins[base].volume += assetVolume * (1 - fee) * wallet.coins[asset].dollarPrice
-    console.log(`693 wallet.coins[${base}].volume: ${wallet.coins[base].volume}`)
+    // console.log(`693 wallet.coins[${base}].volume: ${wallet.coins[base].volume}`)
     wallet.data.prices = {}
 
     const tradeReport = {
       time: timeNow(),
-      text: `${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)}  |  Strength ${round(market.strength as number)}  |  ${sellType}`
+      text: `Sold ${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)}  |  Strength ${round(market.strength as number)}  |  ${sellType}`
     }
 
     logEntry(tradeReport, 'transactions')
     delete wallet.coins[asset]
-  } catch (error) {
-    console.log(error)
+  } catch (error: any) {
+    console.log(error.message)
   }
 }
 
