@@ -1,6 +1,8 @@
 require('dotenv').config();
 import { Request, Response } from 'express';
+import 'fs'
 const local = process.env.ENVIRONMENT === 'local' || false
+const { writeFile } = require('fs/promises');
 
 // Server
 
@@ -159,6 +161,15 @@ let trading: Boolean
 
 // Functions
 
+async function writeToFile(fileName: any, data: any) {
+  try {
+    await writeFile(fileName, data);
+    console.log(`Wrote data to ${fileName}`);
+  } catch (error: any) {
+    console.error(`Got an error trying to write the file: ${error.message}`);
+  }
+}
+
 async function run() {
 
   currentTask = `Running at ${timeNow()}`
@@ -227,13 +238,16 @@ async function setupDB() {
 }
 
 async function pullFromDatabase() {
+
   logEntry("Fetching data ...")
   const data = await collection.findOne({});
-  if (data?.data?.wallet) { wallet = data.data.wallet}
-  if (data?.data?.markets) { markets = data.data.markets}
+  if (data?.data?.wallet) { wallet = data.data.wallet} 
   if (data?.data?.log) { log = data.data.log}
   if (data?.data?.viableSymbols) { viableSymbols = data.data.viableSymbols}
+  console.log(log)
 }
+
+
 
 async function tick() {
   try {
@@ -241,7 +255,6 @@ async function tick() {
 
       await collection.replaceOne({}, { data: {
         wallet: wallet,
-        markets: markets,
         log: log,
         viableSymbols: viableSymbols
       } });
