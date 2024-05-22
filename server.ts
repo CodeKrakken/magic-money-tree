@@ -155,8 +155,6 @@ const timeScales: {[key: string]: string} = {
   minutes : 'm',
   seconds : 's'
 }
-let trading: Boolean
-
 
 
 // Functions
@@ -179,7 +177,6 @@ async function run() {
     viableSymbols = await fetchSymbols() as string[]
     await setupDB();
     await pullFromDatabase();
-    trading = Boolean(Object.keys(markets).length)
     tick()
   } catch (error) {
     console.log(error)
@@ -262,7 +259,6 @@ async function tick() {
       console.log(`----- Tick at ${timeNow()} -----`)
       i = 0
       viableSymbols = await fetchSymbols() as string[]
-      trading = true
     }
 
     const symbolName = viableSymbols[i].replace('/', '')
@@ -282,11 +278,10 @@ async function tick() {
     formatMarketDisplay(sortedMarkets)
     sortedMarkets = filterMarkets(sortedMarkets)
 
-    if ((sortedMarkets.length && trading) || wallet.data.baseCoin !== 'USDT') {
+    if ((sortedMarkets.length) || wallet.data.baseCoin !== 'USDT') {
       await trade(sortedMarkets)
     } else {
-      console.log(trading)
-      console.log(sortedMarkets.length)
+      console.log('No bulls.')
     }
   } catch (error) {
     console.log(error)
