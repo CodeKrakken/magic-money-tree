@@ -1,5 +1,4 @@
 import './StringList.css'
-import { stringList } from 'src/App';
 
 type transaction = {
   text: string,

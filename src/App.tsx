@@ -7,25 +7,14 @@ import MarketGraph from "./components/MarketGraph/MarketGraph"
 import './App.css'
 import StringList from "./components/StringList/StringList"
 
-
-
-export interface stringList {
-  lines: stringListItem[]
-  headers: string[]
-}
-
-export interface stringListItem {
-  time?: string
-  text: (string|number)[]
-}
-
 export default function App() {
 
   const [wallet,                 setWallet] = useState({} as wallet)
   const [currentTask,       setcurrentTask] = useState('Fetching data')
-  const [transactions,     setTransactions] = useState({} as stringList)
-  const [marketChart,       setMarketChart] = useState({} as stringList)
+  const [transactions,     setTransactions] = useState([] as string[])
+  const [marketChart,               setMarketChart] = useState([] as string[])
   const [currentMarket,   setCurrentMarket] = useState({} as market)
+  const [log, setLog] = useState([] as string[])
 
   useEffect(() => {
 
@@ -49,25 +38,23 @@ export default function App() {
     return () => clearInterval(intervalId);
   }, []);
 
-  console.log(currentTask)  
-  
   return <>
     <div className="container">
       <div className="row flex-no-grow">
-        <div className="col center header">
-          <Text text='MARKETS' tag='h1' />
+        <div className="col center">
+          <Text text='Markets' tag='h1' />
         </div>
-        <div className="col center header">
-          <Text text='MAGIC MONEY TREE' tag='h1' attrs={{className: 'title'}} />
+        <div className="col center">
+          <Text text='Magic Money Tree' tag='h1' attrs={{className: 'title'}} />
         </div>
-        <div className="col center header">
-          <Text text='TRANSACTIONS' tag='h1' />
+        <div className="col center">
+          <Text text='Transactions' tag='h1' />
         </div>
       </div>
       <div className="row flex-grow">
         <div className="col center">
           {
-            marketChart?.lines?.length ? (
+            marketChart.length ? (
               <StringList 
                 list={marketChart} 
               />
@@ -81,7 +68,7 @@ export default function App() {
         </div>
         <div className="col center">
           {
-            transactions?.lines?.length ? (
+            transactions.length ? (
               <StringList 
                 list={transactions} 
               />
