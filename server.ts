@@ -282,7 +282,12 @@ async function tick() {
     formatMarketDisplay(sortedMarkets)
     sortedMarkets = filterMarkets(sortedMarkets)
 
-    if ((sortedMarkets.length && trading) || wallet.data.baseCoin !== 'USDT') await trade(sortedMarkets)
+    if ((sortedMarkets.length && trading) || wallet.data.baseCoin !== 'USDT') {
+      await trade(sortedMarkets)
+    } else {
+      console.log(trading)
+      console.log(sortedMarkets.length)
+    }
   } catch (error) {
     console.log(error)
   }
@@ -549,9 +554,9 @@ function addShape(market: market) {
 
 function filterMarkets(markets: market[]) {
   return markets.filter(market => 
-    market.shape    as number >= 1.002 && 
-    market.emaRatio as number >= 1.002 &&
-    market.strength as number >= 1.002 &&
+    market.shape    as number >= 1 && 
+    market.emaRatio as number >= 1 &&
+    market.strength as number >= 1 &&
     viableSymbols.includes(market.name)
   )
 }
