@@ -6,6 +6,7 @@ import CurrentTask from "./components/CurrentTask/CurrentTask"
 import MarketGraph from "./components/MarketGraph/MarketGraph"
 import './App.css'
 import StringList from "./components/StringList/StringList"
+import env from "react-dotenv";
 
 export default function App() {
 
@@ -16,11 +17,15 @@ export default function App() {
   const [currentMarket,   setCurrentMarket] = useState({} as market)
   const [log, setLog] = useState([] as string[])
 
+
   useEffect(() => {
 
     const fetchData = async () => {
-      const data = await fetch('/data')                       //  heroku
-      // const data = await fetch('http://localhost:5001/data')  //  local
+      const local = env.ENVIRONMENT === 'local'
+      // const data = await fetch('/data')                       //  heroku
+      // const data = await fetch('http://localhost:5001/data')                       //  local
+      console.log(env.ENVIRONMENT)
+      const data = await fetch(`${local ? 'http://localhost:5001' : ''}/data`)  //  the dream
       .then(response => response.json())
       .then(data => {
         setWallet(data.wallet)

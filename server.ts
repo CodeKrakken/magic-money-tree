@@ -277,7 +277,10 @@ async function tick() {
     formatMarketDisplay(sortedMarkets)
     sortedMarkets = filterMarkets(sortedMarkets)
 
-    if ((sortedMarkets.length) || wallet.data.baseCoin !== 'USDT') await trade(sortedMarkets)
+    // if ((sortedMarkets.length) 
+      // || wallet.data.baseCoin !== 'USDT'
+    // )  
+    await trade(sortedMarkets) 
 
   } catch (error: any) {
     console.log(error.message)
@@ -618,14 +621,18 @@ async function trade(sortedMarkets: market[]) {
     } 
   } else {
     try {
+      // console.log(targetMarket?.name)
       const currentMarket = markets[wallet.data.currentMarket.name]
-
+      // console.log(currentMarket?.name)
       if (currentMarket.shape as number < 1 || currentMarket.emaRatio as number < 1 || currentMarket.strength as number < 1) {
         // simulatedSellOrder('Bear', currentMarket)
+
       } else if (!currentMarket) {
         // simulatedSellOrder('No response for current market', markets[wallet.data.currentMarket.name])
-      } else if (targetMarket?.name !== currentMarket.name && wallet.coins[wallet.data.baseCoin].dollarPrice >= (wallet.data.prices.targetPrice as number)) { 
+      } else if (targetMarket?.name !== currentMarket.name) { 
         simulatedSellOrder('New Bull', currentMarket)
+      } else if (wallet.coins[wallet.data.baseCoin].dollarPrice >= (wallet.data.prices.targetPrice as number)) {
+
       } else if (!wallet.data.prices.targetPrice || !wallet.data.prices.stopLossPrice) {
         // simulatedSellOrder('Price information undefined', markets[wallet.data.currentMarket.name])
       } else if (wallet.coins[wallet.data.baseCoin].dollarPrice as number < wallet.data.prices.stopLossPrice) {
@@ -688,6 +695,7 @@ async function simulatedBuyOrder(market: market) {
 }
 
 async function simulatedSellOrder(sellType: string, market: market) {
+  console.log(`line 697`)
   try {
     const asset = wallet.data.currentMarket.name.replace('USDT', '')
     const base  = 'USDT'
