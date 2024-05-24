@@ -50,7 +50,7 @@
     ]
   },
   "react-dotenv": {
-    "whitelist": ["ENVIRONMENT"]
+    "whitelist": ["ENVIRONMENT", "PORT"]
   },
   "devDependencies": {
     "nodemon": "^2.0.20",
