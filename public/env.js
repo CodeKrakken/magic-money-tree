@@ -1,4 +1,3 @@
 window.env = {
-  "ENVIRONMENT": "local",
-  "PORT": "5000"
+  "ENVIRONMENT": "local"
 };
