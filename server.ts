@@ -156,6 +156,7 @@ const timeScales: {[key: string]: string} = {
   seconds : 's'
 }
 
+let trading: Boolean = false
 
 // Functions
 
@@ -258,6 +259,7 @@ async function tick() {
       console.log(`----- Tick at ${timeNow()} -----`)
       i = 0
       viableSymbols = await fetchSymbols() as string[]
+      trading = true
     }
 
     const symbolName = viableSymbols[i].replace('/', '')
@@ -277,10 +279,7 @@ async function tick() {
     formatMarketDisplay(sortedMarkets)
     sortedMarkets = filterMarkets(sortedMarkets)
 
-    // if ((sortedMarkets.length) 
-      // || wallet.data.baseCoin !== 'USDT'
-    // )  
-    await trade(sortedMarkets) 
+    if (trading) await trade(sortedMarkets) 
 
   } catch (error: any) {
     console.log(error.message)
