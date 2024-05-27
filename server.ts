@@ -409,7 +409,6 @@ async function fetchPrice(marketName: string) {
     console.log(error.message)
     fetchPrice(marketName)
   }
-  // console.log(`403 Fetched price: ${price}`)
 }
 
 async function fetchSingleHistory(symbolName: string) {
@@ -612,7 +611,6 @@ function roundObjects(inMarkets: market[], keys: ('shape'|'strength'|'currentPri
 
 async function trade(sortedMarkets: market[]) {
   const targetMarket = sortedMarkets[0]?.strength as number > 0 ? sortedMarkets[0] : null
-  // console.log(`605 wallet.data.baseCoin: ${wallet.data.baseCoin}`)
   if (wallet.data.baseCoin === 'USDT') {   
     if (!targetMarket) {
       console.log('No bulls')
@@ -621,18 +619,17 @@ async function trade(sortedMarkets: market[]) {
     } 
   } else {
     try {
-      // console.log(targetMarket?.name)
       const currentMarket = markets[wallet.data.currentMarket.name]
-      // console.log(currentMarket?.name)
       if (currentMarket.shape as number < 1 || currentMarket.emaRatio as number < 1 || currentMarket.strength as number < 1) {
         // simulatedSellOrder('Bear', currentMarket)
 
       } else if (!currentMarket) {
         // simulatedSellOrder('No response for current market', markets[wallet.data.currentMarket.name])
-      } else if (targetMarket?.name !== currentMarket.name) { 
+      } else if (
+        targetMarket?.name !== currentMarket.name
+        && wallet.coins[wallet.data.baseCoin].dollarPrice >= (wallet.data.prices.targetPrice as number)
+      ) { 
         simulatedSellOrder('New Bull', currentMarket)
-      } else if (wallet.coins[wallet.data.baseCoin].dollarPrice >= (wallet.data.prices.targetPrice as number)) {
-
       } else if (!wallet.data.prices.targetPrice || !wallet.data.prices.stopLossPrice) {
         // simulatedSellOrder('Price information undefined', markets[wallet.data.currentMarket.name])
       } else if (wallet.coins[wallet.data.baseCoin].dollarPrice as number < wallet.data.prices.stopLossPrice) {
@@ -695,15 +692,12 @@ async function simulatedBuyOrder(market: market) {
 }
 
 async function simulatedSellOrder(sellType: string, market: market) {
-  console.log(`line 697`)
   try {
     const asset = wallet.data.currentMarket.name.replace('USDT', '')
     const base  = 'USDT'
     const assetVolume = wallet.coins[asset].volume
 
-    // console.log(`691 wallet.coins[${base}].volume: ${wallet.coins[base].volume}`)
     wallet.coins[base].volume += assetVolume * (1 - fee) * wallet.coins[asset].dollarPrice
-    // console.log(`693 wallet.coins[${base}].volume: ${wallet.coins[base].volume}`)
     wallet.data.prices = {}
 
     const tradeReport = {
