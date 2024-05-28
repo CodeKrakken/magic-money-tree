@@ -604,19 +604,22 @@ async function trade(sortedMarkets: market[]) {
 
         const currentMarket = markets[`${coin}USDT`]
 
-        if (currentMarket.shape as number < 1 || currentMarket.emaRatio as number < 1 || currentMarket.strength as number < 1) {
-          // simulatedSellOrder('Bear', currentMarket)
+        if (currentMarket.strength as number < 1) {
+          simulatedSellOrder('Bear', currentMarket, 100)
         } else if (!currentMarket) {
-          // simulatedSellOrder('No response for current market', currentMarket])
+          // simulatedSellOrder('No response for current market', currentMarket, 100)
         } else if (
           targetMarket?.name !== currentMarket.name
-          && wallet.coins[coin].dollarPrice >= (wallet.coins[coin].targetPrice as number)
         ) {
-          simulatedSellOrder('New Bull', currentMarket)
+
+          wallet.coins[coin].dollarPrice >= (wallet.coins[coin].targetPrice as number) ?
+          simulatedSellOrder('New Bull', currentMarket, 100) :
+          simulatedSellOrder('New Bull', currentMarket, 50)
+
         } else if (!wallet.coins[coin].targetPrice || !wallet.coins[coin].stopLossPrice) {
-          // simulatedSellOrder('Price information undefined', currentMarket)
+          // simulatedSellOrder('Price information undefined', currentMarket, 100)
         } else if ((wallet.coins[coin].dollarPrice as number) < (wallet.coins[coin].stopLossPrice as number)) {
-          // simulatedSellOrder('Below Stop Loss', currentMarket)
+          // simulatedSellOrder('Below Stop Loss', currentMarket, 100)
         }
       }
     }
@@ -671,13 +674,13 @@ async function simulatedBuyOrder(market: market) {
   }
 }
 
-async function simulatedSellOrder(sellType: string, market: market) {
+async function simulatedSellOrder(sellType: string, market: market, percentage: number) {
   try {
     const asset = market.name.replace('USDT', '')
     const base  = 'USDT'
     const assetVolume = wallet.coins[asset].volume
 
-    wallet.coins[base].volume += assetVolume * (1 - fee) * wallet.coins[asset].dollarPrice
+    wallet.coins[base].volume += assetVolume * (percentage/100) * (1 - fee) * wallet.coins[asset].dollarPrice
 
     const tradeReport = {
       time: timeNow(),
@@ -685,7 +688,12 @@ async function simulatedSellOrder(sellType: string, market: market) {
     }
 
     logEntry(tradeReport, 'transactions')
-    delete wallet.coins[asset]
+
+    if (percentage === 100) {
+      delete wallet.coins[asset]
+    } else {
+      wallet.coins[asset].volume -= (percentage / 100 * wallet.coins[asset].volume)
+    }
   } catch (error: any) {
     console.log(error.message)
   }
