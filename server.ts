@@ -384,7 +384,7 @@ async function refreshWallet() {
       const symbolName = `${coin}USDT`
       wallet.coins[coin].dollarPrice = coin === 'USDT' ? 1 : await fetchPrice(symbolName) as number || wallet.coins[coin].dollarPrice
       wallet.coins[coin].dollarValue = wallet.coins[coin].volume * wallet.coins[coin].dollarPrice
-      await updateMarket(symbolName)
+      if (coin !== 'USDT') await updateMarket(symbolName)
     }
 
     const sorted = Object.keys(wallet.coins).sort((a, b) => wallet.coins[a].dollarValue - wallet.coins[b].dollarValue)
@@ -396,7 +396,7 @@ async function refreshWallet() {
       wallet.data.currentMarket.name = `${wallet.data.baseCoin}USDT`
     }
   } catch (error: any) {
-      console.log(error.message)
+    console.log(error.message)
   }  
 }
 
@@ -531,11 +531,14 @@ function addShape(market: market) {
     market.histories[timeScale].map(frame => {
       straightLine += straightLineIncrement
       deviations.push(
-        frame.average === straightLine ? 1 : 
-        frame.average < straightLine ? frame.average / straightLine : 
-        market.name.includes(wallet.data.baseCoin) ?
-        frame.average / straightLine :
-        straightLine / frame.average
+        // frame.average === straightLine 
+        // ? 1 
+        // : frame.average < straightLine 
+        // ? 
+        frame.average / straightLine 
+        // : market.name.includes(wallet.data.baseCoin) 
+        // ? frame.average / straightLine 
+        // : straightLine / frame.average
       )
     })
 
