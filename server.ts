@@ -19,10 +19,11 @@ if (!local) app.use(express.static(path.join(__dirname, "build")));
 
 app.get("/data", (req: Request, res: Response) => {
   const dataJSON = JSON.stringify({
-    wallet          : wallet,
-    currentTask     : currentTask,
+    wallet        : wallet,
+    currentTask   : currentTask,
     transactions  : log.transactions,
-    marketChart         : marketChart,
+    marketChart   : marketChart,
+    currentMarket : markets[wallet.chartSymbol] ?? null
   });
   res.setHeader('Content-Type', 'application/json');
   res.send(dataJSON);
@@ -72,6 +73,7 @@ export interface wallet {
       stopLossPrice?  : number
     }
   }
+  chartSymbol: string
 }
 
 type rawFrame = [
@@ -320,7 +322,8 @@ function simulatedWallet() {
         dollarPrice: 1,
         dollarValue: 1000
       }
-    }
+    },
+    chartSymbol: ''
   }
 }
 
@@ -370,6 +373,9 @@ async function refreshWallet() {
       wallet.coins[coin].dollarValue = wallet.coins[coin].volume * wallet.coins[coin].dollarPrice
       if (coin !== 'USDT') await updateMarket(symbolName)
     }
+
+    const sorted = Object.keys(wallet.coins).sort((a, b) => wallet.coins[a].dollarValue - wallet.coins[b].dollarValue)
+    wallet.chartSymbol = `${sorted.pop() as string}USDT`
 
   } catch (error: any) {
     console.log(error.message)
