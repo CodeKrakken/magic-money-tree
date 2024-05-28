@@ -687,39 +687,24 @@ async function simulatedBuyOrder(market: market) {
 
 async function simulatedSellOrder(sellType: string, market: market, share: number=1) {
   try {
-    console.log(`sellType: ${sellType}`)
-    console.log('market')
-    console.log(market)
-    console.log(`share: ${share}`)
+    
     const asset = market.name.replace('USDT', '')
-    console.log(`asset: ${asset}`)
     const base  = 'USDT'
-    console.log(`base: ${base}`)
-
     const saleVolume = wallet.coins[asset].volume * share
-    console.log(`saleVolume: ${saleVolume}`)
-
     const price = wallet.coins[asset].dollarPrice
-    console.log(`price: ${price}`)
     wallet.coins[base].volume += saleVolume * (1 - fee) * price
-    console.log(`wallet.coins[base].volume: ${wallet.coins[base].volume}`)
 
     const tradeReport = {
       time: timeNow(),
       text: `Sold ${round(saleVolume)} ${asset} @ ${round(price)} = $${round(saleVolume * price)}  |  Strength ${round(market.strength as number)}  |  ${sellType}`
     }
-    console.log(`tradeReport: ${tradeReport.text}`)
 
     logEntry(tradeReport, 'transactions')
 
     if (share === 1) {
       delete wallet.coins[asset]
     } else {
-      console.log(`wallet.coins[asset].volume: ${wallet.coins[asset].volume}`)
-
       wallet.coins[asset].volume -= saleVolume
-      console.log(`wallet.coins[asset].volume: ${wallet.coins[asset].volume}`)
-
     }
   } catch (error: any) {
     console.log(error.message)
