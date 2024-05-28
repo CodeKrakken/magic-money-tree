@@ -259,7 +259,6 @@ async function tick() {
     const isVoluminous = await checkVolume(symbolName)
     currentTask = `Checking volume of ${i+1}/${viableSymbols.length} - ${symbolName} ... ${!isVoluminous.includes("Insufficient") && isVoluminous !== "No response." ? 'Market included.' : isVoluminous}`
     console.log(currentTask)
-    
     if (!isVoluminous.includes("Insufficient") && isVoluminous !== 'Invalid market.' && isVoluminous !== "No response.") {
       await updateMarket(viableSymbols[i].replace('/', ''), i+1)
     }
@@ -598,14 +597,16 @@ async function trade(sortedMarkets: market[]) {
 
       if (coin === 'USDT') {
 
-        if (!targetMarket) {
+        if (wallet.coins['USDT'].volume) {
 
-          console.log('No bulls')
+          if (targetMarket) {
 
-        } else {
-          await simulatedBuyOrder(targetMarket)
+            await simulatedBuyOrder(targetMarket)
+
+          } else {
+            console.log('No bulls')
+          }
         }
-
       } else {
 
         const currentMarket = markets[`${coin}USDT`]
@@ -616,12 +617,15 @@ async function trade(sortedMarkets: market[]) {
           // simulatedSellOrder('No response for current market', currentMarket, 100)
         } else if (
           targetMarket?.name !== currentMarket.name
+          && wallet.coins[coin].dollarPrice >= (wallet.coins[coin].targetPrice as number)
         ) {
-
-          wallet.coins[coin].dollarPrice >= (wallet.coins[coin].targetPrice as number) ?
-          simulatedSellOrder('New Bull', currentMarket, 100) :
-          simulatedSellOrder('New Bull', currentMarket, 50)
-
+          simulatedSellOrder('New Bull - Full Sell at profit', currentMarket, 1)
+        } else if (
+          targetMarket?.name !== currentMarket.name
+          && wallet.coins[coin].dollarPrice < (wallet.coins[coin].targetPrice as number)
+          && !Object.keys(wallet.coins).includes((targetMarket as market)?.name)
+        ) {
+          simulatedSellOrder('New Bull - Half Sell at loss', currentMarket, 0.5)
         } else if (!wallet.coins[coin].targetPrice || !wallet.coins[coin].stopLossPrice) {
           // simulatedSellOrder('Price information undefined', currentMarket, 100)
         } else if ((wallet.coins[coin].dollarPrice as number) < (wallet.coins[coin].stopLossPrice as number)) {
@@ -653,6 +657,7 @@ async function simulatedBuyOrder(market: market) {
     const asset = market.name.replace('USDT', '')
     const base  = 'USDT'
     const response = await fetchPrice(market.name)
+
     if (response) {
       const currentPrice = response as number
       const baseVolume = wallet.coins[base].volume
@@ -668,11 +673,11 @@ async function simulatedBuyOrder(market: market) {
       wallet.coins[asset].purchasePrice = currentPrice,
       wallet.coins[asset].stopLossPrice = currentPrice * stopLossThreshold,
       wallet.coins[asset].highPrice     = currentPrice
-      
       const tradeReport: transaction = {
         time: timeNow(),
         text: `Bought ${round(wallet.coins[asset].volume)} ${asset} @ ${round(currentPrice)} = $${round(baseVolume * (1 - fee))}  |  Strength ${round(market.strength as number)}`
       }
+
       logEntry(tradeReport, 'transactions')
     }
   } catch (error: any) {
@@ -680,25 +685,26 @@ async function simulatedBuyOrder(market: market) {
   }
 }
 
-async function simulatedSellOrder(sellType: string, market: market, percentage: number) {
+async function simulatedSellOrder(sellType: string, market: market, share: number=1) {
   try {
     const asset = market.name.replace('USDT', '')
     const base  = 'USDT'
-    const assetVolume = wallet.coins[asset].volume
+    const saleVolume = wallet.coins[asset].volume * share
+    const price = wallet.coins[asset].dollarPrice
 
-    wallet.coins[base].volume += assetVolume * (percentage/100) * (1 - fee) * wallet.coins[asset].dollarPrice
+    wallet.coins[base].volume += saleVolume * (1 - fee) * price
 
     const tradeReport = {
       time: timeNow(),
-      text: `Sold ${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)}  |  Strength ${round(market.strength as number)}  |  ${sellType}`
+      text: `Sold ${round(saleVolume)} ${asset} @ ${round(price)} = $${round(saleVolume * price)}  |  Strength ${round(market.strength as number)}  |  ${sellType}`
     }
 
     logEntry(tradeReport, 'transactions')
 
-    if (percentage === 100) {
+    if (share === 1) {
       delete wallet.coins[asset]
     } else {
-      wallet.coins[asset].volume -= (percentage / 100 * wallet.coins[asset].volume)
+      wallet.coins[asset].volume -= saleVolume
     }
   } catch (error: any) {
     console.log(error.message)
