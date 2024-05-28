@@ -526,7 +526,7 @@ function filterMarkets(markets: market[]) {
   return markets.filter(market => 
     market.shape    as number >= 1 && 
     market.emaRatio as number >= 1 &&
-    market.strength as number >= 1 &&
+    market.strength as number >= 1.01 &&
     viableSymbols.includes(market.name)
   )
 }
