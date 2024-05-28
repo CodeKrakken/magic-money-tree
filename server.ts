@@ -72,9 +72,6 @@ export interface wallet {
       stopLossPrice?  : number
     }
   }
-  data: {
-    baseCoin      : string
-  }
 }
 
 type rawFrame = [
@@ -323,9 +320,6 @@ function simulatedWallet() {
         dollarPrice: 1,
         dollarValue: 1000
       }
-    },
-    data: {
-      baseCoin: 'USDT'
     }
   }
 }
@@ -376,9 +370,6 @@ async function refreshWallet() {
       wallet.coins[coin].dollarValue = wallet.coins[coin].volume * wallet.coins[coin].dollarPrice
       if (coin !== 'USDT') await updateMarket(symbolName)
     }
-
-    const sorted = Object.keys(wallet.coins).sort((a, b) => wallet.coins[a].dollarValue - wallet.coins[b].dollarValue)
-    wallet.data.baseCoin = sorted.pop() as string
 
   } catch (error: any) {
     console.log(error.message)
@@ -515,16 +506,7 @@ function addShape(market: market) {
 
     market.histories[timeScale].map(frame => {
       straightLine += straightLineIncrement
-      deviations.push(
-        // frame.average === straightLine 
-        // ? 1 
-        // : frame.average < straightLine 
-        // ? 
-        frame.average / straightLine 
-        // : market.name.includes(wallet.data.baseCoin) 
-        // ? frame.average / straightLine 
-        // : straightLine / frame.average
-      )
+      deviations.push(frame.average / straightLine)
     })
 
     const shape = percentageChange * ema(deviations)
@@ -659,8 +641,8 @@ function sortMarkets() {
 
 async function simulatedBuyOrder(market: market) {
   try {
-    const asset = market.name.replace(wallet.data.baseCoin, '')
-    const base  = wallet.data.baseCoin
+    const asset = market.name.replace('USDT', '')
+    const base  = 'USDT'
     const response = await fetchPrice(market.name)
     if (response) {
       const currentPrice = response as number
