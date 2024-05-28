@@ -23,7 +23,6 @@ app.get("/data", (req: Request, res: Response) => {
     currentTask     : currentTask,
     transactions  : log.transactions,
     marketChart         : marketChart,
-    currentMarket   : markets[wallet.data.currentMarket.name] ?? null
   });
   res.setHeader('Content-Type', 'application/json');
   res.send(dataJSON);
@@ -75,9 +74,6 @@ export interface wallet {
   }
   data: {
     baseCoin      : string
-    currentMarket: {
-      name: string
-    }
   }
 }
 
@@ -329,10 +325,7 @@ function simulatedWallet() {
       }
     },
     data: {
-      baseCoin: 'USDT',
-      currentMarket: {
-        name: ''
-      }
+      baseCoin: 'USDT'
     }
   }
 }
@@ -387,9 +380,6 @@ async function refreshWallet() {
     const sorted = Object.keys(wallet.coins).sort((a, b) => wallet.coins[a].dollarValue - wallet.coins[b].dollarValue)
     wallet.data.baseCoin = sorted.pop() as string
 
-    if (wallet.data.baseCoin !== 'USDT') {
-      wallet.data.currentMarket.name = `${wallet.data.baseCoin}USDT`
-    }
   } catch (error: any) {
     console.log(error.message)
   }  
@@ -635,16 +625,16 @@ async function trade(sortedMarkets: market[]) {
         if (currentMarket.shape as number < 1 || currentMarket.emaRatio as number < 1 || currentMarket.strength as number < 1) {
           // simulatedSellOrder('Bear', currentMarket)
         } else if (!currentMarket) {
-          // simulatedSellOrder('No response for current market', markets[wallet.data.currentMarket.name])
+          // simulatedSellOrder('No response for current market', currentMarket])
         } else if (
           targetMarket?.name !== currentMarket.name
           && wallet.coins[coin].dollarPrice >= (wallet.coins[coin].targetPrice as number)
         ) {
           simulatedSellOrder('New Bull', currentMarket)
         } else if (!wallet.coins[coin].targetPrice || !wallet.coins[coin].stopLossPrice) {
-          // simulatedSellOrder('Price information undefined', markets[wallet.data.currentMarket.name])
+          // simulatedSellOrder('Price information undefined', currentMarket)
         } else if ((wallet.coins[coin].dollarPrice as number) < (wallet.coins[coin].stopLossPrice as number)) {
-          // simulatedSellOrder('Below Stop Loss', markets[wallet.data.currentMarket.name])
+          // simulatedSellOrder('Below Stop Loss', currentMarket)
         }
       }
     }
@@ -688,7 +678,6 @@ async function simulatedBuyOrder(market: market) {
       wallet.coins[asset].stopLossPrice = currentPrice * stopLossThreshold,
       wallet.coins[asset].highPrice     = currentPrice
       
-      wallet.data.currentMarket.name = market.name
       const tradeReport: transaction = {
         time: timeNow(),
         text: `Bought ${round(wallet.coins[asset].volume)} ${asset} @ ${round(currentPrice)} = $${round(baseVolume * (1 - fee))}  |  Strength ${round(market.strength as number)}`
@@ -702,7 +691,7 @@ async function simulatedBuyOrder(market: market) {
 
 async function simulatedSellOrder(sellType: string, market: market) {
   try {
-    const asset = wallet.data.currentMarket.name.replace('USDT', '')
+    const asset = market.name.replace('USDT', '')
     const base  = 'USDT'
     const assetVolume = wallet.coins[asset].volume
 
