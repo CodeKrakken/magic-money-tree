@@ -611,8 +611,12 @@ async function trade(sortedMarkets: market[]) {
 
         const currentMarket = markets[`${coin}USDT`]
 
-        if (currentMarket.strength as number < 1) {
-          simulatedSellOrder('Bear', currentMarket, 1)
+        if (
+          targetMarket?.name !== currentMarket.name
+          && currentMarket.strength as number < 1
+          && !Object.keys(wallet.coins).includes((targetMarket as market)?.name.replace('USDT', ''))
+        ) {
+          simulatedSellOrder('Half sell loss', currentMarket, 0.5)
         } else if (!currentMarket) {
           // simulatedSellOrder('No response for current market', currentMarket, 100)
         } else if (
@@ -625,7 +629,7 @@ async function trade(sortedMarkets: market[]) {
           && wallet.coins[coin].dollarPrice < (wallet.coins[coin].targetPrice as number)
           && !Object.keys(wallet.coins).includes((targetMarket as market)?.name.replace('USDT', ''))
         ) {
-          simulatedSellOrder('Half Sell loss', currentMarket, 0.5)
+          // simulatedSellOrder('Half Sell loss', currentMarket, 0.5)
         } else if (!wallet.coins[coin].targetPrice || !wallet.coins[coin].stopLossPrice) {
           // simulatedSellOrder('Price information undefined', currentMarket, 100)
         } else if ((wallet.coins[coin].dollarPrice as number) < (wallet.coins[coin].stopLossPrice as number)) {
