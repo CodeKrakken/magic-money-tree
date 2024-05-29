@@ -511,7 +511,13 @@ function addShape(market: market) {
 
     market.histories[timeScale].map(frame => {
       straightLine += straightLineIncrement
-      deviations.push(frame.average / straightLine)
+      deviations.push(
+        frame.average === straightLine ? 1 : 
+        frame.average < straightLine ? frame.average / straightLine : 
+        Object.keys(wallet.coins).includes(market.name.replace('USDT', '')) ?
+        frame.average / straightLine :
+        straightLine / frame.average
+      )
     })
 
     const shape = percentageChange * ema(deviations)
