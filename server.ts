@@ -145,7 +145,7 @@ const timeScales: {[key: string]: string} = {
   // weeks   : 'w', 
   // days    : 'd', 
   // hours   : 'h', 
-  minutes : 'm',
+  // minutes : 'm',
   seconds : 's'
 }
 
