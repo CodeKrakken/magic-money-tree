@@ -131,6 +131,8 @@ export interface market {
   currentPrice?   : number
   trendScore?     : number
   geometricMean?  : number
+  ema1?           : number
+  ema8?           : number
 }
 
 interface stringListItem {
@@ -213,11 +215,7 @@ function timeNow() {
 }
 
 function logEntry(entry: logEntryType, topic: string = 'general') {
-  console.log(
-    isTransaction(entry)
-      ? `${entry.time}  |  ${entry.text[0]}  ${entry.text[1]} @ ${entry.text[2]} = ${entry.text[3]} | ${entry.text[4]}`
-      : entry
-  );
+  console.log(entry);
   log[topic] = log[topic] ?? [];
   log[topic]?.push(entry);
 }
@@ -281,7 +279,7 @@ async function tick() {
         viableSymbols: viableSymbols,
       } });
 
-      console.log(`----- Tick at ${timeNow()} -----`)
+      console.log(`\n----- Tick at ${timeNow()} -----\n`)
 
       i = 0
 
@@ -294,7 +292,7 @@ async function tick() {
     const isVoluminous = await checkVolume(symbolName)
 
     currentTask = `Checking volume of ${i+1}/${viableSymbols.length} - ${symbolName} ... ${!isVoluminous.includes("Insufficient") && isVoluminous !== "No response." ? 'Market included.' : isVoluminous}`
-    console.log(currentTask)
+    // console.log(currentTask)
 
     if (!isVoluminous.includes("Insufficient") && isVoluminous !== 'Invalid market.' && isVoluminous !== "No response.") {
       await updateMarket(viableSymbols[i].replace('/', ''), i+1)
@@ -307,7 +305,7 @@ async function tick() {
     logMarkets(sortedMarkets)
     sortedMarkets = roundObjects(sortedMarkets, ['emaRatio', 'shape', 'strength', 'trendScore', 'geometricMean'])
     formatMarketDisplay(sortedMarkets)
-    sortedMarkets = filterMarkets(sortedMarkets)
+    // sortedMarkets = filterMarkets(sortedMarkets)
     if ((sortedMarkets.length && trading) || wallet.data.baseCoin !== 'USDT') {
       await trade(sortedMarkets)
     } 
@@ -380,7 +378,7 @@ async function updateMarket(symbolName: string, id: number|null=null) {
   const response = await fetchSingleHistory(symbolName)
   if (id) {
     currentTask = `Fetching history for ${id}/${viableSymbols.length} - ${symbolName} ... ${response === 'No response.' ? response : ''}`
-    console.log(currentTask)
+    // console.log(currentTask)
   }
 
   if (response !== 'No response.') {
@@ -396,6 +394,9 @@ async function updateMarket(symbolName: string, id: number|null=null) {
     market.trendScore     = getTrendScore(market)
     market.geometricMean  = getGeometricMean(market)
     markets[symbolName]   = market
+    market.ema1           = ema(extractData(market.histories['minutes'], 'average'), 1)
+    market.ema8           = ema(extractData(market.histories['minutes'], 'average'), 8)
+
   }
 }
 
@@ -620,7 +621,7 @@ function filterMarkets(markets: market[]) {
     // market.emaRatio   as number >= 1.002 &&
     // market.trendScore as number >= 1.002 &&
     // market.strength as number >= 1.002 &&
-    ema(extractData(market.histories['seconds'], 'average'), 1) > ema(extractData(market.histories['seconds'], 'average'), 8)
+    ema(extractData(market.histories['minutes'], 'average'), 1) > ema(extractData(market.histories['minutes'], 'average'), 8)
   )
 }
 
@@ -683,21 +684,29 @@ function roundObjects(inMarkets: market[], keys: ('shape'|'strength'|'currentPri
 // TRADE FUNCTIONS
 
 async function trade(sortedMarkets: market[]) {
-  console.log('Trading')
+
+  if ((sortedMarkets[0].ema1 as number) > (sortedMarkets[0].ema8 as number)) {
+    console.log(`EMA1 - ${sortedMarkets[0].ema1}`)
+    console.log(`EMA8 - ${sortedMarkets[0].ema8}`)
+  } else if ((sortedMarkets[0].ema1 as number) < (sortedMarkets[0].ema8 as number)) {
+    console.log(`EMA8 - ${sortedMarkets[0].ema8}`)
+    console.log(`EMA1 - ${sortedMarkets[0].ema1}`)
+  }
+  
   const targetMarket = sortedMarkets[0]?.strength as number > 0 ? sortedMarkets[0] : null  
-  console.log(targetMarket?.name)
+  // console.log(targetMarket?.name)
   if (wallet.data.baseCoin === 'USDT') {   
 
     if (!targetMarket) {
       console.log('No bulls')
-    } else if (wallet.coins[wallet.data.baseCoin].volume > 10) {
+    } else if (ema(extractData(sortedMarkets[0].histories['minutes'], 'average'), 1) > ema(extractData(sortedMarkets[0].histories['minutes'], 'average'), 8)) {
       await simulatedBuyOrder(targetMarket)
     } 
   } else {
     try {
       const currentMarket = sortedMarkets[0]
 
-      if (ema(extractData(sortedMarkets[0].histories['seconds'], 'average'), 1) > ema(extractData(sortedMarkets[0].histories['seconds'], 'average'), 8))
+      if (ema(extractData(sortedMarkets[0].histories['minutes'], 'average'), 1) < ema(extractData(sortedMarkets[0].histories['minutes'], 'average'), 8))
       {
         simulatedSellOrder('ema8 > ema1', currentMarket)
       }
@@ -748,16 +757,7 @@ async function simulatedBuyOrder(market: market) {
       wallet.data.buyStrength = market.strength as number
 
       wallet.data.currentMarket.name = market.name
-      const tradeReport: transaction = {
-        time: timeNow(),
-        text: [
-          round(wallet.coins[asset].volume), 
-          asset, 
-          round(currentPrice), 
-          round(baseVolume * (1 - fee)), 
-          market.strength as number
-        ]
-      }      
+      const tradeReport = `Bought ${wallet.coins[asset].volume} ${asset} @ ${currentPrice} = $${baseVolume * (1 - fee)}`
       logEntry(tradeReport, 'transactions')
     }
   } catch (error) {
@@ -772,16 +772,8 @@ async function simulatedSellOrder(sellType: string, market: market) {
     const assetVolume = wallet.coins[asset].volume
     wallet.coins[base].volume += assetVolume * (1 - fee) * wallet.coins[asset].dollarPrice
     wallet.data.prices = {}
-    const tradeReport = {
-      time: timeNow(),
-      text: [
-        round(assetVolume),
-        asset,
-        round(wallet.coins[asset].dollarPrice),
-        round(wallet.coins[base].volume),
-        sellType
-      ]
-    }
+    const tradeReport = `${timeNow()} Sold ${assetVolume}  ${asset} @ ${wallet.coins[asset].dollarPrice} = ${wallet.coins[base].volume} | ${sellType}`
+    
     logEntry(tradeReport, 'transactions')
     delete wallet.coins[asset]
     wallet.data.buyTime = 0
