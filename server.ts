@@ -170,9 +170,10 @@ let marketChart: {
 
 let viableSymbols: string[] = []
 let markets: { [key: string]: market } = {}
+let sortedMarkets
 let wallet: wallet = simulatedWallet()
 let i: number = 0
-const minimumDollarVolume = 28000000
+const minimumDollarVolume = 0 // 28000000
 const fee = 0.001
 const stopLossThreshold = 0.78
 const strengthOfTheBear = 0.99600798403193612774
@@ -269,9 +270,8 @@ async function pullFromDatabase() {
 }
 
 async function tick() {
-
   try {
-
+    displayWallet()
     if (!viableSymbols[i]) {
 
       await collection.replaceOne({}, { data: {
@@ -303,16 +303,26 @@ async function tick() {
     await refreshWallet()
     if (wallet.data.baseCoin !== 'USDT') {await updateMarket(`${wallet.data.baseCoin}USDT`)}
 
-    let sortedMarkets = sortMarkets()
+    sortedMarkets = sortMarkets()
     logMarkets(sortedMarkets)
     sortedMarkets = roundObjects(sortedMarkets, ['emaRatio', 'shape', 'strength', 'trendScore', 'geometricMean'])
     formatMarketDisplay(sortedMarkets)
     sortedMarkets = filterMarkets(sortedMarkets)
-    if ((sortedMarkets.length && trading) || wallet.data.baseCoin !== 'USDT') await trade(sortedMarkets)  } catch (error) {
+    if ((sortedMarkets.length && trading) || wallet.data.baseCoin !== 'USDT') {
+      await trade(sortedMarkets)
+    } 
+  } catch (error) {
     console.log(error)
   }
   i++
   tick()
+}
+
+function displayWallet() {
+  Object.keys(wallet.coins).map(coin => {
+    const message = `$${wallet.coins[coin].dollarValue} ${coin}`
+    console.log(message)
+  })
 }
 
 function analyseMarkets(allMarkets: rawMarket[]) {
@@ -333,6 +343,7 @@ function isGoodMarket(market: rawMarket) {
   && !market.symbol.includes('DOWN') 
   && !market.symbol.includes(':')
   // && (market.symbol === 'BTCUSDT' || market.symbol === 'SHIBUSDT')
+  && market.symbol === 'SCRTUSDT'
 }
 
 async function checkVolume(symbolName: string) {
@@ -410,7 +421,7 @@ function getGeometricMean(market: market) {
 function logMarkets(markets: market[]) {
   markets.map(market => {
     const report = [`${market.name.replace('USDT', '')} ... ${/* ${market.shape} */''} * ${market.emaRatio} * ${market.trendScore} * ${market.geometricMean} = ${market.strength}`]
-    console.log(report)
+    // console.log(report)
     return report
   })
 }
@@ -608,7 +619,8 @@ function filterMarkets(markets: market[]) {
     // market.shape      as number >= 1.002 && 
     // market.emaRatio   as number >= 1.002 &&
     // market.trendScore as number >= 1.002 &&
-    market.strength as number >= 1.002
+    // market.strength as number >= 1.002 &&
+    ema(extractData(market.histories['seconds'], 'average'), 1) > ema(extractData(market.histories['seconds'], 'average'), 8)
   )
 }
 
@@ -671,8 +683,9 @@ function roundObjects(inMarkets: market[], keys: ('shape'|'strength'|'currentPri
 // TRADE FUNCTIONS
 
 async function trade(sortedMarkets: market[]) {
-
+  console.log('Trading')
   const targetMarket = sortedMarkets[0]?.strength as number > 0 ? sortedMarkets[0] : null  
+  console.log(targetMarket?.name)
   if (wallet.data.baseCoin === 'USDT') {   
 
     if (!targetMarket) {
@@ -682,12 +695,11 @@ async function trade(sortedMarkets: market[]) {
     } 
   } else {
     try {
-      const currentMarket = markets[wallet.data.currentMarket.name]
+      const currentMarket = sortedMarkets[0]
 
-      if (currentMarket.strength as number < wallet.data.buyStrength * strengthOfTheBear) {
-        // simulatedSellOrder(`Bear - ${round(currentMarket.strength as number)}`, currentMarket)
-      } else if (targetMarket?.name !== currentMarket.name && wallet.coins[wallet.data.baseCoin].dollarPrice >= (wallet.data.prices.targetPrice as number)) { 
-        simulatedSellOrder('New Bull', currentMarket)
+      if (ema(extractData(sortedMarkets[0].histories['seconds'], 'average'), 1) > ema(extractData(sortedMarkets[0].histories['seconds'], 'average'), 8))
+      {
+        simulatedSellOrder('ema8 > ema1', currentMarket)
       }
     } catch(error) {
       console.log(error)
@@ -696,8 +708,7 @@ async function trade(sortedMarkets: market[]) {
 }
 
 function sortMarkets() {
-
-  let marketsToSort = Object.keys(markets).map(market => markets[market])
+  let marketsToSort = viableSymbols.map(market => markets[market])
 
   marketsToSort = marketsToSort.map(market => {
     const emaRatio      = market.emaRatio as number | undefined;
