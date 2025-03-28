@@ -132,7 +132,7 @@ export interface market {
   trendScore?     : number
   geometricMean?  : number
   ema1?           : number
-  ema8?           : number
+  ema21?           : number
 }
 
 interface stringListItem {
@@ -708,7 +708,7 @@ async function trade(sortedMarkets: market[]) {
 
       if (ema(extractData(sortedMarkets[0].histories['minutes'], 'average'), 1) < ema(extractData(sortedMarkets[0].histories['minutes'], 'average'), 21))
       {
-        simulatedSellOrder('ema8 > ema1', currentMarket)
+        simulatedSellOrder('ema21 > ema1', currentMarket)
       }
     } catch(error) {
       console.log(error)
