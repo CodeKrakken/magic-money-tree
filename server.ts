@@ -395,7 +395,7 @@ async function updateMarket(symbolName: string, id: number|null=null) {
     market.geometricMean  = getGeometricMean(market)
     markets[symbolName]   = market
     market.ema1           = ema(extractData(market.histories['minutes'], 'average'), 1)
-    market.ema8           = ema(extractData(market.histories['minutes'], 'average'), 8)
+    market.ema21           = ema(extractData(market.histories['minutes'], 'average'), 21)
 
   }
 }
@@ -685,11 +685,11 @@ function roundObjects(inMarkets: market[], keys: ('shape'|'strength'|'currentPri
 
 async function trade(sortedMarkets: market[]) {
 
-  if ((sortedMarkets[0].ema1 as number) > (sortedMarkets[0].ema8 as number)) {
+  if ((sortedMarkets[0].ema1 as number) > (sortedMarkets[0].ema21 as number)) {
     console.log(`EMA1 - ${sortedMarkets[0].ema1}`)
-    console.log(`EMA8 - ${sortedMarkets[0].ema8}`)
-  } else if ((sortedMarkets[0].ema1 as number) < (sortedMarkets[0].ema8 as number)) {
-    console.log(`EMA8 - ${sortedMarkets[0].ema8}`)
+    console.log(`EMA21 - ${sortedMarkets[0].ema21}`)
+  } else if ((sortedMarkets[0].ema1 as number) < (sortedMarkets[0].ema21 as number)) {
+    console.log(`EMA21 - ${sortedMarkets[0].ema21}`)
     console.log(`EMA1 - ${sortedMarkets[0].ema1}`)
   }
   
@@ -699,14 +699,14 @@ async function trade(sortedMarkets: market[]) {
 
     if (!targetMarket) {
       console.log('No bulls')
-    } else if (ema(extractData(sortedMarkets[0].histories['minutes'], 'average'), 1) > ema(extractData(sortedMarkets[0].histories['minutes'], 'average'), 8)) {
+    } else if (ema(extractData(sortedMarkets[0].histories['minutes'], 'average'), 1) > ema(extractData(sortedMarkets[0].histories['minutes'], 'average'), 21)) {
       await simulatedBuyOrder(targetMarket)
     } 
   } else {
     try {
       const currentMarket = sortedMarkets[0]
 
-      if (ema(extractData(sortedMarkets[0].histories['minutes'], 'average'), 1) < ema(extractData(sortedMarkets[0].histories['minutes'], 'average'), 8))
+      if (ema(extractData(sortedMarkets[0].histories['minutes'], 'average'), 1) < ema(extractData(sortedMarkets[0].histories['minutes'], 'average'), 21))
       {
         simulatedSellOrder('ema8 > ema1', currentMarket)
       }
