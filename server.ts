@@ -29,7 +29,7 @@ app.get("/data", (req: Request, res: Response) => {
   res.send(dataJSON);
 });
 
-const port = process.env.SERVER_PORT || 5000;
+const port = process.env.PORT || 5000;
 
 app.listen(port, () => {
   const currentTask = `Server listening on port ${port}`
