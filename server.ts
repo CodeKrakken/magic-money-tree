@@ -144,7 +144,7 @@ let viableSymbols: string[] = []
 let markets: { [key: string]: market } = {}
 let wallet: wallet = simulatedWallet()
 let i: number = 0
-const minimumDollarVolume = 0
+const minimumDollarVolume = 28000000
 const fee = 0.001
 const stopLossThreshold = 0.78
 const timeScales: {[key: string]: string} = {
@@ -270,10 +270,12 @@ async function tick() {
     if (!isVoluminous.includes("Insufficient") && isVoluminous !== 'Invalid market.' && isVoluminous !== "No response.") {
       await updateMarket(viableSymbols[i].replace('/', ''), i+1)
     }
-    
     await refreshWallet()
+
     if (wallet.data.baseCoin !== 'USDT') {await updateMarket(`${wallet.data.baseCoin}USDT`)}
+
     let sortedMarkets = sortMarkets()
+
     logMarkets(sortedMarkets)
     sortedMarkets = roundObjects(sortedMarkets, ['emaRatio', 'shape', 'strength'])
     formatMarketDisplay(sortedMarkets)
@@ -307,9 +309,6 @@ function isGoodMarketName(marketName: string) {
   && !marketName.includes('TUSD')
   && !marketName.includes('USDC')
   && !marketName.includes(':')
-
-  // && marketName === 'GBPUSDT'
-  // && !marketName.includes('BNB')
 }
 
 async function checkVolume(symbolName: string) {
