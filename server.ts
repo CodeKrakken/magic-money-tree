@@ -208,6 +208,7 @@ async function fetchSymbols() {
 
   try {
     const markets = await axios.get('https://api.binance.com/api/v3/exchangeInfo');
+
     if (markets) {
       const viableSymbols = analyseMarkets(markets.data.symbols)
       return viableSymbols
@@ -266,6 +267,14 @@ async function tick() {
     const isVoluminous = await checkVolume(symbolName)
     currentTask = `Checking volume of ${i+1}/${viableSymbols.length} - ${symbolName} ... ${!isVoluminous.includes("Insufficient") && isVoluminous !== "No response." ? 'Market included.' : isVoluminous}`
     console.log(currentTask)
+
+    const orderBook = await fetchOrderBook(symbolName)
+
+    orderBook.data.bids.forEach((bid: String[]) => {
+      console.log(bid)
+    })
+    console.log(orderBook.data.bids.length) 
+    console.log(orderBook.data.asks.length) 
     
     if (!isVoluminous.includes("Insufficient") && isVoluminous !== 'Invalid market.' && isVoluminous !== "No response.") {
       await updateMarket(viableSymbols[i].replace('/', ''), i+1)
@@ -317,6 +326,18 @@ async function checkVolume(symbolName: string) {
     return twentyFourHour.data ? `${twentyFourHour.data.quoteVolume < minimumDollarVolume ? 'Ins' : 'S'}ufficient volume.` : "No response."
   } catch (error) {
     return 'Invalid market.'
+  }
+}
+
+async function fetchOrderBook(symbolName: string) {
+
+  try {
+
+    const orderBook = await axios.get(`https://api.binance.com/api/v3/depth?symbol=${symbolName}`)
+    return orderBook
+
+  } catch (error: any) {
+    console.log(error.message)
   }
 }
 
