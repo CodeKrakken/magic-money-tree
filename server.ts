@@ -153,7 +153,7 @@ const timeScales: {[key: string]: string} = {
   // months  : 'M', 
   // weeks   : 'w', 
   // days    : 'd', 
-  // hours   : 'h', 
+  hours   : 'h', 
   minutes : 'm',
   seconds : 's'
 }
@@ -251,7 +251,7 @@ async function pullFromDatabase() {
 async function tick() {
   try {
     if (!viableSymbols[i]) {
-
+      console.log('Saving data to database')
       await collection.replaceOne({}, { data: {
         wallet: wallet,
         log: log,
@@ -260,21 +260,26 @@ async function tick() {
 
       console.log(`----- Tick at ${timeNow()} -----`)
       i = 0
+      console.log('Fetching viable symbols')
       viableSymbols = await fetchSymbols() as string[]
       trading = true
     }
 
     const symbolName = viableSymbols[i].replace('/', '')
     const isVoluminous = await checkVolume(symbolName)
-    currentTask = `Checking volume of ${i+1}/${viableSymbols.length} - ${symbolName} ... ${!isVoluminous.includes("Insufficient") && isVoluminous !== "No response." ? 'Market included.' : isVoluminous}`
+    currentTask = `Checking volume of ${i+1}/${viableSymbols.length} - ${symbolName}`
     console.log(currentTask)
-    
+    console.log(`${!isVoluminous.includes("Insufficient") && isVoluminous !== "No response." ? 'Market included.' : isVoluminous}`)
     if (!isVoluminous.includes("Insufficient") && isVoluminous !== 'Invalid market.' && isVoluminous !== "No response.") {
+      console.log('Updating market')
       await updateMarket(viableSymbols[i].replace('/', ''), i+1)
     }
+    console.log('Refreshing wallet')
     await refreshWallet()
 
-    if (wallet.data.baseCoin !== 'USDT') {await updateMarket(`${wallet.data.baseCoin}USDT`)}
+    if (wallet.data.baseCoin !== 'USDT') {
+      console.log('Updating base market')
+      await updateMarket(`${wallet.data.baseCoin}USDT`)}
 
     let sortedMarkets = sortMarkets()
 
