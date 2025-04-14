@@ -561,8 +561,8 @@ function filterMarkets(markets: market[]) {
     market.emaRatio as number >= 1 &&
     market.strength as number >= 1 &&
     viableSymbols.includes(market.name) &&
-    ema(extractData(market.histories['minutes'], 'average'), 1) > 
-    ema(extractData(market.histories['minutes'], 'average'), 21)
+    ema(extractData(market.histories['hours'], 'average'), 1) > 
+    ema(extractData(market.histories['hours'], 'average'), 21)
   )
 }
 
@@ -633,11 +633,11 @@ async function trade(sortedMarkets: market[]) {
     try {
       const currentMarket = markets[wallet.data.currentMarket.name]
       
-      if (ema(extractData(currentMarket.histories['minutes'], 'average'), 1) < ema(extractData(currentMarket.histories['minutes'], 'average'), 21)) {
+      if (ema(extractData(currentMarket.histories['hours'], 'average'), 1) < ema(extractData(currentMarket.histories['hours'], 'average'), 21)) {
         simulatedSellOrder('ema21 > ema1', currentMarket)
       } else {
-        console.log(`ema1  - ` + ema(extractData(currentMarket.histories['minutes'], 'average'), 1))
-        console.log(`ema21 - ` + ema(extractData(currentMarket.histories['minutes'], 'average'), 21))
+        console.log(`ema1  - ` + ema(extractData(currentMarket.histories['hours'], 'average'), 1))
+        console.log(`ema21 - ` + ema(extractData(currentMarket.histories['hours'], 'average'), 21))
       }
 
     } catch(error: any) {
