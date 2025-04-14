@@ -686,7 +686,7 @@ async function simulatedBuyOrder(market: market) {
       wallet.data.currentMarket.name = market.name
       const tradeReport: transaction = {
         time: timeNow(),
-        text: `Bought ${round(wallet.coins[asset].volume)} ${asset} @ ${round(currentPrice)} = $${round(baseVolume * (1 - fee))}  |  Strength ${round(market.strength as number)}`
+        text: `Bought ${round(wallet.coins[asset].volume)} ${asset} @ ${currentPrice} = $${round(baseVolume * (1 - fee))}  |  Strength ${round(market.strength as number)}`
       }
       logEntry(tradeReport, 'transactions')
     }
@@ -706,7 +706,7 @@ async function simulatedSellOrder(sellType: string, market: market) {
 
     const tradeReport = {
       time: timeNow(),
-      text: `Sold ${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)}  |  Strength ${round(market.strength as number)}  |  ${sellType}`
+      text: `Sold ${round(assetVolume)} ${asset} @ ${wallet.coins[asset].dollarPrice} = $${round(wallet.coins[base].volume)}  |  Strength ${round(market.strength as number)}  |  ${sellType}`
     }
 
     logEntry(tradeReport, 'transactions')
