@@ -307,19 +307,17 @@ function analyseMarkets(allMarkets: rawMarket[]) {
 }
 
 function isGoodMarketName(marketName: string) {
-  return marketName.includes('USDT')
-      && marketName.indexOf('USDT') 
+  return  marketName.includes('USDT')
+      &&  marketName.indexOf('USDT') 
       && !marketName.includes('UP') 
       && !marketName.includes('DOWN') 
-   // && !marketName.includes('BUSD')
-   // && !marketName.includes('TUSD')
-   // && !marketName.includes('USDC')
+      && !marketName.includes('BUSD')
+      && !marketName.includes('FDUSD')
+      && !marketName.includes('USDP')
+      && !marketName.includes('TUSD')
+      && !marketName.includes('USDC')
       && !marketName.includes(':')
       && !marketName.includes('FDRY')
-      && !(
-            marketName.includes('USD')
-        && !marketName.includes('USDT')
-      )
 }
 
 async function checkVolume(symbolName: string) {
