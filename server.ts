@@ -211,7 +211,7 @@ async function fetchSymbols() {
   try {
     const markets = await axios.get('https://api.binance.com/api/v3/exchangeInfo');
     if (markets) {
-      const viableSymbols = analyseMarkets(markets.data.symbols)
+      const viableSymbols = analyseMarkets(markets.data.symbols) // Filters out markets by name - tether coins, oddities
       return viableSymbols
     }
   } catch (error: any) {
@@ -282,12 +282,12 @@ async function tick() {
       await updateMarket(`${wallet.data.baseCoin}USDT`) // Refreshes basecoin
     }
 
-    let sortedMarkets = sortMarkets() // Combines Shape and EMA ratio - ponder this Maths
+    let sortedMarkets = sortMarkets() // Combines Shape and EMA ratio to create Strength - ponder this Maths
 
-    logMarkets(sortedMarkets)
+    logMarkets(sortedMarkets) // I think this does Jack Squat
     sortedMarkets = roundObjects(sortedMarkets, ['emaRatio', 'shape', 'strength'])
-    formatMarketDisplay(sortedMarkets)
-    sortedMarkets = filterMarkets(sortedMarkets)
+    formatMarketDisplay(sortedMarkets) // Updates global marketChart variable
+    sortedMarkets = filterMarkets(sortedMarkets) // Filters out bad markets based on EMAs, EMA ratio, shape and strength
     if (trading) await trade(sortedMarkets) 
 
   } catch (error: any) {
@@ -561,7 +561,7 @@ function filterMarkets(markets: market[]) {
     market.shape    as number >= 1 && 
     market.emaRatio as number >= 1 &&
     market.strength as number >= 1 &&
-    viableSymbols.includes(market.name) &&
+    viableSymbols.includes(market.name) && // Pretty sure this will always be true
     ema(extractData(market.histories['hours'], 'average'), 1) > 
     ema(extractData(market.histories['hours'], 'average'), 21)
   )
@@ -623,8 +623,11 @@ function roundObjects(inMarkets: market[], keys: ('shape'|'strength'|'currentPri
 // TRADE FUNCTIONS
 
 async function trade(sortedMarkets: market[]) {
+
   const targetMarket = sortedMarkets[0]?.strength as number > 0 ? sortedMarkets[0] : null
+
   if (wallet.data.baseCoin === 'USDT') {   
+
     if (!targetMarket) {
       console.log('No bulls')
     } else if (wallet.coins[wallet.data.baseCoin].volume > 10) {
