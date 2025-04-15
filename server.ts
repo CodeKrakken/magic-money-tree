@@ -177,7 +177,7 @@ async function run() {
   console.log(currentTask)
   console.log(`Server is ${process.env.ENVIRONMENT}`)
   try {
-    viableSymbols = await fetchSymbols() as string[]
+    viableSymbols = await fetchSymbols() as string[] // Sets global variable
     await setupDB();
     await pullFromDatabase();
     tick()
@@ -266,7 +266,7 @@ async function tick() {
     }
 
     const symbolName = viableSymbols[i].replace('/', '')
-    const isVoluminous = await checkVolume(symbolName)
+    const isVoluminous = await checkVolume(symbolName) // Checks 24 hour volume
     currentTask = `Checking volume of ${i+1}/${viableSymbols.length} - ${symbolName}`
     console.log(currentTask)
     console.log(`${!isVoluminous.includes("Insufficient") && isVoluminous !== "No response." ? 'Market included.' : isVoluminous}`)
@@ -275,13 +275,14 @@ async function tick() {
       await updateMarket(viableSymbols[i].replace('/', ''), i+1)
     }
     console.log('Refreshing wallet')
-    await refreshWallet()
+    await refreshWallet() // Updates prices and quantities of coins in wallet, defines what is basecoin, deletes old data if basecoin is USDT
 
     if (wallet.data.baseCoin !== 'USDT') {
       console.log('Updating base market')
-      await updateMarket(`${wallet.data.baseCoin}USDT`)}
+      await updateMarket(`${wallet.data.baseCoin}USDT`) // Refreshes basecoin
+    }
 
-    let sortedMarkets = sortMarkets()
+    let sortedMarkets = sortMarkets() // Combines Shape and EMA ratio - ponder this Maths
 
     logMarkets(sortedMarkets)
     sortedMarkets = roundObjects(sortedMarkets, ['emaRatio', 'shape', 'strength'])
@@ -349,23 +350,23 @@ function simulatedWallet() {
 }
 
 async function updateMarket(symbolName: string, id: number|null=null) {
-  const response = await fetchSingleHistory(symbolName)
+  const response = await fetchSingleHistory(symbolName) // Fetches each timescale listed in global timescales variable
   if (id) {
     currentTask = `Fetching history for ${id}/${viableSymbols.length} - ${symbolName} ... ${response === 'No response.' ? response : ''}`
     console.log(currentTask)
   }
 
   if (response !== 'No response.') {
-    const indexedHistories = indexData(response) as {[key: string]: indexedFrame[]}
+    const indexedHistories = indexData(response) as {[key: string]: indexedFrame[]} // Makes incoming history data human readable
     let market: market = {
       name: symbolName,
       histories: indexedHistories
     }
-    market = addEmaRatio(market) as market
-    market = addShape(market)
-    markets[symbolName] = market
-    market.ema1           = ema(extractData(market.histories['minutes'], 'average'), 1)
-    market.ema21          = ema(extractData(market.histories['minutes'], 'average'), 21)
+    market = addEmaRatio(market) as market // Ponder this Maths
+    market = addShape(market) // Ponder this Maths
+    markets[symbolName] = market // Updates global Markets variable
+    market.ema1           = ema(extractData(market.histories['minutes'], 'average'), 1) // I think these can go
+    market.ema21          = ema(extractData(market.histories['minutes'], 'average'), 21) // I think these can go
 
   }
 }
