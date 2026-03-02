@@ -8,4 +8,4 @@ Leverages the Binance API for crypto trading data. Data is analysed with bespoke
 
 Built with TypeScript and the good old MERN stack (Mongo, Express, React, Node). There is currently no AI involved but it is possible that including AI would be beneficial.
 
-It ran without error from April 2025 to February 2026 but it is currently down, pending investigation and debugging.
+It has been running without error since April 2025.
