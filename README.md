@@ -8,8 +8,6 @@ Leverages the Binance API for crypto trading data. Data is analysed with bespoke
 
 Built with TypeScript and the good old MERN stack (Mongo, Express, React, Node). There is currently no AI involved but it is possible that including AI would be beneficial.
 
-It has been running on Heroku without error since April 2025.
-
 To install
 ----------
 
@@ -28,4 +26,4 @@ npm run start:server
 
 There are currently no user controls.
 
-The App is running in simulation mode. It has no access to your Binance wallet. It only requires MongoDB credentials to store the simulated wallet.
+The App has no access to your Binance wallet. It only requires MongoDB credentials to store the simulated wallet.
