@@ -35,7 +35,7 @@
     "build": "react-dotenv && react-scripts build",
     "test": "react-dotenv && react-scripts test",
     "eject": "react-dotenv && react-scripts eject",
-    "start:server": "nodemon --exec 'ts-node' server.ts"
+    "start:server": "npx nodemon --exec 'ts-node' server.ts"
   },
   "browserslist": {
     "production": [
