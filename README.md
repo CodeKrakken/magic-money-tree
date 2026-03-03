@@ -8,4 +8,24 @@ Leverages the Binance API for crypto trading data. Data is analysed with bespoke
 
 Built with TypeScript and the good old MERN stack (Mongo, Express, React, Node). There is currently no AI involved but it is possible that including AI would be beneficial.
 
-It has been running without error since April 2025.
+It has been running on Heroku without error since April 2025.
+
+To install
+----------
+
+```
+git clone https://github.com/CodeKrakken/magic-money-tree
+cd magic-money-tree
+npm install
+cat >> .env
+  MONGODB_USERNAME="your-mongo-username"
+  MONGODB_PASSWORD="your-mongo-password"
+  COLLECTION="local-data"
+  ENVIRONMENT="local"
+npm start
+npm run start:server
+```
+
+There are currently no user controls.
+
+The App is running in simulation mode. It has no access to your Binance wallet. It only requires MongoDB credentials to store the simulated wallet.
