@@ -1,1 +1,3 @@
-window.env = {};
+window.env = {
+  "ENVIRONMENT": "local"
+};
