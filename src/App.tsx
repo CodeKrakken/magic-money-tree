@@ -23,9 +23,8 @@ export default function App() {
     const fetchData = async () => {
       const local = env.ENVIRONMENT === 'local'
       const PORT = env.PORT || 5000
-      // const data = await fetch('/data')                       //  heroku
       console.log(env.ENVIRONMENT)
-      const data = await fetch(`${local ? `http://localhost:${PORT}` : ''}/data`)  //  the dream
+      const data = await fetch(`${local ? `http://localhost:${PORT}` : ''}/data`)
       .then(response => response.json())
       .then(data => {
         setWallet(data.wallet)
