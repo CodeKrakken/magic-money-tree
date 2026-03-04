@@ -36,9 +36,9 @@ export default function App() {
     
     // fetchData();
     
-    const intervalId = setInterval(fetchData, 200);
+    // const intervalId = setInterval(fetchData, 200);
   
-    return () => clearInterval(intervalId);
+    return () => clearInterval(200);
   }, []);
 
   return <>
