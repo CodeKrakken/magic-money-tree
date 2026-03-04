@@ -1,18 +1,12 @@
+import React from 'react'
 import './Text.css'
 
-export default function Text(
-  {
-    tag, 
-    text, 
-    attrs
-  } : {
-    tag?  : keyof JSX.IntrinsicElements, 
-    text  : string, 
-    attrs?: {[key: string]: string}
-  }
-) {
+interface TextProps {
+  tag?: keyof React.JSX.IntrinsicElements
+  text: string
+  attrs?: { [key: string]: string }
+}
 
-  const Tag = tag || 'div'
-
-  return <Tag {...attrs}>{text}</Tag>
+export default function Text({ tag = 'div', text, attrs }: TextProps) {
+  return React.createElement(tag as string, attrs, text)
 }

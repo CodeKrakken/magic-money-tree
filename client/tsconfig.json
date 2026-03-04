@@ -1,43 +1,12 @@
 {
-  "compileOnSave": true,
-
+  "extends": "../tsconfig.json",
   "compilerOptions": {
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx",
-    "module": "commonjs",
-    "strict": true,
     "baseUrl": "./",
     "outDir": "build",
-    "sourceMap": true,
-    "removeComments": true,
-    "experimentalDecorators": true,
-    "target": "es6",
-    "emitDecoratorMetadata": true,
-    "moduleResolution": "node",
-    "importHelpers": true,
-    "types": [
-      "node"
-    ],
-    "typeRoots": [
-      "node_modules/@types"
-    ]
+    "types": ["node"]
   },
-  "include": ["src/**/*", "src", "./src/**/*.ts"],
-  "exclude": [
-    "./src/**/*.test.ts",
-    "./src/public/"
-  ]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "src/**/*.test.ts", "src/**/*.test.tsx"]
 }

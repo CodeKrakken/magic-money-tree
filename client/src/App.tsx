@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import Text from "./components/Text/Text"
-import { wallet, market } from 'server'
+import { wallet, market } from '../../server/server'
 import Wallet from "./components/Wallet/Wallet"
 import CurrentTask from "./components/CurrentTask/CurrentTask"
 import MarketGraph from "./components/MarketGraph/MarketGraph"
@@ -21,24 +21,32 @@ export default function App() {
   useEffect(() => {
 
     const fetchData = async () => {
-      const local = env.ENVIRONMENT === 'local'
-      const PORT = env.PORT || 5000
-      const data = await fetch(`${local ? `http://localhost:${PORT}` : ''}/data`)
-      .then(response => response.json())
-      .then(data => {
+      try {
+        const local = env.ENVIRONMENT === 'local'
+        const PORT = env.PORT || 5000
+        const url = `${local ? `http://localhost:${PORT}` : ''}/data`
+        console.log('Fetching from:', url)
+        const response = await fetch(url)
+        if (!response.ok) {
+          console.error('Response error:', response.status, response.statusText)
+          return
+        }
+        const data = await response.json()
         setWallet(data.wallet)
         setcurrentTask(data.currentTask)
         setTransactions(data.transactions)
         setMarketChart(data.marketChart)
         setCurrentMarket(data.currentMarket)
-      })
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      }
     }
     
-    // fetchData();
+    fetchData();
     
-    // const intervalId = setInterval(fetchData, 200);
+    const intervalId = setInterval(fetchData, 200);
   
-    return () => clearInterval(200);
+    return () => clearInterval(intervalId);
   }, []);
 
   return <>

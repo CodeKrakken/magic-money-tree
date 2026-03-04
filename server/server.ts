@@ -1,17 +1,24 @@
-require('dotenv').config();
+import dotenv from 'dotenv';
 import { Request, Response } from 'express';
-import 'fs'
-const local = process.env.ENVIRONMENT === 'local' || false
-const { writeFile } = require('fs/promises');
+import { writeFile } from 'fs/promises';
+import axios from 'axios';
+import express from 'express';
+import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { MongoClient, ServerApiVersion } from 'mongodb';
+
+dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const local = process.env.ENVIRONMENT === 'local' || false;
 
 // Server
 
-const axios = require("axios");
-const express = require("express");
 const app = express();
 app.use(express.json());
-const cors = require("cors");
-const path = require("path");
 
 app.use(local ? cors({origin: 'http://localhost:3000'}) : cors());
 
@@ -41,12 +48,11 @@ app.listen(port, () => {
 const username = process.env.MONGODB_USERNAME
 const password = process.env.MONGODB_PASSWORD
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = `mongodb+srv://${username}:${password}@magic-money-tree.ohcuy3y.mongodb.net/?retryWrites=true&w=majority`;
 const mongo = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 let database
 
-let collection: collection
+let collection: any;
 const dbName = "magic-money-tree";
 const collectionName = process.env.COLLECTION
 

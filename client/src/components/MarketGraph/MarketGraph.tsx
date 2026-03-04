@@ -1,5 +1,5 @@
 import Chart from 'react-apexcharts';
-import { indexedFrame } from 'server';
+import { indexedFrame } from '../../../../server/server';
 import { useEffect, useState } from 'react';
 
 const MarketGraph = ({ history, title }: { history: any, title: string }) => {

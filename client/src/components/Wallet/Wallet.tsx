@@ -1,4 +1,4 @@
-import { wallet } from 'server'
+import { wallet } from '../../../../server/server'
 
 export default function Wallet({wallet}: {wallet: wallet}) {
 
