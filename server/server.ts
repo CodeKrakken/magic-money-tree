@@ -25,6 +25,12 @@ app.use(local ? cors({origin: 'http://localhost:3000'}) : cors());
 if (!local) app.use(express.static(path.join(__dirname, "build")));
 
 app.get("/data", (req: Request, res: Response) => {
+  console.log('[Server] /data requested, currentTask:', currentTask);
+  // disable any HTTP caching so the client always gets the latest snapshot
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+
   const dataJSON = JSON.stringify({
     wallet          : wallet,
     currentTask     : currentTask,
@@ -38,9 +44,9 @@ app.get("/data", (req: Request, res: Response) => {
 
 const port = process.env.PORT || 5000;
 
-app.listen(port, () => {
-  const currentTask = `Server listening on port ${port}`
-  console.log(currentTask);
+app.listen(port, async () => {
+  console.log(`Server listening on port ${port}`);
+  await run();  // start the trading loop after the server is up
 });
 
 // Database
