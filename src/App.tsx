@@ -34,7 +34,7 @@ export default function App() {
       })
     }
     
-    fetchData();
+    // fetchData();
     
     const intervalId = setInterval(fetchData, 200);
   
