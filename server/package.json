@@ -13,6 +13,6 @@
   },
   "scripts": {
     "build": "tsc",
-    "start": "node --exec 'ts-node' server.ts"
+    "start": "npx nodemon --exec 'ts-node' server.ts"
   }
 }
