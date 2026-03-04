@@ -153,7 +153,7 @@ const timeScales: {[key: string]: string} = {
   // days    : 'd', 
   // hours   : 'h', 
   minutes : 'm',
-  seconds : 's'
+  // seconds : 's'
 }
 
 let trading: Boolean = false
