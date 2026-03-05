@@ -22,7 +22,7 @@ app.use(express.json());
 
 app.use(local ? cors({origin: 'http://localhost:3000'}) : cors());
 
-if (!local) app.use(express.static(path.join(__dirname, "build")));
+if (!local) app.use(express.static(path.join(__dirname, "../client/build")));
 
 app.get("/data", (req: Request, res: Response) => {
   console.log('[Server] /data requested, currentTask:', currentTask);
@@ -41,6 +41,13 @@ app.get("/data", (req: Request, res: Response) => {
   res.setHeader('Content-Type', 'application/json');
   res.send(dataJSON);
 });
+
+// Serve React app for all other routes (client-side routing)
+if (!local) {
+  app.get("*", (req: Request, res: Response) => {
+    res.sendFile(path.join(__dirname, "../client/build/index.html"));
+  });
+}
 
 const port = process.env.PORT || 5000;
 
