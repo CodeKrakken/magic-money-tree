@@ -14,7 +14,7 @@ const app = express();
 app.use(express.json());
 app.use(local ? cors({ origin: 'http://localhost:3000' }) : cors());
 if (!local)
-    app.use(express.static(path.join(__dirname, "../client/build")));
+    app.use(express.static(path.join(__dirname, "../../client/build")));
 app.get("/data", (req, res) => {
     console.log('[Server] /data requested, currentTask:', currentTask);
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
@@ -32,7 +32,7 @@ app.get("/data", (req, res) => {
 });
 if (!local) {
     app.get("*", (req, res) => {
-        res.sendFile(path.join(__dirname, "../client/build/index.html"));
+        res.sendFile(path.join(__dirname, "../../client/build/index.html"));
     });
 }
 const port = process.env.PORT || 5000;
