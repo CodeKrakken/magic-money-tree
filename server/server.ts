@@ -288,7 +288,7 @@ async function tick() {
 
     const symbolName = viableSymbols[i].replace('/', '')
     const isVoluminous = await checkVolume(symbolName)
-    currentTask = `Checking volume of ${i+1}/${viableSymbols.length} - ${symbolName} ... ${!isVoluminous.includes("Insufficient") && isVoluminous !== "No response." ? 'Market included.' : isVoluminous}`
+    currentTask = `Checking volume of ${symbolName} ... ${!isVoluminous.includes("Insufficient") && isVoluminous !== "No response." ? 'Market included.' : isVoluminous}`
     console.log(currentTask)
     
     if (!isVoluminous.includes("Insufficient") && isVoluminous !== 'Invalid market.' && isVoluminous !== "No response.") {
@@ -366,7 +366,7 @@ function simulatedWallet() {
 async function updateMarket(symbolName: string, id: number|null=null) {
   const response = await fetchSingleHistory(symbolName)
   if (id) {
-    currentTask = `Fetching history for ${id}/${viableSymbols.length} - ${symbolName} ... ${response === 'No response.' ? response : ''}`
+    currentTask = `Fetching history of ${symbolName} ... ${response === 'No response.' ? response : ''}`
     console.log(currentTask)
   }
 
