@@ -4,8 +4,7 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx",
     "baseUrl": "./",
-    "outDir": "build",
-    "types": ["node"]
+    "outDir": "build"
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist", "src/**/*.test.ts", "src/**/*.test.tsx"]
