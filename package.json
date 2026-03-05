@@ -7,6 +7,7 @@
     "start": "cd server && npm run start && cd ../client && npm run start",
     "test": "cd server && npm run test && cd ../client && npm run test",
     "eject": "cd server && npm run eject && cd ../client && npm run eject",
-    "install": "cd server && npm install && cd ../client && npm install"
+    "install": "cd server && npm install && cd ../client && npm install",
+    "postinstall": "npm run build"
   }
 }

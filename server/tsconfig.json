@@ -5,7 +5,8 @@
     "baseUrl": "./",
     "outDir": "dist",
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "noEmit": false
   },
   "include": ["."],
   "exclude": ["node_modules", "dist", "src/**/*.test.ts"]
