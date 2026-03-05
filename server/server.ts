@@ -55,12 +55,17 @@ const username = process.env.MONGODB_USERNAME
 const password = process.env.MONGODB_PASSWORD
 
 const uri = `mongodb+srv://${username}:${password}@magic-money-tree.ohcuy3y.mongodb.net/?retryWrites=true&w=majority`;
-const mongo = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+const mongo = new MongoClient(
+  uri, 
+  { 
+    serverApi: ServerApiVersion.v1 
+  }
+);
 let database
 
 let collection: any;
 const dbName = "magic-money-tree";
-const collectionName = process.env.COLLECTION
+const collectionName: string = process.env.COLLECTION as string
 
 // Types
 
