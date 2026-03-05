@@ -18,6 +18,6 @@
   },
   "scripts": {
     "build": "tsc",
-    "start": "tsx server.ts"
+    "start": "node server.ts"
   }
 }
