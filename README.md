@@ -15,11 +15,11 @@ To install
 git clone https://github.com/CodeKrakken/magic-money-tree
 cd magic-money-tree
 npm install
-cat >> .env
-  MONGODB_USERNAME="your-mongo-username"
+cat >> server/.env
+  'MONGODB_USERNAME="your-mongo-username"
   MONGODB_PASSWORD="your-mongo-password"
   COLLECTION="local-data"
-  ENVIRONMENT="local"
+  ENVIRONMENT="local"'
 npm start
 npm run start:server
 ```
