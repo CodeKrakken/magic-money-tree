@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react"
 import Text from "./components/Text/Text"
-import { wallet, market } from '../../server/server'
+import type { wallet, market } from '../../server/server'
 import Wallet from "./components/Wallet/Wallet"
 import CurrentTask from "./components/CurrentTask/CurrentTask"
 import MarketGraph from "./components/MarketGraph/MarketGraph"
 import './App.css'
 import StringList from "./components/StringList/StringList"
-import env from "react-dotenv";
+// environment is handled via proxy in development; no need for react-dotenv here
 
 export default function App() {
 
@@ -19,34 +19,43 @@ export default function App() {
 
 
   useEffect(() => {
+    console.log('[App] useEffect mounted');
+    let cancelled = false;
 
     const fetchData = async () => {
+      console.log('[App] fetchData start');
       try {
-        const local = env.ENVIRONMENT === 'local'
-        const PORT = env.PORT || 5000
-        const url = `${local ? `http://localhost:${PORT}` : ''}/data`
-        console.log('Fetching from:', url)
-        const response = await fetch(url)
+        // rely on the development proxy to forward `/data` to the backend
+        const url = `/data?t=${Date.now()}`;
+        console.log('[App] hitting URL', url);
+        const response = await fetch(url, {
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-store' }
+        });
         if (!response.ok) {
-          console.error('Response error:', response.status, response.statusText)
-          return
+          console.error('[App] response error', response.status, response.statusText);
+          return;
         }
-        const data = await response.json()
-        setWallet(data.wallet)
-        setcurrentTask(data.currentTask)
-        setTransactions(data.transactions)
-        setMarketChart(data.marketChart)
-        setCurrentMarket(data.currentMarket)
+        if (cancelled) return;
+        const data = await response.json();
+        console.log('[App] received data.currentTask:', data.currentTask);
+        setWallet(data.wallet);
+        setcurrentTask(data.currentTask);
+        setTransactions(data.transactions);
+        setMarketChart(data.marketChart);
+        setCurrentMarket(data.currentMarket);
       } catch (error) {
-        console.error('Error fetching data:', error)
+        console.error('[App] Error fetching data:', error);
       }
-    }
-    
+      if (!cancelled) setTimeout(fetchData, 1000);
+    };
+
     fetchData();
-    
-    const intervalId = setInterval(fetchData, 200);
-  
-    return () => clearInterval(intervalId);
+
+    return () => {
+      console.log('[App] useEffect cleanup');
+      cancelled = true;
+    };
   }, []);
 
   return <>
