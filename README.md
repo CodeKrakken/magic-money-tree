@@ -20,8 +20,15 @@ cat >> server/.env
   MONGODB_PASSWORD="your-mongo-password"
   COLLECTION="local-data"
   ENVIRONMENT="local"
+```
+
+To run
+------
+
+```
 npm start
-npm run start:server
+cd client
+npm start
 ```
 
 There are currently no user controls.
