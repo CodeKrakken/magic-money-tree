@@ -1,54 +1,5 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const fibNumbers = [1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181, 6765, 10946, 17711, 28657]
-fibNumbers.push(43200)
-
-const constructPairs = <T>(items: T[]) => {
-  const pairArray = []
-
-  const count = items.length
-
-  for (let i = 0; i < count - 1; i++) {
-    for (let j = i + 1; j < count; j++) {
-      pairArray.push([fibNumbers[i], fibNumbers[j]])
-    }
-  }
-
-  return pairArray
-}
-
-const EMA_PAIRS = constructPairs(fibNumbers)
-
-// [
-//   [2, 3],
-//   [3, 5],
-//   [3, 8],
-//   [5, 8],
-//   [5, 13],
-//   [8, 13],
-//   [8, 20],
-//   [13, 21],
-//   [13, 34],
-//   [21, 34],
-//   [21, 55],
-//   [34, 55],
-//   [34, 89],
-//   [55, 89],
-//   [89, 144],
-// ] as const;
-
-console.log(EMA_PAIRS)
-
-
-const HORIZONS = [5, 10, 20, 50] as const;
-
-// 0.20% total round-trip trading cost.
-const TOTAL_COST = 0.002;
-
-type Crossover = 'bullish' | 'bearish';
-type Interpretation = 'momentum' | 'contrarian';
+import fs from "fs";
+import path from "path";
 
 interface Candle {
   openTime: number;
@@ -60,589 +11,1344 @@ interface Candle {
   volume: number;
 }
 
-interface ResearchMarket {
+interface MarketData {
   symbol: string;
   candles: Candle[];
 }
 
-interface ResearchDataset {
-  version: number;
-  interval: string;
-  startTime: number;
-  endTime: number;
-  markets: ResearchMarket[];
+interface FeatureResult {
+  market: string;
+  time: number;
+
+  // Direction
+  return5: number;
+  return10: number;
+  return20: number;
+  return50: number;
+  return100: number;
+
+  // Trend slope, normalised by price
+  slope20: number;
+  slope50: number;
+  slope100: number;
+
+  // Persistence
+  positive20: number;
+  positive50: number;
+  positive100: number;
+
+  // Smoothness
+  efficiency20: number;
+  efficiency50: number;
+  efficiency100: number;
+
+  // Recent drawdown from the highest close
+  drawdown20: number;
+  drawdown50: number;
+  drawdown100: number;
+
+  // Volatility
+  volatility20: number;
+  volatility50: number;
+  volatility100: number;
+
+  // Acceleration
+  acceleration: number;
+
+  // Future outcomes
+  future5: number;
+  future10: number;
+  future20: number;
+  future50: number;
+
+  // Maximum adverse/favourable excursion
+  mae20: number;
+  mfe20: number;
+
+  mae50: number;
+  mfe50: number;
 }
 
-interface AggregateResult {
-  shortEma: number;
-  longEma: number;
-  crossover: Crossover;
-  interpretation: Interpretation;
-  horizonMinutes: number;
-  signals: number;
-  profitableSignals: number;
-  losingSignals: number;
-  winRate: number;
+interface FeatureSummary {
+  feature: string;
+  horizon: number;
+  bucket: number;
+  observations: number;
   averageGrossReturn: number;
   averageNetReturn: number;
-  totalNetReturn: number;
-  averagePositiveReturn: number | null;
-  averageNegativeReturn: number | null;
-  medianNetReturn: number;
+  winRate: number;
+  averageMAE: number;
+  averageMFE: number;
 }
 
-interface Accumulator {
-  returns: number[];
-  grossReturnTotal: number;
-  netReturnTotal: number;
-  profitableSignals: number;
-  losingSignals: number;
-}
+const TOTAL_COST = 0.002;
 
-function calculateEmaSeries(
-  prices: number[],
-  period: number
-): number[] {
-  const result = new Array<number>(prices.length);
+const LOOKBACKS = [5, 10, 20, 50, 100];
+const FUTURE_HORIZONS = [5, 10, 20, 50];
 
-  if (prices.length === 0) {
-    return result;
+const MIN_LOOKBACK = 100;
+const MAX_FUTURE = 50;
+
+const DATA_DIRECTORY = path.join(
+  process.cwd(),
+  "server",
+  "research-output"
+);
+
+function findLatestDataFile(): string {
+  const files = fs
+    .readdirSync(DATA_DIRECTORY)
+    .filter(
+      (file) =>
+        file.startsWith("ema-data-") &&
+        file.endsWith(".json")
+    )
+    .sort();
+
+  if (files.length === 0) {
+    throw new Error(
+      `No ema-data-*.json files found in ${DATA_DIRECTORY}`
+    );
   }
 
-  const multiplier = 2 / (period + 1);
-
-  result[0] = prices[0];
-
-  for (let i = 1; i < prices.length; i++) {
-    result[i] =
-      prices[i] * multiplier +
-      result[i - 1] * (1 - multiplier);
-  }
-
-  return result;
+  return path.join(
+    DATA_DIRECTORY,
+    files[files.length - 1]
+  );
 }
 
-function createAccumulator(): Accumulator {
-  return {
-    returns: [],
-    grossReturnTotal: 0,
-    netReturnTotal: 0,
-    profitableSignals: 0,
-    losingSignals: 0,
-  };
+function percentage(value: number): number {
+  return value * 100;
 }
 
-function createAccumulatorKey(
-  crossover: Crossover,
-  interpretation: Interpretation,
-  horizonMinutes: number
-): string {
-  return `${crossover}:${interpretation}:${horizonMinutes}`;
-}
-
-function calculateMedian(values: number[]): number {
+function mean(values: number[]): number {
   if (values.length === 0) {
     return 0;
   }
 
-  const sorted = [...values].sort(
-    (a, b) => a - b
+  return (
+    values.reduce(
+      (sum, value) => sum + value,
+      0
+    ) / values.length
   );
+}
 
-  const middle = Math.floor(sorted.length / 2);
+/**
+ * Return from price at `start` to price at `end`.
+ */
+function priceReturn(
+  candles: Candle[],
+  start: number,
+  end: number
+): number {
+  const startPrice = candles[start].close;
+  const endPrice = candles[end].close;
 
-  if (sorted.length % 2 === 0) {
-    return (
-      (sorted[middle - 1] + sorted[middle]) / 2
+  if (startPrice === 0) {
+    return 0;
+  }
+
+  return endPrice / startPrice - 1;
+}
+
+/**
+ * Fraction of one-minute price changes which were positive.
+ */
+function positiveFraction(
+  candles: Candle[],
+  index: number,
+  lookback: number
+): number {
+  let positive = 0;
+  let observations = 0;
+
+  const start = index - lookback + 1;
+
+  for (
+    let i = Math.max(1, start);
+    i <= index;
+    i++
+  ) {
+    const previous = candles[i - 1].close;
+    const current = candles[i].close;
+
+    if (current > previous) {
+      positive++;
+    }
+
+    observations++;
+  }
+
+  if (observations === 0) {
+    return 0;
+  }
+
+  return positive / observations;
+}
+
+/**
+ * Efficiency ratio:
+ *
+ * net movement / total absolute movement
+ *
+ * A smooth upward trend approaches +1.
+ * A smooth downward trend approaches -1.
+ * Choppy movement approaches 0.
+ */
+function efficiencyRatio(
+  candles: Candle[],
+  index: number,
+  lookback: number
+): number {
+  const start = index - lookback;
+
+  if (start < 0) {
+    return 0;
+  }
+
+  const netMovement =
+    candles[index].close -
+    candles[start].close;
+
+  let totalMovement = 0;
+
+  for (
+    let i = start + 1;
+    i <= index;
+    i++
+  ) {
+    totalMovement += Math.abs(
+      candles[i].close -
+        candles[i - 1].close
     );
   }
 
-  return sorted[middle];
-}
-
-function round(value: number): number {
-  return Number(value.toFixed(8));
-}
-
-function calculateDirectionalReturn(
-  entryPrice: number,
-  exitPrice: number,
-  crossover: Crossover,
-  interpretation: Interpretation
-): number {
-  const priceReturn =
-    (exitPrice - entryPrice) / entryPrice;
-
-  const longPosition =
-    interpretation === 'momentum'
-      ? crossover === 'bullish'
-      : crossover === 'bearish';
-
-  return longPosition
-    ? priceReturn
-    : -priceReturn;
-}
-
-function processMarket(
-  market: ResearchMarket,
-  shortEma: number,
-  longEma: number,
-  accumulators: Map<string, Accumulator>
-): void {
-  const candles = market.candles;
-
-  if (candles.length <= longEma) {
-    return;
+  if (totalMovement === 0) {
+    return 0;
   }
 
-  const prices = candles.map(
-    (candle) => candle.close
+  return netMovement / totalMovement;
+}
+
+/**
+ * Maximum drawdown from the highest close
+ * during the lookback period.
+ */
+function maximumDrawdown(
+  candles: Candle[],
+  index: number,
+  lookback: number
+): number {
+  const start = Math.max(
+    0,
+    index - lookback
   );
 
-  const shortValues = calculateEmaSeries(
-    prices,
-    shortEma
-  );
+  let highest =
+    candles[start].close;
 
-  const longValues = calculateEmaSeries(
-    prices,
-    longEma
-  );
+  let maximumDrawdown = 0;
 
-  /*
-   * We only need to detect each crossover once.
-   *
-   * Bullish:
-   * previous short <= previous long
-   * current short  > current long
-   *
-   * Bearish:
-   * previous short >= previous long
-   * current short  < current long
-   */
   for (
-    let index = longEma;
-    index < candles.length;
-    index++
+    let i = start;
+    i <= index;
+    i++
   ) {
-    const previousShort =
-      shortValues[index - 1];
+    highest = Math.max(
+      highest,
+      candles[i].close
+    );
 
-    const previousLong =
-      longValues[index - 1];
+    const drawdown =
+      candles[i].close / highest - 1;
 
-    const currentShort =
-      shortValues[index];
+    maximumDrawdown = Math.min(
+      maximumDrawdown,
+      drawdown
+    );
+  }
 
-    const currentLong =
-      longValues[index];
+  return maximumDrawdown;
+}
 
-    let crossover: Crossover | null = null;
+/**
+ * Standard deviation of one-minute returns.
+ */
+function volatility(
+  candles: Candle[],
+  index: number,
+  lookback: number
+): number {
+  const start = index - lookback + 1;
 
-    if (
-      previousShort <= previousLong &&
-      currentShort > currentLong
-    ) {
-      crossover = 'bullish';
-    } else if (
-      previousShort >= previousLong &&
-      currentShort < currentLong
-    ) {
-      crossover = 'bearish';
-    }
+  if (start < 1) {
+    return 0;
+  }
 
-    if (crossover === null) {
+  const returns: number[] = [];
+
+  for (
+    let i = start;
+    i <= index;
+    i++
+  ) {
+    const previous =
+      candles[i - 1].close;
+
+    const current =
+      candles[i].close;
+
+    if (previous === 0) {
       continue;
     }
 
-    const entryPrice =
-      candles[index].close;
-
-    for (const horizonMinutes of HORIZONS) {
-      const exitIndex =
-        index + horizonMinutes;
-
-      if (exitIndex >= candles.length) {
-        continue;
-      }
-
-      const exitPrice =
-        candles[exitIndex].close;
-
-      for (const interpretation of [
-        'momentum',
-        'contrarian',
-      ] as const) {
-        const directionalReturn =
-          calculateDirectionalReturn(
-            entryPrice,
-            exitPrice,
-            crossover,
-            interpretation
-          );
-
-        const netReturn =
-          directionalReturn - TOTAL_COST;
-
-        const key =
-          createAccumulatorKey(
-            crossover,
-            interpretation,
-            horizonMinutes
-          );
-
-        const accumulator =
-          accumulators.get(key);
-
-        if (!accumulator) {
-          throw new Error(
-            `Missing accumulator: ${key}`
-          );
-        }
-
-        accumulator.returns.push(
-          netReturn
-        );
-
-        accumulator.grossReturnTotal +=
-          directionalReturn;
-
-        accumulator.netReturnTotal +=
-          netReturn;
-
-        if (netReturn > 0) {
-          accumulator.profitableSignals++;
-        } else if (netReturn < 0) {
-          accumulator.losingSignals++;
-        }
-      }
-    }
-  }
-}
-
-function buildResults(
-  shortEma: number,
-  longEma: number,
-  accumulators: Map<string, Accumulator>
-): AggregateResult[] {
-  const results: AggregateResult[] = [];
-
-  for (const crossover of [
-    'bullish',
-    'bearish',
-  ] as const) {
-    for (const interpretation of [
-      'momentum',
-      'contrarian',
-    ] as const) {
-      for (const horizonMinutes of HORIZONS) {
-        const key =
-          createAccumulatorKey(
-            crossover,
-            interpretation,
-            horizonMinutes
-          );
-
-        const accumulator =
-          accumulators.get(key);
-
-        if (!accumulator) {
-          throw new Error(
-            `Missing accumulator: ${key}`
-          );
-        }
-
-        const signals =
-          accumulator.returns.length;
-
-        const positiveReturns =
-          accumulator.returns.filter(
-            (value) => value > 0
-          );
-
-        const negativeReturns =
-          accumulator.returns.filter(
-            (value) => value < 0
-          );
-
-        results.push({
-          shortEma,
-          longEma,
-          crossover,
-          interpretation,
-          horizonMinutes,
-
-          signals,
-
-          profitableSignals:
-            accumulator.profitableSignals,
-
-          losingSignals:
-            accumulator.losingSignals,
-
-          winRate:
-            signals === 0
-              ? 0
-              : round(
-                  accumulator.profitableSignals /
-                    signals
-                ),
-
-          averageGrossReturn:
-            signals === 0
-              ? 0
-              : round(
-                  accumulator.grossReturnTotal /
-                    signals
-                ),
-
-          averageNetReturn:
-            signals === 0
-              ? 0
-              : round(
-                  accumulator.netReturnTotal /
-                    signals
-                ),
-
-          totalNetReturn: round(
-            accumulator.netReturnTotal
-          ),
-
-          averagePositiveReturn:
-            positiveReturns.length === 0
-              ? null
-              : round(
-                  positiveReturns.reduce(
-                    (total, value) =>
-                      total + value,
-                    0
-                  ) /
-                    positiveReturns.length
-                ),
-
-          averageNegativeReturn:
-            negativeReturns.length === 0
-              ? null
-              : round(
-                  negativeReturns.reduce(
-                    (total, value) =>
-                      total + value,
-                    0
-                  ) /
-                    negativeReturns.length
-                ),
-
-          medianNetReturn: round(
-            calculateMedian(
-              accumulator.returns
-            )
-          ),
-        });
-      }
-    }
+    returns.push(
+      current / previous - 1
+    );
   }
 
-  return results;
+  if (returns.length === 0) {
+    return 0;
+  }
+
+  const average = mean(returns);
+
+  const variance = mean(
+    returns.map(
+      (value) =>
+        (value - average) ** 2
+    )
+  );
+
+  return Math.sqrt(variance);
 }
 
-export function analyseEmaCrossovers(
-  inputPath: string
-): string {
-  console.log(
-    `Loading research data from ${inputPath}`
-  );
+/**
+ * Linear regression slope of price against time,
+ * normalised by the current price.
+ *
+ * This makes slopes comparable between markets
+ * with different absolute prices.
+ */
+function regressionSlope(
+  candles: Candle[],
+  index: number,
+  lookback: number
+): number {
+  const start =
+    index - lookback + 1;
 
-  const fileContents =
-    fs.readFileSync(inputPath, 'utf8');
+  if (start < 0) {
+    return 0;
+  }
 
-  const dataset =
-    JSON.parse(
-      fileContents
-    ) as ResearchDataset;
+  const n = lookback;
 
-  console.log(
-    `Loaded ${dataset.markets.length} markets`
-  );
-
-  console.log(
-    `Testing ${EMA_PAIRS.length} EMA pairs`
-  );
-
-  console.log(
-    `Horizons: ${HORIZONS.join(', ')} minutes`
-  );
-
-  console.log(
-    `Round-trip cost: ${TOTAL_COST * 100}%`
-  );
-
-  const allResults: AggregateResult[] = [];
+  let sumX = 0;
+  let sumY = 0;
+  let sumXY = 0;
+  let sumXX = 0;
 
   for (
-    let pairIndex = 0;
-    pairIndex < EMA_PAIRS.length;
-    pairIndex++
+    let i = 0;
+    i < n;
+    i++
   ) {
-    const [shortEma, longEma] =
-      EMA_PAIRS[pairIndex];
+    const x = i;
+    const y =
+      candles[start + i].close;
 
-    console.log(
-      `\nEMA pair ${pairIndex + 1}/${EMA_PAIRS.length}: ${shortEma}/${longEma}`
+    sumX += x;
+    sumY += y;
+    sumXY += x * y;
+    sumXX += x * x;
+  }
+
+  const denominator =
+    n * sumXX -
+    sumX * sumX;
+
+  if (denominator === 0) {
+    return 0;
+  }
+
+  const slope =
+    (n * sumXY -
+      sumX * sumY) /
+    denominator;
+
+  const currentPrice =
+    candles[index].close;
+
+  if (currentPrice === 0) {
+    return 0;
+  }
+
+  return slope / currentPrice;
+}
+
+/**
+ * Maximum favourable and adverse excursion
+ * after entry.
+ *
+ * Highs/lows are used rather than closes because
+ * the question is whether there was an opportunity
+ * to exit profitably, not merely whether the final
+ * closing price was higher.
+ */
+function excursion(
+  candles: Candle[],
+  index: number,
+  horizon: number
+): {
+  mae: number;
+  mfe: number;
+} {
+  const entry =
+    candles[index].close;
+
+  let lowest = entry;
+  let highest = entry;
+
+  const end = Math.min(
+    candles.length - 1,
+    index + horizon
+  );
+
+  for (
+    let i = index + 1;
+    i <= end;
+    i++
+  ) {
+    lowest = Math.min(
+      lowest,
+      candles[i].low
     );
 
-    const accumulators =
-      new Map<string, Accumulator>();
+    highest = Math.max(
+      highest,
+      candles[i].high
+    );
+  }
 
-    for (const crossover of [
-      'bullish',
-      'bearish',
-    ] as const) {
-      for (const interpretation of [
-        'momentum',
-        'contrarian',
-      ] as const) {
-        for (const horizonMinutes of HORIZONS) {
-          accumulators.set(
-            createAccumulatorKey(
-              crossover,
-              interpretation,
-              horizonMinutes
-            ),
-            createAccumulator()
+  return {
+    mae:
+      entry === 0
+        ? 0
+        : lowest / entry - 1,
+
+    mfe:
+      entry === 0
+        ? 0
+        : highest / entry - 1,
+  };
+}
+
+/**
+ * Calculate all features available at a particular
+ * point in time.
+ *
+ * IMPORTANT:
+ * Every feature uses candles <= index.
+ * No future candle is used here.
+ */
+function calculateFeatures(
+  candles: Candle[],
+  index: number
+): Omit<
+  FeatureResult,
+  | "market"
+  | "time"
+  | "future5"
+  | "future10"
+  | "future20"
+  | "future50"
+  | "mae20"
+  | "mfe20"
+  | "mae50"
+  | "mfe50"
+> {
+  const return5 =
+    priceReturn(
+      candles,
+      index - 5,
+      index
+    );
+
+  const return10 =
+    priceReturn(
+      candles,
+      index - 10,
+      index
+    );
+
+  const return20 =
+    priceReturn(
+      candles,
+      index - 20,
+      index
+    );
+
+  const return50 =
+    priceReturn(
+      candles,
+      index - 50,
+      index
+    );
+
+  const return100 =
+    priceReturn(
+      candles,
+      index - 100,
+      index
+    );
+
+  const slope20 =
+    regressionSlope(
+      candles,
+      index,
+      20
+    );
+
+  const slope50 =
+    regressionSlope(
+      candles,
+      index,
+      50
+    );
+
+  const slope100 =
+    regressionSlope(
+      candles,
+      index,
+      100
+    );
+
+  const positive20 =
+    positiveFraction(
+      candles,
+      index,
+      20
+    );
+
+  const positive50 =
+    positiveFraction(
+      candles,
+      index,
+      50
+    );
+
+  const positive100 =
+    positiveFraction(
+      candles,
+      index,
+      100
+    );
+
+  const efficiency20 =
+    efficiencyRatio(
+      candles,
+      index,
+      20
+    );
+
+  const efficiency50 =
+    efficiencyRatio(
+      candles,
+      index,
+      50
+    );
+
+  const efficiency100 =
+    efficiencyRatio(
+      candles,
+      index,
+      100
+    );
+
+  const drawdown20 =
+    maximumDrawdown(
+      candles,
+      index,
+      20
+    );
+
+  const drawdown50 =
+    maximumDrawdown(
+      candles,
+      index,
+      50
+    );
+
+  const drawdown100 =
+    maximumDrawdown(
+      candles,
+      index,
+      100
+    );
+
+  const volatility20 =
+    volatility(
+      candles,
+      index,
+      20
+    );
+
+  const volatility50 =
+    volatility(
+      candles,
+      index,
+      50
+    );
+
+  const volatility100 =
+    volatility(
+      candles,
+      index,
+      100
+    );
+
+  /**
+   * Positive acceleration means the short-term
+   * trend is stronger than the medium-term trend.
+   */
+  const acceleration =
+    slope20 - slope50;
+
+  return {
+    return5,
+    return10,
+    return20,
+    return50,
+    return100,
+
+    slope20,
+    slope50,
+    slope100,
+
+    positive20,
+    positive50,
+    positive100,
+
+    efficiency20,
+    efficiency50,
+    efficiency100,
+
+    drawdown20,
+    drawdown50,
+    drawdown100,
+
+    volatility20,
+    volatility50,
+    volatility100,
+
+    acceleration,
+  };
+}
+
+/**
+ * Actual future return from the entry price.
+ */
+function futureReturn(
+  candles: Candle[],
+  index: number,
+  horizon: number
+): number {
+  const futureIndex =
+    index + horizon;
+
+  if (
+    futureIndex >=
+    candles.length
+  ) {
+    return 0;
+  }
+
+  return priceReturn(
+    candles,
+    index,
+    futureIndex
+  );
+}
+
+type NumericFeature =
+  | "return5"
+  | "return10"
+  | "return20"
+  | "return50"
+  | "return100"
+  | "slope20"
+  | "slope50"
+  | "slope100"
+  | "positive20"
+  | "positive50"
+  | "positive100"
+  | "efficiency20"
+  | "efficiency50"
+  | "efficiency100"
+  | "drawdown20"
+  | "drawdown50"
+  | "drawdown100"
+  | "volatility20"
+  | "volatility50"
+  | "volatility100"
+  | "acceleration";
+
+const FEATURES: NumericFeature[] = [
+  "return5",
+  "return10",
+  "return20",
+  "return50",
+  "return100",
+
+  "slope20",
+  "slope50",
+  "slope100",
+
+  "positive20",
+  "positive50",
+  "positive100",
+
+  "efficiency20",
+  "efficiency50",
+  "efficiency100",
+
+  "drawdown20",
+  "drawdown50",
+  "drawdown100",
+
+  "volatility20",
+  "volatility50",
+  "volatility100",
+
+  "acceleration",
+];
+
+function quantile(
+  sorted: number[],
+  probability: number
+): number {
+  if (sorted.length === 0) {
+    return 0;
+  }
+
+  const position =
+    (sorted.length - 1) *
+    probability;
+
+  const lower =
+    Math.floor(position);
+
+  const upper =
+    Math.ceil(position);
+
+  if (lower === upper) {
+    return sorted[lower];
+  }
+
+  const weight =
+    position - lower;
+
+  return (
+    sorted[lower] *
+      (1 - weight) +
+    sorted[upper] * weight
+  );
+}
+
+/**
+ * Put observations into ten buckets based on
+ * the distribution of the feature.
+ *
+ * Bucket 1 = lowest 10%
+ * Bucket 10 = highest 10%
+ */
+function calculateFeatureSummaries(
+  observations: FeatureResult[]
+): FeatureSummary[] {
+  const summaries: FeatureSummary[] = [];
+
+  for (const feature of FEATURES) {
+    console.log(
+      `Summarising ${feature}...`
+    );
+
+    // Sort indices rather than copying the entire observation
+    // objects. This substantially reduces memory overhead.
+    const sortedIndices = Array.from(
+      { length: observations.length },
+      (_, index) => index
+    ).sort(
+      (a, b) =>
+        observations[a][feature] -
+        observations[b][feature]
+    );
+
+    const bucketStats = Array.from(
+      { length: 10 },
+      () =>
+        new Map<
+          number,
+          {
+            count: number;
+            grossReturnSum: number;
+            netReturnSum: number;
+            wins: number;
+            maeSum: number;
+            mfeSum: number;
+          }
+        >()
+    );
+
+    for (
+      let sortedPosition = 0;
+      sortedPosition <
+      sortedIndices.length;
+      sortedPosition++
+    ) {
+      const observation =
+        observations[
+          sortedIndices[
+            sortedPosition
+          ]
+        ];
+
+      const bucket = Math.min(
+        9,
+        Math.floor(
+          (sortedPosition * 10) /
+            sortedIndices.length
+        )
+      );
+
+      for (const horizon of FUTURE_HORIZONS) {
+        const futureReturn =
+          observation[
+            `future${horizon}` as
+              | "future5"
+              | "future10"
+              | "future20"
+              | "future50"
+          ];
+
+        const netReturn =
+          futureReturn -
+          TOTAL_COST;
+
+        const excursionData =
+          horizon <= 20
+            ? {
+                mae: observation.mae20,
+                mfe: observation.mfe20,
+              }
+            : {
+                mae: observation.mae50,
+                mfe: observation.mfe50,
+              };
+
+        const existing =
+          bucketStats[bucket].get(
+            horizon
+          );
+
+        if (existing) {
+          existing.count++;
+          existing.grossReturnSum +=
+            futureReturn;
+          existing.netReturnSum +=
+            netReturn;
+
+          if (netReturn > 0) {
+            existing.wins++;
+          }
+
+          existing.maeSum +=
+            excursionData.mae;
+
+          existing.mfeSum +=
+            excursionData.mfe;
+        } else {
+          bucketStats[bucket].set(
+            horizon,
+            {
+              count: 1,
+              grossReturnSum:
+                futureReturn,
+              netReturnSum:
+                netReturn,
+              wins:
+                netReturn > 0
+                  ? 1
+                  : 0,
+              maeSum:
+                excursionData.mae,
+              mfeSum:
+                excursionData.mfe,
+            }
           );
         }
       }
     }
 
     for (
-      let marketIndex = 0;
-      marketIndex < dataset.markets.length;
-      marketIndex++
+      let bucket = 0;
+      bucket < 10;
+      bucket++
     ) {
-      const market =
-        dataset.markets[marketIndex];
+      for (const horizon of FUTURE_HORIZONS) {
+        const stats =
+          bucketStats[bucket].get(
+            horizon
+          );
 
-      processMarket(
-        market,
-        shortEma,
-        longEma,
-        accumulators
-      );
+        if (!stats) {
+          continue;
+        }
 
-      if (
-        (marketIndex + 1) % 10 === 0 ||
-        marketIndex ===
-          dataset.markets.length - 1
-      ) {
-        console.log(
-          `  Processed ${marketIndex + 1}/${dataset.markets.length} markets`
-        );
+        summaries.push({
+          feature,
+
+          // Convert internal 0–9 bucket to
+          // the externally reported 1–10 bucket.
+          bucket: bucket + 1,
+
+          horizon,
+
+          observations:
+            stats.count,
+
+          averageGrossReturn:
+            stats.grossReturnSum /
+            stats.count,
+
+          averageNetReturn:
+            stats.netReturnSum /
+            stats.count,
+
+          winRate:
+            stats.wins /
+            stats.count,
+
+          averageMAE:
+            stats.maeSum /
+            stats.count,
+
+          averageMFE:
+            stats.mfeSum /
+            stats.count,
+        });
       }
     }
-
-    const pairResults =
-      buildResults(
-        shortEma,
-        longEma,
-        accumulators
-      );
-
-    allResults.push(...pairResults);
-
-    /*
-     * Release the references to the EMA arrays and
-     * market-level processing data before moving to
-     * the next pair.
-     */
   }
 
-  const output: {
-    version: number;
-    generatedAt: string;
-    sourceDataset: {
-      version: number;
-      interval: string;
-      startTime: number;
-      endTime: number;
-      markets: number;
-    };
-    totalCost: number;
-    emaPairs: Array<{
-      short: number;
-      long: number;
-    }>;
-    horizons: number[];
-    results: AggregateResult[];
-  } = {
-    version: 1,
+  return summaries;
+}
 
+function formatPercent(
+  value: number
+): string {
+  return `${percentage(value).toFixed(4)}%`;
+}
+
+function printTopFeatureResults(
+  summaries: FeatureSummary[]
+): void {
+  console.log(
+    "\n=== BEST FEATURE BUCKETS ===\n"
+  );
+
+  for (const horizon of FUTURE_HORIZONS) {
+    console.log(
+      `\n--- ${horizon} minute horizon ---`
+    );
+
+    const best = summaries
+      .filter(
+        (summary) =>
+          summary.horizon ===
+            horizon &&
+          summary.observations >= 1000
+      )
+      .sort(
+        (a, b) =>
+          b.averageNetReturn -
+          a.averageNetReturn
+      )
+      .slice(0, 20);
+
+    for (const result of best) {
+      console.log(
+        [
+          result.feature.padEnd(
+            18
+          ),
+
+          `bucket=${String(
+            result.bucket
+          ).padStart(2)}`,
+
+          `n=${String(
+            result.observations
+          ).padStart(7)}`,
+
+          `gross=${formatPercent(
+            result.averageGrossReturn
+          ).padStart(10)}`,
+
+          `net=${formatPercent(
+            result.averageNetReturn
+          ).padStart(10)}`,
+
+          `win=${formatPercent(
+            result.winRate
+          ).padStart(8)}`,
+
+          `MAE=${formatPercent(
+            result.averageMAE
+          ).padStart(10)}`,
+
+          `MFE=${formatPercent(
+            result.averageMFE
+          ).padStart(10)}`,
+        ].join(" | ")
+      );
+    }
+  }
+}
+
+/**
+ * Print examples of market states resembling
+ * the user's visual description:
+ *
+ * - price already rising
+ * - rising over multiple timescales
+ * - many positive minutes
+ * - orderly movement
+ * - relatively shallow drawdown
+ *
+ * This is deliberately only a diagnostic filter.
+ * It is NOT used to determine the statistical
+ * feature results above.
+ */
+function printHighQualityMarkets(
+  observations: FeatureResult[]
+): void {
+  console.log(
+    "\n=== EXAMPLE HIGH-QUALITY UPWARD STATES ===\n"
+  );
+
+  const candidates =
+    observations
+      .filter(
+        (observation) =>
+          observation.return20 > 0 &&
+          observation.return50 > 0 &&
+          observation.return100 > 0 &&
+          observation.positive50 >=
+            0.55 &&
+          observation.efficiency50 >=
+            0.25 &&
+          observation.drawdown50 >=
+            -0.03
+      )
+      .sort(
+        (a, b) =>
+          b.efficiency50 -
+          a.efficiency50
+      )
+      .slice(0, 20);
+
+  for (const candidate of candidates) {
+    console.log(
+      [
+        candidate.market,
+
+        new Date(
+          candidate.time
+        ).toISOString(),
+
+        `r20=${formatPercent(
+          candidate.return20
+        )}`,
+
+        `r50=${formatPercent(
+          candidate.return50
+        )}`,
+
+        `r100=${formatPercent(
+          candidate.return100
+        )}`,
+
+        `positive50=${formatPercent(
+          candidate.positive50
+        )}`,
+
+        `eff50=${candidate.efficiency50.toFixed(
+          3
+        )}`,
+
+        `dd50=${formatPercent(
+          candidate.drawdown50
+        )}`,
+
+        `future20=${formatPercent(
+          candidate.future20
+        )}`,
+
+        `future50=${formatPercent(
+          candidate.future50
+        )}`,
+
+        `MAE20=${formatPercent(
+          candidate.mae20
+        )}`,
+
+        `MFE20=${formatPercent(
+          candidate.mfe20
+        )}`,
+      ].join(" | ")
+    );
+  }
+}
+
+function main(): void {
+  const inputFile =
+    findLatestDataFile();
+
+  console.log(
+    `Loading ${inputFile}...`
+  );
+
+  const raw =
+    fs.readFileSync(
+      inputFile,
+      "utf8"
+    );
+
+  const dataset =
+    JSON.parse(raw) as {
+      markets: MarketData[];
+    };
+
+  console.log(
+    `Loaded ${dataset.markets.length} markets`
+  );
+
+  const observations: FeatureResult[] =
+    [];
+
+  let totalObservationCount = 0;
+
+  /**
+   * Process one market at a time.
+   *
+   * We don't retain intermediate feature
+   * arrays for individual markets.
+   */
+  for (
+    let marketIndex = 0;
+    marketIndex <
+    dataset.markets.length;
+    marketIndex++
+  ) {
+    const market =
+      dataset.markets[
+        marketIndex
+      ];
+
+    const candles =
+      market.candles;
+
+    console.log(
+      `Processing ${market.symbol} (${marketIndex + 1}/${dataset.markets.length})`
+    );
+
+    const firstIndex =
+      MIN_LOOKBACK;
+
+    const lastIndex =
+      candles.length -
+      MAX_FUTURE -
+      1;
+
+    if (
+      lastIndex <=
+      firstIndex
+    ) {
+      continue;
+    }
+
+    for (
+      let index =
+        firstIndex;
+      index <= lastIndex;
+      index++
+    ) {
+      const features =
+        calculateFeatures(
+          candles,
+          index
+        );
+
+      const excursion20 =
+        excursion(
+          candles,
+          index,
+          20
+        );
+
+      const excursion50 =
+        excursion(
+          candles,
+          index,
+          50
+        );
+
+      observations.push({
+        market:
+          market.symbol,
+
+        time:
+          candles[index]
+            .closeTime,
+
+        ...features,
+
+        future5:
+          futureReturn(
+            candles,
+            index,
+            5
+          ),
+
+        future10:
+          futureReturn(
+            candles,
+            index,
+            10
+          ),
+
+        future20:
+          futureReturn(
+            candles,
+            index,
+            20
+          ),
+
+        future50:
+          futureReturn(
+            candles,
+            index,
+            50
+          ),
+
+        mae20:
+          excursion20.mae,
+
+        mfe20:
+          excursion20.mfe,
+
+        mae50:
+          excursion50.mae,
+
+        mfe50:
+          excursion50.mfe,
+      });
+
+      totalObservationCount++;
+    }
+  }
+
+  console.log(
+    `\nDataset built: ${totalObservationCount.toLocaleString()} observations`
+  );
+
+  console.log(
+    "Calculating feature/bucket statistics..."
+  );
+
+  const summaries =
+    calculateFeatureSummaries(
+      observations
+    );
+
+  printTopFeatureResults(
+    summaries
+  );
+
+  printHighQualityMarkets(
+    observations
+  );
+
+  /**
+   * IMPORTANT:
+   *
+   * Do NOT put `observations` in this object.
+   *
+   * With millions of observations, JSON.stringify()
+   * would exceed Node's maximum string length.
+   *
+   * The observations remain in memory only until the
+   * process exits.
+   */
+  const output = {
     generatedAt:
       new Date().toISOString(),
 
-    sourceDataset: {
-      version: dataset.version,
-      interval: dataset.interval,
-      startTime: dataset.startTime,
-      endTime: dataset.endTime,
-      markets: dataset.markets.length,
+    source: {
+      file:
+        path.basename(
+          inputFile
+        ),
+
+      markets:
+        dataset.markets.length,
+
+      interval: "1m",
+
+      lookbacks:
+        LOOKBACKS,
+
+      futureHorizons:
+        FUTURE_HORIZONS,
     },
 
-    totalCost: TOTAL_COST,
+    assumptions: {
+      totalCost:
+        TOTAL_COST,
 
-    emaPairs: EMA_PAIRS.map(
-      ([short, long]) => ({
-        short,
-        long,
-      })
-    ),
+      totalCostPercent:
+        percentage(
+          TOTAL_COST
+        ),
+    },
 
-    horizons: [...HORIZONS],
+    observations: {
+      count:
+        totalObservationCount,
+    },
 
-    results: allResults,
+    features:
+      FEATURES,
+
+    summaries,
   };
 
-  const outputDirectory =
+  const outputFile =
     path.join(
-      path.dirname(
-        fileURLToPath(import.meta.url)
-      ),
-      'research-output'
+      DATA_DIRECTORY,
+      `trend-analysis-${Date.now()}.json`
     );
 
-  fs.mkdirSync(outputDirectory, {
-    recursive: true,
-  });
-
-  const outputPath = path.join(
-    outputDirectory,
-    `ema-analysis-${Date.now()}.json`
-  );
-
   fs.writeFileSync(
-    outputPath,
-    JSON.stringify(output, null, 2),
-    'utf8'
+    outputFile,
+    JSON.stringify(output)
   );
 
   console.log(
-    `\nAnalysis saved to ${outputPath}`
+    `\nAnalysis saved to ${outputFile}`
   );
-
-  console.log(
-    `Results generated: ${allResults.length}`
-  );
-
-  return outputPath;
 }
 
-const inputPath = process.argv[2];
-
-if (!inputPath) {
-  console.error(
-    'Usage: npx tsx server/ema-analysis-runner.ts <ema-data-file.json>'
-  );
-
-  process.exit(1);
-}
-
-analyseEmaCrossovers(inputPath);
+main();
