@@ -2,23 +2,45 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const EMA_PAIRS = [
-  [2, 3],
-  [3, 5],
-  [3, 8],
-  [5, 8],
-  [5, 13],
-  [8, 13],
-  [8, 20],
-  [13, 21],
-  [13, 34],
-  [21, 34],
-  [21, 55],
-  [34, 55],
-  [34, 89],
-  [55, 89],
-  [89, 144],
-] as const;
+const fibNumbers = [1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181, 6765, 10946, 17711, 28657]
+fibNumbers.push(43200)
+
+const constructPairs = <T>(items: T[]) => {
+  const pairArray = []
+
+  const count = items.length
+
+  for (let i = 0; i < count - 1; i++) {
+    for (let j = i + 1; j < count; j++) {
+      pairArray.push([fibNumbers[i], fibNumbers[j]])
+    }
+  }
+
+  return pairArray
+}
+
+const EMA_PAIRS = constructPairs(fibNumbers)
+
+// [
+//   [2, 3],
+//   [3, 5],
+//   [3, 8],
+//   [5, 8],
+//   [5, 13],
+//   [8, 13],
+//   [8, 20],
+//   [13, 21],
+//   [13, 34],
+//   [21, 34],
+//   [21, 55],
+//   [34, 55],
+//   [34, 89],
+//   [55, 89],
+//   [89, 144],
+// ] as const;
+
+console.log(EMA_PAIRS)
+
 
 const HORIZONS = [5, 10, 20, 50] as const;
 
