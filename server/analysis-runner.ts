@@ -16,80 +16,81 @@ interface MarketData {
   candles: Candle[];
 }
 
-interface FeatureResult {
-  market: string;
-  time: number;
-
-  // Direction
-  return5: number;
-  return10: number;
-  return20: number;
-  return50: number;
-  return100: number;
-
-  // Trend slope, normalised by price
-  slope20: number;
-  slope50: number;
-  slope100: number;
-
-  // Persistence
-  positive20: number;
-  positive50: number;
-  positive100: number;
-
-  // Smoothness
-  efficiency20: number;
-  efficiency50: number;
-  efficiency100: number;
-
-  // Recent drawdown from the highest close
-  drawdown20: number;
-  drawdown50: number;
-  drawdown100: number;
-
-  // Volatility
-  volatility20: number;
-  volatility50: number;
-  volatility100: number;
-
-  // Acceleration
-  acceleration: number;
-
-  // Future outcomes
-  future5: number;
-  future10: number;
-  future20: number;
-  future50: number;
-
-  // Maximum adverse/favourable excursion
-  mae20: number;
-  mfe20: number;
-
-  mae50: number;
-  mfe50: number;
+interface RawDataset {
+  generatedAt: string;
+  interval: string;
+  lookbackDays: number;
+  markets: MarketData[];
 }
 
-interface FeatureSummary {
+interface PathOutcome {
+  target: number;
+  stop: number;
+
+  targetBeforeStop: boolean;
+  stopBeforeTarget: boolean;
+  neither: boolean;
+
+  timeToTarget: number | null;
+  timeToStop: number | null;
+
+  mae: number;
+  mfe: number;
+}
+
+interface FeatureResult {
+  symbol: string;
+  timestamp: number;
+
+  return20: number;
+  return50: number;
+
+  slope20: number;
+  slope50: number;
+
+  drawdown20: number;
+  drawdown50: number;
+
+  volatility20: number;
+  volatility50: number;
+
+  efficiency20: number;
+  efficiency50: number;
+
+  acceleration: number;
+
+  outcomes: PathOutcome[];
+}
+
+interface BucketSummary {
   feature: string;
-  horizon: number;
   bucket: number;
-  observations: number;
-  averageGrossReturn: number;
-  averageNetReturn: number;
-  winRate: number;
-  averageMAE: number;
-  averageMFE: number;
+  count: number;
+
+  target: number;
+  stop: number;
+
+  targetBeforeStopRate: number;
+  stopBeforeTargetRate: number;
+  neitherRate: number;
+
+  averageTimeToTarget: number | null;
+
+  averageMae: number;
+  averageMfe: number;
 }
 
 const TOTAL_COST = 0.002;
 
-const LOOKBACKS = [5, 10, 20, 50, 100];
-const FUTURE_HORIZONS = [5, 10, 20, 50];
+const LOOKBACKS = [20, 50];
 
-const MIN_LOOKBACK = 100;
-const MAX_FUTURE = 50;
+const TARGETS = [0.002, 0.003, 0.005];
+const STOPS = [-0.002, -0.003];
 
-const DATA_DIRECTORY = path.join(
+const MIN_LOOKBACK = 50;
+const MAX_FORWARD_MINUTES = 120;
+
+const OUTPUT_DIR = path.join(
   process.cwd(),
   "server",
   "research-output"
@@ -97,7 +98,7 @@ const DATA_DIRECTORY = path.join(
 
 function findLatestDataFile(): string {
   const files = fs
-    .readdirSync(DATA_DIRECTORY)
+    .readdirSync(OUTPUT_DIR)
     .filter(
       (file) =>
         file.startsWith("ema-data-") &&
@@ -107,18 +108,14 @@ function findLatestDataFile(): string {
 
   if (files.length === 0) {
     throw new Error(
-      `No ema-data-*.json files found in ${DATA_DIRECTORY}`
+      `No ema-data-*.json files found in ${OUTPUT_DIR}`
     );
   }
 
   return path.join(
-    DATA_DIRECTORY,
+    OUTPUT_DIR,
     files[files.length - 1]
   );
-}
-
-function percentage(value: number): number {
-  return value * 100;
 }
 
 function mean(values: number[]): number {
@@ -127,185 +124,137 @@ function mean(values: number[]): number {
   }
 
   return (
-    values.reduce(
-      (sum, value) => sum + value,
-      0
-    ) / values.length
+    values.reduce((sum, value) => sum + value, 0) /
+    values.length
   );
 }
 
-/**
- * Return from price at `start` to price at `end`.
- */
+function percentage(value: number): number {
+  return value * 100;
+}
+
 function priceReturn(
   candles: Candle[],
-  start: number,
-  end: number
-): number {
-  const startPrice = candles[start].close;
-  const endPrice = candles[end].close;
-
-  if (startPrice === 0) {
-    return 0;
-  }
-
-  return endPrice / startPrice - 1;
-}
-
-/**
- * Fraction of one-minute price changes which were positive.
- */
-function positiveFraction(
-  candles: Candle[],
-  index: number,
+  startIndex: number,
   lookback: number
 ): number {
-  let positive = 0;
-  let observations = 0;
+  const start = candles[startIndex - lookback]?.close;
+  const end = candles[startIndex]?.close;
 
-  const start = index - lookback + 1;
-
-  for (
-    let i = Math.max(1, start);
-    i <= index;
-    i++
+  if (
+    start === undefined ||
+    end === undefined ||
+    start === 0
   ) {
-    const previous = candles[i - 1].close;
-    const current = candles[i].close;
-
-    if (current > previous) {
-      positive++;
-    }
-
-    observations++;
-  }
-
-  if (observations === 0) {
     return 0;
   }
 
-  return positive / observations;
+  return (end - start) / start;
 }
 
-/**
- * Efficiency ratio:
- *
- * net movement / total absolute movement
- *
- * A smooth upward trend approaches +1.
- * A smooth downward trend approaches -1.
- * Choppy movement approaches 0.
- */
-function efficiencyRatio(
+function regressionSlope(
   candles: Candle[],
-  index: number,
+  endIndex: number,
   lookback: number
 ): number {
-  const start = index - lookback;
+  const startIndex = endIndex - lookback + 1;
 
-  if (start < 0) {
+  if (startIndex < 0) {
     return 0;
   }
 
-  const netMovement =
-    candles[index].close -
-    candles[start].close;
+  const values = candles
+    .slice(startIndex, endIndex + 1)
+    .map((candle) => candle.close);
 
-  let totalMovement = 0;
-
-  for (
-    let i = start + 1;
-    i <= index;
-    i++
-  ) {
-    totalMovement += Math.abs(
-      candles[i].close -
-        candles[i - 1].close
-    );
-  }
-
-  if (totalMovement === 0) {
+  if (values.length < 2) {
     return 0;
   }
 
-  return netMovement / totalMovement;
+  const meanX = (values.length - 1) / 2;
+  const meanY = mean(values);
+
+  let numerator = 0;
+  let denominator = 0;
+
+  for (let i = 0; i < values.length; i += 1) {
+    const x = i - meanX;
+    const y = values[i] - meanY;
+
+    numerator += x * y;
+    denominator += x * x;
+  }
+
+  if (denominator === 0 || meanY === 0) {
+    return 0;
+  }
+
+  // Normalise the slope so it is approximately a
+  // fractional price change per candle.
+  return (numerator / denominator) / meanY;
 }
 
-/**
- * Maximum drawdown from the highest close
- * during the lookback period.
- */
 function maximumDrawdown(
   candles: Candle[],
-  index: number,
+  endIndex: number,
   lookback: number
 ): number {
-  const start = Math.max(
-    0,
-    index - lookback
-  );
+  const startIndex = endIndex - lookback + 1;
 
-  let highest =
-    candles[start].close;
-
-  let maximumDrawdown = 0;
-
-  for (
-    let i = start;
-    i <= index;
-    i++
-  ) {
-    highest = Math.max(
-      highest,
-      candles[i].close
-    );
-
-    const drawdown =
-      candles[i].close / highest - 1;
-
-    maximumDrawdown = Math.min(
-      maximumDrawdown,
-      drawdown
-    );
+  if (startIndex < 0) {
+    return 0;
   }
 
-  return maximumDrawdown;
+  let highest = candles[startIndex].close;
+  let maximum = 0;
+
+  for (
+    let index = startIndex;
+    index <= endIndex;
+    index += 1
+  ) {
+    const close = candles[index].close;
+
+    if (close > highest) {
+      highest = close;
+    }
+
+    if (highest > 0) {
+      const drawdown = (close - highest) / highest;
+
+      if (drawdown < maximum) {
+        maximum = drawdown;
+      }
+    }
+  }
+
+  return maximum;
 }
 
-/**
- * Standard deviation of one-minute returns.
- */
 function volatility(
   candles: Candle[],
-  index: number,
+  endIndex: number,
   lookback: number
 ): number {
-  const start = index - lookback + 1;
+  const startIndex = endIndex - lookback;
 
-  if (start < 1) {
+  if (startIndex < 0) {
     return 0;
   }
 
   const returns: number[] = [];
 
   for (
-    let i = start;
-    i <= index;
-    i++
+    let index = startIndex + 1;
+    index <= endIndex;
+    index += 1
   ) {
-    const previous =
-      candles[i - 1].close;
+    const previous = candles[index - 1].close;
+    const current = candles[index].close;
 
-    const current =
-      candles[i].close;
-
-    if (previous === 0) {
-      continue;
+    if (previous > 0) {
+      returns.push((current - previous) / previous);
     }
-
-    returns.push(
-      current / previous - 1
-    );
   }
 
   if (returns.length === 0) {
@@ -316,628 +265,494 @@ function volatility(
 
   const variance = mean(
     returns.map(
-      (value) =>
-        (value - average) ** 2
+      (value) => (value - average) ** 2
     )
   );
 
   return Math.sqrt(variance);
 }
 
-/**
- * Linear regression slope of price against time,
- * normalised by the current price.
- *
- * This makes slopes comparable between markets
- * with different absolute prices.
- */
-function regressionSlope(
+function efficiencyRatio(
   candles: Candle[],
-  index: number,
+  endIndex: number,
   lookback: number
 ): number {
-  const start =
-    index - lookback + 1;
+  const startIndex = endIndex - lookback;
 
-  if (start < 0) {
+  if (startIndex < 0) {
     return 0;
   }
 
-  const n = lookback;
+  const start = candles[startIndex].close;
+  const end = candles[endIndex].close;
 
-  let sumX = 0;
-  let sumY = 0;
-  let sumXY = 0;
-  let sumXX = 0;
+  let totalMovement = 0;
 
   for (
-    let i = 0;
-    i < n;
-    i++
+    let index = startIndex + 1;
+    index <= endIndex;
+    index += 1
   ) {
-    const x = i;
-    const y =
-      candles[start + i].close;
-
-    sumX += x;
-    sumY += y;
-    sumXY += x * y;
-    sumXX += x * x;
-  }
-
-  const denominator =
-    n * sumXX -
-    sumX * sumX;
-
-  if (denominator === 0) {
-    return 0;
-  }
-
-  const slope =
-    (n * sumXY -
-      sumX * sumY) /
-    denominator;
-
-  const currentPrice =
-    candles[index].close;
-
-  if (currentPrice === 0) {
-    return 0;
-  }
-
-  return slope / currentPrice;
-}
-
-/**
- * Maximum favourable and adverse excursion
- * after entry.
- *
- * Highs/lows are used rather than closes because
- * the question is whether there was an opportunity
- * to exit profitably, not merely whether the final
- * closing price was higher.
- */
-function excursion(
-  candles: Candle[],
-  index: number,
-  horizon: number
-): {
-  mae: number;
-  mfe: number;
-} {
-  const entry =
-    candles[index].close;
-
-  let lowest = entry;
-  let highest = entry;
-
-  const end = Math.min(
-    candles.length - 1,
-    index + horizon
-  );
-
-  for (
-    let i = index + 1;
-    i <= end;
-    i++
-  ) {
-    lowest = Math.min(
-      lowest,
-      candles[i].low
-    );
-
-    highest = Math.max(
-      highest,
-      candles[i].high
+    totalMovement += Math.abs(
+      candles[index].close -
+        candles[index - 1].close
     );
   }
 
-  return {
-    mae:
-      entry === 0
-        ? 0
-        : lowest / entry - 1,
+  if (totalMovement === 0) {
+    return 0;
+  }
 
-    mfe:
-      entry === 0
-        ? 0
-        : highest / entry - 1,
-  };
+  return Math.abs(end - start) / totalMovement;
 }
 
-/**
- * Calculate all features available at a particular
- * point in time.
- *
- * IMPORTANT:
- * Every feature uses candles <= index.
- * No future candle is used here.
- */
 function calculateFeatures(
   candles: Candle[],
   index: number
-): Omit<
-  FeatureResult,
-  | "market"
-  | "time"
-  | "future5"
-  | "future10"
-  | "future20"
-  | "future50"
-  | "mae20"
-  | "mfe20"
-  | "mae50"
-  | "mfe50"
-> {
-  const return5 =
-    priceReturn(
-      candles,
-      index - 5,
-      index
-    );
+): Omit<FeatureResult, "symbol" | "timestamp" | "outcomes"> {
+  const return20 = priceReturn(
+    candles,
+    index,
+    20
+  );
 
-  const return10 =
-    priceReturn(
-      candles,
-      index - 10,
-      index
-    );
+  const return50 = priceReturn(
+    candles,
+    index,
+    50
+  );
 
-  const return20 =
-    priceReturn(
-      candles,
-      index - 20,
-      index
-    );
+  const slope20 = regressionSlope(
+    candles,
+    index,
+    20
+  );
 
-  const return50 =
-    priceReturn(
-      candles,
-      index - 50,
-      index
-    );
+  const slope50 = regressionSlope(
+    candles,
+    index,
+    50
+  );
 
-  const return100 =
-    priceReturn(
-      candles,
-      index - 100,
-      index
-    );
+  const drawdown20 = maximumDrawdown(
+    candles,
+    index,
+    20
+  );
 
-  const slope20 =
-    regressionSlope(
-      candles,
-      index,
-      20
-    );
+  const drawdown50 = maximumDrawdown(
+    candles,
+    index,
+    50
+  );
 
-  const slope50 =
-    regressionSlope(
-      candles,
-      index,
-      50
-    );
+  const volatility20 = volatility(
+    candles,
+    index,
+    20
+  );
 
-  const slope100 =
-    regressionSlope(
-      candles,
-      index,
-      100
-    );
+  const volatility50 = volatility(
+    candles,
+    index,
+    50
+  );
 
-  const positive20 =
-    positiveFraction(
-      candles,
-      index,
-      20
-    );
+  const efficiency20 = efficiencyRatio(
+    candles,
+    index,
+    20
+  );
 
-  const positive50 =
-    positiveFraction(
-      candles,
-      index,
-      50
-    );
+  const efficiency50 = efficiencyRatio(
+    candles,
+    index,
+    50
+  );
 
-  const positive100 =
-    positiveFraction(
-      candles,
-      index,
-      100
-    );
-
-  const efficiency20 =
-    efficiencyRatio(
-      candles,
-      index,
-      20
-    );
-
-  const efficiency50 =
-    efficiencyRatio(
-      candles,
-      index,
-      50
-    );
-
-  const efficiency100 =
-    efficiencyRatio(
-      candles,
-      index,
-      100
-    );
-
-  const drawdown20 =
-    maximumDrawdown(
-      candles,
-      index,
-      20
-    );
-
-  const drawdown50 =
-    maximumDrawdown(
-      candles,
-      index,
-      50
-    );
-
-  const drawdown100 =
-    maximumDrawdown(
-      candles,
-      index,
-      100
-    );
-
-  const volatility20 =
-    volatility(
-      candles,
-      index,
-      20
-    );
-
-  const volatility50 =
-    volatility(
-      candles,
-      index,
-      50
-    );
-
-  const volatility100 =
-    volatility(
-      candles,
-      index,
-      100
-    );
-
-  /**
-   * Positive acceleration means the short-term
-   * trend is stronger than the medium-term trend.
-   */
-  const acceleration =
-    slope20 - slope50;
+  const acceleration = slope20 - slope50;
 
   return {
-    return5,
-    return10,
     return20,
     return50,
-    return100,
-
     slope20,
     slope50,
-    slope100,
-
-    positive20,
-    positive50,
-    positive100,
-
-    efficiency20,
-    efficiency50,
-    efficiency100,
-
     drawdown20,
     drawdown50,
-    drawdown100,
-
     volatility20,
     volatility50,
-    volatility100,
-
+    efficiency20,
+    efficiency50,
     acceleration,
   };
 }
 
-/**
- * Actual future return from the entry price.
- */
-function futureReturn(
+function calculatePathOutcome(
   candles: Candle[],
-  index: number,
-  horizon: number
-): number {
-  const futureIndex =
-    index + horizon;
+  entryIndex: number,
+  target: number,
+  stop: number
+): PathOutcome {
+  const entryPrice =
+    candles[entryIndex].close;
 
-  if (
-    futureIndex >=
-    candles.length
+  let mae = 0;
+  let mfe = 0;
+
+  let timeToTarget: number | null = null;
+  let timeToStop: number | null = null;
+
+  const lastIndex = Math.min(
+    candles.length - 1,
+    entryIndex + MAX_FORWARD_MINUTES
+  );
+
+  for (
+    let index = entryIndex + 1;
+    index <= lastIndex;
+    index += 1
   ) {
-    return 0;
-  }
+    const candle = candles[index];
 
-  return priceReturn(
-    candles,
-    index,
-    futureIndex
-  );
-}
+    const highReturn =
+      (candle.high - entryPrice) /
+      entryPrice;
 
-type NumericFeature =
-  | "return5"
-  | "return10"
-  | "return20"
-  | "return50"
-  | "return100"
-  | "slope20"
-  | "slope50"
-  | "slope100"
-  | "positive20"
-  | "positive50"
-  | "positive100"
-  | "efficiency20"
-  | "efficiency50"
-  | "efficiency100"
-  | "drawdown20"
-  | "drawdown50"
-  | "drawdown100"
-  | "volatility20"
-  | "volatility50"
-  | "volatility100"
-  | "acceleration";
+    const lowReturn =
+      (candle.low - entryPrice) /
+      entryPrice;
 
-const FEATURES: NumericFeature[] = [
-  "return5",
-  "return10",
-  "return20",
-  "return50",
-  "return100",
-
-  "slope20",
-  "slope50",
-  "slope100",
-
-  "positive20",
-  "positive50",
-  "positive100",
-
-  "efficiency20",
-  "efficiency50",
-  "efficiency100",
-
-  "drawdown20",
-  "drawdown50",
-  "drawdown100",
-
-  "volatility20",
-  "volatility50",
-  "volatility100",
-
-  "acceleration",
-];
-
-function quantile(
-  sorted: number[],
-  probability: number
-): number {
-  if (sorted.length === 0) {
-    return 0;
-  }
-
-  const position =
-    (sorted.length - 1) *
-    probability;
-
-  const lower =
-    Math.floor(position);
-
-  const upper =
-    Math.ceil(position);
-
-  if (lower === upper) {
-    return sorted[lower];
-  }
-
-  const weight =
-    position - lower;
-
-  return (
-    sorted[lower] *
-      (1 - weight) +
-    sorted[upper] * weight
-  );
-}
-
-/**
- * Put observations into ten buckets based on
- * the distribution of the feature.
- *
- * Bucket 1 = lowest 10%
- * Bucket 10 = highest 10%
- */
-function calculateFeatureSummaries(
-  observations: FeatureResult[]
-): FeatureSummary[] {
-  const summaries: FeatureSummary[] = [];
-
-  for (const feature of FEATURES) {
-    console.log(
-      `Summarising ${feature}...`
-    );
-
-    // Sort indices rather than copying the entire observation
-    // objects. This substantially reduces memory overhead.
-    const sortedIndices = Array.from(
-      { length: observations.length },
-      (_, index) => index
-    ).sort(
-      (a, b) =>
-        observations[a][feature] -
-        observations[b][feature]
-    );
-
-    const bucketStats = Array.from(
-      { length: 10 },
-      () =>
-        new Map<
-          number,
-          {
-            count: number;
-            grossReturnSum: number;
-            netReturnSum: number;
-            wins: number;
-            maeSum: number;
-            mfeSum: number;
-          }
-        >()
-    );
-
-    for (
-      let sortedPosition = 0;
-      sortedPosition <
-      sortedIndices.length;
-      sortedPosition++
-    ) {
-      const observation =
-        observations[
-          sortedIndices[
-            sortedPosition
-          ]
-        ];
-
-      const bucket = Math.min(
-        9,
-        Math.floor(
-          (sortedPosition * 10) /
-            sortedIndices.length
-        )
-      );
-
-      for (const horizon of FUTURE_HORIZONS) {
-        const futureReturn =
-          observation[
-            `future${horizon}` as
-              | "future5"
-              | "future10"
-              | "future20"
-              | "future50"
-          ];
-
-        const netReturn =
-          futureReturn -
-          TOTAL_COST;
-
-        const excursionData =
-          horizon <= 20
-            ? {
-                mae: observation.mae20,
-                mfe: observation.mfe20,
-              }
-            : {
-                mae: observation.mae50,
-                mfe: observation.mfe50,
-              };
-
-        const existing =
-          bucketStats[bucket].get(
-            horizon
-          );
-
-        if (existing) {
-          existing.count++;
-          existing.grossReturnSum +=
-            futureReturn;
-          existing.netReturnSum +=
-            netReturn;
-
-          if (netReturn > 0) {
-            existing.wins++;
-          }
-
-          existing.maeSum +=
-            excursionData.mae;
-
-          existing.mfeSum +=
-            excursionData.mfe;
-        } else {
-          bucketStats[bucket].set(
-            horizon,
-            {
-              count: 1,
-              grossReturnSum:
-                futureReturn,
-              netReturnSum:
-                netReturn,
-              wins:
-                netReturn > 0
-                  ? 1
-                  : 0,
-              maeSum:
-                excursionData.mae,
-              mfeSum:
-                excursionData.mfe,
-            }
-          );
-        }
-      }
+    if (highReturn > mfe) {
+      mfe = highReturn;
     }
 
+    if (lowReturn < mae) {
+      mae = lowReturn;
+    }
+
+    /*
+     * We use the candle's high/low to determine whether
+     * a level was reached. If both target and stop occur
+     * inside the same candle, OHLC data cannot tell us
+     * which happened first.
+     *
+     * We therefore classify that case as neither rather
+     * than inventing an intrabar ordering.
+     */
+    const hitTarget = highReturn >= target;
+    const hitStop = lowReturn <= stop;
+
+    if (hitTarget && hitStop) {
+      break;
+    }
+
+    if (hitTarget) {
+      timeToTarget =
+        index - entryIndex;
+      break;
+    }
+
+    if (hitStop) {
+      timeToStop =
+        index - entryIndex;
+      break;
+    }
+  }
+
+  const targetBeforeStop =
+    timeToTarget !== null &&
+    (
+      timeToStop === null ||
+      timeToTarget < timeToStop
+    );
+
+  const stopBeforeTarget =
+    timeToStop !== null &&
+    (
+      timeToTarget === null ||
+      timeToStop < timeToTarget
+    );
+
+  const neither =
+    !targetBeforeStop &&
+    !stopBeforeTarget;
+
+  return {
+    target,
+    stop,
+    targetBeforeStop,
+    stopBeforeTarget,
+    neither,
+    timeToTarget,
+    timeToStop,
+    mae,
+    mfe,
+  };
+}
+
+function calculateOutcomes(
+  candles: Candle[],
+  index: number
+): PathOutcome[] {
+  const outcomes: PathOutcome[] = [];
+
+  for (const target of TARGETS) {
+    for (const stop of STOPS) {
+      outcomes.push(
+        calculatePathOutcome(
+          candles,
+          index,
+          target,
+          stop
+        )
+      );
+    }
+  }
+
+  return outcomes;
+}
+
+function buildObservations(
+  dataset: RawDataset
+): FeatureResult[] {
+  const observations: FeatureResult[] = [];
+
+  let processed = 0;
+
+  for (const market of dataset.markets) {
+    const candles = market.candles;
+
+    const firstIndex = MIN_LOOKBACK;
+    const lastIndex =
+      candles.length - MAX_FORWARD_MINUTES - 1;
+
     for (
-      let bucket = 0;
-      bucket < 10;
-      bucket++
+      let index = firstIndex;
+      index <= lastIndex;
+      index += 1
     ) {
-      for (const horizon of FUTURE_HORIZONS) {
-        const stats =
-          bucketStats[bucket].get(
-            horizon
+      const features = calculateFeatures(
+        candles,
+        index
+      );
+
+      const outcomes = calculateOutcomes(
+        candles,
+        index
+      );
+
+      observations.push({
+        symbol: market.symbol,
+        timestamp: candles[index].closeTime,
+        ...features,
+        outcomes,
+      });
+
+      processed += 1;
+
+      if (processed % 100000 === 0) {
+        console.log(
+          `Processed ${processed.toLocaleString()} observations`
+        );
+      }
+    }
+  }
+
+  return observations;
+}
+
+function getFeatureValue(
+  observation: FeatureResult,
+  feature: keyof Omit<
+    FeatureResult,
+    "symbol" | "timestamp" | "outcomes"
+  >
+): number {
+  return observation[feature];
+}
+
+function getOutcome(
+  observation: FeatureResult,
+  target: number,
+  stop: number
+): PathOutcome {
+  const outcome = observation.outcomes.find(
+    (item) =>
+      item.target === target &&
+      item.stop === stop
+  );
+
+  if (!outcome) {
+    throw new Error(
+      `Missing outcome for target ${target}, stop ${stop}`
+    );
+  }
+
+  return outcome;
+}
+
+function calculateFeatureSummaries(
+  observations: FeatureResult[]
+): BucketSummary[] {
+  const features: Array<
+    keyof Omit<
+      FeatureResult,
+      "symbol" | "timestamp" | "outcomes"
+    >
+  > = [
+    "return20",
+    "return50",
+    "slope20",
+    "slope50",
+    "drawdown20",
+    "drawdown50",
+    "volatility20",
+    "volatility50",
+    "efficiency20",
+    "efficiency50",
+    "acceleration",
+  ];
+
+  const summaries: BucketSummary[] = [];
+
+  for (const feature of features) {
+    console.log(
+      `Summarising ${String(feature)}...`
+    );
+
+    const sortedIndices = observations
+      .map((_, index) => index)
+      .sort(
+        (a, b) =>
+          getFeatureValue(
+            observations[a],
+            feature
+          ) -
+          getFeatureValue(
+            observations[b],
+            feature
+          )
+      );
+
+    for (const target of TARGETS) {
+      for (const stop of STOPS) {
+        const buckets = Array.from(
+          { length: 10 },
+          () => ({
+            count: 0,
+            targetBeforeStop: 0,
+            stopBeforeTarget: 0,
+            neither: 0,
+            targetTimes: [] as number[],
+            maes: [] as number[],
+            mfes: [] as number[],
+          })
+        );
+
+        for (
+          let sortedPosition = 0;
+          sortedPosition < sortedIndices.length;
+          sortedPosition += 1
+        ) {
+          const observation =
+            observations[
+              sortedIndices[sortedPosition]
+            ];
+
+          const bucket = Math.min(
+            9,
+            Math.floor(
+              (sortedPosition * 10) /
+                sortedIndices.length
+            )
           );
 
-        if (!stats) {
-          continue;
+          const outcome = getOutcome(
+            observation,
+            target,
+            stop
+          );
+
+          const bucketData = buckets[bucket];
+
+          bucketData.count += 1;
+
+          if (outcome.targetBeforeStop) {
+            bucketData.targetBeforeStop += 1;
+          }
+
+          if (outcome.stopBeforeTarget) {
+            bucketData.stopBeforeTarget += 1;
+          }
+
+          if (outcome.neither) {
+            bucketData.neither += 1;
+          }
+
+          if (
+            outcome.timeToTarget !== null
+          ) {
+            bucketData.targetTimes.push(
+              outcome.timeToTarget
+            );
+          }
+
+          bucketData.maes.push(
+            outcome.mae
+          );
+
+          bucketData.mfes.push(
+            outcome.mfe
+          );
         }
 
-        summaries.push({
-          feature,
+        for (
+          let bucket = 0;
+          bucket < 10;
+          bucket += 1
+        ) {
+          const data = buckets[bucket];
 
-          // Convert internal 0–9 bucket to
-          // the externally reported 1–10 bucket.
-          bucket: bucket + 1,
+          summaries.push({
+            feature: String(feature),
+            bucket: bucket + 1,
+            count: data.count,
 
-          horizon,
+            target,
+            stop,
 
-          observations:
-            stats.count,
+            targetBeforeStopRate:
+              data.count === 0
+                ? 0
+                : data.targetBeforeStop /
+                  data.count,
 
-          averageGrossReturn:
-            stats.grossReturnSum /
-            stats.count,
+            stopBeforeTargetRate:
+              data.count === 0
+                ? 0
+                : data.stopBeforeTarget /
+                  data.count,
 
-          averageNetReturn:
-            stats.netReturnSum /
-            stats.count,
+            neitherRate:
+              data.count === 0
+                ? 0
+                : data.neither /
+                  data.count,
 
-          winRate:
-            stats.wins /
-            stats.count,
+            averageTimeToTarget:
+              data.targetTimes.length === 0
+                ? null
+                : mean(
+                    data.targetTimes
+                  ),
 
-          averageMAE:
-            stats.maeSum /
-            stats.count,
+            averageMae:
+              mean(data.maes),
 
-          averageMFE:
-            stats.mfeSum /
-            stats.count,
-        });
+            averageMfe:
+              mean(data.mfes),
+          });
+        }
       }
     }
   }
@@ -948,324 +763,232 @@ function calculateFeatureSummaries(
 function formatPercent(
   value: number
 ): string {
-  return `${percentage(value).toFixed(4)}%`;
+  return `${percentage(value).toFixed(3)}%`;
 }
 
-function printTopFeatureResults(
-  summaries: FeatureSummary[]
+function printResults(
+  summaries: BucketSummary[]
 ): void {
-  console.log(
-    "\n=== BEST FEATURE BUCKETS ===\n"
-  );
+  console.log("\n================================");
+  console.log("PATH-TO-TARGET RESULTS");
+  console.log("================================\n");
 
-  for (const horizon of FUTURE_HORIZONS) {
-    console.log(
-      `\n--- ${horizon} minute horizon ---`
-    );
-
-    const best = summaries
-      .filter(
-        (summary) =>
-          summary.horizon ===
-            horizon &&
-          summary.observations >= 1000
-      )
-      .sort(
-        (a, b) =>
-          b.averageNetReturn -
-          a.averageNetReturn
-      )
-      .slice(0, 20);
-
-    for (const result of best) {
+  for (const target of TARGETS) {
+    for (const stop of STOPS) {
       console.log(
-        [
-          result.feature.padEnd(
-            18
-          ),
-
-          `bucket=${String(
-            result.bucket
-          ).padStart(2)}`,
-
-          `n=${String(
-            result.observations
-          ).padStart(7)}`,
-
-          `gross=${formatPercent(
-            result.averageGrossReturn
-          ).padStart(10)}`,
-
-          `net=${formatPercent(
-            result.averageNetReturn
-          ).padStart(10)}`,
-
-          `win=${formatPercent(
-            result.winRate
-          ).padStart(8)}`,
-
-          `MAE=${formatPercent(
-            result.averageMAE
-          ).padStart(10)}`,
-
-          `MFE=${formatPercent(
-            result.averageMFE
-          ).padStart(10)}`,
-        ].join(" | ")
+        `\nTarget ${formatPercent(
+          target
+        )} before stop ${formatPercent(stop)}`
       );
+      console.log(
+        "--------------------------------"
+      );
+
+      const relevant = summaries
+        .filter(
+          (summary) =>
+            summary.target === target &&
+            summary.stop === stop
+        );
+
+      const features = [
+        ...new Set(
+          relevant.map(
+            (summary) =>
+              summary.feature
+          )
+        ),
+      ];
+
+      const rankings = features
+        .map((feature) => {
+          const rows = relevant.filter(
+            (row) =>
+              row.feature === feature
+          );
+
+          const best = [...rows].sort(
+            (a, b) =>
+              b.targetBeforeStopRate -
+              a.targetBeforeStopRate
+          )[0];
+
+          const worst = [...rows].sort(
+            (a, b) =>
+              a.targetBeforeStopRate -
+              b.targetBeforeStopRate
+          )[0];
+
+          return {
+            feature,
+            bestBucket: best.bucket,
+            bestRate:
+              best.targetBeforeStopRate,
+            worstBucket: worst.bucket,
+            worstRate:
+              worst.targetBeforeStopRate,
+            spread:
+              best.targetBeforeStopRate -
+              worst.targetBeforeStopRate,
+          };
+        })
+        .sort(
+          (a, b) =>
+            b.spread - a.spread
+        );
+
+      for (const ranking of rankings) {
+        console.log(
+          `${ranking.feature.padEnd(16)} ` +
+            `best B${ranking.bestBucket}: ` +
+            `${formatPercent(
+              ranking.bestRate
+            )} | ` +
+            `worst B${ranking.worstBucket}: ` +
+            `${formatPercent(
+              ranking.worstRate
+            )} | ` +
+            `spread ${formatPercent(
+              ranking.spread
+            )}`
+        );
+      }
     }
   }
 }
 
-/**
- * Print examples of market states resembling
- * the user's visual description:
- *
- * - price already rising
- * - rising over multiple timescales
- * - many positive minutes
- * - orderly movement
- * - relatively shallow drawdown
- *
- * This is deliberately only a diagnostic filter.
- * It is NOT used to determine the statistical
- * feature results above.
- */
-function printHighQualityMarkets(
-  observations: FeatureResult[]
+function printBestBuckets(
+  summaries: BucketSummary[]
 ): void {
   console.log(
-    "\n=== EXAMPLE HIGH-QUALITY UPWARD STATES ===\n"
+    "\n================================"
+  );
+  console.log("BEST FEATURE BUCKETS");
+  console.log(
+    "================================\n"
   );
 
-  const candidates =
-    observations
-      .filter(
-        (observation) =>
-          observation.return20 > 0 &&
-          observation.return50 > 0 &&
-          observation.return100 > 0 &&
-          observation.positive50 >=
-            0.55 &&
-          observation.efficiency50 >=
-            0.25 &&
-          observation.drawdown50 >=
-            -0.03
-      )
-      .sort(
-        (a, b) =>
-          b.efficiency50 -
-          a.efficiency50
-      )
-      .slice(0, 20);
+  for (const target of TARGETS) {
+    for (const stop of STOPS) {
+      console.log(
+        `\nTarget ${formatPercent(
+          target
+        )} before stop ${formatPercent(stop)}`
+      );
 
-  for (const candidate of candidates) {
-    console.log(
-      [
-        candidate.market,
+      const rows = summaries
+        .filter(
+          (summary) =>
+            summary.target === target &&
+            summary.stop === stop
+        )
+        .sort(
+          (a, b) =>
+            b.targetBeforeStopRate -
+            a.targetBeforeStopRate
+        );
 
-        new Date(
-          candidate.time
-        ).toISOString(),
+      const seenFeatures =
+        new Set<string>();
 
-        `r20=${formatPercent(
-          candidate.return20
-        )}`,
+      let printed = 0;
 
-        `r50=${formatPercent(
-          candidate.return50
-        )}`,
+      for (const row of rows) {
+        if (
+          seenFeatures.has(row.feature)
+        ) {
+          continue;
+        }
 
-        `r100=${formatPercent(
-          candidate.return100
-        )}`,
+        seenFeatures.add(row.feature);
 
-        `positive50=${formatPercent(
-          candidate.positive50
-        )}`,
+        console.log(
+          `${row.feature.padEnd(16)} ` +
+            `bucket ${row.bucket}: ` +
+            `target-first ` +
+            `${formatPercent(
+              row.targetBeforeStopRate
+            )}, ` +
+            `stop-first ` +
+            `${formatPercent(
+              row.stopBeforeTargetRate
+            )}, ` +
+            `neither ` +
+            `${formatPercent(
+              row.neitherRate
+            )}, ` +
+            `avg target time ` +
+            `${
+              row.averageTimeToTarget ===
+              null
+                ? "n/a"
+                : `${row.averageTimeToTarget.toFixed(
+                    1
+                  )}m`
+            }`
+        );
 
-        `eff50=${candidate.efficiency50.toFixed(
-          3
-        )}`,
+        printed += 1;
 
-        `dd50=${formatPercent(
-          candidate.drawdown50
-        )}`,
-
-        `future20=${formatPercent(
-          candidate.future20
-        )}`,
-
-        `future50=${formatPercent(
-          candidate.future50
-        )}`,
-
-        `MAE20=${formatPercent(
-          candidate.mae20
-        )}`,
-
-        `MFE20=${formatPercent(
-          candidate.mfe20
-        )}`,
-      ].join(" | ")
-    );
+        if (printed >= 5) {
+          break;
+        }
+      }
+    }
   }
 }
 
 function main(): void {
+  console.log(
+    "Loading raw historical dataset..."
+  );
+
   const inputFile =
     findLatestDataFile();
 
   console.log(
-    `Loading ${inputFile}...`
+    `Input: ${inputFile}`
   );
-
-  const raw =
-    fs.readFileSync(
-      inputFile,
-      "utf8"
-    );
 
   const dataset =
-    JSON.parse(raw) as {
-      markets: MarketData[];
-    };
+    JSON.parse(
+      fs.readFileSync(
+        inputFile,
+        "utf8"
+      )
+    ) as RawDataset;
 
   console.log(
-    `Loaded ${dataset.markets.length} markets`
-  );
-
-  const observations: FeatureResult[] =
-    [];
-
-  let totalObservationCount = 0;
-
-  /**
-   * Process one market at a time.
-   *
-   * We don't retain intermediate feature
-   * arrays for individual markets.
-   */
-  for (
-    let marketIndex = 0;
-    marketIndex <
-    dataset.markets.length;
-    marketIndex++
-  ) {
-    const market =
-      dataset.markets[
-        marketIndex
-      ];
-
-    const candles =
-      market.candles;
-
-    console.log(
-      `Processing ${market.symbol} (${marketIndex + 1}/${dataset.markets.length})`
-    );
-
-    const firstIndex =
-      MIN_LOOKBACK;
-
-    const lastIndex =
-      candles.length -
-      MAX_FUTURE -
-      1;
-
-    if (
-      lastIndex <=
-      firstIndex
-    ) {
-      continue;
-    }
-
-    for (
-      let index =
-        firstIndex;
-      index <= lastIndex;
-      index++
-    ) {
-      const features =
-        calculateFeatures(
-          candles,
-          index
-        );
-
-      const excursion20 =
-        excursion(
-          candles,
-          index,
-          20
-        );
-
-      const excursion50 =
-        excursion(
-          candles,
-          index,
-          50
-        );
-
-      observations.push({
-        market:
-          market.symbol,
-
-        time:
-          candles[index]
-            .closeTime,
-
-        ...features,
-
-        future5:
-          futureReturn(
-            candles,
-            index,
-            5
-          ),
-
-        future10:
-          futureReturn(
-            candles,
-            index,
-            10
-          ),
-
-        future20:
-          futureReturn(
-            candles,
-            index,
-            20
-          ),
-
-        future50:
-          futureReturn(
-            candles,
-            index,
-            50
-          ),
-
-        mae20:
-          excursion20.mae,
-
-        mfe20:
-          excursion20.mfe,
-
-        mae50:
-          excursion50.mae,
-
-        mfe50:
-          excursion50.mfe,
-      });
-
-      totalObservationCount++;
-    }
-  }
-
-  console.log(
-    `\nDataset built: ${totalObservationCount.toLocaleString()} observations`
+    `Markets: ${dataset.markets.length}`
   );
 
   console.log(
-    "Calculating feature/bucket statistics..."
+    `Interval: ${dataset.interval}`
+  );
+
+  console.log(
+    `Lookback: ${dataset.lookbackDays} days`
+  );
+
+  console.log(
+    `Assumed round-trip cost: ${formatPercent(
+      TOTAL_COST
+    )}`
+  );
+
+  console.log(
+    "\nBuilding path observations..."
+  );
+
+  const observations =
+    buildObservations(dataset);
+
+  console.log(
+    `\nDataset built: ${observations.length.toLocaleString()} observations`
+  );
+
+  console.log(
+    "\nCalculating feature summaries..."
   );
 
   const summaries =
@@ -1273,81 +996,72 @@ function main(): void {
       observations
     );
 
-  printTopFeatureResults(
-    summaries
-  );
+  printResults(summaries);
 
-  printHighQualityMarkets(
-    observations
-  );
+  printBestBuckets(summaries);
 
-  /**
-   * IMPORTANT:
-   *
-   * Do NOT put `observations` in this object.
-   *
-   * With millions of observations, JSON.stringify()
-   * would exceed Node's maximum string length.
-   *
-   * The observations remain in memory only until the
-   * process exits.
-   */
   const output = {
     generatedAt:
       new Date().toISOString(),
 
-    source: {
-      file:
-        path.basename(
-          inputFile
-        ),
+    sourceFile:
+      path.basename(inputFile),
 
-      markets:
-        dataset.markets.length,
+    markets:
+      dataset.markets.length,
 
-      interval: "1m",
+    interval:
+      dataset.interval,
 
-      lookbacks:
-        LOOKBACKS,
+    lookbackDays:
+      dataset.lookbackDays,
 
-      futureHorizons:
-        FUTURE_HORIZONS,
-    },
+    observations:
+      observations.length,
 
     assumptions: {
-      totalCost:
-        TOTAL_COST,
-
+      totalCost: TOTAL_COST,
       totalCostPercent:
-        percentage(
-          TOTAL_COST
-        ),
+        percentage(TOTAL_COST),
+      maxForwardMinutes:
+        MAX_FORWARD_MINUTES,
+      targets: TARGETS,
+      stops: STOPS,
     },
 
-    observations: {
-      count:
-        totalObservationCount,
-    },
-
-    features:
-      FEATURES,
+    features: [
+      "return20",
+      "return50",
+      "slope20",
+      "slope50",
+      "drawdown20",
+      "drawdown50",
+      "volatility20",
+      "volatility50",
+      "efficiency20",
+      "efficiency50",
+      "acceleration",
+    ],
 
     summaries,
   };
 
-  const outputFile =
-    path.join(
-      DATA_DIRECTORY,
-      `trend-analysis-${Date.now()}.json`
-    );
+  const outputFile = path.join(
+    OUTPUT_DIR,
+    `path-analysis-${Date.now()}.json`
+  );
 
   fs.writeFileSync(
     outputFile,
-    JSON.stringify(output)
+    JSON.stringify(
+      output,
+      null,
+      2
+    )
   );
 
   console.log(
-    `\nAnalysis saved to ${outputFile}`
+    `\nSaved analysis to: ${outputFile}`
   );
 }
 
