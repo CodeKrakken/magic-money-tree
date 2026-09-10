@@ -7,10 +7,13 @@
   },
   "scripts": {
     "build": "cd server && npm run build && cd ../client && npm run build",
-    "start": "cd server && npm run start && cd ../client && npm run start",
+    "start": "concurrently \"npm run start --prefix server\" \"npm run start --prefix client\"",
     "test": "cd server && npm run test && cd ../client && npm run test",
     "eject": "cd server && npm run eject && cd ../client && npm run eject",
     "install": "cd server && npm install && cd ../client && npm install",
     "postinstall": "npm run build"
+  },
+  "dependencies": {
+    "concurrently": "^10.0.5"
   }
 }
