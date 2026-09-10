@@ -1,0 +1,4630 @@
+{
+  "experimentTimestamp": "2026-09-09T23:49:54.992Z",
+  "experiment": {
+    "purpose": "Determine whether individual features or their contrarian transformations can rank markets by subsequent return.",
+    "rankingKeys": [
+      "strength",
+      "trendStrength",
+      "shape",
+      "emaRatio",
+      "contrarianTrendStrength",
+      "contrarianAcceleration",
+      "contrarianDistanceFromRecentHigh",
+      "contrarianDistanceFromRecentLow"
+    ],
+    "contrarianTransformations": {
+      "contrarianTrendStrength": "-trendStrength",
+      "contrarianAcceleration": "-acceleration",
+      "contrarianDistanceFromRecentHigh": "-distanceFromRecentHigh",
+      "contrarianDistanceFromRecentLow": "-distanceFromRecentLow"
+    }
+  },
+  "datasetConfiguration": {
+    "version": "research-v1.3",
+    "interval": "1m",
+    "limit": 1000,
+    "minHistory": 400,
+    "horizons": [
+      5,
+      10,
+      20,
+      50
+    ],
+    "startTime": 1786405795911,
+    "endTime": 1788997795911,
+    "startISO": "2026-08-10T23:49:55.911Z",
+    "endISO": "2026-09-09T23:49:55.911Z",
+    "feeRate": 0.002,
+    "executionCost": 0,
+    "totalCost": 0.002
+  },
+  "universe": {
+    "source": "Binance Spot exchangeInfo (current public USDT markets)",
+    "totalAvailable": 363,
+    "selectedCount": 60,
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT",
+      "NEOUSDT",
+      "LTCUSDT",
+      "QTUMUSDT",
+      "ADAUSDT",
+      "XRPUSDT",
+      "IOTAUSDT",
+      "XLMUSDT",
+      "TRXUSDT",
+      "ETCUSDT",
+      "LINKUSDT",
+      "ONGUSDT",
+      "ZILUSDT",
+      "ZRXUSDT",
+      "ZECUSDT",
+      "CELRUSDT",
+      "DASHUSDT",
+      "THETAUSDT",
+      "ENJUSDT",
+      "ATOMUSDT",
+      "TFUELUSDT",
+      "ONEUSDT",
+      "ALGOUSDT",
+      "DOGEUSDT",
+      "DUSKUSDT",
+      "ANKRUSDT",
+      "WINUSDT",
+      "MTLUSDT",
+      "CVCUSDT",
+      "CHZUSDT",
+      "BANDUSDT",
+      "XTZUSDT",
+      "RVNUSDT",
+      "HBARUSDT",
+      "STXUSDT",
+      "KAVAUSDT",
+      "ARPAUSDT",
+      "IOTXUSDT",
+      "RLCUSDT",
+      "BCHUSDT",
+      "EURUSDT",
+      "OGNUSDT",
+      "LSKUSDT",
+      "MBLUSDT",
+      "COTIUSDT",
+      "SOLUSDT",
+      "CTSIUSDT",
+      "HIVEUSDT",
+      "CHRUSDT",
+      "KNCUSDT",
+      "COMPUSDT",
+      "SCUSDT",
+      "ZENUSDT",
+      "SNXUSDT",
+      "VTHOUSDT",
+      "DCRUSDT",
+      "MANAUSDT",
+      "YFIUSDT",
+      "CRVUSDT"
+    ],
+    "limitation": "This is the broadest defensible public approximation of the research universe, not a complete historical reconstruction of all Binance USDT markets that may have existed in the past. Public REST endpoints do not provide a reliable full historical symbol universe for delisted or suspended markets without custom historical archives or exchange snapshots.",
+    "notes": [
+      "The current universe is intentionally not treated as the full historical universe.",
+      "Eligibility is based on the current public exchangeInfo snapshot only as an approximation.",
+      "Markets that disappeared historically are not retroactively excluded from the research design, but they cannot be reconstructed reliably from public REST alone."
+    ]
+  },
+  "dateRange": {
+    "startTime": 1786405795911,
+    "endTime": 1788997795911,
+    "startISO": "2026-08-10T23:49:55.911Z",
+    "endISO": "2026-09-09T23:49:55.911Z",
+    "elapsedDays": 30
+  },
+  "observationCount": 2585400,
+  "duplicateObservations": 0,
+  "trainValidationTest": {
+    "train": 1551240,
+    "validation": 517080,
+    "test": 517080,
+    "total": 2585400,
+    "trainStart": "2026-08-11T00:50:59.999Z",
+    "trainEnd": "2026-08-28T23:43:59.999Z",
+    "validationStart": "2026-08-28T23:44:59.999Z",
+    "validationEnd": "2026-09-03T23:21:59.999Z",
+    "testStart": "2026-09-03T23:22:59.999Z",
+    "testEnd": "2026-09-09T22:59:59.999Z"
+  },
+  "results": {
+    "train": {
+      "observations": 1551240,
+      "baselines": {
+        "5": {
+          "mean": -0.0019652915130082323,
+          "median": -0.002,
+          "positiveRate": 0.15476006291740801,
+          "count": 1551240
+        },
+        "10": {
+          "mean": -0.0019309007338098121,
+          "median": -0.002,
+          "positiveRate": 0.21100087671798046,
+          "count": 1551240
+        },
+        "20": {
+          "mean": -0.001861420138219548,
+          "median": -0.002,
+          "positiveRate": 0.2686927877053196,
+          "count": 1551240
+        },
+        "50": {
+          "mean": -0.0016492375861779428,
+          "median": -0.002,
+          "positiveRate": 0.3383203114927413,
+          "count": 1551240
+        }
+      },
+      "featureEvidence": {
+        "priceReturnMedium": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001965",
+            "baselinePositiveRate": "0.154760",
+            "correlation": "-0.000309",
+            "meanReturnNet": "-0.001965",
+            "positiveRateNet": "0.154760",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001823",
+              "-0.001973",
+              "-0.002008",
+              "-0.002058"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001931",
+            "baselinePositiveRate": "0.211001",
+            "correlation": "0.012265",
+            "meanReturnNet": "-0.001931",
+            "positiveRateNet": "0.211001",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001786",
+              "-0.001952",
+              "-0.001978",
+              "-0.002008"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001861",
+            "baselinePositiveRate": "0.268693",
+            "correlation": "0.031148",
+            "meanReturnNet": "-0.001861",
+            "positiveRateNet": "0.268693",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001742",
+              "-0.001916",
+              "-0.001881",
+              "-0.001906"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001649",
+            "baselinePositiveRate": "0.338320",
+            "correlation": "0.000653",
+            "meanReturnNet": "-0.001649",
+            "positiveRateNet": "0.338320",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001268",
+              "-0.001774",
+              "-0.001657",
+              "-0.001898"
+            ]
+          }
+        ],
+        "acceleration": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001965",
+            "baselinePositiveRate": "0.154760",
+            "correlation": "-0.029660",
+            "meanReturnNet": "-0.001965",
+            "positiveRateNet": "0.154760",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001824",
+              "-0.002007",
+              "-0.001958",
+              "-0.002072"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001931",
+            "baselinePositiveRate": "0.211001",
+            "correlation": "-0.028730",
+            "meanReturnNet": "-0.001931",
+            "positiveRateNet": "0.211001",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001738",
+              "-0.001979",
+              "-0.001924",
+              "-0.002084"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001861",
+            "baselinePositiveRate": "0.268693",
+            "correlation": "-0.017801",
+            "meanReturnNet": "-0.001861",
+            "positiveRateNet": "0.268693",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001707",
+              "-0.001932",
+              "-0.001855",
+              "-0.001952"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001649",
+            "baselinePositiveRate": "0.338320",
+            "correlation": "-0.009467",
+            "meanReturnNet": "-0.001649",
+            "positiveRateNet": "0.338320",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001513",
+              "-0.001786",
+              "-0.001617",
+              "-0.001682"
+            ]
+          }
+        ],
+        "volatility": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001965",
+            "baselinePositiveRate": "0.154760",
+            "correlation": "0.001583",
+            "meanReturnNet": "-0.001965",
+            "positiveRateNet": "0.154760",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001968",
+              "-0.001990",
+              "-0.001952",
+              "-0.001950"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001931",
+            "baselinePositiveRate": "0.211001",
+            "correlation": "0.002169",
+            "meanReturnNet": "-0.001931",
+            "positiveRateNet": "0.211001",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001932",
+              "-0.001975",
+              "-0.001914",
+              "-0.001903"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001861",
+            "baselinePositiveRate": "0.268693",
+            "correlation": "0.003246",
+            "meanReturnNet": "-0.001861",
+            "positiveRateNet": "0.268693",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001851",
+              "-0.001944",
+              "-0.001852",
+              "-0.001799"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001649",
+            "baselinePositiveRate": "0.338320",
+            "correlation": "0.003574",
+            "meanReturnNet": "-0.001649",
+            "positiveRateNet": "0.338320",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001671",
+              "-0.001772",
+              "-0.001624",
+              "-0.001530"
+            ]
+          }
+        ],
+        "volatilityChange": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001965",
+            "baselinePositiveRate": "0.154760",
+            "correlation": "-0.001851",
+            "meanReturnNet": "-0.001965",
+            "positiveRateNet": "0.154760",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001953",
+              "-0.001983",
+              "-0.001975",
+              "-0.001950"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001931",
+            "baselinePositiveRate": "0.211001",
+            "correlation": "-0.002407",
+            "meanReturnNet": "-0.001931",
+            "positiveRateNet": "0.211001",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001899",
+              "-0.001959",
+              "-0.001954",
+              "-0.001912"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001861",
+            "baselinePositiveRate": "0.268693",
+            "correlation": "-0.002200",
+            "meanReturnNet": "-0.001861",
+            "positiveRateNet": "0.268693",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001822",
+              "-0.001894",
+              "-0.001928",
+              "-0.001801"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001649",
+            "baselinePositiveRate": "0.338320",
+            "correlation": "-0.001644",
+            "meanReturnNet": "-0.001649",
+            "positiveRateNet": "0.338320",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001572",
+              "-0.001601",
+              "-0.001747",
+              "-0.001677"
+            ]
+          }
+        ],
+        "distanceFromRecentHigh": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001965",
+            "baselinePositiveRate": "0.154760",
+            "correlation": "-0.015773",
+            "meanReturnNet": "-0.001965",
+            "positiveRateNet": "0.154760",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001787",
+              "-0.001900",
+              "-0.002013",
+              "-0.002161"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001931",
+            "baselinePositiveRate": "0.211001",
+            "correlation": "-0.003438",
+            "meanReturnNet": "-0.001931",
+            "positiveRateNet": "0.211001",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001730",
+              "-0.001848",
+              "-0.001986",
+              "-0.002160"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001861",
+            "baselinePositiveRate": "0.268693",
+            "correlation": "0.013048",
+            "meanReturnNet": "-0.001861",
+            "positiveRateNet": "0.268693",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001701",
+              "-0.001777",
+              "-0.001919",
+              "-0.002048"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001649",
+            "baselinePositiveRate": "0.338320",
+            "correlation": "0.001981",
+            "meanReturnNet": "-0.001649",
+            "positiveRateNet": "0.338320",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001309",
+              "-0.001546",
+              "-0.001798",
+              "-0.001945"
+            ]
+          }
+        ],
+        "distanceFromRecentLow": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001965",
+            "baselinePositiveRate": "0.154760",
+            "correlation": "-0.004081",
+            "meanReturnNet": "-0.001965",
+            "positiveRateNet": "0.154760",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001707",
+              "-0.001985",
+              "-0.002068",
+              "-0.002101"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001931",
+            "baselinePositiveRate": "0.211001",
+            "correlation": "0.004781",
+            "meanReturnNet": "-0.001931",
+            "positiveRateNet": "0.211001",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001638",
+              "-0.001980",
+              "-0.002044",
+              "-0.002062"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001861",
+            "baselinePositiveRate": "0.268693",
+            "correlation": "0.025190",
+            "meanReturnNet": "-0.001861",
+            "positiveRateNet": "0.268693",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001605",
+              "-0.001951",
+              "-0.001951",
+              "-0.001938"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001649",
+            "baselinePositiveRate": "0.338320",
+            "correlation": "0.008478",
+            "meanReturnNet": "-0.001649",
+            "positiveRateNet": "0.338320",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001331",
+              "-0.001716",
+              "-0.001646",
+              "-0.001903"
+            ]
+          }
+        ],
+        "volume": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001965",
+            "baselinePositiveRate": "0.154760",
+            "correlation": "-0.010421",
+            "meanReturnNet": "-0.001965",
+            "positiveRateNet": "0.154760",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001982",
+              "-0.001958",
+              "-0.001955",
+              "-0.001966"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001931",
+            "baselinePositiveRate": "0.211001",
+            "correlation": "-0.016367",
+            "meanReturnNet": "-0.001931",
+            "positiveRateNet": "0.211001",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001954",
+              "-0.001917",
+              "-0.001915",
+              "-0.001937"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001861",
+            "baselinePositiveRate": "0.268693",
+            "correlation": "-0.020746",
+            "meanReturnNet": "-0.001861",
+            "positiveRateNet": "0.268693",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001891",
+              "-0.001848",
+              "-0.001840",
+              "-0.001867"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001649",
+            "baselinePositiveRate": "0.338320",
+            "correlation": "-0.003278",
+            "meanReturnNet": "-0.001649",
+            "positiveRateNet": "0.338320",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001712",
+              "-0.001625",
+              "-0.001577",
+              "-0.001683"
+            ]
+          }
+        ],
+        "volumeAcceleration": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001965",
+            "baselinePositiveRate": "0.154760",
+            "correlation": "0.001647",
+            "meanReturnNet": "-0.001965",
+            "positiveRateNet": "0.154760",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001989",
+              "-0.001985",
+              "-0.001953",
+              "-0.001934"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001931",
+            "baselinePositiveRate": "0.211001",
+            "correlation": "0.000353",
+            "meanReturnNet": "-0.001931",
+            "positiveRateNet": "0.211001",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001955",
+              "-0.001971",
+              "-0.001908",
+              "-0.001889"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001861",
+            "baselinePositiveRate": "0.268693",
+            "correlation": "-0.000916",
+            "meanReturnNet": "-0.001861",
+            "positiveRateNet": "0.268693",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001873",
+              "-0.001931",
+              "-0.001830",
+              "-0.001811"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001649",
+            "baselinePositiveRate": "0.338320",
+            "correlation": "-0.002672",
+            "meanReturnNet": "-0.001649",
+            "positiveRateNet": "0.338320",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001676",
+              "-0.001847",
+              "-0.001569",
+              "-0.001505"
+            ]
+          }
+        ],
+        "tradeFrequency": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001965",
+            "baselinePositiveRate": "0.154760",
+            "correlation": "0.007501",
+            "meanReturnNet": "-0.001965",
+            "positiveRateNet": "0.154760",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001985",
+              "-0.001951",
+              "-0.001965",
+              "-0.001960"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001931",
+            "baselinePositiveRate": "0.211001",
+            "correlation": "0.009662",
+            "meanReturnNet": "-0.001931",
+            "positiveRateNet": "0.211001",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001958",
+              "-0.001908",
+              "-0.001937",
+              "-0.001920"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001861",
+            "baselinePositiveRate": "0.268693",
+            "correlation": "0.011827",
+            "meanReturnNet": "-0.001861",
+            "positiveRateNet": "0.268693",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001900",
+              "-0.001844",
+              "-0.001871",
+              "-0.001831"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001649",
+            "baselinePositiveRate": "0.338320",
+            "correlation": "0.012534",
+            "meanReturnNet": "-0.001649",
+            "positiveRateNet": "0.338320",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001749",
+              "-0.001670",
+              "-0.001658",
+              "-0.001520"
+            ]
+          }
+        ],
+        "trendStrength": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001965",
+            "baselinePositiveRate": "0.154760",
+            "correlation": "-0.020983",
+            "meanReturnNet": "-0.001965",
+            "positiveRateNet": "0.154760",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001759",
+              "-0.001957",
+              "-0.002036",
+              "-0.002108"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001931",
+            "baselinePositiveRate": "0.211001",
+            "correlation": "-0.011416",
+            "meanReturnNet": "-0.001931",
+            "positiveRateNet": "0.211001",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001683",
+              "-0.001930",
+              "-0.002015",
+              "-0.002096"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001861",
+            "baselinePositiveRate": "0.268693",
+            "correlation": "0.009626",
+            "meanReturnNet": "-0.001861",
+            "positiveRateNet": "0.268693",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001663",
+              "-0.001883",
+              "-0.001933",
+              "-0.001968"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001649",
+            "baselinePositiveRate": "0.338320",
+            "correlation": "-0.006165",
+            "meanReturnNet": "-0.001649",
+            "positiveRateNet": "0.338320",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001298",
+              "-0.001718",
+              "-0.001727",
+              "-0.001853"
+            ]
+          }
+        ]
+      },
+      "legacySignals": {
+        "shape": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001965",
+            "baselinePositiveRate": "0.154760",
+            "correlation": "-0.004809",
+            "meanReturnNet": "-0.001965",
+            "positiveRateNet": "0.154760",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001969",
+              "-0.001981",
+              "-0.001911",
+              "-0.002001"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001931",
+            "baselinePositiveRate": "0.211001",
+            "correlation": "-0.006747",
+            "meanReturnNet": "-0.001931",
+            "positiveRateNet": "0.211001",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001940",
+              "-0.001961",
+              "-0.001826",
+              "-0.001996"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001861",
+            "baselinePositiveRate": "0.268693",
+            "correlation": "-0.009666",
+            "meanReturnNet": "-0.001861",
+            "positiveRateNet": "0.268693",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001877",
+              "-0.001929",
+              "-0.001648",
+              "-0.001992"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001649",
+            "baselinePositiveRate": "0.338320",
+            "correlation": "-0.013564",
+            "meanReturnNet": "-0.001649",
+            "positiveRateNet": "0.338320",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001681",
+              "-0.001856",
+              "-0.001138",
+              "-0.001922"
+            ]
+          }
+        ],
+        "emaRatio": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001965",
+            "baselinePositiveRate": "0.154760",
+            "correlation": "-0.007975",
+            "meanReturnNet": "-0.001965",
+            "positiveRateNet": "0.154760",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001840",
+              "-0.001966",
+              "-0.002027",
+              "-0.002028"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001931",
+            "baselinePositiveRate": "0.211001",
+            "correlation": "-0.006013",
+            "meanReturnNet": "-0.001931",
+            "positiveRateNet": "0.211001",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001771",
+              "-0.001944",
+              "-0.002022",
+              "-0.001986"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001861",
+            "baselinePositiveRate": "0.268693",
+            "correlation": "-0.002462",
+            "meanReturnNet": "-0.001861",
+            "positiveRateNet": "0.268693",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001663",
+              "-0.001901",
+              "-0.001996",
+              "-0.001887"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001649",
+            "baselinePositiveRate": "0.338320",
+            "correlation": "-0.011504",
+            "meanReturnNet": "-0.001649",
+            "positiveRateNet": "0.338320",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001278",
+              "-0.001848",
+              "-0.001927",
+              "-0.001545"
+            ]
+          }
+        ],
+        "strength": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001965",
+            "baselinePositiveRate": "0.154760",
+            "correlation": "-0.004661",
+            "meanReturnNet": "-0.001965",
+            "positiveRateNet": "0.154760",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001967",
+              "-0.001983",
+              "-0.001911",
+              "-0.002001"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001931",
+            "baselinePositiveRate": "0.211001",
+            "correlation": "-0.006524",
+            "meanReturnNet": "-0.001931",
+            "positiveRateNet": "0.211001",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001939",
+              "-0.001963",
+              "-0.001827",
+              "-0.001995"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001861",
+            "baselinePositiveRate": "0.268693",
+            "correlation": "-0.009378",
+            "meanReturnNet": "-0.001861",
+            "positiveRateNet": "0.268693",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001876",
+              "-0.001930",
+              "-0.001648",
+              "-0.001991"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001649",
+            "baselinePositiveRate": "0.338320",
+            "correlation": "-0.013372",
+            "meanReturnNet": "-0.001649",
+            "positiveRateNet": "0.338320",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001680",
+              "-0.001856",
+              "-0.001145",
+              "-0.001915"
+            ]
+          }
+        ]
+      },
+      "ranking": {
+        "gross": {
+          "strength": {
+            "5": {
+              "topRankedMean": 0.0001199086868820511,
+              "avgEligibleMean": 0.000034708486981214685,
+              "medianEligibleMean": 0.000011293272847798242,
+              "randomSelectionMean": 0.0000910959868166478,
+              "excessVsMeanMean": 0.00008520019990083513,
+              "excessVsMedianMean": 0.0001086154140342525,
+              "excessVsRandomMean": 0.000028812700065403286
+            },
+            "10": {
+              "topRankedMean": 0.0002170752540959924,
+              "avgEligibleMean": 0.00006909926618229804,
+              "medianEligibleMean": 0.000021827811253190702,
+              "randomSelectionMean": 0.00008030196321033444,
+              "excessVsMeanMean": 0.00014797598791369478,
+              "excessVsMedianMean": 0.00019524744284280218,
+              "excessVsRandomMean": 0.00013677329088565782
+            },
+            "20": {
+              "topRankedMean": 0.00042699687717526506,
+              "avgEligibleMean": 0.00013857986177447638,
+              "medianEligibleMean": 0.00003789896567304468,
+              "randomSelectionMean": 0.00016996324356162744,
+              "excessVsMeanMean": 0.00028841701540078916,
+              "excessVsMedianMean": 0.0003890979115022178,
+              "excessVsRandomMean": 0.00025703363361363643
+            },
+            "50": {
+              "topRankedMean": 0.0012967969593071838,
+              "avgEligibleMean": 0.0003507624138180861,
+              "medianEligibleMean": 0.00008515488479873653,
+              "randomSelectionMean": 0.00029148489906906724,
+              "excessVsMeanMean": 0.0009460345454891096,
+              "excessVsMedianMean": 0.00121164207450845,
+              "excessVsRandomMean": 0.0010053120602381183
+            }
+          },
+          "trendStrength": {
+            "5": {
+              "topRankedMean": -0.0005916833142753044,
+              "avgEligibleMean": 0.000034708486981214685,
+              "medianEligibleMean": 0.000011293272847798242,
+              "randomSelectionMean": 0.000025500066274376696,
+              "excessVsMeanMean": -0.0006263918012565151,
+              "excessVsMedianMean": -0.0006029765871231051,
+              "excessVsRandomMean": -0.0006171833805496765
+            },
+            "10": {
+              "topRankedMean": -0.0006939343737154663,
+              "avgEligibleMean": 0.00006909926618229804,
+              "medianEligibleMean": 0.000021827811253190702,
+              "randomSelectionMean": 0.00007612549243691502,
+              "excessVsMeanMean": -0.0007630336398977615,
+              "excessVsMedianMean": -0.0007157621849686572,
+              "excessVsRandomMean": -0.0007700598661523854
+            },
+            "20": {
+              "topRankedMean": -0.0003800895154645261,
+              "avgEligibleMean": 0.00013857986177447638,
+              "medianEligibleMean": 0.00003789896567304468,
+              "randomSelectionMean": 0.00013297071000927,
+              "excessVsMeanMean": -0.0005186693772390009,
+              "excessVsMedianMean": -0.0004179884811375718,
+              "excessVsRandomMean": -0.0005130602254737953
+            },
+            "50": {
+              "topRankedMean": 0.000166236557452846,
+              "avgEligibleMean": 0.0003507624138180861,
+              "medianEligibleMean": 0.00008515488479873653,
+              "randomSelectionMean": 0.00029756723553774696,
+              "excessVsMeanMean": -0.0001845258563652335,
+              "excessVsMedianMean": 0.00008108167265410862,
+              "excessVsRandomMean": -0.000131330678084894
+            }
+          },
+          "shape": {
+            "5": {
+              "topRankedMean": 0.00009790739537007656,
+              "avgEligibleMean": 0.000034708486981214685,
+              "medianEligibleMean": 0.000011293272847798242,
+              "randomSelectionMean": 0.000020189174276333408,
+              "excessVsMeanMean": 0.00006319890838886195,
+              "excessVsMedianMean": 0.00008661412252227887,
+              "excessVsRandomMean": 0.00007771822109374369
+            },
+            "10": {
+              "topRankedMean": 0.00019565369049074285,
+              "avgEligibleMean": 0.00006909926618229804,
+              "medianEligibleMean": 0.000021827811253190702,
+              "randomSelectionMean": 0.00010207726521066172,
+              "excessVsMeanMean": 0.00012655442430844772,
+              "excessVsMedianMean": 0.0001738258792375538,
+              "excessVsRandomMean": 0.00009357642528008143
+            },
+            "20": {
+              "topRankedMean": 0.00039989748525371386,
+              "avgEligibleMean": 0.00013857986177447638,
+              "medianEligibleMean": 0.00003789896567304468,
+              "randomSelectionMean": 0.0001816800825606557,
+              "excessVsMeanMean": 0.0002613176234792368,
+              "excessVsMedianMean": 0.00036199851958066645,
+              "excessVsRandomMean": 0.00021821740269305798
+            },
+            "50": {
+              "topRankedMean": 0.0012977503536525732,
+              "avgEligibleMean": 0.0003507624138180861,
+              "medianEligibleMean": 0.00008515488479873653,
+              "randomSelectionMean": 0.00038173604713505886,
+              "excessVsMeanMean": 0.0009469879398344946,
+              "excessVsMedianMean": 0.0012125954688538402,
+              "excessVsRandomMean": 0.0009160143065175181
+            }
+          },
+          "emaRatio": {
+            "5": {
+              "topRankedMean": -0.00022807659714014686,
+              "avgEligibleMean": 0.000034708486981214685,
+              "medianEligibleMean": 0.000011293272847798242,
+              "randomSelectionMean": 0.00005413680465363707,
+              "excessVsMeanMean": -0.00026278508412136105,
+              "excessVsMedianMean": -0.00023936986998794442,
+              "excessVsRandomMean": -0.0002822134017937825
+            },
+            "10": {
+              "topRankedMean": -0.0003617084341218986,
+              "avgEligibleMean": 0.00006909926618229804,
+              "medianEligibleMean": 0.000021827811253190702,
+              "randomSelectionMean": 0.00007345370928571029,
+              "excessVsMeanMean": -0.00043080770030419664,
+              "excessVsMedianMean": -0.000383536245375091,
+              "excessVsRandomMean": -0.0004351621434076088
+            },
+            "20": {
+              "topRankedMean": -0.0005401566508339281,
+              "avgEligibleMean": 0.00013857986177447638,
+              "medianEligibleMean": 0.00003789896567304468,
+              "randomSelectionMean": 0.00007935830113962491,
+              "excessVsMeanMean": -0.0006787365126084014,
+              "excessVsMedianMean": -0.0005780556165069693,
+              "excessVsRandomMean": -0.0006195149519735571
+            },
+            "50": {
+              "topRankedMean": -0.0006206084621230216,
+              "avgEligibleMean": 0.0003507624138180861,
+              "medianEligibleMean": 0.00008515488479873653,
+              "randomSelectionMean": 0.0004892205795093612,
+              "excessVsMeanMean": -0.0009713708759411104,
+              "excessVsMedianMean": -0.0007057633469217594,
+              "excessVsRandomMean": -0.0011098290416323795
+            }
+          },
+          "contrarianTrendStrength": {
+            "5": {
+              "topRankedMean": 0.0007353074782800046,
+              "avgEligibleMean": 0.000034708486981214685,
+              "medianEligibleMean": 0.000011293272847798242,
+              "randomSelectionMean": 0.000017583646087833357,
+              "excessVsMeanMean": 0.0007005989912987918,
+              "excessVsMedianMean": 0.0007240142054322082,
+              "excessVsRandomMean": 0.0007177238321921751
+            },
+            "10": {
+              "topRankedMean": 0.0006857489493693392,
+              "avgEligibleMean": 0.00006909926618229804,
+              "medianEligibleMean": 0.000021827811253190702,
+              "randomSelectionMean": 0.000088617046650145,
+              "excessVsMeanMean": 0.0006166496831870418,
+              "excessVsMedianMean": 0.000663921138116144,
+              "excessVsRandomMean": 0.0005971319027191954
+            },
+            "20": {
+              "topRankedMean": 0.00025591733888529774,
+              "avgEligibleMean": 0.00013857986177447638,
+              "medianEligibleMean": 0.00003789896567304468,
+              "randomSelectionMean": 0.00015406255248222084,
+              "excessVsMeanMean": 0.0001173374771108278,
+              "excessVsMedianMean": 0.00021801837321225545,
+              "excessVsRandomMean": 0.00010185478640308278
+            },
+            "50": {
+              "topRankedMean": -0.0003278512080278328,
+              "avgEligibleMean": 0.0003507624138180861,
+              "medianEligibleMean": 0.00008515488479873653,
+              "randomSelectionMean": 0.00031688000492218306,
+              "excessVsMeanMean": -0.0006786136218459173,
+              "excessVsMedianMean": -0.0004130060928265698,
+              "excessVsRandomMean": -0.000644731212950023
+            }
+          },
+          "contrarianAcceleration": {
+            "5": {
+              "topRankedMean": 0.0006012714627281643,
+              "avgEligibleMean": 0.000034708486981214685,
+              "medianEligibleMean": 0.000011293272847798242,
+              "randomSelectionMean": 0.000026121160537846545,
+              "excessVsMeanMean": 0.0005665629757469487,
+              "excessVsMedianMean": 0.0005899781898803682,
+              "excessVsRandomMean": 0.0005751503021903169
+            },
+            "10": {
+              "topRankedMean": 0.0007109754458212836,
+              "avgEligibleMean": 0.00006909926618229804,
+              "medianEligibleMean": 0.000021827811253190702,
+              "randomSelectionMean": 0.00007856880343471537,
+              "excessVsMeanMean": 0.0006418761796389832,
+              "excessVsMedianMean": 0.0006891476345680943,
+              "excessVsRandomMean": 0.0006324066423865669
+            },
+            "20": {
+              "topRankedMean": 0.0006511352583214148,
+              "avgEligibleMean": 0.00013857986177447638,
+              "medianEligibleMean": 0.00003789896567304468,
+              "randomSelectionMean": 0.0001214837706478362,
+              "excessVsMeanMean": 0.0005125553965469408,
+              "excessVsMedianMean": 0.000613236292648372,
+              "excessVsRandomMean": 0.0005296514876735847
+            },
+            "50": {
+              "topRankedMean": 0.0003215658773231989,
+              "avgEligibleMean": 0.0003507624138180861,
+              "medianEligibleMean": 0.00008515488479873653,
+              "randomSelectionMean": 0.00032945747843226414,
+              "excessVsMeanMean": -0.000029196536494888607,
+              "excessVsMedianMean": 0.00023641099252445853,
+              "excessVsRandomMean": -0.00000789160110906605
+            }
+          },
+          "contrarianDistanceFromRecentHigh": {
+            "5": {
+              "topRankedMean": 0.0005111891381289043,
+              "avgEligibleMean": 0.000034708486981214685,
+              "medianEligibleMean": 0.000011293272847798242,
+              "randomSelectionMean": 0.000012121231327224474,
+              "excessVsMeanMean": 0.0004764806511476887,
+              "excessVsMedianMean": 0.000499895865281103,
+              "excessVsRandomMean": 0.0004990679068016741
+            },
+            "10": {
+              "topRankedMean": 0.0003678083845783346,
+              "avgEligibleMean": 0.00006909926618229804,
+              "medianEligibleMean": 0.000021827811253190702,
+              "randomSelectionMean": 0.0000725627914868784,
+              "excessVsMeanMean": 0.00029870911839604056,
+              "excessVsMedianMean": 0.0003459805733251431,
+              "excessVsRandomMean": 0.00029524559309145786
+            },
+            "20": {
+              "topRankedMean": -0.00021544045156865504,
+              "avgEligibleMean": 0.00013857986177447638,
+              "medianEligibleMean": 0.00003789896567304468,
+              "randomSelectionMean": 0.00009977332368414235,
+              "excessVsMeanMean": -0.0003540203133431293,
+              "excessVsMedianMean": -0.00025333941724169914,
+              "excessVsRandomMean": -0.00031521377525279605
+            },
+            "50": {
+              "topRankedMean": -0.0007292917138516015,
+              "avgEligibleMean": 0.0003507624138180861,
+              "medianEligibleMean": 0.00008515488479873653,
+              "randomSelectionMean": 0.0004668120758086055,
+              "excessVsMeanMean": -0.0010800541276696752,
+              "excessVsMedianMean": -0.0008144465986503305,
+              "excessVsRandomMean": -0.0011961037896602072
+            }
+          },
+          "contrarianDistanceFromRecentLow": {
+            "5": {
+              "topRankedMean": 0.0003914431897136078,
+              "avgEligibleMean": 0.000034708486981214685,
+              "medianEligibleMean": 0.000011293272847798242,
+              "randomSelectionMean": -0.0000075224183544706535,
+              "excessVsMeanMean": 0.00035673470273239283,
+              "excessVsMedianMean": 0.00038014991686580846,
+              "excessVsRandomMean": 0.000398965608068075
+            },
+            "10": {
+              "topRankedMean": 0.00047763628255719664,
+              "avgEligibleMean": 0.00006909926618229804,
+              "medianEligibleMean": 0.000021827811253190702,
+              "randomSelectionMean": 0.00002042778278499122,
+              "excessVsMeanMean": 0.00040853701637489997,
+              "excessVsMedianMean": 0.0004558084713040078,
+              "excessVsRandomMean": 0.0004572084997722061
+            },
+            "20": {
+              "topRankedMean": 0.0005776637511030518,
+              "avgEligibleMean": 0.00013857986177447638,
+              "medianEligibleMean": 0.00003789896567304468,
+              "randomSelectionMean": 0.00021526226835140007,
+              "excessVsMeanMean": 0.00043908388932858045,
+              "excessVsMedianMean": 0.0005397647854300084,
+              "excessVsRandomMean": 0.0003624014827516531
+            },
+            "50": {
+              "topRankedMean": 0.0007811756199681753,
+              "avgEligibleMean": 0.0003507624138180861,
+              "medianEligibleMean": 0.00008515488479873653,
+              "randomSelectionMean": 0.0003336774363694071,
+              "excessVsMeanMean": 0.00043041320615008755,
+              "excessVsMedianMean": 0.0006960207351694361,
+              "excessVsRandomMean": 0.00044749818359876944
+            }
+          }
+        },
+        "net": {
+          "strength": {
+            "5": {
+              "topRankedMean": -0.0018800913131179489,
+              "avgEligibleMean": -0.0019652915130187855,
+              "medianEligibleMean": -0.001988706727152202,
+              "randomSelectionMean": -0.0019089040131833523,
+              "excessVsMeanMean": 0.00008520019990083513,
+              "excessVsMedianMean": 0.0001086154140342525,
+              "excessVsRandomMean": 0.000028812700065403286
+            },
+            "10": {
+              "topRankedMean": -0.0017829247459040076,
+              "avgEligibleMean": -0.001930900733817702,
+              "medianEligibleMean": -0.0019781721887468092,
+              "randomSelectionMean": -0.0019196980367896656,
+              "excessVsMeanMean": 0.00014797598791369478,
+              "excessVsMedianMean": 0.00019524744284280218,
+              "excessVsRandomMean": 0.00013677329088565782
+            },
+            "20": {
+              "topRankedMean": -0.001573003122824735,
+              "avgEligibleMean": -0.0018614201382255236,
+              "medianEligibleMean": -0.0019621010343269553,
+              "randomSelectionMean": -0.0018300367564383726,
+              "excessVsMeanMean": 0.00028841701540078916,
+              "excessVsMedianMean": 0.0003890979115022178,
+              "excessVsRandomMean": 0.00025703363361363643
+            },
+            "50": {
+              "topRankedMean": -0.0007032030406928162,
+              "avgEligibleMean": -0.001649237586181914,
+              "medianEligibleMean": -0.0019148451152012635,
+              "randomSelectionMean": -0.0017085151009309327,
+              "excessVsMeanMean": 0.0009460345454891096,
+              "excessVsMedianMean": 0.00121164207450845,
+              "excessVsRandomMean": 0.0010053120602381183
+            }
+          },
+          "trendStrength": {
+            "5": {
+              "topRankedMean": -0.0025916833142753046,
+              "avgEligibleMean": -0.0019652915130187855,
+              "medianEligibleMean": -0.001988706727152202,
+              "randomSelectionMean": -0.0019744999337256235,
+              "excessVsMeanMean": -0.0006263918012565151,
+              "excessVsMedianMean": -0.0006029765871231051,
+              "excessVsRandomMean": -0.0006171833805496765
+            },
+            "10": {
+              "topRankedMean": -0.0026939343737154664,
+              "avgEligibleMean": -0.001930900733817702,
+              "medianEligibleMean": -0.0019781721887468092,
+              "randomSelectionMean": -0.001923874507563085,
+              "excessVsMeanMean": -0.0007630336398977615,
+              "excessVsMedianMean": -0.0007157621849686572,
+              "excessVsRandomMean": -0.0007700598661523854
+            },
+            "20": {
+              "topRankedMean": -0.0023800895154645263,
+              "avgEligibleMean": -0.0018614201382255236,
+              "medianEligibleMean": -0.0019621010343269553,
+              "randomSelectionMean": -0.00186702928999073,
+              "excessVsMeanMean": -0.0005186693772390009,
+              "excessVsMedianMean": -0.0004179884811375718,
+              "excessVsRandomMean": -0.0005130602254737953
+            },
+            "50": {
+              "topRankedMean": -0.001833763442547154,
+              "avgEligibleMean": -0.001649237586181914,
+              "medianEligibleMean": -0.0019148451152012635,
+              "randomSelectionMean": -0.001702432764462253,
+              "excessVsMeanMean": -0.0001845258563652335,
+              "excessVsMedianMean": 0.00008108167265410862,
+              "excessVsRandomMean": -0.000131330678084894
+            }
+          },
+          "shape": {
+            "5": {
+              "topRankedMean": -0.0019020926046299236,
+              "avgEligibleMean": -0.0019652915130187855,
+              "medianEligibleMean": -0.001988706727152202,
+              "randomSelectionMean": -0.0019798108257236668,
+              "excessVsMeanMean": 0.00006319890838886195,
+              "excessVsMedianMean": 0.00008661412252227887,
+              "excessVsRandomMean": 0.00007771822109374369
+            },
+            "10": {
+              "topRankedMean": -0.0018043463095092573,
+              "avgEligibleMean": -0.001930900733817702,
+              "medianEligibleMean": -0.0019781721887468092,
+              "randomSelectionMean": -0.0018979227347893383,
+              "excessVsMeanMean": 0.00012655442430844772,
+              "excessVsMedianMean": 0.0001738258792375538,
+              "excessVsRandomMean": 0.00009357642528008143
+            },
+            "20": {
+              "topRankedMean": -0.0016001025147462861,
+              "avgEligibleMean": -0.0018614201382255236,
+              "medianEligibleMean": -0.0019621010343269553,
+              "randomSelectionMean": -0.0018183199174393444,
+              "excessVsMeanMean": 0.0002613176234792368,
+              "excessVsMedianMean": 0.00036199851958066645,
+              "excessVsRandomMean": 0.00021821740269305798
+            },
+            "50": {
+              "topRankedMean": -0.0007022496463474268,
+              "avgEligibleMean": -0.001649237586181914,
+              "medianEligibleMean": -0.0019148451152012635,
+              "randomSelectionMean": -0.0016182639528649412,
+              "excessVsMeanMean": 0.0009469879398344946,
+              "excessVsMedianMean": 0.0012125954688538402,
+              "excessVsRandomMean": 0.0009160143065175181
+            }
+          },
+          "emaRatio": {
+            "5": {
+              "topRankedMean": -0.002228076597140147,
+              "avgEligibleMean": -0.0019652915130187855,
+              "medianEligibleMean": -0.001988706727152202,
+              "randomSelectionMean": -0.001945863195346363,
+              "excessVsMeanMean": -0.00026278508412136105,
+              "excessVsMedianMean": -0.00023936986998794442,
+              "excessVsRandomMean": -0.0002822134017937825
+            },
+            "10": {
+              "topRankedMean": -0.0023617084341218987,
+              "avgEligibleMean": -0.001930900733817702,
+              "medianEligibleMean": -0.0019781721887468092,
+              "randomSelectionMean": -0.0019265462907142898,
+              "excessVsMeanMean": -0.00043080770030419664,
+              "excessVsMedianMean": -0.000383536245375091,
+              "excessVsRandomMean": -0.0004351621434076088
+            },
+            "20": {
+              "topRankedMean": -0.002540156650833928,
+              "avgEligibleMean": -0.0018614201382255236,
+              "medianEligibleMean": -0.0019621010343269553,
+              "randomSelectionMean": -0.0019206416988603752,
+              "excessVsMeanMean": -0.0006787365126084014,
+              "excessVsMedianMean": -0.0005780556165069693,
+              "excessVsRandomMean": -0.0006195149519735571
+            },
+            "50": {
+              "topRankedMean": -0.0026206084621230217,
+              "avgEligibleMean": -0.001649237586181914,
+              "medianEligibleMean": -0.0019148451152012635,
+              "randomSelectionMean": -0.0015107794204906387,
+              "excessVsMeanMean": -0.0009713708759411104,
+              "excessVsMedianMean": -0.0007057633469217594,
+              "excessVsRandomMean": -0.0011098290416323795
+            }
+          },
+          "contrarianTrendStrength": {
+            "5": {
+              "topRankedMean": -0.0012646925217199953,
+              "avgEligibleMean": -0.0019652915130187855,
+              "medianEligibleMean": -0.001988706727152202,
+              "randomSelectionMean": -0.001982416353912167,
+              "excessVsMeanMean": 0.0007005989912987918,
+              "excessVsMedianMean": 0.0007240142054322082,
+              "excessVsRandomMean": 0.0007177238321921751
+            },
+            "10": {
+              "topRankedMean": -0.001314251050630661,
+              "avgEligibleMean": -0.001930900733817702,
+              "medianEligibleMean": -0.0019781721887468092,
+              "randomSelectionMean": -0.001911382953349855,
+              "excessVsMeanMean": 0.0006166496831870418,
+              "excessVsMedianMean": 0.000663921138116144,
+              "excessVsRandomMean": 0.0005971319027191954
+            },
+            "20": {
+              "topRankedMean": -0.0017440826611147024,
+              "avgEligibleMean": -0.0018614201382255236,
+              "medianEligibleMean": -0.0019621010343269553,
+              "randomSelectionMean": -0.001845937447517779,
+              "excessVsMeanMean": 0.0001173374771108278,
+              "excessVsMedianMean": 0.00021801837321225545,
+              "excessVsRandomMean": 0.00010185478640308278
+            },
+            "50": {
+              "topRankedMean": -0.002327851208027833,
+              "avgEligibleMean": -0.001649237586181914,
+              "medianEligibleMean": -0.0019148451152012635,
+              "randomSelectionMean": -0.0016831199950778169,
+              "excessVsMeanMean": -0.0006786136218459173,
+              "excessVsMedianMean": -0.0004130060928265698,
+              "excessVsRandomMean": -0.000644731212950023
+            }
+          },
+          "contrarianAcceleration": {
+            "5": {
+              "topRankedMean": -0.0013987285372718357,
+              "avgEligibleMean": -0.0019652915130187855,
+              "medianEligibleMean": -0.001988706727152202,
+              "randomSelectionMean": -0.0019738788394621535,
+              "excessVsMeanMean": 0.0005665629757469487,
+              "excessVsMedianMean": 0.0005899781898803682,
+              "excessVsRandomMean": 0.0005751503021903169
+            },
+            "10": {
+              "topRankedMean": -0.0012890245541787165,
+              "avgEligibleMean": -0.001930900733817702,
+              "medianEligibleMean": -0.0019781721887468092,
+              "randomSelectionMean": -0.0019214311965652846,
+              "excessVsMeanMean": 0.0006418761796389832,
+              "excessVsMedianMean": 0.0006891476345680943,
+              "excessVsRandomMean": 0.0006324066423865669
+            },
+            "20": {
+              "topRankedMean": -0.0013488647416785853,
+              "avgEligibleMean": -0.0018614201382255236,
+              "medianEligibleMean": -0.0019621010343269553,
+              "randomSelectionMean": -0.0018785162293521638,
+              "excessVsMeanMean": 0.0005125553965469408,
+              "excessVsMedianMean": 0.000613236292648372,
+              "excessVsRandomMean": 0.0005296514876735847
+            },
+            "50": {
+              "topRankedMean": -0.0016784341226768011,
+              "avgEligibleMean": -0.001649237586181914,
+              "medianEligibleMean": -0.0019148451152012635,
+              "randomSelectionMean": -0.001670542521567736,
+              "excessVsMeanMean": -0.000029196536494888607,
+              "excessVsMedianMean": 0.00023641099252445853,
+              "excessVsRandomMean": -0.00000789160110906605
+            }
+          },
+          "contrarianDistanceFromRecentHigh": {
+            "5": {
+              "topRankedMean": -0.001488810861871096,
+              "avgEligibleMean": -0.0019652915130187855,
+              "medianEligibleMean": -0.001988706727152202,
+              "randomSelectionMean": -0.0019878787686727754,
+              "excessVsMeanMean": 0.0004764806511476887,
+              "excessVsMedianMean": 0.000499895865281103,
+              "excessVsRandomMean": 0.0004990679068016741
+            },
+            "10": {
+              "topRankedMean": -0.0016321916154216655,
+              "avgEligibleMean": -0.001930900733817702,
+              "medianEligibleMean": -0.0019781721887468092,
+              "randomSelectionMean": -0.0019274372085131216,
+              "excessVsMeanMean": 0.00029870911839604056,
+              "excessVsMedianMean": 0.0003459805733251431,
+              "excessVsRandomMean": 0.00029524559309145786
+            },
+            "20": {
+              "topRankedMean": -0.0022154404515686552,
+              "avgEligibleMean": -0.0018614201382255236,
+              "medianEligibleMean": -0.0019621010343269553,
+              "randomSelectionMean": -0.0019002266763158578,
+              "excessVsMeanMean": -0.0003540203133431293,
+              "excessVsMedianMean": -0.00025333941724169914,
+              "excessVsRandomMean": -0.00031521377525279605
+            },
+            "50": {
+              "topRankedMean": -0.0027292917138516015,
+              "avgEligibleMean": -0.001649237586181914,
+              "medianEligibleMean": -0.0019148451152012635,
+              "randomSelectionMean": -0.0015331879241913945,
+              "excessVsMeanMean": -0.0010800541276696752,
+              "excessVsMedianMean": -0.0008144465986503305,
+              "excessVsRandomMean": -0.0011961037896602072
+            }
+          },
+          "contrarianDistanceFromRecentLow": {
+            "5": {
+              "topRankedMean": -0.0016085568102863924,
+              "avgEligibleMean": -0.0019652915130187855,
+              "medianEligibleMean": -0.001988706727152202,
+              "randomSelectionMean": -0.0020075224183544707,
+              "excessVsMeanMean": 0.00035673470273239283,
+              "excessVsMedianMean": 0.00038014991686580846,
+              "excessVsRandomMean": 0.000398965608068075
+            },
+            "10": {
+              "topRankedMean": -0.0015223637174428034,
+              "avgEligibleMean": -0.001930900733817702,
+              "medianEligibleMean": -0.0019781721887468092,
+              "randomSelectionMean": -0.0019795722172150088,
+              "excessVsMeanMean": 0.00040853701637489997,
+              "excessVsMedianMean": 0.0004558084713040078,
+              "excessVsRandomMean": 0.0004572084997722061
+            },
+            "20": {
+              "topRankedMean": -0.0014223362488969484,
+              "avgEligibleMean": -0.0018614201382255236,
+              "medianEligibleMean": -0.0019621010343269553,
+              "randomSelectionMean": -0.0017847377316486,
+              "excessVsMeanMean": 0.00043908388932858045,
+              "excessVsMedianMean": 0.0005397647854300084,
+              "excessVsRandomMean": 0.0003624014827516531
+            },
+            "50": {
+              "topRankedMean": -0.0012188243800318249,
+              "avgEligibleMean": -0.001649237586181914,
+              "medianEligibleMean": -0.0019148451152012635,
+              "randomSelectionMean": -0.001666322563630593,
+              "excessVsMeanMean": 0.00043041320615008755,
+              "excessVsMedianMean": 0.0006960207351694361,
+              "excessVsRandomMean": 0.00044749818359876944
+            }
+          }
+        }
+      }
+    },
+    "validation": {
+      "observations": 517080,
+      "baselines": {
+        "5": {
+          "mean": -0.0019740632956100923,
+          "median": -0.002,
+          "positiveRate": 0.14602382610040998,
+          "count": 517080
+        },
+        "10": {
+          "mean": -0.0019483362301689615,
+          "median": -0.002,
+          "positiveRate": 0.20580954591165776,
+          "count": 517080
+        },
+        "20": {
+          "mean": -0.0018976033462607903,
+          "median": -0.002,
+          "positiveRate": 0.26728359248085404,
+          "count": 517080
+        },
+        "50": {
+          "mean": -0.0017519243069634286,
+          "median": -0.002,
+          "positiveRate": 0.3372360176375029,
+          "count": 517080
+        }
+      },
+      "featureEvidence": {
+        "priceReturnMedium": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001974",
+            "baselinePositiveRate": "0.146024",
+            "correlation": "-0.032852",
+            "meanReturnNet": "-0.001974",
+            "positiveRateNet": "0.146024",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001853",
+              "-0.001952",
+              "-0.002000",
+              "-0.002091"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001948",
+            "baselinePositiveRate": "0.205810",
+            "correlation": "-0.034634",
+            "meanReturnNet": "-0.001948",
+            "positiveRateNet": "0.205810",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001799",
+              "-0.001936",
+              "-0.001972",
+              "-0.002086"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001898",
+            "baselinePositiveRate": "0.267284",
+            "correlation": "-0.036224",
+            "meanReturnNet": "-0.001898",
+            "positiveRateNet": "0.267284",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001637",
+              "-0.001888",
+              "-0.001905",
+              "-0.002160"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001752",
+            "baselinePositiveRate": "0.337236",
+            "correlation": "-0.043645",
+            "meanReturnNet": "-0.001752",
+            "positiveRateNet": "0.337236",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001118",
+              "-0.001839",
+              "-0.001844",
+              "-0.002207"
+            ]
+          }
+        ],
+        "acceleration": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001974",
+            "baselinePositiveRate": "0.146024",
+            "correlation": "-0.024783",
+            "meanReturnNet": "-0.001974",
+            "positiveRateNet": "0.146024",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001831",
+              "-0.001995",
+              "-0.001967",
+              "-0.002103"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001948",
+            "baselinePositiveRate": "0.205810",
+            "correlation": "-0.014436",
+            "meanReturnNet": "-0.001948",
+            "positiveRateNet": "0.205810",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001787",
+              "-0.001967",
+              "-0.001934",
+              "-0.002106"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001898",
+            "baselinePositiveRate": "0.267284",
+            "correlation": "-0.016718",
+            "meanReturnNet": "-0.001898",
+            "positiveRateNet": "0.267284",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001792",
+              "-0.001954",
+              "-0.001831",
+              "-0.002014"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001752",
+            "baselinePositiveRate": "0.337236",
+            "correlation": "-0.009773",
+            "meanReturnNet": "-0.001752",
+            "positiveRateNet": "0.337236",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001576",
+              "-0.001833",
+              "-0.001734",
+              "-0.001865"
+            ]
+          }
+        ],
+        "volatility": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001974",
+            "baselinePositiveRate": "0.146024",
+            "correlation": "0.000192",
+            "meanReturnNet": "-0.001974",
+            "positiveRateNet": "0.146024",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001962",
+              "-0.002000",
+              "-0.001962",
+              "-0.001973"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001948",
+            "baselinePositiveRate": "0.205810",
+            "correlation": "0.001112",
+            "meanReturnNet": "-0.001948",
+            "positiveRateNet": "0.205810",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001926",
+              "-0.001998",
+              "-0.001930",
+              "-0.001939"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001898",
+            "baselinePositiveRate": "0.267284",
+            "correlation": "0.003045",
+            "meanReturnNet": "-0.001898",
+            "positiveRateNet": "0.267284",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001853",
+              "-0.001986",
+              "-0.001893",
+              "-0.001859"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001752",
+            "baselinePositiveRate": "0.337236",
+            "correlation": "0.004544",
+            "meanReturnNet": "-0.001752",
+            "positiveRateNet": "0.337236",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001716",
+              "-0.001919",
+              "-0.001737",
+              "-0.001636"
+            ]
+          }
+        ],
+        "volatilityChange": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001974",
+            "baselinePositiveRate": "0.146024",
+            "correlation": "-0.003680",
+            "meanReturnNet": "-0.001974",
+            "positiveRateNet": "0.146024",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001942",
+              "-0.001984",
+              "-0.001980",
+              "-0.001991"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001948",
+            "baselinePositiveRate": "0.205810",
+            "correlation": "-0.004426",
+            "meanReturnNet": "-0.001948",
+            "positiveRateNet": "0.205810",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001875",
+              "-0.001963",
+              "-0.001959",
+              "-0.001996"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001898",
+            "baselinePositiveRate": "0.267284",
+            "correlation": "-0.004328",
+            "meanReturnNet": "-0.001898",
+            "positiveRateNet": "0.267284",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001761",
+              "-0.001915",
+              "-0.001917",
+              "-0.001997"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001752",
+            "baselinePositiveRate": "0.337236",
+            "correlation": "-0.002667",
+            "meanReturnNet": "-0.001752",
+            "positiveRateNet": "0.337236",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001599",
+              "-0.001924",
+              "-0.001810",
+              "-0.001674"
+            ]
+          }
+        ],
+        "distanceFromRecentHigh": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001974",
+            "baselinePositiveRate": "0.146024",
+            "correlation": "-0.021646",
+            "meanReturnNet": "-0.001974",
+            "positiveRateNet": "0.146024",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001813",
+              "-0.001902",
+              "-0.002016",
+              "-0.002165"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001948",
+            "baselinePositiveRate": "0.205810",
+            "correlation": "-0.018267",
+            "meanReturnNet": "-0.001948",
+            "positiveRateNet": "0.205810",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001759",
+              "-0.001862",
+              "-0.001998",
+              "-0.002174"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001898",
+            "baselinePositiveRate": "0.267284",
+            "correlation": "-0.017287",
+            "meanReturnNet": "-0.001898",
+            "positiveRateNet": "0.267284",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001669",
+              "-0.001816",
+              "-0.001957",
+              "-0.002148"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001752",
+            "baselinePositiveRate": "0.337236",
+            "correlation": "-0.026952",
+            "meanReturnNet": "-0.001752",
+            "positiveRateNet": "0.337236",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001173",
+              "-0.001736",
+              "-0.001940",
+              "-0.002159"
+            ]
+          }
+        ],
+        "distanceFromRecentLow": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001974",
+            "baselinePositiveRate": "0.146024",
+            "correlation": "-0.038080",
+            "meanReturnNet": "-0.001974",
+            "positiveRateNet": "0.146024",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001762",
+              "-0.001943",
+              "-0.002077",
+              "-0.002114"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001948",
+            "baselinePositiveRate": "0.205810",
+            "correlation": "-0.041494",
+            "meanReturnNet": "-0.001948",
+            "positiveRateNet": "0.205810",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001696",
+              "-0.001904",
+              "-0.002075",
+              "-0.002118"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001898",
+            "baselinePositiveRate": "0.267284",
+            "correlation": "-0.037272",
+            "meanReturnNet": "-0.001898",
+            "positiveRateNet": "0.267284",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001604",
+              "-0.001844",
+              "-0.002025",
+              "-0.002118"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001752",
+            "baselinePositiveRate": "0.337236",
+            "correlation": "-0.034058",
+            "meanReturnNet": "-0.001752",
+            "positiveRateNet": "0.337236",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001280",
+              "-0.001738",
+              "-0.001875",
+              "-0.002115"
+            ]
+          }
+        ],
+        "volume": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001974",
+            "baselinePositiveRate": "0.146024",
+            "correlation": "-0.003704",
+            "meanReturnNet": "-0.001974",
+            "positiveRateNet": "0.146024",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001977",
+              "-0.001961",
+              "-0.001965",
+              "-0.001994"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001948",
+            "baselinePositiveRate": "0.205810",
+            "correlation": "-0.003903",
+            "meanReturnNet": "-0.001948",
+            "positiveRateNet": "0.205810",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001952",
+              "-0.001924",
+              "-0.001945",
+              "-0.001972"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001898",
+            "baselinePositiveRate": "0.267284",
+            "correlation": "-0.001366",
+            "meanReturnNet": "-0.001898",
+            "positiveRateNet": "0.267284",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001895",
+              "-0.001862",
+              "-0.001926",
+              "-0.001908"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001752",
+            "baselinePositiveRate": "0.337236",
+            "correlation": "0.011700",
+            "meanReturnNet": "-0.001752",
+            "positiveRateNet": "0.337236",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001725",
+              "-0.001727",
+              "-0.001818",
+              "-0.001738"
+            ]
+          }
+        ],
+        "volumeAcceleration": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001974",
+            "baselinePositiveRate": "0.146024",
+            "correlation": "-0.003222",
+            "meanReturnNet": "-0.001974",
+            "positiveRateNet": "0.146024",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001976",
+              "-0.001967",
+              "-0.001983",
+              "-0.001971"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001948",
+            "baselinePositiveRate": "0.205810",
+            "correlation": "-0.002411",
+            "meanReturnNet": "-0.001948",
+            "positiveRateNet": "0.205810",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001937",
+              "-0.001932",
+              "-0.001957",
+              "-0.001968"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001898",
+            "baselinePositiveRate": "0.267284",
+            "correlation": "-0.000598",
+            "meanReturnNet": "-0.001898",
+            "positiveRateNet": "0.267284",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001877",
+              "-0.001875",
+              "-0.001917",
+              "-0.001921"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001752",
+            "baselinePositiveRate": "0.337236",
+            "correlation": "0.002737",
+            "meanReturnNet": "-0.001752",
+            "positiveRateNet": "0.337236",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001796",
+              "-0.001768",
+              "-0.001725",
+              "-0.001719"
+            ]
+          }
+        ],
+        "tradeFrequency": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001974",
+            "baselinePositiveRate": "0.146024",
+            "correlation": "0.002711",
+            "meanReturnNet": "-0.001974",
+            "positiveRateNet": "0.146024",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001971",
+              "-0.001966",
+              "-0.001976",
+              "-0.001983"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001948",
+            "baselinePositiveRate": "0.205810",
+            "correlation": "0.005206",
+            "meanReturnNet": "-0.001948",
+            "positiveRateNet": "0.205810",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001945",
+              "-0.001927",
+              "-0.001964",
+              "-0.001958"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001898",
+            "baselinePositiveRate": "0.267284",
+            "correlation": "0.008662",
+            "meanReturnNet": "-0.001898",
+            "positiveRateNet": "0.267284",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001894",
+              "-0.001876",
+              "-0.001923",
+              "-0.001898"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001752",
+            "baselinePositiveRate": "0.337236",
+            "correlation": "0.009922",
+            "meanReturnNet": "-0.001752",
+            "positiveRateNet": "0.337236",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001744",
+              "-0.001791",
+              "-0.001802",
+              "-0.001671"
+            ]
+          }
+        ],
+        "trendStrength": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001974",
+            "baselinePositiveRate": "0.146024",
+            "correlation": "-0.040560",
+            "meanReturnNet": "-0.001974",
+            "positiveRateNet": "0.146024",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001799",
+              "-0.001928",
+              "-0.002040",
+              "-0.002129"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001948",
+            "baselinePositiveRate": "0.205810",
+            "correlation": "-0.034487",
+            "meanReturnNet": "-0.001948",
+            "positiveRateNet": "0.205810",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001749",
+              "-0.001880",
+              "-0.002022",
+              "-0.002143"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001898",
+            "baselinePositiveRate": "0.267284",
+            "correlation": "-0.037216",
+            "meanReturnNet": "-0.001898",
+            "positiveRateNet": "0.267284",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001659",
+              "-0.001813",
+              "-0.001994",
+              "-0.002124"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001752",
+            "baselinePositiveRate": "0.337236",
+            "correlation": "-0.037503",
+            "meanReturnNet": "-0.001752",
+            "positiveRateNet": "0.337236",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001247",
+              "-0.001743",
+              "-0.001877",
+              "-0.002140"
+            ]
+          }
+        ]
+      },
+      "legacySignals": {
+        "shape": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001974",
+            "baselinePositiveRate": "0.146024",
+            "correlation": "-0.005483",
+            "meanReturnNet": "-0.001974",
+            "positiveRateNet": "0.146024",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001959",
+              "-0.001956",
+              "-0.001988",
+              "-0.001993"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001948",
+            "baselinePositiveRate": "0.205810",
+            "correlation": "-0.007827",
+            "meanReturnNet": "-0.001948",
+            "positiveRateNet": "0.205810",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001918",
+              "-0.001913",
+              "-0.001978",
+              "-0.001984"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001898",
+            "baselinePositiveRate": "0.267284",
+            "correlation": "-0.011372",
+            "meanReturnNet": "-0.001898",
+            "positiveRateNet": "0.267284",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001832",
+              "-0.001834",
+              "-0.001964",
+              "-0.001960"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001752",
+            "baselinePositiveRate": "0.337236",
+            "correlation": "-0.019421",
+            "meanReturnNet": "-0.001752",
+            "positiveRateNet": "0.337236",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001615",
+              "-0.001581",
+              "-0.001927",
+              "-0.001884"
+            ]
+          }
+        ],
+        "emaRatio": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001974",
+            "baselinePositiveRate": "0.146024",
+            "correlation": "-0.030022",
+            "meanReturnNet": "-0.001974",
+            "positiveRateNet": "0.146024",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001843",
+              "-0.001962",
+              "-0.002006",
+              "-0.002085"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001948",
+            "baselinePositiveRate": "0.205810",
+            "correlation": "-0.036698",
+            "meanReturnNet": "-0.001948",
+            "positiveRateNet": "0.205810",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001734",
+              "-0.001947",
+              "-0.001994",
+              "-0.002119"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001898",
+            "baselinePositiveRate": "0.267284",
+            "correlation": "-0.044290",
+            "meanReturnNet": "-0.001898",
+            "positiveRateNet": "0.267284",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001566",
+              "-0.001897",
+              "-0.001957",
+              "-0.002171"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001752",
+            "baselinePositiveRate": "0.337236",
+            "correlation": "-0.053962",
+            "meanReturnNet": "-0.001752",
+            "positiveRateNet": "0.337236",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001131",
+              "-0.001795",
+              "-0.001859",
+              "-0.002223"
+            ]
+          }
+        ],
+        "strength": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001974",
+            "baselinePositiveRate": "0.146024",
+            "correlation": "-0.005610",
+            "meanReturnNet": "-0.001974",
+            "positiveRateNet": "0.146024",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001959",
+              "-0.001952",
+              "-0.001992",
+              "-0.001993"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001948",
+            "baselinePositiveRate": "0.205810",
+            "correlation": "-0.007983",
+            "meanReturnNet": "-0.001948",
+            "positiveRateNet": "0.205810",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001919",
+              "-0.001906",
+              "-0.001984",
+              "-0.001985"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001898",
+            "baselinePositiveRate": "0.267284",
+            "correlation": "-0.011558",
+            "meanReturnNet": "-0.001898",
+            "positiveRateNet": "0.267284",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001834",
+              "-0.001818",
+              "-0.001978",
+              "-0.001960"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001752",
+            "baselinePositiveRate": "0.337236",
+            "correlation": "-0.019650",
+            "meanReturnNet": "-0.001752",
+            "positiveRateNet": "0.337236",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001618",
+              "-0.001558",
+              "-0.001946",
+              "-0.001886"
+            ]
+          }
+        ]
+      },
+      "ranking": {
+        "gross": {
+          "strength": {
+            "5": {
+              "topRankedMean": -0.00003282017454993164,
+              "avgEligibleMean": 0.000025936704385484846,
+              "medianEligibleMean": -0.0000026415180429852684,
+              "randomSelectionMean": 0.000028011533006586546,
+              "excessVsMeanMean": -0.00005875687893541656,
+              "excessVsMedianMean": -0.000030178656506946453,
+              "excessVsRandomMean": -0.00006083170755651845
+            },
+            "10": {
+              "topRankedMean": -0.00007170777899734764,
+              "avgEligibleMean": 0.000051663769827932077,
+              "medianEligibleMean": -0.00000824479343779796,
+              "randomSelectionMean": 0.0000066137360856845655,
+              "excessVsMeanMean": -0.00012337154882528063,
+              "excessVsMedianMean": -0.00006346298555955053,
+              "excessVsRandomMean": -0.00007832151508303248
+            },
+            "20": {
+              "topRankedMean": -0.00017971670444507715,
+              "avgEligibleMean": 0.00010239665373687938,
+              "medianEligibleMean": -0.000009964213315745898,
+              "randomSelectionMean": 0.00013892834918575369,
+              "excessVsMeanMean": -0.00028211335818195796,
+              "excessVsMedianMean": -0.00016975249112933103,
+              "excessVsRandomMean": -0.00031864505363083143
+            },
+            "50": {
+              "topRankedMean": -0.000620308144388589,
+              "avgEligibleMean": 0.00024807569303495896,
+              "medianEligibleMean": -0.000009494698134792251,
+              "randomSelectionMean": 0.00013713767297798954,
+              "excessVsMeanMean": -0.00086838383742355,
+              "excessVsMedianMean": -0.000610813446253801,
+              "excessVsRandomMean": -0.0007574458173665797
+            }
+          },
+          "trendStrength": {
+            "5": {
+              "topRankedMean": -0.0003195980243761597,
+              "avgEligibleMean": 0.000025936704385484846,
+              "medianEligibleMean": -0.0000026415180429852684,
+              "randomSelectionMean": 0.000018240774821283063,
+              "excessVsMeanMean": -0.00034553472876164444,
+              "excessVsMedianMean": -0.00031695650633317376,
+              "excessVsRandomMean": -0.00033783879919744284
+            },
+            "10": {
+              "topRankedMean": -0.000399735113772023,
+              "avgEligibleMean": 0.000051663769827932077,
+              "medianEligibleMean": -0.00000824479343779796,
+              "randomSelectionMean": 0.00005081062586233273,
+              "excessVsMeanMean": -0.00045139888359995594,
+              "excessVsMedianMean": -0.0003914903203342258,
+              "excessVsRandomMean": -0.0004505457396343554
+            },
+            "20": {
+              "topRankedMean": -0.000609334108416683,
+              "avgEligibleMean": 0.00010239665373687938,
+              "medianEligibleMean": -0.000009964213315745898,
+              "randomSelectionMean": 0.00002763882481474275,
+              "excessVsMeanMean": -0.0007117307621535627,
+              "excessVsMedianMean": -0.0005993698951009356,
+              "excessVsRandomMean": -0.0006369729332314245
+            },
+            "50": {
+              "topRankedMean": -0.0011664326509895778,
+              "avgEligibleMean": 0.00024807569303495896,
+              "medianEligibleMean": -0.000009494698134792251,
+              "randomSelectionMean": 0.00019534196000983473,
+              "excessVsMeanMean": -0.0014145083440245442,
+              "excessVsMedianMean": -0.0011569379528547938,
+              "excessVsRandomMean": -0.001361774610999423
+            }
+          },
+          "shape": {
+            "5": {
+              "topRankedMean": -0.00003282017454993164,
+              "avgEligibleMean": 0.000025936704385484846,
+              "medianEligibleMean": -0.0000026415180429852684,
+              "randomSelectionMean": 0.000016394274498680204,
+              "excessVsMeanMean": -0.00005875687893541656,
+              "excessVsMedianMean": -0.000030178656506946453,
+              "excessVsRandomMean": -0.00004921444904861197
+            },
+            "10": {
+              "topRankedMean": -0.00007170777899734764,
+              "avgEligibleMean": 0.000051663769827932077,
+              "medianEligibleMean": -0.00000824479343779796,
+              "randomSelectionMean": 0.0001405964788074982,
+              "excessVsMeanMean": -0.00012337154882528063,
+              "excessVsMedianMean": -0.00006346298555955053,
+              "excessVsRandomMean": -0.0002123042578048464
+            },
+            "20": {
+              "topRankedMean": -0.00017971670444507715,
+              "avgEligibleMean": 0.00010239665373687938,
+              "medianEligibleMean": -0.000009964213315745898,
+              "randomSelectionMean": 0.00011688901760136264,
+              "excessVsMeanMean": -0.00028211335818195796,
+              "excessVsMedianMean": -0.00016975249112933103,
+              "excessVsRandomMean": -0.0002966057220464403
+            },
+            "50": {
+              "topRankedMean": -0.000620308144388589,
+              "avgEligibleMean": 0.00024807569303495896,
+              "medianEligibleMean": -0.000009494698134792251,
+              "randomSelectionMean": 0.00014596598531235586,
+              "excessVsMeanMean": -0.00086838383742355,
+              "excessVsMedianMean": -0.000610813446253801,
+              "excessVsRandomMean": -0.0007662741297009413
+            }
+          },
+          "emaRatio": {
+            "5": {
+              "topRankedMean": -0.00014515648976702028,
+              "avgEligibleMean": 0.000025936704385484846,
+              "medianEligibleMean": -0.0000026415180429852684,
+              "randomSelectionMean": 0.000006501662366017803,
+              "excessVsMeanMean": -0.00017109319415250571,
+              "excessVsMedianMean": -0.00014251497172403633,
+              "excessVsRandomMean": -0.00015165815213303893
+            },
+            "10": {
+              "topRankedMean": -0.0002505661828240623,
+              "avgEligibleMean": 0.000051663769827932077,
+              "medianEligibleMean": -0.00000824479343779796,
+              "randomSelectionMean": 0.00010499232388207945,
+              "excessVsMeanMean": -0.0003022299526519939,
+              "excessVsMedianMean": -0.00024232138938626584,
+              "excessVsRandomMean": -0.0003555585067061401
+            },
+            "20": {
+              "topRankedMean": -0.0005208205913321299,
+              "avgEligibleMean": 0.00010239665373687938,
+              "medianEligibleMean": -0.000009964213315745898,
+              "randomSelectionMean": 0.0001206247998302789,
+              "excessVsMeanMean": -0.0006232172450690093,
+              "excessVsMedianMean": -0.0005108563780163824,
+              "excessVsRandomMean": -0.0006414453911624057
+            },
+            "50": {
+              "topRankedMean": -0.0019061553907227416,
+              "avgEligibleMean": 0.00024807569303495896,
+              "medianEligibleMean": -0.000009494698134792251,
+              "randomSelectionMean": 0.00019794532519183105,
+              "excessVsMeanMean": -0.0021542310837576887,
+              "excessVsMedianMean": -0.0018966606925879446,
+              "excessVsRandomMean": -0.0021041007159145696
+            }
+          },
+          "contrarianTrendStrength": {
+            "5": {
+              "topRankedMean": 0.0004919499719929244,
+              "avgEligibleMean": 0.000025936704385484846,
+              "medianEligibleMean": -0.0000026415180429852684,
+              "randomSelectionMean": 0.000042300999963309325,
+              "excessVsMeanMean": 0.00046601326760744145,
+              "excessVsMedianMean": 0.0004945914900359114,
+              "excessVsRandomMean": 0.00044964897202961503
+            },
+            "10": {
+              "topRankedMean": 0.0006183907690072016,
+              "avgEligibleMean": 0.000051663769827932077,
+              "medianEligibleMean": -0.00000824479343779796,
+              "randomSelectionMean": 0.00004405603597872246,
+              "excessVsMeanMean": 0.0005667269991792706,
+              "excessVsMedianMean": 0.000626635562444996,
+              "excessVsRandomMean": 0.0005743347330284835
+            },
+            "20": {
+              "topRankedMean": 0.0007569747280768422,
+              "avgEligibleMean": 0.00010239665373687938,
+              "medianEligibleMean": -0.000009964213315745898,
+              "randomSelectionMean": 0.00009660572410488985,
+              "excessVsMeanMean": 0.0006545780743399627,
+              "excessVsMedianMean": 0.0007669389413925928,
+              "excessVsRandomMean": 0.0006603690039719527
+            },
+            "50": {
+              "topRankedMean": 0.0005050295721879067,
+              "avgEligibleMean": 0.00024807569303495896,
+              "medianEligibleMean": -0.000009494698134792251,
+              "randomSelectionMean": 0.00026055611252926765,
+              "excessVsMeanMean": 0.0002569538791529465,
+              "excessVsMedianMean": 0.0005145242703227024,
+              "excessVsRandomMean": 0.0002444734596586372
+            }
+          },
+          "contrarianAcceleration": {
+            "5": {
+              "topRankedMean": 0.0003066810316465622,
+              "avgEligibleMean": 0.000025936704385484846,
+              "medianEligibleMean": -0.0000026415180429852684,
+              "randomSelectionMean": -0.000027225053653032573,
+              "excessVsMeanMean": 0.00028074432726107537,
+              "excessVsMedianMean": 0.00030932254968954763,
+              "excessVsRandomMean": 0.0003339060852995937
+            },
+            "10": {
+              "topRankedMean": 0.0003032027692812515,
+              "avgEligibleMean": 0.000051663769827932077,
+              "medianEligibleMean": -0.00000824479343779796,
+              "randomSelectionMean": 0.00005386541776499591,
+              "excessVsMeanMean": 0.0002515389994533206,
+              "excessVsMedianMean": 0.0003114475627190509,
+              "excessVsRandomMean": 0.00024933735151625537
+            },
+            "20": {
+              "topRankedMean": 0.00034374626542902134,
+              "avgEligibleMean": 0.00010239665373687938,
+              "medianEligibleMean": -0.000009964213315745898,
+              "randomSelectionMean": 0.00002310445155208372,
+              "excessVsMeanMean": 0.00024134961169214208,
+              "excessVsMedianMean": 0.00035371047874476846,
+              "excessVsRandomMean": 0.0003206418138769364
+            },
+            "50": {
+              "topRankedMean": -0.00006840249275492999,
+              "avgEligibleMean": 0.00024807569303495896,
+              "medianEligibleMean": -0.000009494698134792251,
+              "randomSelectionMean": 0.00016932359328026558,
+              "excessVsMeanMean": -0.00031647818578988806,
+              "excessVsMedianMean": -0.000058907794620136086,
+              "excessVsRandomMean": -0.0002377260860351941
+            }
+          },
+          "contrarianDistanceFromRecentHigh": {
+            "5": {
+              "topRankedMean": 0.00016655492781355045,
+              "avgEligibleMean": 0.000025936704385484846,
+              "medianEligibleMean": -0.0000026415180429852684,
+              "randomSelectionMean": 0.00006886095341767292,
+              "excessVsMeanMean": 0.00014061822342806675,
+              "excessVsMedianMean": 0.00016919644585653768,
+              "excessVsRandomMean": 0.00009769397439587726
+            },
+            "10": {
+              "topRankedMean": 0.00017166674121578987,
+              "avgEligibleMean": 0.000051663769827932077,
+              "medianEligibleMean": -0.00000824479343779796,
+              "randomSelectionMean": 0.00007078240462563698,
+              "excessVsMeanMean": 0.00012000297138785735,
+              "excessVsMedianMean": 0.00017991153465358767,
+              "excessVsRandomMean": 0.00010088433659015374
+            },
+            "20": {
+              "topRankedMean": 0.0002583731683802139,
+              "avgEligibleMean": 0.00010239665373687938,
+              "medianEligibleMean": -0.000009964213315745898,
+              "randomSelectionMean": 0.00022708643844383401,
+              "excessVsMeanMean": 0.00015597651464333275,
+              "excessVsMedianMean": 0.00026833738169595767,
+              "excessVsRandomMean": 0.00003128672993637963
+            },
+            "50": {
+              "topRankedMean": -0.00004830583139434646,
+              "avgEligibleMean": 0.00024807569303495896,
+              "medianEligibleMean": -0.000009494698134792251,
+              "randomSelectionMean": 0.00027318966311038097,
+              "excessVsMeanMean": -0.00029638152442930816,
+              "excessVsMedianMean": -0.00003881113325955411,
+              "excessVsRandomMean": -0.0003214954945047298
+            }
+          },
+          "contrarianDistanceFromRecentLow": {
+            "5": {
+              "topRankedMean": 0.0004177517008877293,
+              "avgEligibleMean": 0.000025936704385484846,
+              "medianEligibleMean": -0.0000026415180429852684,
+              "randomSelectionMean": 0.000032335553713493094,
+              "excessVsMeanMean": 0.00039181499650224345,
+              "excessVsMedianMean": 0.0004203932189307146,
+              "excessVsRandomMean": 0.00038541614717423636
+            },
+            "10": {
+              "topRankedMean": 0.0005813121857755504,
+              "avgEligibleMean": 0.000051663769827932077,
+              "medianEligibleMean": -0.00000824479343779796,
+              "randomSelectionMean": 0.00017100006669626283,
+              "excessVsMeanMean": 0.0005296484159476201,
+              "excessVsMedianMean": 0.000589556979213349,
+              "excessVsRandomMean": 0.0004103121190792881
+            },
+            "20": {
+              "topRankedMean": 0.0006759778455506212,
+              "avgEligibleMean": 0.00010239665373687938,
+              "medianEligibleMean": -0.000009964213315745898,
+              "randomSelectionMean": 9.306692324189414e-7,
+              "excessVsMeanMean": 0.0005735811918137363,
+              "excessVsMedianMean": 0.0006859420588663664,
+              "excessVsRandomMean": 0.0006750471763181974
+            },
+            "50": {
+              "topRankedMean": 0.0007498886626743655,
+              "avgEligibleMean": 0.00024807569303495896,
+              "medianEligibleMean": -0.000009494698134792251,
+              "randomSelectionMean": 0.00023292703419398953,
+              "excessVsMeanMean": 0.0005018129696394049,
+              "excessVsMedianMean": 0.0007593833608091566,
+              "excessVsRandomMean": 0.0005169616284803742
+            }
+          }
+        },
+        "net": {
+          "strength": {
+            "5": {
+              "topRankedMean": -0.0020328201745499317,
+              "avgEligibleMean": -0.0019740632956145154,
+              "medianEligibleMean": -0.002002641518042985,
+              "randomSelectionMean": -0.0019719884669934136,
+              "excessVsMeanMean": -0.00005875687893541656,
+              "excessVsMedianMean": -0.000030178656506946453,
+              "excessVsRandomMean": -0.00006083170755651845
+            },
+            "10": {
+              "topRankedMean": -0.002071707778997348,
+              "avgEligibleMean": -0.001948336230172068,
+              "medianEligibleMean": -0.002008244793437798,
+              "randomSelectionMean": -0.0019933862639143155,
+              "excessVsMeanMean": -0.00012337154882528063,
+              "excessVsMedianMean": -0.00006346298555955053,
+              "excessVsRandomMean": -0.00007832151508303248
+            },
+            "20": {
+              "topRankedMean": -0.0021797167044450773,
+              "avgEligibleMean": -0.0018976033462631207,
+              "medianEligibleMean": -0.002009964213315746,
+              "randomSelectionMean": -0.0018610716508142464,
+              "excessVsMeanMean": -0.00028211335818195796,
+              "excessVsMedianMean": -0.00016975249112933103,
+              "excessVsRandomMean": -0.00031864505363083143
+            },
+            "50": {
+              "topRankedMean": -0.0026203081443885888,
+              "avgEligibleMean": -0.001751924306965041,
+              "medianEligibleMean": -0.0020094946981347923,
+              "randomSelectionMean": -0.0018628623270220105,
+              "excessVsMeanMean": -0.00086838383742355,
+              "excessVsMedianMean": -0.000610813446253801,
+              "excessVsRandomMean": -0.0007574458173665797
+            }
+          },
+          "trendStrength": {
+            "5": {
+              "topRankedMean": -0.00231959802437616,
+              "avgEligibleMean": -0.0019740632956145154,
+              "medianEligibleMean": -0.002002641518042985,
+              "randomSelectionMean": -0.001981759225178717,
+              "excessVsMeanMean": -0.00034553472876164444,
+              "excessVsMedianMean": -0.00031695650633317376,
+              "excessVsRandomMean": -0.00033783879919744284
+            },
+            "10": {
+              "topRankedMean": -0.002399735113772023,
+              "avgEligibleMean": -0.001948336230172068,
+              "medianEligibleMean": -0.002008244793437798,
+              "randomSelectionMean": -0.0019491893741376673,
+              "excessVsMeanMean": -0.00045139888359995594,
+              "excessVsMedianMean": -0.0003914903203342258,
+              "excessVsRandomMean": -0.0004505457396343554
+            },
+            "20": {
+              "topRankedMean": -0.0026093341084166832,
+              "avgEligibleMean": -0.0018976033462631207,
+              "medianEligibleMean": -0.002009964213315746,
+              "randomSelectionMean": -0.001972361175185257,
+              "excessVsMeanMean": -0.0007117307621535627,
+              "excessVsMedianMean": -0.0005993698951009356,
+              "excessVsRandomMean": -0.0006369729332314245
+            },
+            "50": {
+              "topRankedMean": -0.0031664326509895776,
+              "avgEligibleMean": -0.001751924306965041,
+              "medianEligibleMean": -0.0020094946981347923,
+              "randomSelectionMean": -0.0018046580399901653,
+              "excessVsMeanMean": -0.0014145083440245442,
+              "excessVsMedianMean": -0.0011569379528547938,
+              "excessVsRandomMean": -0.001361774610999423
+            }
+          },
+          "shape": {
+            "5": {
+              "topRankedMean": -0.0020328201745499317,
+              "avgEligibleMean": -0.0019740632956145154,
+              "medianEligibleMean": -0.002002641518042985,
+              "randomSelectionMean": -0.00198360572550132,
+              "excessVsMeanMean": -0.00005875687893541656,
+              "excessVsMedianMean": -0.000030178656506946453,
+              "excessVsRandomMean": -0.00004921444904861197
+            },
+            "10": {
+              "topRankedMean": -0.002071707778997348,
+              "avgEligibleMean": -0.001948336230172068,
+              "medianEligibleMean": -0.002008244793437798,
+              "randomSelectionMean": -0.0018594035211925018,
+              "excessVsMeanMean": -0.00012337154882528063,
+              "excessVsMedianMean": -0.00006346298555955053,
+              "excessVsRandomMean": -0.0002123042578048464
+            },
+            "20": {
+              "topRankedMean": -0.0021797167044450773,
+              "avgEligibleMean": -0.0018976033462631207,
+              "medianEligibleMean": -0.002009964213315746,
+              "randomSelectionMean": -0.0018831109823986374,
+              "excessVsMeanMean": -0.00028211335818195796,
+              "excessVsMedianMean": -0.00016975249112933103,
+              "excessVsRandomMean": -0.0002966057220464403
+            },
+            "50": {
+              "topRankedMean": -0.0026203081443885888,
+              "avgEligibleMean": -0.001751924306965041,
+              "medianEligibleMean": -0.0020094946981347923,
+              "randomSelectionMean": -0.0018540340146876442,
+              "excessVsMeanMean": -0.00086838383742355,
+              "excessVsMedianMean": -0.000610813446253801,
+              "excessVsRandomMean": -0.0007662741297009413
+            }
+          },
+          "emaRatio": {
+            "5": {
+              "topRankedMean": -0.0021451564897670204,
+              "avgEligibleMean": -0.0019740632956145154,
+              "medianEligibleMean": -0.002002641518042985,
+              "randomSelectionMean": -0.001993498337633982,
+              "excessVsMeanMean": -0.00017109319415250571,
+              "excessVsMedianMean": -0.00014251497172403633,
+              "excessVsRandomMean": -0.00015165815213303893
+            },
+            "10": {
+              "topRankedMean": -0.002250566182824062,
+              "avgEligibleMean": -0.001948336230172068,
+              "medianEligibleMean": -0.002008244793437798,
+              "randomSelectionMean": -0.0018950076761179205,
+              "excessVsMeanMean": -0.0003022299526519939,
+              "excessVsMedianMean": -0.00024232138938626584,
+              "excessVsRandomMean": -0.0003555585067061401
+            },
+            "20": {
+              "topRankedMean": -0.00252082059133213,
+              "avgEligibleMean": -0.0018976033462631207,
+              "medianEligibleMean": -0.002009964213315746,
+              "randomSelectionMean": -0.001879375200169721,
+              "excessVsMeanMean": -0.0006232172450690093,
+              "excessVsMedianMean": -0.0005108563780163824,
+              "excessVsRandomMean": -0.0006414453911624057
+            },
+            "50": {
+              "topRankedMean": -0.0039061553907227416,
+              "avgEligibleMean": -0.001751924306965041,
+              "medianEligibleMean": -0.0020094946981347923,
+              "randomSelectionMean": -0.001802054674808169,
+              "excessVsMeanMean": -0.0021542310837576887,
+              "excessVsMedianMean": -0.0018966606925879446,
+              "excessVsRandomMean": -0.0021041007159145696
+            }
+          },
+          "contrarianTrendStrength": {
+            "5": {
+              "topRankedMean": -0.0015080500280070758,
+              "avgEligibleMean": -0.0019740632956145154,
+              "medianEligibleMean": -0.002002641518042985,
+              "randomSelectionMean": -0.0019576990000366905,
+              "excessVsMeanMean": 0.00046601326760744145,
+              "excessVsMedianMean": 0.0004945914900359114,
+              "excessVsRandomMean": 0.00044964897202961503
+            },
+            "10": {
+              "topRankedMean": -0.0013816092309927985,
+              "avgEligibleMean": -0.001948336230172068,
+              "medianEligibleMean": -0.002008244793437798,
+              "randomSelectionMean": -0.0019559439640212777,
+              "excessVsMeanMean": 0.0005667269991792706,
+              "excessVsMedianMean": 0.000626635562444996,
+              "excessVsRandomMean": 0.0005743347330284835
+            },
+            "20": {
+              "topRankedMean": -0.0012430252719231579,
+              "avgEligibleMean": -0.0018976033462631207,
+              "medianEligibleMean": -0.002009964213315746,
+              "randomSelectionMean": -0.0019033942758951102,
+              "excessVsMeanMean": 0.0006545780743399627,
+              "excessVsMedianMean": 0.0007669389413925928,
+              "excessVsRandomMean": 0.0006603690039719527
+            },
+            "50": {
+              "topRankedMean": -0.0014949704278120935,
+              "avgEligibleMean": -0.001751924306965041,
+              "medianEligibleMean": -0.0020094946981347923,
+              "randomSelectionMean": -0.0017394438874707323,
+              "excessVsMeanMean": 0.0002569538791529465,
+              "excessVsMedianMean": 0.0005145242703227024,
+              "excessVsRandomMean": 0.0002444734596586372
+            }
+          },
+          "contrarianAcceleration": {
+            "5": {
+              "topRankedMean": -0.0016933189683534379,
+              "avgEligibleMean": -0.0019740632956145154,
+              "medianEligibleMean": -0.002002641518042985,
+              "randomSelectionMean": -0.0020272250536530327,
+              "excessVsMeanMean": 0.00028074432726107537,
+              "excessVsMedianMean": 0.00030932254968954763,
+              "excessVsRandomMean": 0.0003339060852995937
+            },
+            "10": {
+              "topRankedMean": -0.0016967972307187485,
+              "avgEligibleMean": -0.001948336230172068,
+              "medianEligibleMean": -0.002008244793437798,
+              "randomSelectionMean": -0.001946134582235004,
+              "excessVsMeanMean": 0.0002515389994533206,
+              "excessVsMedianMean": 0.0003114475627190509,
+              "excessVsRandomMean": 0.00024933735151625537
+            },
+            "20": {
+              "topRankedMean": -0.0016562537345709786,
+              "avgEligibleMean": -0.0018976033462631207,
+              "medianEligibleMean": -0.002009964213315746,
+              "randomSelectionMean": -0.001976895548447916,
+              "excessVsMeanMean": 0.00024134961169214208,
+              "excessVsMedianMean": 0.00035371047874476846,
+              "excessVsRandomMean": 0.0003206418138769364
+            },
+            "50": {
+              "topRankedMean": -0.00206840249275493,
+              "avgEligibleMean": -0.001751924306965041,
+              "medianEligibleMean": -0.0020094946981347923,
+              "randomSelectionMean": -0.0018306764067197345,
+              "excessVsMeanMean": -0.00031647818578988806,
+              "excessVsMedianMean": -0.000058907794620136086,
+              "excessVsRandomMean": -0.0002377260860351941
+            }
+          },
+          "contrarianDistanceFromRecentHigh": {
+            "5": {
+              "topRankedMean": -0.0018334450721864495,
+              "avgEligibleMean": -0.0019740632956145154,
+              "medianEligibleMean": -0.002002641518042985,
+              "randomSelectionMean": -0.001931139046582327,
+              "excessVsMeanMean": 0.00014061822342806675,
+              "excessVsMedianMean": 0.00016919644585653768,
+              "excessVsRandomMean": 0.00009769397439587726
+            },
+            "10": {
+              "topRankedMean": -0.0018283332587842101,
+              "avgEligibleMean": -0.001948336230172068,
+              "medianEligibleMean": -0.002008244793437798,
+              "randomSelectionMean": -0.001929217595374363,
+              "excessVsMeanMean": 0.00012000297138785735,
+              "excessVsMedianMean": 0.00017991153465358767,
+              "excessVsRandomMean": 0.00010088433659015374
+            },
+            "20": {
+              "topRankedMean": -0.001741626831619786,
+              "avgEligibleMean": -0.0018976033462631207,
+              "medianEligibleMean": -0.002009964213315746,
+              "randomSelectionMean": -0.001772913561556166,
+              "excessVsMeanMean": 0.00015597651464333275,
+              "excessVsMedianMean": 0.00026833738169595767,
+              "excessVsRandomMean": 0.00003128672993637963
+            },
+            "50": {
+              "topRankedMean": -0.0020483058313943464,
+              "avgEligibleMean": -0.001751924306965041,
+              "medianEligibleMean": -0.0020094946981347923,
+              "randomSelectionMean": -0.0017268103368896191,
+              "excessVsMeanMean": -0.00029638152442930816,
+              "excessVsMedianMean": -0.00003881113325955411,
+              "excessVsRandomMean": -0.0003214954945047298
+            }
+          },
+          "contrarianDistanceFromRecentLow": {
+            "5": {
+              "topRankedMean": -0.0015822482991122706,
+              "avgEligibleMean": -0.0019740632956145154,
+              "medianEligibleMean": -0.002002641518042985,
+              "randomSelectionMean": -0.001967664446286507,
+              "excessVsMeanMean": 0.00039181499650224345,
+              "excessVsMedianMean": 0.0004203932189307146,
+              "excessVsRandomMean": 0.00038541614717423636
+            },
+            "10": {
+              "topRankedMean": -0.0014186878142244497,
+              "avgEligibleMean": -0.001948336230172068,
+              "medianEligibleMean": -0.002008244793437798,
+              "randomSelectionMean": -0.0018289999333037372,
+              "excessVsMeanMean": 0.0005296484159476201,
+              "excessVsMedianMean": 0.000589556979213349,
+              "excessVsRandomMean": 0.0004103121190792881
+            },
+            "20": {
+              "topRankedMean": -0.0013240221544493789,
+              "avgEligibleMean": -0.0018976033462631207,
+              "medianEligibleMean": -0.002009964213315746,
+              "randomSelectionMean": -0.0019990693307675813,
+              "excessVsMeanMean": 0.0005735811918137363,
+              "excessVsMedianMean": 0.0006859420588663664,
+              "excessVsRandomMean": 0.0006750471763181974
+            },
+            "50": {
+              "topRankedMean": -0.0012501113373256346,
+              "avgEligibleMean": -0.001751924306965041,
+              "medianEligibleMean": -0.0020094946981347923,
+              "randomSelectionMean": -0.0017670729658060104,
+              "excessVsMeanMean": 0.0005018129696394049,
+              "excessVsMedianMean": 0.0007593833608091566,
+              "excessVsRandomMean": 0.0005169616284803742
+            }
+          }
+        }
+      }
+    },
+    "test": {
+      "observations": 517080,
+      "baselines": {
+        "5": {
+          "mean": -0.0019779125329871623,
+          "median": -0.002,
+          "positiveRate": 0.15230331863541424,
+          "count": 517080
+        },
+        "10": {
+          "mean": -0.001954524691028666,
+          "median": -0.002,
+          "positiveRate": 0.21447551636110465,
+          "count": 517080
+        },
+        "20": {
+          "mean": -0.0019080312531316009,
+          "median": -0.002,
+          "positiveRate": 0.28031059023748744,
+          "count": 517080
+        },
+        "50": {
+          "mean": -0.0017691519575336856,
+          "median": -0.002,
+          "positiveRate": 0.35632203914287924,
+          "count": 517080
+        }
+      },
+      "featureEvidence": {
+        "priceReturnMedium": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001978",
+            "baselinePositiveRate": "0.152303",
+            "correlation": "-0.023378",
+            "meanReturnNet": "-0.001978",
+            "positiveRateNet": "0.152303",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001890",
+              "-0.001949",
+              "-0.001998",
+              "-0.002075"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001955",
+            "baselinePositiveRate": "0.214476",
+            "correlation": "-0.019189",
+            "meanReturnNet": "-0.001955",
+            "positiveRateNet": "0.214476",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001882",
+              "-0.001918",
+              "-0.001958",
+              "-0.002061"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001908",
+            "baselinePositiveRate": "0.280311",
+            "correlation": "-0.026018",
+            "meanReturnNet": "-0.001908",
+            "positiveRateNet": "0.280311",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001813",
+              "-0.001873",
+              "-0.001928",
+              "-0.002018"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001769",
+            "baselinePositiveRate": "0.356322",
+            "correlation": "-0.052238",
+            "meanReturnNet": "-0.001769",
+            "positiveRateNet": "0.356322",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001434",
+              "-0.001719",
+              "-0.001858",
+              "-0.002065"
+            ]
+          }
+        ],
+        "acceleration": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001978",
+            "baselinePositiveRate": "0.152303",
+            "correlation": "-0.039382",
+            "meanReturnNet": "-0.001978",
+            "positiveRateNet": "0.152303",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001842",
+              "-0.001974",
+              "-0.001957",
+              "-0.002138"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001955",
+            "baselinePositiveRate": "0.214476",
+            "correlation": "-0.032990",
+            "meanReturnNet": "-0.001955",
+            "positiveRateNet": "0.214476",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001799",
+              "-0.001933",
+              "-0.001935",
+              "-0.002151"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001908",
+            "baselinePositiveRate": "0.280311",
+            "correlation": "-0.015583",
+            "meanReturnNet": "-0.001908",
+            "positiveRateNet": "0.280311",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001800",
+              "-0.001874",
+              "-0.001874",
+              "-0.002083"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001769",
+            "baselinePositiveRate": "0.356322",
+            "correlation": "-0.007958",
+            "meanReturnNet": "-0.001769",
+            "positiveRateNet": "0.356322",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001635",
+              "-0.001737",
+              "-0.001787",
+              "-0.001917"
+            ]
+          }
+        ],
+        "volatility": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001978",
+            "baselinePositiveRate": "0.152303",
+            "correlation": "-0.003106",
+            "meanReturnNet": "-0.001978",
+            "positiveRateNet": "0.152303",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001966",
+              "-0.001956",
+              "-0.002020",
+              "-0.001970"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001955",
+            "baselinePositiveRate": "0.214476",
+            "correlation": "-0.004408",
+            "meanReturnNet": "-0.001955",
+            "positiveRateNet": "0.214476",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001928",
+              "-0.001914",
+              "-0.002043",
+              "-0.001933"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001908",
+            "baselinePositiveRate": "0.280311",
+            "correlation": "-0.004773",
+            "meanReturnNet": "-0.001908",
+            "positiveRateNet": "0.280311",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001863",
+              "-0.001856",
+              "-0.002065",
+              "-0.001848"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001769",
+            "baselinePositiveRate": "0.356322",
+            "correlation": "-0.005608",
+            "meanReturnNet": "-0.001769",
+            "positiveRateNet": "0.356322",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001717",
+              "-0.001643",
+              "-0.002098",
+              "-0.001618"
+            ]
+          }
+        ],
+        "volatilityChange": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001978",
+            "baselinePositiveRate": "0.152303",
+            "correlation": "-0.000324",
+            "meanReturnNet": "-0.001978",
+            "positiveRateNet": "0.152303",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001954",
+              "-0.001982",
+              "-0.001964",
+              "-0.002011"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001955",
+            "baselinePositiveRate": "0.214476",
+            "correlation": "-0.000779",
+            "meanReturnNet": "-0.001955",
+            "positiveRateNet": "0.214476",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001901",
+              "-0.001973",
+              "-0.001914",
+              "-0.002030"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001908",
+            "baselinePositiveRate": "0.280311",
+            "correlation": "-0.000957",
+            "meanReturnNet": "-0.001908",
+            "positiveRateNet": "0.280311",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001804",
+              "-0.001942",
+              "-0.001849",
+              "-0.002036"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001769",
+            "baselinePositiveRate": "0.356322",
+            "correlation": "-0.000084",
+            "meanReturnNet": "-0.001769",
+            "positiveRateNet": "0.356322",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001524",
+              "-0.001819",
+              "-0.001721",
+              "-0.002012"
+            ]
+          }
+        ],
+        "distanceFromRecentHigh": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001978",
+            "baselinePositiveRate": "0.152303",
+            "correlation": "-0.020701",
+            "meanReturnNet": "-0.001978",
+            "positiveRateNet": "0.152303",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001884",
+              "-0.001901",
+              "-0.001982",
+              "-0.002144"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001955",
+            "baselinePositiveRate": "0.214476",
+            "correlation": "-0.009088",
+            "meanReturnNet": "-0.001955",
+            "positiveRateNet": "0.214476",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001881",
+              "-0.001851",
+              "-0.001951",
+              "-0.002135"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001908",
+            "baselinePositiveRate": "0.280311",
+            "correlation": "-0.001448",
+            "meanReturnNet": "-0.001908",
+            "positiveRateNet": "0.280311",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001858",
+              "-0.001796",
+              "-0.001893",
+              "-0.002085"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001769",
+            "baselinePositiveRate": "0.356322",
+            "correlation": "-0.020131",
+            "meanReturnNet": "-0.001769",
+            "positiveRateNet": "0.356322",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001498",
+              "-0.001727",
+              "-0.001809",
+              "-0.002043"
+            ]
+          }
+        ],
+        "distanceFromRecentLow": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001978",
+            "baselinePositiveRate": "0.152303",
+            "correlation": "-0.028529",
+            "meanReturnNet": "-0.001978",
+            "positiveRateNet": "0.152303",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001765",
+              "-0.001963",
+              "-0.002047",
+              "-0.002137"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001955",
+            "baselinePositiveRate": "0.214476",
+            "correlation": "-0.026712",
+            "meanReturnNet": "-0.001955",
+            "positiveRateNet": "0.214476",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001735",
+              "-0.001941",
+              "-0.002024",
+              "-0.002119"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001908",
+            "baselinePositiveRate": "0.280311",
+            "correlation": "-0.029097",
+            "meanReturnNet": "-0.001908",
+            "positiveRateNet": "0.280311",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001710",
+              "-0.001892",
+              "-0.001981",
+              "-0.002048"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001769",
+            "baselinePositiveRate": "0.356322",
+            "correlation": "-0.038800",
+            "meanReturnNet": "-0.001769",
+            "positiveRateNet": "0.356322",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001482",
+              "-0.001743",
+              "-0.001852",
+              "-0.002000"
+            ]
+          }
+        ],
+        "volume": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001978",
+            "baselinePositiveRate": "0.152303",
+            "correlation": "-0.008042",
+            "meanReturnNet": "-0.001978",
+            "positiveRateNet": "0.152303",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001979",
+              "-0.001954",
+              "-0.001978",
+              "-0.002001"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001955",
+            "baselinePositiveRate": "0.214476",
+            "correlation": "-0.010753",
+            "meanReturnNet": "-0.001955",
+            "positiveRateNet": "0.214476",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001947",
+              "-0.001913",
+              "-0.001957",
+              "-0.002001"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001908",
+            "baselinePositiveRate": "0.280311",
+            "correlation": "-0.010495",
+            "meanReturnNet": "-0.001908",
+            "positiveRateNet": "0.280311",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001871",
+              "-0.001843",
+              "-0.001934",
+              "-0.001983"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001769",
+            "baselinePositiveRate": "0.356322",
+            "correlation": "-0.003452",
+            "meanReturnNet": "-0.001769",
+            "positiveRateNet": "0.356322",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001646",
+              "-0.001685",
+              "-0.001828",
+              "-0.001917"
+            ]
+          }
+        ],
+        "volumeAcceleration": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001978",
+            "baselinePositiveRate": "0.152303",
+            "correlation": "0.003543",
+            "meanReturnNet": "-0.001978",
+            "positiveRateNet": "0.152303",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001983",
+              "-0.001983",
+              "-0.002000",
+              "-0.001945"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001955",
+            "baselinePositiveRate": "0.214476",
+            "correlation": "0.003509",
+            "meanReturnNet": "-0.001955",
+            "positiveRateNet": "0.214476",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001950",
+              "-0.001960",
+              "-0.001995",
+              "-0.001913"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001908",
+            "baselinePositiveRate": "0.280311",
+            "correlation": "0.001566",
+            "meanReturnNet": "-0.001908",
+            "positiveRateNet": "0.280311",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001869",
+              "-0.001892",
+              "-0.001980",
+              "-0.001891"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001769",
+            "baselinePositiveRate": "0.356322",
+            "correlation": "-0.000420",
+            "meanReturnNet": "-0.001769",
+            "positiveRateNet": "0.356322",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001727",
+              "-0.001726",
+              "-0.001867",
+              "-0.001756"
+            ]
+          }
+        ],
+        "tradeFrequency": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001978",
+            "baselinePositiveRate": "0.152303",
+            "correlation": "-0.004297",
+            "meanReturnNet": "-0.001978",
+            "positiveRateNet": "0.152303",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001970",
+              "-0.001961",
+              "-0.001990",
+              "-0.001990"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001955",
+            "baselinePositiveRate": "0.214476",
+            "correlation": "-0.006954",
+            "meanReturnNet": "-0.001955",
+            "positiveRateNet": "0.214476",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001934",
+              "-0.001934",
+              "-0.001970",
+              "-0.001981"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001908",
+            "baselinePositiveRate": "0.280311",
+            "correlation": "-0.009568",
+            "meanReturnNet": "-0.001908",
+            "positiveRateNet": "0.280311",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001885",
+              "-0.001884",
+              "-0.001909",
+              "-0.001954"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001769",
+            "baselinePositiveRate": "0.356322",
+            "correlation": "-0.014028",
+            "meanReturnNet": "-0.001769",
+            "positiveRateNet": "0.356322",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001770",
+              "-0.001726",
+              "-0.001739",
+              "-0.001842"
+            ]
+          }
+        ],
+        "trendStrength": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001978",
+            "baselinePositiveRate": "0.152303",
+            "correlation": "-0.044031",
+            "meanReturnNet": "-0.001978",
+            "positiveRateNet": "0.152303",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001794",
+              "-0.001924",
+              "-0.002050",
+              "-0.002144"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001955",
+            "baselinePositiveRate": "0.214476",
+            "correlation": "-0.036609",
+            "meanReturnNet": "-0.001955",
+            "positiveRateNet": "0.214476",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001774",
+              "-0.001894",
+              "-0.002004",
+              "-0.002146"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001908",
+            "baselinePositiveRate": "0.280311",
+            "correlation": "-0.029112",
+            "meanReturnNet": "-0.001908",
+            "positiveRateNet": "0.280311",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001783",
+              "-0.001803",
+              "-0.001937",
+              "-0.002110"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001769",
+            "baselinePositiveRate": "0.356322",
+            "correlation": "-0.042021",
+            "meanReturnNet": "-0.001769",
+            "positiveRateNet": "0.356322",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001479",
+              "-0.001678",
+              "-0.001836",
+              "-0.002083"
+            ]
+          }
+        ]
+      },
+      "legacySignals": {
+        "shape": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001978",
+            "baselinePositiveRate": "0.152303",
+            "correlation": "-0.001493",
+            "meanReturnNet": "-0.001978",
+            "positiveRateNet": "0.152303",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001970",
+              "-0.001981",
+              "-0.001980",
+              "-0.001981"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001955",
+            "baselinePositiveRate": "0.214476",
+            "correlation": "-0.001952",
+            "meanReturnNet": "-0.001955",
+            "positiveRateNet": "0.214476",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001942",
+              "-0.001959",
+              "-0.001958",
+              "-0.001959"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001908",
+            "baselinePositiveRate": "0.280311",
+            "correlation": "-0.002641",
+            "meanReturnNet": "-0.001908",
+            "positiveRateNet": "0.280311",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001885",
+              "-0.001920",
+              "-0.001918",
+              "-0.001909"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001769",
+            "baselinePositiveRate": "0.356322",
+            "correlation": "-0.003205",
+            "meanReturnNet": "-0.001769",
+            "positiveRateNet": "0.356322",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001748",
+              "-0.001790",
+              "-0.001790",
+              "-0.001749"
+            ]
+          }
+        ],
+        "emaRatio": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001978",
+            "baselinePositiveRate": "0.152303",
+            "correlation": "-0.030085",
+            "meanReturnNet": "-0.001978",
+            "positiveRateNet": "0.152303",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001860",
+              "-0.001939",
+              "-0.002024",
+              "-0.002088"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001955",
+            "baselinePositiveRate": "0.214476",
+            "correlation": "-0.033774",
+            "meanReturnNet": "-0.001955",
+            "positiveRateNet": "0.214476",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001792",
+              "-0.001909",
+              "-0.002007",
+              "-0.002111"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001908",
+            "baselinePositiveRate": "0.280311",
+            "correlation": "-0.041298",
+            "meanReturnNet": "-0.001908",
+            "positiveRateNet": "0.280311",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001660",
+              "-0.001853",
+              "-0.001990",
+              "-0.002129"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001769",
+            "baselinePositiveRate": "0.356322",
+            "correlation": "-0.060393",
+            "meanReturnNet": "-0.001769",
+            "positiveRateNet": "0.356322",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001273",
+              "-0.001658",
+              "-0.002030",
+              "-0.002116"
+            ]
+          }
+        ],
+        "strength": [
+          {
+            "horizon": 5,
+            "baselineMeanReturnNet": "-0.001978",
+            "baselinePositiveRate": "0.152303",
+            "correlation": "-0.001596",
+            "meanReturnNet": "-0.001978",
+            "positiveRateNet": "0.152303",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001967",
+              "-0.001982",
+              "-0.001983",
+              "-0.001980"
+            ]
+          },
+          {
+            "horizon": 10,
+            "baselineMeanReturnNet": "-0.001955",
+            "baselinePositiveRate": "0.214476",
+            "correlation": "-0.002074",
+            "meanReturnNet": "-0.001955",
+            "positiveRateNet": "0.214476",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001939",
+              "-0.001960",
+              "-0.001963",
+              "-0.001956"
+            ]
+          },
+          {
+            "horizon": 20,
+            "baselineMeanReturnNet": "-0.001908",
+            "baselinePositiveRate": "0.280311",
+            "correlation": "-0.002796",
+            "meanReturnNet": "-0.001908",
+            "positiveRateNet": "0.280311",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001881",
+              "-0.001921",
+              "-0.001922",
+              "-0.001907"
+            ]
+          },
+          {
+            "horizon": 50,
+            "baselineMeanReturnNet": "-0.001769",
+            "baselinePositiveRate": "0.356322",
+            "correlation": "-0.003431",
+            "meanReturnNet": "-0.001769",
+            "positiveRateNet": "0.356322",
+            "medianReturnNet": "-0.002000",
+            "quartileMeansNet": [
+              "-0.001740",
+              "-0.001789",
+              "-0.001802",
+              "-0.001746"
+            ]
+          }
+        ]
+      },
+      "ranking": {
+        "gross": {
+          "strength": {
+            "5": {
+              "topRankedMean": -0.00007041777067347813,
+              "avgEligibleMean": 0.000022087467008985547,
+              "medianEligibleMean": -0.000028625497233197824,
+              "randomSelectionMean": 0.00003009287845846897,
+              "excessVsMeanMean": -0.0000925052376824634,
+              "excessVsMedianMean": -0.000041792273440280146,
+              "excessVsRandomMean": -0.00010051064913194722
+            },
+            "10": {
+              "topRankedMean": -0.00015116980912084255,
+              "avgEligibleMean": 0.000045475308968767604,
+              "medianEligibleMean": -0.0000418200767224677,
+              "randomSelectionMean": 0.00006388776373351247,
+              "excessVsMeanMean": -0.0001966451180896103,
+              "excessVsMedianMean": -0.00010934973239837644,
+              "excessVsRandomMean": -0.00021505757285435342
+            },
+            "20": {
+              "topRankedMean": -0.00036582156367991357,
+              "avgEligibleMean": 0.00009196874686679166,
+              "medianEligibleMean": -0.00006430280894763533,
+              "randomSelectionMean": 0.00010956412118941673,
+              "excessVsMeanMean": -0.00045779031054670615,
+              "excessVsMedianMean": -0.00030151875473227784,
+              "excessVsRandomMean": -0.0004753856848693309
+            },
+            "50": {
+              "topRankedMean": -0.0010848602041389657,
+              "avgEligibleMean": 0.00023084804246551927,
+              "medianEligibleMean": -0.00010892617328655177,
+              "randomSelectionMean": 0.0001792355981883609,
+              "excessVsMeanMean": -0.001315708246604481,
+              "excessVsMedianMean": -0.0009759340308524045,
+              "excessVsRandomMean": -0.0012640958023273305
+            }
+          },
+          "trendStrength": {
+            "5": {
+              "topRankedMean": -0.00039976660651653596,
+              "avgEligibleMean": 0.000022087467008985547,
+              "medianEligibleMean": -0.000028625497233197824,
+              "randomSelectionMean": 0.000009296075804561222,
+              "excessVsMeanMean": -0.00042185407352552187,
+              "excessVsMedianMean": -0.0003711411092833388,
+              "excessVsRandomMean": -0.00040906268232109895
+            },
+            "10": {
+              "topRankedMean": -0.0006109191817978101,
+              "avgEligibleMean": 0.000045475308968767604,
+              "medianEligibleMean": -0.0000418200767224677,
+              "randomSelectionMean": 0.000030229938241112642,
+              "excessVsMeanMean": -0.0006563944907665765,
+              "excessVsMedianMean": -0.000569099105075344,
+              "excessVsRandomMean": -0.0006411491200389258
+            },
+            "20": {
+              "topRankedMean": -0.0005171218480434399,
+              "avgEligibleMean": 0.00009196874686679166,
+              "medianEligibleMean": -0.00006430280894763533,
+              "randomSelectionMean": 0.00012906877772334227,
+              "excessVsMeanMean": -0.0006090905949102324,
+              "excessVsMedianMean": -0.00045281903909580605,
+              "excessVsRandomMean": -0.0006461906257667795
+            },
+            "50": {
+              "topRankedMean": -0.0008819735062994116,
+              "avgEligibleMean": 0.00023084804246551927,
+              "medianEligibleMean": -0.00010892617328655177,
+              "randomSelectionMean": 0.0002132740376649444,
+              "excessVsMeanMean": -0.0011128215487649288,
+              "excessVsMedianMean": -0.0007730473330128618,
+              "excessVsRandomMean": -0.0010952475439643522
+            }
+          },
+          "shape": {
+            "5": {
+              "topRankedMean": -0.00006707476152644474,
+              "avgEligibleMean": 0.000022087467008985547,
+              "medianEligibleMean": -0.000028625497233197824,
+              "randomSelectionMean": 0.000006013048669820798,
+              "excessVsMeanMean": -0.00008916222853543007,
+              "excessVsMedianMean": -0.0000384492642932466,
+              "excessVsRandomMean": -0.00007308781019626567
+            },
+            "10": {
+              "topRankedMean": -0.00015123740418265065,
+              "avgEligibleMean": 0.000045475308968767604,
+              "medianEligibleMean": -0.0000418200767224677,
+              "randomSelectionMean": 0.00007552479079798794,
+              "excessVsMeanMean": -0.00019671271315141838,
+              "excessVsMedianMean": -0.00010941732746018398,
+              "excessVsRandomMean": -0.00022676219498063603
+            },
+            "20": {
+              "topRankedMean": -0.00036234381219385053,
+              "avgEligibleMean": 0.00009196874686679166,
+              "medianEligibleMean": -0.00006430280894763533,
+              "randomSelectionMean": 0.000015793730347292158,
+              "excessVsMeanMean": -0.00045431255906064295,
+              "excessVsMedianMean": -0.0002980410032462147,
+              "excessVsRandomMean": -0.0003781375425411433
+            },
+            "50": {
+              "topRankedMean": -0.0010391645436336632,
+              "avgEligibleMean": 0.00023084804246551927,
+              "medianEligibleMean": -0.00010892617328655177,
+              "randomSelectionMean": 0.00022696503049464344,
+              "excessVsMeanMean": -0.0012700125860991812,
+              "excessVsMedianMean": -0.0009302383703471038,
+              "excessVsRandomMean": -0.001266129574128305
+            }
+          },
+          "emaRatio": {
+            "5": {
+              "topRankedMean": -0.00017473106862637806,
+              "avgEligibleMean": 0.000022087467008985547,
+              "medianEligibleMean": -0.000028625497233197824,
+              "randomSelectionMean": 0.00005800952444177043,
+              "excessVsMeanMean": -0.00019681853563536392,
+              "excessVsMedianMean": -0.00014610557139317973,
+              "excessVsRandomMean": -0.00023274059306814922
+            },
+            "10": {
+              "topRankedMean": -0.0004497809272363863,
+              "avgEligibleMean": 0.000045475308968767604,
+              "medianEligibleMean": -0.0000418200767224677,
+              "randomSelectionMean": 0.00004660622664898533,
+              "excessVsMeanMean": -0.000495256236205153,
+              "excessVsMedianMean": -0.0004079608505139182,
+              "excessVsRandomMean": -0.0004963871538853712
+            },
+            "20": {
+              "topRankedMean": -0.0008667536952996368,
+              "avgEligibleMean": 0.00009196874686679166,
+              "medianEligibleMean": -0.00006430280894763533,
+              "randomSelectionMean": 0.0000447627571074638,
+              "excessVsMeanMean": -0.0009587224421664313,
+              "excessVsMedianMean": -0.0008024508863520017,
+              "excessVsRandomMean": -0.0009115164524071016
+            },
+            "50": {
+              "topRankedMean": -0.0017540124905708273,
+              "avgEligibleMean": 0.00023084804246551927,
+              "medianEligibleMean": -0.00010892617328655177,
+              "randomSelectionMean": 0.0000934186813334015,
+              "excessVsMeanMean": -0.0019848605330363435,
+              "excessVsMedianMean": -0.001645086317284274,
+              "excessVsRandomMean": -0.0018474311719042294
+            }
+          },
+          "contrarianTrendStrength": {
+            "5": {
+              "topRankedMean": 0.0004426211834939199,
+              "avgEligibleMean": 0.000022087467008985547,
+              "medianEligibleMean": -0.000028625497233197824,
+              "randomSelectionMean": -5.726265961952766e-7,
+              "excessVsMeanMean": 0.0004205337164849309,
+              "excessVsMedianMean": 0.0004712466807271194,
+              "excessVsRandomMean": 0.000443193810090113
+            },
+            "10": {
+              "topRankedMean": 0.0005174984824459931,
+              "avgEligibleMean": 0.000045475308968767604,
+              "medianEligibleMean": -0.0000418200767224677,
+              "randomSelectionMean": 0.000025745921040132795,
+              "excessVsMeanMean": 0.00047202317347722636,
+              "excessVsMedianMean": 0.0005593185591684606,
+              "excessVsRandomMean": 0.0004917525614058605
+            },
+            "20": {
+              "topRankedMean": 0.0006771720100800702,
+              "avgEligibleMean": 0.00009196874686679166,
+              "medianEligibleMean": -0.00006430280894763533,
+              "randomSelectionMean": 0.0001559606334888215,
+              "excessVsMeanMean": 0.0005852032632132747,
+              "excessVsMedianMean": 0.0007414748190277001,
+              "excessVsRandomMean": 0.000521211376591243
+            },
+            "50": {
+              "topRankedMean": 0.001036192841456512,
+              "avgEligibleMean": 0.00023084804246551927,
+              "medianEligibleMean": -0.00010892617328655177,
+              "randomSelectionMean": 0.00026609000412642134,
+              "excessVsMeanMean": 0.0008053447989909971,
+              "excessVsMedianMean": 0.0011451190147430679,
+              "excessVsRandomMean": 0.0007701028373300971
+            }
+          },
+          "contrarianAcceleration": {
+            "5": {
+              "topRankedMean": 0.00030642779700988453,
+              "avgEligibleMean": 0.000022087467008985547,
+              "medianEligibleMean": -0.000028625497233197824,
+              "randomSelectionMean": 0.00002368997097262679,
+              "excessVsMeanMean": 0.0002843403300008953,
+              "excessVsMedianMean": 0.0003350532942430814,
+              "excessVsRandomMean": 0.000282737826037256
+            },
+            "10": {
+              "topRankedMean": 0.00031300806572641924,
+              "avgEligibleMean": 0.000045475308968767604,
+              "medianEligibleMean": -0.0000418200767224677,
+              "randomSelectionMean": 0.00005349580967523324,
+              "excessVsMeanMean": 0.0002675327567576524,
+              "excessVsMedianMean": 0.0003548281424488879,
+              "excessVsRandomMean": 0.00025951225605118735
+            },
+            "20": {
+              "topRankedMean": 0.0003228010654102256,
+              "avgEligibleMean": 0.00009196874686679166,
+              "medianEligibleMean": -0.00006430280894763533,
+              "randomSelectionMean": 0.00002160554277379487,
+              "excessVsMeanMean": 0.00023083231854343234,
+              "excessVsMedianMean": 0.0003871038743578587,
+              "excessVsRandomMean": 0.00030119552263642587
+            },
+            "50": {
+              "topRankedMean": 0.00038215549301985174,
+              "avgEligibleMean": 0.00023084804246551927,
+              "medianEligibleMean": -0.00010892617328655177,
+              "randomSelectionMean": 0.00027983992844638834,
+              "excessVsMeanMean": 0.0001513074505543329,
+              "excessVsMedianMean": 0.0004910816663064048,
+              "excessVsRandomMean": 0.00010231556457346167
+            }
+          },
+          "contrarianDistanceFromRecentHigh": {
+            "5": {
+              "topRankedMean": 0.00013880127762313846,
+              "avgEligibleMean": 0.000022087467008985547,
+              "medianEligibleMean": -0.000028625497233197824,
+              "randomSelectionMean": 0.000029526037609819737,
+              "excessVsMeanMean": 0.00011671381061415179,
+              "excessVsMedianMean": 0.00016742677485633554,
+              "excessVsRandomMean": 0.00010927524001331788
+            },
+            "10": {
+              "topRankedMean": 0.0001410113879423214,
+              "avgEligibleMean": 0.000045475308968767604,
+              "medianEligibleMean": -0.0000418200767224677,
+              "randomSelectionMean": 0.00011367682934420318,
+              "excessVsMeanMean": 0.00009553607897355285,
+              "excessVsMedianMean": 0.0001828314646647891,
+              "excessVsRandomMean": 0.000027334558598118485
+            },
+            "20": {
+              "topRankedMean": -0.000020740007836796446,
+              "avgEligibleMean": 0.00009196874686679166,
+              "medianEligibleMean": -0.00006430280894763533,
+              "randomSelectionMean": 0.000039269177404971565,
+              "excessVsMeanMean": -0.00011270875470358891,
+              "excessVsMedianMean": 0.00004356280111083904,
+              "excessVsRandomMean": -0.00006000918524176885
+            },
+            "50": {
+              "topRankedMean": 0.00037670458012981675,
+              "avgEligibleMean": 0.00023084804246551927,
+              "medianEligibleMean": -0.00010892617328655177,
+              "randomSelectionMean": 0.000201623264724652,
+              "excessVsMeanMean": 0.00014585653766429805,
+              "excessVsMedianMean": 0.0004856307534163683,
+              "excessVsRandomMean": 0.00017508131540516534
+            }
+          },
+          "contrarianDistanceFromRecentLow": {
+            "5": {
+              "topRankedMean": 0.00037408197520694033,
+              "avgEligibleMean": 0.000022087467008985547,
+              "medianEligibleMean": -0.000028625497233197824,
+              "randomSelectionMean": -0.0000012407616063446957,
+              "excessVsMeanMean": 0.0003519945081979548,
+              "excessVsMedianMean": 0.00040270747244013864,
+              "excessVsRandomMean": 0.000375322736813284
+            },
+            "10": {
+              "topRankedMean": 0.00039503498315867323,
+              "avgEligibleMean": 0.000045475308968767604,
+              "medianEligibleMean": -0.0000418200767224677,
+              "randomSelectionMean": 0.0000937254341358938,
+              "excessVsMeanMean": 0.0003495596741899049,
+              "excessVsMedianMean": 0.0004368550598811418,
+              "excessVsRandomMean": 0.0003013095490227774
+            },
+            "20": {
+              "topRankedMean": 0.0005323220869979158,
+              "avgEligibleMean": 0.00009196874686679166,
+              "medianEligibleMean": -0.00006430280894763533,
+              "randomSelectionMean": 0.00014940414822863933,
+              "excessVsMeanMean": 0.0004403533401311225,
+              "excessVsMedianMean": 0.0005966248959455499,
+              "excessVsRandomMean": 0.0003829179387692735
+            },
+            "50": {
+              "topRankedMean": 0.0005526610148307105,
+              "avgEligibleMean": 0.00023084804246551927,
+              "medianEligibleMean": -0.00010892617328655177,
+              "randomSelectionMean": 0.0004398880717612659,
+              "excessVsMeanMean": 0.0003218129723651984,
+              "excessVsMedianMean": 0.0006615871881172649,
+              "excessVsRandomMean": 0.00011277294306945121
+            }
+          }
+        },
+        "net": {
+          "strength": {
+            "5": {
+              "topRankedMean": -0.0020704177706734783,
+              "avgEligibleMean": -0.0019779125329910147,
+              "medianEligibleMean": -0.002028625497233198,
+              "randomSelectionMean": -0.001969907121541531,
+              "excessVsMeanMean": -0.0000925052376824634,
+              "excessVsMedianMean": -0.000041792273440280146,
+              "excessVsRandomMean": -0.00010051064913194722
+            },
+            "10": {
+              "topRankedMean": -0.0021511698091208425,
+              "avgEligibleMean": -0.0019545246910312323,
+              "medianEligibleMean": -0.0020418200767224675,
+              "randomSelectionMean": -0.0019361122362664875,
+              "excessVsMeanMean": -0.0001966451180896103,
+              "excessVsMedianMean": -0.00010934973239837644,
+              "excessVsRandomMean": -0.00021505757285435342
+            },
+            "20": {
+              "topRankedMean": -0.0023658215636799137,
+              "avgEligibleMean": -0.0019080312531332083,
+              "medianEligibleMean": -0.0020643028089476355,
+              "randomSelectionMean": -0.0018904358788105833,
+              "excessVsMeanMean": -0.00045779031054670615,
+              "excessVsMedianMean": -0.00030151875473227784,
+              "excessVsRandomMean": -0.0004753856848693309
+            },
+            "50": {
+              "topRankedMean": -0.0030848602041389657,
+              "avgEligibleMean": -0.0017691519575344808,
+              "medianEligibleMean": -0.002108926173286552,
+              "randomSelectionMean": -0.0018207644018116392,
+              "excessVsMeanMean": -0.001315708246604481,
+              "excessVsMedianMean": -0.0009759340308524045,
+              "excessVsRandomMean": -0.0012640958023273305
+            }
+          },
+          "trendStrength": {
+            "5": {
+              "topRankedMean": -0.002399766606516536,
+              "avgEligibleMean": -0.0019779125329910147,
+              "medianEligibleMean": -0.002028625497233198,
+              "randomSelectionMean": -0.001990703924195439,
+              "excessVsMeanMean": -0.00042185407352552187,
+              "excessVsMedianMean": -0.0003711411092833388,
+              "excessVsRandomMean": -0.00040906268232109895
+            },
+            "10": {
+              "topRankedMean": -0.00261091918179781,
+              "avgEligibleMean": -0.0019545246910312323,
+              "medianEligibleMean": -0.0020418200767224675,
+              "randomSelectionMean": -0.0019697700617588875,
+              "excessVsMeanMean": -0.0006563944907665765,
+              "excessVsMedianMean": -0.000569099105075344,
+              "excessVsRandomMean": -0.0006411491200389258
+            },
+            "20": {
+              "topRankedMean": -0.00251712184804344,
+              "avgEligibleMean": -0.0019080312531332083,
+              "medianEligibleMean": -0.0020643028089476355,
+              "randomSelectionMean": -0.0018709312222766577,
+              "excessVsMeanMean": -0.0006090905949102324,
+              "excessVsMedianMean": -0.00045281903909580605,
+              "excessVsRandomMean": -0.0006461906257667795
+            },
+            "50": {
+              "topRankedMean": -0.0028819735062994116,
+              "avgEligibleMean": -0.0017691519575344808,
+              "medianEligibleMean": -0.002108926173286552,
+              "randomSelectionMean": -0.0017867259623350557,
+              "excessVsMeanMean": -0.0011128215487649288,
+              "excessVsMedianMean": -0.0007730473330128618,
+              "excessVsRandomMean": -0.0010952475439643522
+            }
+          },
+          "shape": {
+            "5": {
+              "topRankedMean": -0.0020670747615264447,
+              "avgEligibleMean": -0.0019779125329910147,
+              "medianEligibleMean": -0.002028625497233198,
+              "randomSelectionMean": -0.0019939869513301792,
+              "excessVsMeanMean": -0.00008916222853543007,
+              "excessVsMedianMean": -0.0000384492642932466,
+              "excessVsRandomMean": -0.00007308781019626567
+            },
+            "10": {
+              "topRankedMean": -0.0021512374041826507,
+              "avgEligibleMean": -0.0019545246910312323,
+              "medianEligibleMean": -0.0020418200767224675,
+              "randomSelectionMean": -0.0019244752092020122,
+              "excessVsMeanMean": -0.00019671271315141838,
+              "excessVsMedianMean": -0.00010941732746018398,
+              "excessVsRandomMean": -0.00022676219498063603
+            },
+            "20": {
+              "topRankedMean": -0.0023623438121938506,
+              "avgEligibleMean": -0.0019080312531332083,
+              "medianEligibleMean": -0.0020643028089476355,
+              "randomSelectionMean": -0.001984206269652708,
+              "excessVsMeanMean": -0.00045431255906064295,
+              "excessVsMedianMean": -0.0002980410032462147,
+              "excessVsRandomMean": -0.0003781375425411433
+            },
+            "50": {
+              "topRankedMean": -0.0030391645436336633,
+              "avgEligibleMean": -0.0017691519575344808,
+              "medianEligibleMean": -0.002108926173286552,
+              "randomSelectionMean": -0.0017730349695053566,
+              "excessVsMeanMean": -0.0012700125860991812,
+              "excessVsMedianMean": -0.0009302383703471038,
+              "excessVsRandomMean": -0.001266129574128305
+            }
+          },
+          "emaRatio": {
+            "5": {
+              "topRankedMean": -0.002174731068626378,
+              "avgEligibleMean": -0.0019779125329910147,
+              "medianEligibleMean": -0.002028625497233198,
+              "randomSelectionMean": -0.0019419904755582295,
+              "excessVsMeanMean": -0.00019681853563536392,
+              "excessVsMedianMean": -0.00014610557139317973,
+              "excessVsRandomMean": -0.00023274059306814922
+            },
+            "10": {
+              "topRankedMean": -0.002449780927236386,
+              "avgEligibleMean": -0.0019545246910312323,
+              "medianEligibleMean": -0.0020418200767224675,
+              "randomSelectionMean": -0.0019533937733510146,
+              "excessVsMeanMean": -0.000495256236205153,
+              "excessVsMedianMean": -0.0004079608505139182,
+              "excessVsRandomMean": -0.0004963871538853712
+            },
+            "20": {
+              "topRankedMean": -0.002866753695299637,
+              "avgEligibleMean": -0.0019080312531332083,
+              "medianEligibleMean": -0.0020643028089476355,
+              "randomSelectionMean": -0.0019552372428925362,
+              "excessVsMeanMean": -0.0009587224421664313,
+              "excessVsMedianMean": -0.0008024508863520017,
+              "excessVsRandomMean": -0.0009115164524071016
+            },
+            "50": {
+              "topRankedMean": -0.003754012490570827,
+              "avgEligibleMean": -0.0017691519575344808,
+              "medianEligibleMean": -0.002108926173286552,
+              "randomSelectionMean": -0.0019065813186665986,
+              "excessVsMeanMean": -0.0019848605330363435,
+              "excessVsMedianMean": -0.001645086317284274,
+              "excessVsRandomMean": -0.0018474311719042294
+            }
+          },
+          "contrarianTrendStrength": {
+            "5": {
+              "topRankedMean": -0.00155737881650608,
+              "avgEligibleMean": -0.0019779125329910147,
+              "medianEligibleMean": -0.002028625497233198,
+              "randomSelectionMean": -0.0020005726265961954,
+              "excessVsMeanMean": 0.0004205337164849309,
+              "excessVsMedianMean": 0.0004712466807271194,
+              "excessVsRandomMean": 0.000443193810090113
+            },
+            "10": {
+              "topRankedMean": -0.0014825015175540068,
+              "avgEligibleMean": -0.0019545246910312323,
+              "medianEligibleMean": -0.0020418200767224675,
+              "randomSelectionMean": -0.0019742540789598672,
+              "excessVsMeanMean": 0.00047202317347722636,
+              "excessVsMedianMean": 0.0005593185591684606,
+              "excessVsRandomMean": 0.0004917525614058605
+            },
+            "20": {
+              "topRankedMean": -0.0013228279899199298,
+              "avgEligibleMean": -0.0019080312531332083,
+              "medianEligibleMean": -0.0020643028089476355,
+              "randomSelectionMean": -0.0018440393665111786,
+              "excessVsMeanMean": 0.0005852032632132747,
+              "excessVsMedianMean": 0.0007414748190277001,
+              "excessVsRandomMean": 0.000521211376591243
+            },
+            "50": {
+              "topRankedMean": -0.0009638071585434881,
+              "avgEligibleMean": -0.0017691519575344808,
+              "medianEligibleMean": -0.002108926173286552,
+              "randomSelectionMean": -0.0017339099958735788,
+              "excessVsMeanMean": 0.0008053447989909971,
+              "excessVsMedianMean": 0.0011451190147430679,
+              "excessVsRandomMean": 0.0007701028373300971
+            }
+          },
+          "contrarianAcceleration": {
+            "5": {
+              "topRankedMean": -0.0016935722029901156,
+              "avgEligibleMean": -0.0019779125329910147,
+              "medianEligibleMean": -0.002028625497233198,
+              "randomSelectionMean": -0.001976310029027373,
+              "excessVsMeanMean": 0.0002843403300008953,
+              "excessVsMedianMean": 0.0003350532942430814,
+              "excessVsRandomMean": 0.000282737826037256
+            },
+            "10": {
+              "topRankedMean": -0.001686991934273581,
+              "avgEligibleMean": -0.0019545246910312323,
+              "medianEligibleMean": -0.0020418200767224675,
+              "randomSelectionMean": -0.0019465041903247667,
+              "excessVsMeanMean": 0.0002675327567576524,
+              "excessVsMedianMean": 0.0003548281424488879,
+              "excessVsRandomMean": 0.00025951225605118735
+            },
+            "20": {
+              "topRankedMean": -0.0016771989345897745,
+              "avgEligibleMean": -0.0019080312531332083,
+              "medianEligibleMean": -0.0020643028089476355,
+              "randomSelectionMean": -0.0019783944572262053,
+              "excessVsMeanMean": 0.00023083231854343234,
+              "excessVsMedianMean": 0.0003871038743578587,
+              "excessVsRandomMean": 0.00030119552263642587
+            },
+            "50": {
+              "topRankedMean": -0.0016178445069801482,
+              "avgEligibleMean": -0.0017691519575344808,
+              "medianEligibleMean": -0.002108926173286552,
+              "randomSelectionMean": -0.0017201600715536117,
+              "excessVsMeanMean": 0.0001513074505543329,
+              "excessVsMedianMean": 0.0004910816663064048,
+              "excessVsRandomMean": 0.00010231556457346167
+            }
+          },
+          "contrarianDistanceFromRecentHigh": {
+            "5": {
+              "topRankedMean": -0.0018611987223768616,
+              "avgEligibleMean": -0.0019779125329910147,
+              "medianEligibleMean": -0.002028625497233198,
+              "randomSelectionMean": -0.0019704739623901805,
+              "excessVsMeanMean": 0.00011671381061415179,
+              "excessVsMedianMean": 0.00016742677485633554,
+              "excessVsRandomMean": 0.00010927524001331788
+            },
+            "10": {
+              "topRankedMean": -0.0018589886120576786,
+              "avgEligibleMean": -0.0019545246910312323,
+              "medianEligibleMean": -0.0020418200767224675,
+              "randomSelectionMean": -0.0018863231706557969,
+              "excessVsMeanMean": 0.00009553607897355285,
+              "excessVsMedianMean": 0.0001828314646647891,
+              "excessVsRandomMean": 0.000027334558598118485
+            },
+            "20": {
+              "topRankedMean": -0.0020207400078367964,
+              "avgEligibleMean": -0.0019080312531332083,
+              "medianEligibleMean": -0.0020643028089476355,
+              "randomSelectionMean": -0.0019607308225950285,
+              "excessVsMeanMean": -0.00011270875470358891,
+              "excessVsMedianMean": 0.00004356280111083904,
+              "excessVsRandomMean": -0.00006000918524176885
+            },
+            "50": {
+              "topRankedMean": -0.0016232954198701832,
+              "avgEligibleMean": -0.0017691519575344808,
+              "medianEligibleMean": -0.002108926173286552,
+              "randomSelectionMean": -0.001798376735275348,
+              "excessVsMeanMean": 0.00014585653766429805,
+              "excessVsMedianMean": 0.0004856307534163683,
+              "excessVsRandomMean": 0.00017508131540516534
+            }
+          },
+          "contrarianDistanceFromRecentLow": {
+            "5": {
+              "topRankedMean": -0.0016259180247930596,
+              "avgEligibleMean": -0.0019779125329910147,
+              "medianEligibleMean": -0.002028625497233198,
+              "randomSelectionMean": -0.002001240761606345,
+              "excessVsMeanMean": 0.0003519945081979548,
+              "excessVsMedianMean": 0.00040270747244013864,
+              "excessVsRandomMean": 0.000375322736813284
+            },
+            "10": {
+              "topRankedMean": -0.0016049650168413268,
+              "avgEligibleMean": -0.0019545246910312323,
+              "medianEligibleMean": -0.0020418200767224675,
+              "randomSelectionMean": -0.0019062745658641063,
+              "excessVsMeanMean": 0.0003495596741899049,
+              "excessVsMedianMean": 0.0004368550598811418,
+              "excessVsRandomMean": 0.0003013095490227774
+            },
+            "20": {
+              "topRankedMean": -0.0014676779130020842,
+              "avgEligibleMean": -0.0019080312531332083,
+              "medianEligibleMean": -0.0020643028089476355,
+              "randomSelectionMean": -0.0018505958517713607,
+              "excessVsMeanMean": 0.0004403533401311225,
+              "excessVsMedianMean": 0.0005966248959455499,
+              "excessVsRandomMean": 0.0003829179387692735
+            },
+            "50": {
+              "topRankedMean": -0.0014473389851692895,
+              "avgEligibleMean": -0.0017691519575344808,
+              "medianEligibleMean": -0.002108926173286552,
+              "randomSelectionMean": -0.001560111928238734,
+              "excessVsMeanMean": 0.0003218129723651984,
+              "excessVsMedianMean": 0.0006615871881172649,
+              "excessVsRandomMean": 0.00011277294306945121
+            }
+          }
+        }
+      }
+    }
+  },
+  "methodology": {
+    "rankingMethod": "At each timestamp, markets are ranked by the selected feature or signal. The highest-ranked market is compared with the cross-sectional mean, median and deterministic random selection.",
+    "grossReturn": "Close-to-close future return from T to T + horizon.",
+    "netReturn": "Gross future return minus the configured round-trip trading cost.",
+    "transactionCost": "0.20% total, representing 0.10% entry fee plus 0.10% exit fee.",
+    "splitMethod": "Chronological 60% train, 20% validation and 20% test split.",
+    "contrarianMethod": "A contrarian ranking negates the feature value, so the lowest original feature values become the highest-ranked observations.",
+    "importantComparison": "excessVsRandomMean should be positive if the ranking contains useful predictive information beyond deterministic random selection."
+  },
+  "researchAudit": {
+    "dataSources": [
+      {
+        "name": "Klines / OHLCV",
+        "endpoint": "/api/v3/klines",
+        "availableHistorically": "yes",
+        "availableRealtime": "yes",
+        "fields": [
+          "openTime",
+          "open",
+          "high",
+          "low",
+          "close",
+          "volume",
+          "closeTime",
+          "quoteAssetVolume",
+          "numberOfTrades",
+          "takerBuyBaseVolume",
+          "takerBuyQuoteVolume",
+          "ignore"
+        ],
+        "notes": "The most reliable historical market data available from Binance for strategy research."
+      },
+      {
+        "name": "Recent trades / aggregated trades",
+        "endpoint": "/api/v3/trades",
+        "availableHistorically": "partial",
+        "availableRealtime": "yes",
+        "fields": [
+          "tradeId",
+          "price",
+          "qty",
+          "quoteQty",
+          "time",
+          "isBuyerMaker",
+          "isBestMatch"
+        ],
+        "notes": "Can be fetched live and retained with a collector, but historical reconstruction requires a dedicated backfill job. Trade direction is partially observable via isBuyerMaker."
+      },
+      {
+        "name": "Order book depth",
+        "endpoint": "/api/v3/depth",
+        "availableHistorically": "partial",
+        "availableRealtime": "yes",
+        "fields": [
+          "bids",
+          "asks",
+          "lastUpdateId"
+        ],
+        "notes": "Useful for spread, imbalance, and depth-change features, but full historical depth series is not naturally available from a single REST endpoint without a custom collector."
+      },
+      {
+        "name": "Book ticker",
+        "endpoint": "/api/v3/ticker/bookTicker",
+        "availableHistorically": "no",
+        "availableRealtime": "yes",
+        "fields": [
+          "bidPrice",
+          "bidQty",
+          "askPrice",
+          "askQty",
+          "symbol"
+        ],
+        "notes": "Good for live spread and best bid/ask observations but not a historical backtest source unless collected over time."
+      },
+      {
+        "name": "24hr ticker statistics",
+        "endpoint": "/api/v3/ticker/24hr",
+        "availableHistorically": "partial",
+        "availableRealtime": "yes",
+        "fields": [
+          "symbol",
+          "priceChange",
+          "priceChangePercent",
+          "weightedAvgPrice",
+          "prevClosePrice",
+          "lastPrice",
+          "lastQty",
+          "bidPrice",
+          "bidQty",
+          "askPrice",
+          "askQty",
+          "openPrice",
+          "highPrice",
+          "lowPrice",
+          "volume",
+          "quoteVolume",
+          "openTime",
+          "closeTime",
+          "firstId",
+          "lastId",
+          "count"
+        ],
+        "notes": "Useful for short-term regime context but not a complete historical signal source unless saved over time."
+      },
+      {
+        "name": "Exchange metadata",
+        "endpoint": "/api/v3/exchangeInfo",
+        "availableHistorically": "no",
+        "availableRealtime": "yes",
+        "fields": [
+          "symbols",
+          "status",
+          "baseAsset",
+          "quoteAsset",
+          "filters"
+        ],
+        "notes": "Useful for symbol filtering and market eligibility but not predictive in itself."
+      }
+    ],
+    "horizons": [
+      5,
+      10,
+      20,
+      50
+    ],
+    "feeRate": 0.001,
+    "executionCost": 0.0005,
+    "notes": [
+      "This research layer intentionally does not modify the live trading strategy.",
+      "All candidate features must be evaluated using only information available at the decision timestamp.",
+      "Future-return evaluation is measured at 5, 10, 20 and 50 minute horizons after fees and execution cost.",
+      "Threshold tuning and strategy selection must be separated from the discovery process."
+    ]
+  }
+}

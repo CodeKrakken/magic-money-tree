@@ -6,57 +6,101 @@ import CurrentTask from "./components/CurrentTask/CurrentTask"
 import MarketGraph from "./components/MarketGraph/MarketGraph"
 import './App.css'
 import StringList from "./components/StringList/StringList"
-// environment is handled via proxy in development; no need for react-dotenv here
 
 export default function App() {
 
-  const [wallet,                 setWallet] = useState({} as wallet)
-  const [currentTask,       setcurrentTask] = useState('Fetching data')
-  const [transactions,     setTransactions] = useState([] as string[])
-  const [marketChart,               setMarketChart] = useState([] as string[])
-  const [currentMarket,   setCurrentMarket] = useState({} as market)
-  const [log, setLog] = useState([] as string[])
-
+  const [wallet, setWallet] = useState({} as wallet)
+  const [currentTask, setcurrentTask] = useState('Fetching data')
+  const [transactions, setTransactions] = useState([] as string[])
+  const [marketChart, setMarketChart] = useState([] as string[])
+  const [currentMarket, setCurrentMarket] = useState({} as market)
+  const [tradingMode, setTradingMode] = useState<'simulation' | 'test' | 'live'>('simulation')
 
   useEffect(() => {
-    console.log('[App] useEffect mounted');
     let cancelled = false;
 
-    const fetchData = async () => {
-      console.log('[App] fetchData start');
+    const fetchTradingMode = async () => {
       try {
-        // rely on the development proxy to forward `/data` to the backend
+        const response = await fetch('/api/trading-mode', {
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-store' }
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const data = await response.json();
+        if (!cancelled && data?.tradingMode) {
+          setTradingMode(data.tradingMode);
+        }
+      } catch (error) {
+        console.error('[App] Error fetching trading mode:', error);
+      }
+    };
+
+    const fetchData = async () => {
+      try {
         const url = `/data?t=${Date.now()}`;
-        console.log('[App] hitting URL', url);
         const response = await fetch(url, {
           cache: 'no-store',
           headers: { 'Cache-Control': 'no-store' }
         });
         if (!response.ok) {
-          console.error('[App] response error', response.status, response.statusText);
           return;
         }
         if (cancelled) return;
         const data = await response.json();
-        console.log('[App] received data.currentTask:', data.currentTask);
         setWallet(data.wallet);
         setcurrentTask(data.currentTask);
         setTransactions(data.transactions);
         setMarketChart(data.marketChart);
         setCurrentMarket(data.currentMarket);
+        if (data.tradingMode) {
+          setTradingMode(data.tradingMode);
+        }
       } catch (error) {
         console.error('[App] Error fetching data:', error);
       }
       if (!cancelled) setTimeout(fetchData, 1000);
     };
 
+    fetchTradingMode();
     fetchData();
 
     return () => {
-      console.log('[App] useEffect cleanup');
       cancelled = true;
     };
   }, []);
+
+  const isLiveMode = tradingMode === 'live';
+
+  const handleModeChange = async () => {
+    const nextMode = isLiveMode ? 'simulation' : 'live';
+
+    if (nextMode === 'live') {
+      const confirmed = window.confirm('Enable live trading? Real Binance orders may be placed.');
+      if (!confirmed) {
+        return;
+      }
+    }
+
+    const response = await fetch('/api/trading-mode', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: nextMode, confirm: nextMode === 'live' })
+    });
+
+    const data = await response.json();
+    if (response.ok && data?.tradingMode) {
+      setTradingMode(data.tradingMode);
+      return;
+    }
+
+    if (data?.error) {
+      window.alert(data.error);
+    }
+  };
 
   return <>
     <div className="container">
@@ -83,7 +127,20 @@ export default function App() {
         </div>
         <div className="col center">
           <CurrentTask currentTask={currentTask} />
-          <br />
+          <div style={{ marginTop: '12px', marginBottom: '12px' }}>
+            <label htmlFor="live-trading-toggle" style={{ display: 'block', fontWeight: 700, marginBottom: '6px' }}>
+              Live Trading
+            </label>
+            <label htmlFor="live-trading-toggle" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+              <input
+                id="live-trading-toggle"
+                type="checkbox"
+                checked={isLiveMode}
+                onChange={handleModeChange}
+              />
+              <span>{isLiveMode ? 'LIVE TRADING' : 'SIMULATION'}</span>
+            </label>
+          </div>
           <Wallet wallet={wallet} />
         </div>
         <div className="col center">

@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import { createHmac } from 'crypto';
 import { writeFile } from 'fs/promises';
 import axios from 'axios';
 import express from 'express';
@@ -25,7 +26,8 @@ app.get("/data", (req, res) => {
         currentTask: currentTask,
         transactions: log.transactions,
         marketChart: marketChart,
-        currentMarket: markets[wallet.data.currentMarket.name] ?? null
+        currentMarket: markets[wallet.data.currentMarket.name] ?? null,
+        tradingMode
     });
     res.setHeader('Content-Type', 'application/json');
     res.send(dataJSON);
@@ -36,6 +38,30 @@ if (!local) {
     });
 }
 const port = process.env.PORT || 5000;
+const resolveTradingMode = (value) => {
+    if (value === 'test')
+        return 'test';
+    if (value === 'live')
+        return 'live';
+    return 'simulation';
+};
+let tradingMode = resolveTradingMode(process.env.TRADING_MODE);
+app.get('/api/trading-mode', (req, res) => {
+    res.json({ tradingMode });
+});
+app.post('/api/trading-mode', (req, res) => {
+    const nextMode = typeof req.body?.mode === 'string' ? req.body.mode.toLowerCase() : '';
+    if (nextMode !== 'simulation' && nextMode !== 'test' && nextMode !== 'live') {
+        res.status(400).json({ error: 'Invalid trading mode.' });
+        return;
+    }
+    if (nextMode === 'live' && req.body?.confirm !== true) {
+        res.status(400).json({ error: 'Live trading confirmation is required.' });
+        return;
+    }
+    tradingMode = nextMode;
+    res.json({ tradingMode });
+});
 app.listen(port, async () => {
     console.log(`Server listening on port ${port}`);
     await run();
@@ -68,6 +94,326 @@ const timeScales = {
     minutes: 'm',
 };
 let trading = false;
+const binanceApiKey = process.env.BINANCE_API_KEY ?? '';
+const binanceSecretKey = process.env.BINANCE_SECRET_KEY ?? '';
+const EXCHANGE_INFO_CACHE_TTL_MS = 5 * 60 * 1000;
+let exchangeInfoCache = null;
+function normalizeDecimalString(value) {
+    const trimmed = value.trim();
+    if (!trimmed || trimmed === '0') {
+        return '0';
+    }
+    const negative = trimmed.startsWith('-');
+    const absolute = negative ? trimmed.slice(1) : trimmed;
+    const [wholeRaw = '0', fractionRaw = ''] = absolute.split('.');
+    const whole = wholeRaw.replace(/^0+(?=\d)/, '') || '0';
+    const fraction = fractionRaw.replace(/0+$/, '');
+    if (fraction.length === 0) {
+        return negative ? `-${whole}` : whole;
+    }
+    return `${negative ? '-' : ''}${whole}.${fraction}`;
+}
+function decimalPlaces(value) {
+    const normalized = normalizeDecimalString(value);
+    if (!normalized.includes('.')) {
+        return 0;
+    }
+    return normalized.split('.')[1]?.length ?? 0;
+}
+function toScaledInteger(value, scale) {
+    const normalized = normalizeDecimalString(value);
+    const [whole, fraction = ''] = normalized.split('.');
+    const digits = `${whole.replace(/^-?0+(?=\d)/, '') || '0'}${fraction.padEnd(scale, '0').slice(0, scale)}`;
+    const number = BigInt(digits.replace(/^-/, ''));
+    return normalized.startsWith('-') ? -number : number;
+}
+function toDecimalString(value, scale) {
+    if (scale === 0) {
+        return value.toString();
+    }
+    const absolute = value < 0n ? -value : value;
+    const digits = absolute.toString().padStart(scale + 1, '0');
+    const whole = digits.slice(0, -scale) || '0';
+    const fraction = digits.slice(-scale).replace(/0+$/, '');
+    return `${value < 0n ? '-' : ''}${whole}${fraction ? `.${fraction}` : ''}`;
+}
+function compareDecimalStrings(left, right) {
+    const scale = Math.max(decimalPlaces(left), decimalPlaces(right));
+    const leftValue = toScaledInteger(left, scale);
+    const rightValue = toScaledInteger(right, scale);
+    if (leftValue < rightValue) {
+        return -1;
+    }
+    if (leftValue > rightValue) {
+        return 1;
+    }
+    return 0;
+}
+function multiplyDecimalStrings(left, right) {
+    const scale = Math.max(decimalPlaces(left), decimalPlaces(right));
+    const scaledLeft = toScaledInteger(left, scale);
+    const scaledRight = toScaledInteger(right, scale);
+    return toDecimalString((scaledLeft * scaledRight) / 10n ** BigInt(scale), scale);
+}
+function roundDownToStep(value, step) {
+    const normalizedValue = normalizeDecimalString(value);
+    const normalizedStep = normalizeDecimalString(step);
+    const scale = Math.max(decimalPlaces(normalizedValue), decimalPlaces(normalizedStep));
+    const valueScaled = toScaledInteger(normalizedValue, scale);
+    const stepScaled = toScaledInteger(normalizedStep, scale);
+    if (stepScaled <= 0n) {
+        return normalizedValue;
+    }
+    const quotient = valueScaled / stepScaled;
+    const rounded = quotient * stepScaled;
+    return toDecimalString(rounded, scale);
+}
+function roundToTickSize(value, tick) {
+    const normalizedValue = normalizeDecimalString(value);
+    const normalizedTick = normalizeDecimalString(tick);
+    const stepScaled = toScaledInteger(normalizedTick, Math.max(decimalPlaces(normalizedValue), decimalPlaces(normalizedTick)));
+    if (stepScaled <= 0n) {
+        return normalizedValue;
+    }
+    const scale = Math.max(decimalPlaces(normalizedValue), decimalPlaces(normalizedTick));
+    const valueScaled = toScaledInteger(normalizedValue, scale);
+    const rounded = (valueScaled / stepScaled) * stepScaled;
+    return toDecimalString(rounded, scale);
+}
+function getFilterMapFromExchangeInfo(symbolInfo) {
+    const bySymbol = {};
+    for (const symbolEntry of symbolInfo.symbols) {
+        const filters = symbolEntry.filters;
+        const found = {
+            symbol: symbolEntry.symbol,
+            minQty: '0',
+            maxQty: '0',
+            stepSize: '0',
+            minPrice: '0',
+            maxPrice: '0',
+            tickSize: '0',
+            minNotional: '0'
+        };
+        for (const filter of filters) {
+            if (filter.filterType === 'LOT_SIZE') {
+                found.minQty = filter.minQty ?? found.minQty;
+                found.maxQty = filter.maxQty ?? found.maxQty;
+                found.stepSize = filter.stepSize ?? found.stepSize;
+            }
+            if (filter.filterType === 'PRICE_FILTER') {
+                found.minPrice = filter.minPrice ?? found.minPrice;
+                found.maxPrice = filter.maxPrice ?? found.maxPrice;
+                found.tickSize = filter.tickSize ?? found.tickSize;
+            }
+            if (filter.filterType === 'MIN_NOTIONAL') {
+                found.minNotional = filter.minNotional ?? found.minNotional;
+            }
+            if (filter.filterType === 'NOTIONAL') {
+                found.minNotional = filter.minNotional ?? found.minNotional;
+            }
+        }
+        bySymbol[symbolEntry.symbol] = found;
+    }
+    return bySymbol;
+}
+async function refreshExchangeInfoCache(force = false) {
+    const now = Date.now();
+    if (!force && exchangeInfoCache && now - exchangeInfoCache.fetchedAt < EXCHANGE_INFO_CACHE_TTL_MS) {
+        return exchangeInfoCache.bySymbol;
+    }
+    const response = await axios.get('https://api.binance.com/api/v3/exchangeInfo', { timeout: 15000 });
+    const bySymbol = getFilterMapFromExchangeInfo(response.data);
+    exchangeInfoCache = {
+        fetchedAt: now,
+        bySymbol
+    };
+    return bySymbol;
+}
+async function getExchangeFiltersForSymbol(symbol) {
+    const bySymbol = await refreshExchangeInfoCache();
+    return bySymbol[symbol] ?? null;
+}
+function validateOrderAgainstFilters(symbol, side, quantity, price, filters) {
+    const normalizedQuantity = normalizeDecimalString(quantity);
+    const normalizedPrice = normalizeDecimalString(price);
+    const minQty = normalizeDecimalString(filters.minQty);
+    const maxQty = normalizeDecimalString(filters.maxQty);
+    const stepSize = normalizeDecimalString(filters.stepSize);
+    const minPrice = normalizeDecimalString(filters.minPrice);
+    const maxPrice = normalizeDecimalString(filters.maxPrice);
+    const tickSize = normalizeDecimalString(filters.tickSize);
+    const minNotional = normalizeDecimalString(filters.minNotional);
+    let validQuantity = normalizedQuantity;
+    if (stepSize !== '0') {
+        validQuantity = roundDownToStep(validQuantity, stepSize);
+    }
+    if (compareDecimalStrings(validQuantity, minQty) < 0 && minQty !== '0') {
+        return { ok: false, reason: `${symbol} quantity ${validQuantity} is below MIN_QTY ${minQty}.` };
+    }
+    if (maxQty !== '0' && compareDecimalStrings(validQuantity, maxQty) > 0) {
+        return { ok: false, reason: `${symbol} quantity ${validQuantity} exceeds MAX_QTY ${maxQty}.` };
+    }
+    let validPrice = normalizedPrice;
+    if (tickSize !== '0') {
+        validPrice = roundToTickSize(validPrice, tickSize);
+    }
+    if (minPrice !== '0' && compareDecimalStrings(validPrice, minPrice) < 0) {
+        return { ok: false, reason: `${symbol} price ${validPrice} is below MIN_PRICE ${minPrice}.` };
+    }
+    if (maxPrice !== '0' && compareDecimalStrings(validPrice, maxPrice) > 0) {
+        return { ok: false, reason: `${symbol} price ${validPrice} exceeds MAX_PRICE ${maxPrice}.` };
+    }
+    const notional = multiplyDecimalStrings(validPrice, validQuantity);
+    const minNotionalValue = minNotional === '0' ? '0' : minNotional;
+    if (minNotionalValue !== '0' && compareDecimalStrings(notional, minNotionalValue) < 0) {
+        return { ok: false, reason: `${symbol} order notional ${notional} is below MIN_NOTIONAL ${minNotionalValue}.` };
+    }
+    if (side === 'BUY' && minNotionalValue !== '0' && compareDecimalStrings(notional, minNotionalValue) < 0) {
+        return { ok: false, reason: `${symbol} order notional ${notional} is below the minimum notional ${minNotionalValue}.` };
+    }
+    return {
+        ok: true,
+        quantity: validQuantity,
+        price: validPrice,
+        notional
+    };
+}
+function buildBinanceSignedOrderParams(marketName, side, quantity, price) {
+    const params = new URLSearchParams({
+        symbol: marketName,
+        side,
+        type: 'LIMIT',
+        timeInForce: 'GTC',
+        quantity,
+        price,
+        recvWindow: '60000',
+        timestamp: String(Date.now())
+    });
+    const signature = createHmac('sha256', binanceSecretKey)
+        .update(params.toString())
+        .digest('hex');
+    return { params, signature };
+}
+;
+async function submitBinanceOrder(side, marketName, quantity, price) {
+    if (tradingMode === 'simulation') {
+        return {
+            accepted: false,
+            status: 'rejected',
+            message: 'Simulation mode does not submit Binance orders.'
+        };
+    }
+    if (tradingMode !== 'test' && tradingMode !== 'live') {
+        return {
+            accepted: false,
+            status: 'rejected',
+            message: 'Trading mode is not enabled for Binance orders.'
+        };
+    }
+    if (!binanceApiKey || !binanceSecretKey) {
+        return {
+            accepted: false,
+            status: 'error',
+            message: 'Binance API credentials are required for test or live orders.'
+        };
+    }
+    const filters = await getExchangeFiltersForSymbol(marketName);
+    if (!filters) {
+        return {
+            accepted: false,
+            status: 'error',
+            message: `Binance exchange filters are unavailable for ${marketName}.`
+        };
+    }
+    const validated = validateOrderAgainstFilters(marketName, side, quantity, price, filters);
+    if (!validated.ok) {
+        return {
+            accepted: false,
+            status: 'rejected',
+            message: validated.reason,
+            symbol: marketName,
+            side,
+            quantity,
+            price
+        };
+    }
+    const endpoint = tradingMode === 'test'
+        ? 'https://api.binance.com/api/v3/order/test'
+        : 'https://api.binance.com/api/v3/order';
+    const { params, signature } = buildBinanceSignedOrderParams(marketName, side, validated.quantity, validated.price);
+    try {
+        const response = await axios.post(endpoint, `${params.toString()}&signature=${signature}`, {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-MBX-APIKEY': binanceApiKey
+            },
+            timeout: 15000
+        });
+        if (response.status >= 200 && response.status < 300) {
+            const orderData = response.data;
+            const status = orderData.status ?? 'NEW';
+            return {
+                accepted: true,
+                status: status === 'FILLED' || status === 'PARTIALLY_FILLED' ? 'accepted' : 'accepted',
+                message: `Binance ${tradingMode} order request accepted for ${marketName}.`,
+                symbol: marketName,
+                side,
+                quantity: validated.quantity,
+                price: validated.price,
+                binanceCode: 200,
+                binanceMessage: status
+            };
+        }
+        return {
+            accepted: false,
+            status: 'error',
+            message: `Binance request for ${marketName} returned an unexpected HTTP status.`,
+            symbol: marketName,
+            side,
+            quantity: validated.quantity,
+            price: validated.price,
+            binanceCode: response.status
+        };
+    }
+    catch (error) {
+        if (axios.isAxiosError(error)) {
+            const responseData = error.response?.data;
+            if (error.response) {
+                return {
+                    accepted: false,
+                    status: 'rejected',
+                    message: `Binance ${marketName} order rejected: ${responseData?.msg ?? error.message}`,
+                    symbol: marketName,
+                    side,
+                    quantity,
+                    price,
+                    binanceCode: responseData?.code,
+                    binanceMessage: responseData?.msg ?? error.message
+                };
+            }
+            return {
+                accepted: false,
+                status: 'uncertain',
+                message: `Binance ${marketName} order response is uncertain because of a network timeout or connection issue. No duplicate retry was attempted.`,
+                symbol: marketName,
+                side,
+                quantity,
+                price,
+                binanceMessage: error.message
+            };
+        }
+        return {
+            accepted: false,
+            status: 'error',
+            message: `Binance ${marketName} order failed unexpectedly.`,
+            symbol: marketName,
+            side,
+            quantity,
+            price,
+            binanceMessage: error instanceof Error ? error.message : 'Unknown error'
+        };
+    }
+}
 async function writeToFile(fileName, data) {
     try {
         await writeFile(fileName, data);
@@ -494,11 +840,18 @@ async function simulatedBuyOrder(market) {
         if (response) {
             const currentPrice = response;
             const baseVolume = wallet.coins[base].volume;
+            const orderQuantity = baseVolume * (1 - fee) / currentPrice;
+            if (tradingMode === 'test' || tradingMode === 'live') {
+                const orderResult = await submitBinanceOrder('BUY', market.name, String(orderQuantity), String(currentPrice));
+                if (!orderResult.accepted) {
+                    throw new Error(orderResult.message || `Binance ${tradingMode} buy order was rejected for ${market.name}.`);
+                }
+            }
             if (!wallet.coins[asset]) {
                 wallet.coins[asset] = { volume: 0, dollarPrice: 0, dollarValue: 0 };
             }
             wallet.coins[base].volume = 0;
-            wallet.coins[asset].volume += baseVolume * (1 - fee) / currentPrice;
+            wallet.coins[asset].volume += orderQuantity;
             const targetVolume = baseVolume * (1 + (2 * fee));
             wallet.data.prices = {
                 targetPrice: targetVolume / wallet.coins[asset].volume,
@@ -523,11 +876,18 @@ async function simulatedSellOrder(sellType, market) {
         const asset = wallet.data.currentMarket.name.replace('USDT', '');
         const base = 'USDT';
         const assetVolume = wallet.coins[asset].volume;
-        wallet.coins[base].volume += assetVolume * (1 - fee) * wallet.coins[asset].dollarPrice;
+        const sellPrice = wallet.coins[asset].dollarPrice;
+        if (tradingMode === 'test' || tradingMode === 'live') {
+            const orderResult = await submitBinanceOrder('SELL', wallet.data.currentMarket.name, String(assetVolume), String(sellPrice));
+            if (!orderResult.accepted) {
+                throw new Error(orderResult.message || `Binance ${tradingMode} sell order was rejected for ${wallet.data.currentMarket.name}.`);
+            }
+        }
+        wallet.coins[base].volume += assetVolume * (1 - fee) * sellPrice;
         wallet.data.prices = {};
         const tradeReport = {
             time: timeNow(),
-            text: `Sold ${round(assetVolume)} ${asset} @ ${round(wallet.coins[asset].dollarPrice)} = $${round(wallet.coins[base].volume)}  |  Strength ${round(market.strength)}  |  ${sellType}`
+            text: `Sold ${round(assetVolume)} ${asset} @ ${round(sellPrice)} = $${round(wallet.coins[base].volume)}  |  Strength ${round(market.strength)}  |  ${sellType}`
         };
         logEntry(tradeReport, 'transactions');
         delete wallet.coins[asset];
