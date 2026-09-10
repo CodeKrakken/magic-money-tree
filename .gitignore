@@ -2,3 +2,5 @@ node_modules
 .env
 package-lock.json
 server/research-output/ema-data-1789041161149.json
+server/research-output/ema-data-1789061547934.json
+server/dist/

@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import { fetchBroadResearchUniverse, fetchKlinesInRange } from 'research';
+import { fetchBroadResearchUniverse, fetchKlinesInRange } from './research';
 import { fileURLToPath } from 'url';
+
 
 export async function fetchAndSaveResearchData(): Promise<string> {
   const startTime = Date.now();
