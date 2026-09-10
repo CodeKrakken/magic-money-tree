@@ -23,22 +23,7 @@ interface RawDataset {
   markets: MarketData[];
 }
 
-interface PathOutcome {
-  target: number;
-  stop: number;
-
-  targetBeforeStop: boolean;
-  stopBeforeTarget: boolean;
-  neither: boolean;
-
-  timeToTarget: number | null;
-  timeToStop: number | null;
-
-  mae: number;
-  mfe: number;
-}
-
-interface FeatureResult {
+interface Observation {
   symbol: string;
   timestamp: number;
 
@@ -59,42 +44,138 @@ interface FeatureResult {
 
   acceleration: number;
 
-  outcomes: PathOutcome[];
+  target05Stop03: PathResult;
+  target05Stop05: PathResult;
+  target03Stop03: PathResult;
 }
 
-interface BucketSummary {
-  feature: string;
-  bucket: number;
-  count: number;
+interface PathResult {
+  result: "target" | "stop" | "neither";
+  timeToResult: number | null;
+  mae: number;
+  mfe: number;
+}
+
+interface FeatureDefinition {
+  name: keyof FeatureValues;
+  direction: "high" | "low";
+}
+
+interface FeatureValues {
+  return20: number;
+  return50: number;
+  slope20: number;
+  slope50: number;
+  drawdown20: number;
+  drawdown50: number;
+  volatility20: number;
+  volatility50: number;
+  efficiency20: number;
+  efficiency50: number;
+  acceleration: number;
+}
+
+interface Condition {
+  feature: FeatureDefinition;
+  percentile: number;
+}
+
+interface CombinationResult {
+  conditions: string[];
 
   target: number;
   stop: number;
 
-  targetBeforeStopRate: number;
-  stopBeforeTargetRate: number;
+  observations: number;
+
+  targetRate: number;
+  stopRate: number;
   neitherRate: number;
 
   averageTimeToTarget: number | null;
 
   averageMae: number;
   averageMfe: number;
+
+  targetNetReturn: number;
+  stopNetReturn: number;
+
+  expectancy: number;
+
+  annualised?: never;
 }
-
-const TOTAL_COST = 0.002;
-
-const LOOKBACKS = [20, 50];
-
-const TARGETS = [0.002, 0.003, 0.005];
-const STOPS = [-0.002, -0.003];
-
-const MIN_LOOKBACK = 50;
-const MAX_FORWARD_MINUTES = 120;
 
 const OUTPUT_DIR = path.join(
   process.cwd(),
   "server",
   "research-output"
 );
+
+const TOTAL_COST = 0.002;
+
+/*
+ * These are the economically interesting paths.
+ *
+ * +0.5% target / -0.3% stop:
+ *
+ * target = +0.5% - 0.2% costs = +0.3%
+ * stop   = -0.3% - 0.2% costs = -0.5%
+ *
+ * Break-even target-first rate is therefore 62.5%.
+ */
+const PATHS = [
+  {
+    name: "target05_stop03",
+    target: 0.005,
+    stop: -0.003,
+  },
+  {
+    name: "target05_stop05",
+    target: 0.005,
+    stop: -0.005,
+  },
+  {
+    name: "target03_stop03",
+    target: 0.003,
+    stop: -0.003,
+  },
+] as const;
+
+const MIN_LOOKBACK = 50;
+const MAX_FORWARD_MINUTES = 120;
+
+/*
+ * We deliberately use fairly broad percentile thresholds.
+ *
+ * 20/80:
+ *   bottom 20% / top 20%
+ *
+ * 30/70:
+ *   bottom 30% / top 30%
+ *
+ * 40/60:
+ *   bottom 40% / top 40%
+ *
+ * This avoids searching thousands of arbitrary numerical
+ * thresholds and greatly reduces overfitting.
+ */
+const PERCENTILES = [20, 30, 40, 60, 70, 80];
+
+/*
+ * A combination must contain enough observations to have
+ * some statistical credibility.
+ */
+const MIN_COMBINATION_OBSERVATIONS = 500;
+
+/*
+ * We test pairs first and triples second.
+ *
+ * Going beyond three conditions at this stage would make
+ * overfitting much too easy.
+ */
+const MAX_CONDITIONS = 2;
+
+const RESEARCH_MARKET_LIMIT = 5;
 
 function findLatestDataFile(): string {
   const files = fs
@@ -124,22 +205,54 @@ function mean(values: number[]): number {
   }
 
   return (
-    values.reduce((sum, value) => sum + value, 0) /
-    values.length
+    values.reduce(
+      (sum, value) => sum + value,
+      0
+    ) / values.length
   );
 }
 
-function percentage(value: number): number {
-  return value * 100;
+function percentage(value: number): string {
+  return `${(value * 100).toFixed(3)}%`;
+}
+
+function percentile(
+  sortedValues: number[],
+  percentileValue: number
+): number {
+  if (sortedValues.length === 0) {
+    return 0;
+  }
+
+  const position =
+    (percentileValue / 100) *
+    (sortedValues.length - 1);
+
+  const lower = Math.floor(position);
+  const upper = Math.ceil(position);
+
+  if (lower === upper) {
+    return sortedValues[lower];
+  }
+
+  const weight = position - lower;
+
+  return (
+    sortedValues[lower] * (1 - weight) +
+    sortedValues[upper] * weight
+  );
 }
 
 function priceReturn(
   candles: Candle[],
-  startIndex: number,
+  index: number,
   lookback: number
 ): number {
-  const start = candles[startIndex - lookback]?.close;
-  const end = candles[startIndex]?.close;
+  const start =
+    candles[index - lookback]?.close;
+
+  const end =
+    candles[index]?.close;
 
   if (
     start === undefined ||
@@ -157,7 +270,8 @@ function regressionSlope(
   endIndex: number,
   lookback: number
 ): number {
-  const startIndex = endIndex - lookback + 1;
+  const startIndex =
+    endIndex - lookback + 1;
 
   if (startIndex < 0) {
     return 0;
@@ -171,13 +285,19 @@ function regressionSlope(
     return 0;
   }
 
-  const meanX = (values.length - 1) / 2;
+  const meanX =
+    (values.length - 1) / 2;
+
   const meanY = mean(values);
 
   let numerator = 0;
   let denominator = 0;
 
-  for (let i = 0; i < values.length; i += 1) {
+  for (
+    let i = 0;
+    i < values.length;
+    i += 1
+  ) {
     const x = i - meanX;
     const y = values[i] - meanY;
 
@@ -185,13 +305,16 @@ function regressionSlope(
     denominator += x * x;
   }
 
-  if (denominator === 0 || meanY === 0) {
+  if (
+    denominator === 0 ||
+    meanY === 0
+  ) {
     return 0;
   }
 
-  // Normalise the slope so it is approximately a
-  // fractional price change per candle.
-  return (numerator / denominator) / meanY;
+  return (
+    numerator / denominator / meanY
+  );
 }
 
 function maximumDrawdown(
@@ -199,13 +322,16 @@ function maximumDrawdown(
   endIndex: number,
   lookback: number
 ): number {
-  const startIndex = endIndex - lookback + 1;
+  const startIndex =
+    endIndex - lookback + 1;
 
   if (startIndex < 0) {
     return 0;
   }
 
-  let highest = candles[startIndex].close;
+  let highest =
+    candles[startIndex].close;
+
   let maximum = 0;
 
   for (
@@ -213,14 +339,16 @@ function maximumDrawdown(
     index <= endIndex;
     index += 1
   ) {
-    const close = candles[index].close;
+    const close =
+      candles[index].close;
 
     if (close > highest) {
       highest = close;
     }
 
     if (highest > 0) {
-      const drawdown = (close - highest) / highest;
+      const drawdown =
+        (close - highest) / highest;
 
       if (drawdown < maximum) {
         maximum = drawdown;
@@ -236,7 +364,8 @@ function volatility(
   endIndex: number,
   lookback: number
 ): number {
-  const startIndex = endIndex - lookback;
+  const startIndex =
+    endIndex - lookback;
 
   if (startIndex < 0) {
     return 0;
@@ -249,11 +378,17 @@ function volatility(
     index <= endIndex;
     index += 1
   ) {
-    const previous = candles[index - 1].close;
-    const current = candles[index].close;
+    const previous =
+      candles[index - 1].close;
+
+    const current =
+      candles[index].close;
 
     if (previous > 0) {
-      returns.push((current - previous) / previous);
+      returns.push(
+        (current - previous) /
+          previous
+      );
     }
   }
 
@@ -265,7 +400,8 @@ function volatility(
 
   const variance = mean(
     returns.map(
-      (value) => (value - average) ** 2
+      (value) =>
+        (value - average) ** 2
     )
   );
 
@@ -277,14 +413,18 @@ function efficiencyRatio(
   endIndex: number,
   lookback: number
 ): number {
-  const startIndex = endIndex - lookback;
+  const startIndex =
+    endIndex - lookback;
 
   if (startIndex < 0) {
     return 0;
   }
 
-  const start = candles[startIndex].close;
-  const end = candles[endIndex].close;
+  const start =
+    candles[startIndex].close;
+
+  const end =
+    candles[endIndex].close;
 
   let totalMovement = 0;
 
@@ -303,108 +443,28 @@ function efficiencyRatio(
     return 0;
   }
 
-  return Math.abs(end - start) / totalMovement;
+  return (
+    Math.abs(end - start) /
+    totalMovement
+  );
 }
 
-function calculateFeatures(
-  candles: Candle[],
-  index: number
-): Omit<FeatureResult, "symbol" | "timestamp" | "outcomes"> {
-  const return20 = priceReturn(
-    candles,
-    index,
-    20
-  );
-
-  const return50 = priceReturn(
-    candles,
-    index,
-    50
-  );
-
-  const slope20 = regressionSlope(
-    candles,
-    index,
-    20
-  );
-
-  const slope50 = regressionSlope(
-    candles,
-    index,
-    50
-  );
-
-  const drawdown20 = maximumDrawdown(
-    candles,
-    index,
-    20
-  );
-
-  const drawdown50 = maximumDrawdown(
-    candles,
-    index,
-    50
-  );
-
-  const volatility20 = volatility(
-    candles,
-    index,
-    20
-  );
-
-  const volatility50 = volatility(
-    candles,
-    index,
-    50
-  );
-
-  const efficiency20 = efficiencyRatio(
-    candles,
-    index,
-    20
-  );
-
-  const efficiency50 = efficiencyRatio(
-    candles,
-    index,
-    50
-  );
-
-  const acceleration = slope20 - slope50;
-
-  return {
-    return20,
-    return50,
-    slope20,
-    slope50,
-    drawdown20,
-    drawdown50,
-    volatility20,
-    volatility50,
-    efficiency20,
-    efficiency50,
-    acceleration,
-  };
-}
-
-function calculatePathOutcome(
+function calculatePath(
   candles: Candle[],
   entryIndex: number,
   target: number,
   stop: number
-): PathOutcome {
+): PathResult {
   const entryPrice =
     candles[entryIndex].close;
 
   let mae = 0;
   let mfe = 0;
 
-  let timeToTarget: number | null = null;
-  let timeToStop: number | null = null;
-
   const lastIndex = Math.min(
     candles.length - 1,
-    entryIndex + MAX_FORWARD_MINUTES
+    entryIndex +
+      MAX_FORWARD_MINUTES
   );
 
   for (
@@ -422,135 +482,222 @@ function calculatePathOutcome(
       (candle.low - entryPrice) /
       entryPrice;
 
-    if (highReturn > mfe) {
-      mfe = highReturn;
-    }
+    mfe = Math.max(
+      mfe,
+      highReturn
+    );
 
-    if (lowReturn < mae) {
-      mae = lowReturn;
-    }
+    mae = Math.min(
+      mae,
+      lowReturn
+    );
+
+    const hitTarget =
+      highReturn >= target;
+
+    const hitStop =
+      lowReturn <= stop;
 
     /*
-     * We use the candle's high/low to determine whether
-     * a level was reached. If both target and stop occur
-     * inside the same candle, OHLC data cannot tell us
+     * If both levels occur in the same
+     * candle, OHLC data cannot establish
      * which happened first.
      *
-     * We therefore classify that case as neither rather
-     * than inventing an intrabar ordering.
+     * Do not manufacture an ordering.
      */
-    const hitTarget = highReturn >= target;
-    const hitStop = lowReturn <= stop;
-
     if (hitTarget && hitStop) {
-      break;
+      return {
+        result: "neither",
+        timeToResult: null,
+        mae,
+        mfe,
+      };
     }
 
     if (hitTarget) {
-      timeToTarget =
-        index - entryIndex;
-      break;
+      return {
+        result: "target",
+        timeToResult:
+          index - entryIndex,
+        mae,
+        mfe,
+      };
     }
 
     if (hitStop) {
-      timeToStop =
-        index - entryIndex;
-      break;
+      return {
+        result: "stop",
+        timeToResult:
+          index - entryIndex,
+        mae,
+        mfe,
+      };
     }
   }
 
-  const targetBeforeStop =
-    timeToTarget !== null &&
-    (
-      timeToStop === null ||
-      timeToTarget < timeToStop
-    );
-
-  const stopBeforeTarget =
-    timeToStop !== null &&
-    (
-      timeToTarget === null ||
-      timeToStop < timeToTarget
-    );
-
-  const neither =
-    !targetBeforeStop &&
-    !stopBeforeTarget;
-
   return {
-    target,
-    stop,
-    targetBeforeStop,
-    stopBeforeTarget,
-    neither,
-    timeToTarget,
-    timeToStop,
+    result: "neither",
+    timeToResult: null,
     mae,
     mfe,
   };
 }
 
-function calculateOutcomes(
+function calculateFeatures(
   candles: Candle[],
   index: number
-): PathOutcome[] {
-  const outcomes: PathOutcome[] = [];
+): FeatureValues {
+  const slope20 =
+    regressionSlope(
+      candles,
+      index,
+      20
+    );
 
-  for (const target of TARGETS) {
-    for (const stop of STOPS) {
-      outcomes.push(
-        calculatePathOutcome(
-          candles,
-          index,
-          target,
-          stop
-        )
-      );
-    }
-  }
+  const slope50 =
+    regressionSlope(
+      candles,
+      index,
+      50
+    );
 
-  return outcomes;
+  return {
+    return20: priceReturn(
+      candles,
+      index,
+      20
+    ),
+
+    return50: priceReturn(
+      candles,
+      index,
+      50
+    ),
+
+    slope20,
+
+    slope50,
+
+    drawdown20:
+      maximumDrawdown(
+        candles,
+        index,
+        20
+      ),
+
+    drawdown50:
+      maximumDrawdown(
+        candles,
+        index,
+        50
+      ),
+
+    volatility20:
+      volatility(
+        candles,
+        index,
+        20
+      ),
+
+    volatility50:
+      volatility(
+        candles,
+        index,
+        50
+      ),
+
+    efficiency20:
+      efficiencyRatio(
+        candles,
+        index,
+        20
+      ),
+
+    efficiency50:
+      efficiencyRatio(
+        candles,
+        index,
+        50
+      ),
+
+    acceleration:
+      slope20 - slope50,
+  };
 }
 
 function buildObservations(
   dataset: RawDataset
-): FeatureResult[] {
-  const observations: FeatureResult[] = [];
+): Observation[] {
+  const observations: Observation[] =
+    [];
 
   let processed = 0;
 
   for (const market of dataset.markets) {
-    const candles = market.candles;
+    const candles =
+      market.candles;
 
-    const firstIndex = MIN_LOOKBACK;
+    const firstIndex =
+      MIN_LOOKBACK;
+
     const lastIndex =
-      candles.length - MAX_FORWARD_MINUTES - 1;
+      candles.length -
+      MAX_FORWARD_MINUTES -
+      1;
 
     for (
       let index = firstIndex;
       index <= lastIndex;
       index += 1
     ) {
-      const features = calculateFeatures(
-        candles,
-        index
-      );
+      const features =
+        calculateFeatures(
+          candles,
+          index
+        );
 
-      const outcomes = calculateOutcomes(
-        candles,
-        index
-      );
+      const target05Stop03 =
+        calculatePath(
+          candles,
+          index,
+          0.005,
+          -0.003
+        );
+
+      const target05Stop05 =
+        calculatePath(
+          candles,
+          index,
+          0.005,
+          -0.005
+        );
+
+      const target03Stop03 =
+        calculatePath(
+          candles,
+          index,
+          0.003,
+          -0.003
+        );
 
       observations.push({
         symbol: market.symbol,
-        timestamp: candles[index].closeTime,
+        timestamp:
+          candles[index].closeTime,
+
         ...features,
-        outcomes,
+
+        target05Stop03,
+        target05Stop05,
+        target03Stop03,
       });
 
       processed += 1;
 
-      if (processed % 100000 === 0) {
+      if (
+        processed % 100000 ===
+        0
+      ) {
         console.log(
           `Processed ${processed.toLocaleString()} observations`
         );
@@ -561,380 +708,601 @@ function buildObservations(
   return observations;
 }
 
-function getFeatureValue(
-  observation: FeatureResult,
-  feature: keyof Omit<
-    FeatureResult,
-    "symbol" | "timestamp" | "outcomes"
-  >
-): number {
-  return observation[feature];
+function getFeatureDefinitions(): FeatureDefinition[] {
+  return [
+    {
+      name: "return20",
+      direction: "low",
+    },
+    {
+      name: "return50",
+      direction: "low",
+    },
+    {
+      name: "slope20",
+      direction: "low",
+    },
+    {
+      name: "slope50",
+      direction: "low",
+    },
+    {
+      name: "drawdown20",
+      direction: "high",
+    },
+    {
+      name: "drawdown50",
+      direction: "high",
+    },
+    {
+      name: "volatility20",
+      direction: "high",
+    },
+    {
+      name: "volatility50",
+      direction: "high",
+    },
+    {
+      name: "efficiency20",
+      direction: "low",
+    },
+    {
+      name: "efficiency50",
+      direction: "low",
+    },
+    {
+      name: "acceleration",
+      direction: "high",
+    },
+  ];
 }
 
-function getOutcome(
-  observation: FeatureResult,
-  target: number,
-  stop: number
-): PathOutcome {
-  const outcome = observation.outcomes.find(
-    (item) =>
-      item.target === target &&
-      item.stop === stop
-  );
+function getFeatureValue(
+  observation: Observation,
+  feature: FeatureDefinition
+): number {
+  return observation[
+    feature.name
+  ];
+}
 
-  if (!outcome) {
-    throw new Error(
-      `Missing outcome for target ${target}, stop ${stop}`
+function buildThresholds(
+  observations: Observation[]
+): Map<
+  string,
+  Map<number, number>
+> {
+  const thresholds = new Map<
+    string,
+    Map<number, number>
+  >();
+
+  for (const feature of getFeatureDefinitions()) {
+    const values = observations
+      .map((observation) =>
+        getFeatureValue(
+          observation,
+          feature
+        )
+      )
+      .sort(
+        (a, b) => a - b
+      );
+
+    const featureThresholds =
+      new Map<number, number>();
+
+    for (const percentileValue of PERCENTILES) {
+      featureThresholds.set(
+        percentileValue,
+        percentile(
+          values,
+          percentileValue
+        )
+      );
+    }
+
+    thresholds.set(
+      feature.name,
+      featureThresholds
     );
   }
 
-  return outcome;
+  return thresholds;
 }
 
-function calculateFeatureSummaries(
-  observations: FeatureResult[]
-): BucketSummary[] {
-  const features: Array<
-    keyof Omit<
-      FeatureResult,
-      "symbol" | "timestamp" | "outcomes"
-    >
-  > = [
-    "return20",
-    "return50",
-    "slope20",
-    "slope50",
-    "drawdown20",
-    "drawdown50",
-    "volatility20",
-    "volatility50",
-    "efficiency20",
-    "efficiency50",
-    "acceleration",
-  ];
+function conditionMatches(
+  observation: Observation,
+  condition: Condition,
+  thresholds: Map<
+    string,
+    Map<number, number>
+  >
+): boolean {
+  const threshold =
+    thresholds
+      .get(condition.feature.name)
+      ?.get(condition.percentile);
 
-  const summaries: BucketSummary[] = [];
+  if (threshold === undefined) {
+    throw new Error(
+      `Missing threshold for ${condition.feature.name}`
+    );
+  }
 
-  for (const feature of features) {
-    console.log(
-      `Summarising ${String(feature)}...`
+  const value =
+    getFeatureValue(
+      observation,
+      condition.feature
     );
 
-    const sortedIndices = observations
-      .map((_, index) => index)
-      .sort(
-        (a, b) =>
-          getFeatureValue(
-            observations[a],
-            feature
-          ) -
-          getFeatureValue(
-            observations[b],
-            feature
-          )
+  if (
+    condition.feature.direction ===
+    "low"
+  ) {
+    return value <= threshold;
+  }
+
+  return value >= threshold;
+}
+
+function conditionLabel(
+  condition: Condition
+): string {
+  const direction =
+    condition.feature.direction ===
+    "low"
+      ? "<="
+      : ">=";
+
+  return (
+    `${condition.feature.name} ` +
+    `${direction} P${condition.percentile}`
+  );
+}
+
+function combinations<T>(
+  values: T[],
+  size: number
+): T[][] {
+  const results: T[][] = [];
+
+  function recurse(
+    start: number,
+    current: T[]
+  ): void {
+    if (current.length === size) {
+      results.push([...current]);
+      return;
+    }
+
+    for (
+      let index = start;
+      index < values.length;
+      index += 1
+    ) {
+      recurse(
+        index + 1,
+        [...current, values[index]]
       );
+    }
+  }
 
-    for (const target of TARGETS) {
-      for (const stop of STOPS) {
-        const buckets = Array.from(
-          { length: 10 },
-          () => ({
-            count: 0,
-            targetBeforeStop: 0,
-            stopBeforeTarget: 0,
-            neither: 0,
-            targetTimes: [] as number[],
-            maes: [] as number[],
-            mfes: [] as number[],
-          })
+  recurse(0, []);
+
+  return results;
+}
+
+function evaluateCombination(
+  observations: Observation[],
+  conditions: Condition[],
+  thresholds: Map<
+    string,
+    Map<number, number>
+  >,
+  target: number,
+  stop: number
+): CombinationResult | null {
+  let matched = 0;
+  let targetCount = 0;
+  let stopCount = 0;
+  let neitherCount = 0;
+
+  const targetTimes: number[] = [];
+  const maes: number[] = [];
+  const mfes: number[] = [];
+
+  for (const observation of observations) {
+    let matches = true;
+
+    for (const condition of conditions) {
+      if (
+        !conditionMatches(
+          observation,
+          condition,
+          thresholds
+        )
+      ) {
+        matches = false;
+        break;
+      }
+    }
+
+    if (!matches) {
+      continue;
+    }
+
+    matched += 1;
+
+    let outcome: PathResult;
+
+    if (
+      target === 0.005 &&
+      stop === -0.003
+    ) {
+      outcome =
+        observation.target05Stop03;
+    } else if (
+      target === 0.005 &&
+      stop === -0.005
+    ) {
+      outcome =
+        observation.target05Stop05;
+    } else {
+      outcome =
+        observation.target03Stop03;
+    }
+
+    if (outcome.result === "target") {
+      targetCount += 1;
+
+      if (
+        outcome.timeToResult !== null
+      ) {
+        targetTimes.push(
+          outcome.timeToResult
         );
+      }
+    } else if (
+      outcome.result === "stop"
+    ) {
+      stopCount += 1;
+    } else {
+      neitherCount += 1;
+    }
 
-        for (
-          let sortedPosition = 0;
-          sortedPosition < sortedIndices.length;
-          sortedPosition += 1
-        ) {
-          const observation =
-            observations[
-              sortedIndices[sortedPosition]
-            ];
+    maes.push(outcome.mae);
+    mfes.push(outcome.mfe);
+  }
 
-          const bucket = Math.min(
-            9,
-            Math.floor(
-              (sortedPosition * 10) /
-                sortedIndices.length
-            )
+  if (
+    matched <
+    MIN_COMBINATION_OBSERVATIONS
+  ) {
+    return null;
+  }
+
+  const targetRate =
+    targetCount / matched;
+
+  const stopRate =
+    stopCount / matched;
+
+  const neitherRate =
+    neitherCount / matched;
+
+  const targetNetReturn =
+    target - TOTAL_COST;
+
+  const stopNetReturn =
+    stop - TOTAL_COST;
+
+  /*
+   * "Neither" has zero realised return
+   * for this simplified path expectancy.
+   */
+  const expectancy =
+    targetRate *
+      targetNetReturn +
+    stopRate *
+      stopNetReturn;
+
+  return {
+    conditions:
+      conditions.map(
+        conditionLabel
+      ),
+
+    target,
+    stop,
+
+    observations: matched,
+
+    targetRate,
+    stopRate,
+    neitherRate,
+
+    averageTimeToTarget:
+      targetTimes.length === 0
+        ? null
+        : mean(targetTimes),
+
+    averageMae:
+      mean(maes),
+
+    averageMfe:
+      mean(mfes),
+
+    targetNetReturn,
+    stopNetReturn,
+
+    expectancy,
+  };
+}
+
+function buildConditions(
+  feature: FeatureDefinition
+): Condition[] {
+  return PERCENTILES.map(
+    (percentileValue) => ({
+      feature,
+      percentile:
+        percentileValue,
+    })
+  );
+}
+
+function searchCombinations(
+  observations: Observation[],
+  thresholds: Map<
+    string,
+    Map<number, number>
+  >
+): CombinationResult[] {
+  const definitions =
+    getFeatureDefinitions();
+
+  const allConditions =
+    definitions.flatMap(
+      buildConditions
+    );
+
+  const results: CombinationResult[] =
+    [];
+
+  for (
+    let size = 1;
+    size <= MAX_CONDITIONS;
+    size += 1
+  ) {
+    console.log(
+      `\nSearching ${size}-condition combinations...`
+    );
+
+    const candidates =
+      combinations(
+        allConditions,
+        size
+      ).filter((conditions) => {
+        /*
+         * Don't allow the same feature
+         * to appear twice in a combination.
+         */
+        const features =
+          conditions.map(
+            (condition) =>
+              condition.feature.name
           );
 
-          const outcome = getOutcome(
-            observation,
-            target,
-            stop
+        return (
+          new Set(features).size ===
+          features.length
+        );
+      });
+
+    console.log(
+      `Candidates: ${candidates.length.toLocaleString()}`
+    );
+
+    for (
+      let index = 0;
+      index < candidates.length;
+      index += 1
+    ) {
+      const conditions =
+        candidates[index];
+
+      for (const path of PATHS) {
+        const result =
+          evaluateCombination(
+            observations,
+            conditions,
+            thresholds,
+            path.target,
+            path.stop
           );
 
-          const bucketData = buckets[bucket];
-
-          bucketData.count += 1;
-
-          if (outcome.targetBeforeStop) {
-            bucketData.targetBeforeStop += 1;
-          }
-
-          if (outcome.stopBeforeTarget) {
-            bucketData.stopBeforeTarget += 1;
-          }
-
-          if (outcome.neither) {
-            bucketData.neither += 1;
-          }
-
-          if (
-            outcome.timeToTarget !== null
-          ) {
-            bucketData.targetTimes.push(
-              outcome.timeToTarget
-            );
-          }
-
-          bucketData.maes.push(
-            outcome.mae
-          );
-
-          bucketData.mfes.push(
-            outcome.mfe
-          );
+        if (result !== null) {
+          results.push(result);
         }
+      }
 
-        for (
-          let bucket = 0;
-          bucket < 10;
-          bucket += 1
-        ) {
-          const data = buckets[bucket];
-
-          summaries.push({
-            feature: String(feature),
-            bucket: bucket + 1,
-            count: data.count,
-
-            target,
-            stop,
-
-            targetBeforeStopRate:
-              data.count === 0
-                ? 0
-                : data.targetBeforeStop /
-                  data.count,
-
-            stopBeforeTargetRate:
-              data.count === 0
-                ? 0
-                : data.stopBeforeTarget /
-                  data.count,
-
-            neitherRate:
-              data.count === 0
-                ? 0
-                : data.neither /
-                  data.count,
-
-            averageTimeToTarget:
-              data.targetTimes.length === 0
-                ? null
-                : mean(
-                    data.targetTimes
-                  ),
-
-            averageMae:
-              mean(data.maes),
-
-            averageMfe:
-              mean(data.mfes),
-          });
-        }
+      if (
+        (index + 1) % 1000 ===
+        0
+      ) {
+        console.log(
+          `Evaluated ${(
+            index + 1
+          ).toLocaleString()} / ${candidates.length.toLocaleString()}`
+        );
       }
     }
   }
 
-  return summaries;
-}
-
-function formatPercent(
-  value: number
-): string {
-  return `${percentage(value).toFixed(3)}%`;
+  return results;
 }
 
 function printResults(
-  summaries: BucketSummary[]
+  results: CombinationResult[]
 ): void {
-  console.log("\n================================");
-  console.log("PATH-TO-TARGET RESULTS");
-  console.log("================================\n");
+  for (const path of PATHS) {
+    console.log(
+      "\n========================================"
+    );
 
-  for (const target of TARGETS) {
-    for (const stop of STOPS) {
-      console.log(
-        `\nTarget ${formatPercent(
-          target
-        )} before stop ${formatPercent(stop)}`
+    console.log(
+      `TARGET ${percentage(
+        path.target
+      )} / STOP ${percentage(
+        path.stop
+      )}`
+    );
+
+    console.log(
+      "========================================"
+    );
+
+    const relevant =
+      results.filter(
+        (result) =>
+          result.target ===
+            path.target &&
+          result.stop ===
+            path.stop
       );
+
+    const best = [...relevant]
+      .sort(
+        (a, b) =>
+          b.expectancy -
+          a.expectancy
+      )
+      .slice(0, 20);
+
+    if (best.length === 0) {
       console.log(
-        "--------------------------------"
+        "No combinations met the minimum sample size."
       );
 
-      const relevant = summaries
-        .filter(
-          (summary) =>
-            summary.target === target &&
-            summary.stop === stop
-        );
+      continue;
+    }
 
-      const features = [
-        ...new Set(
-          relevant.map(
-            (summary) =>
-              summary.feature
-          )
-        ),
-      ];
+    for (
+      let index = 0;
+      index < best.length;
+      index += 1
+    ) {
+      const result =
+        best[index];
 
-      const rankings = features
-        .map((feature) => {
-          const rows = relevant.filter(
-            (row) =>
-              row.feature === feature
-          );
+      console.log(
+        `\n#${index + 1}`
+      );
 
-          const best = [...rows].sort(
-            (a, b) =>
-              b.targetBeforeStopRate -
-              a.targetBeforeStopRate
-          )[0];
+      console.log(
+        result.conditions.join(
+          " AND "
+        )
+      );
 
-          const worst = [...rows].sort(
-            (a, b) =>
-              a.targetBeforeStopRate -
-              b.targetBeforeStopRate
-          )[0];
+      console.log(
+        `observations: ${result.observations.toLocaleString()}`
+      );
 
-          return {
-            feature,
-            bestBucket: best.bucket,
-            bestRate:
-              best.targetBeforeStopRate,
-            worstBucket: worst.bucket,
-            worstRate:
-              worst.targetBeforeStopRate,
-            spread:
-              best.targetBeforeStopRate -
-              worst.targetBeforeStopRate,
-          };
-        })
-        .sort(
-          (a, b) =>
-            b.spread - a.spread
-        );
+      console.log(
+        `target first: ${percentage(
+          result.targetRate
+        )}`
+      );
 
-      for (const ranking of rankings) {
-        console.log(
-          `${ranking.feature.padEnd(16)} ` +
-            `best B${ranking.bestBucket}: ` +
-            `${formatPercent(
-              ranking.bestRate
-            )} | ` +
-            `worst B${ranking.worstBucket}: ` +
-            `${formatPercent(
-              ranking.worstRate
-            )} | ` +
-            `spread ${formatPercent(
-              ranking.spread
-            )}`
-        );
-      }
+      console.log(
+        `stop first:   ${percentage(
+          result.stopRate
+        )}`
+      );
+
+      console.log(
+        `neither:      ${percentage(
+          result.neitherRate
+        )}`
+      );
+
+      console.log(
+        `expectancy:   ${percentage(
+          result.expectancy
+        )}`
+      );
+
+      console.log(
+        `avg target:   ${
+          result.averageTimeToTarget ===
+          null
+            ? "n/a"
+            : `${result.averageTimeToTarget.toFixed(
+                1
+              )} minutes`
+        }`
+      );
+
+      console.log(
+        `avg MAE:      ${percentage(
+          result.averageMae
+        )}`
+      );
+
+      console.log(
+        `avg MFE:      ${percentage(
+          result.averageMfe
+        )}`
+      );
     }
   }
 }
 
-function printBestBuckets(
-  summaries: BucketSummary[]
-): void {
+function printBreakEvenRates(): void {
   console.log(
-    "\n================================"
-  );
-  console.log("BEST FEATURE BUCKETS");
-  console.log(
-    "================================\n"
+    "\n========================================"
   );
 
-  for (const target of TARGETS) {
-    for (const stop of STOPS) {
-      console.log(
-        `\nTarget ${formatPercent(
-          target
-        )} before stop ${formatPercent(stop)}`
-      );
+  console.log(
+    "BREAK-EVEN TARGET-FIRST RATES"
+  );
 
-      const rows = summaries
-        .filter(
-          (summary) =>
-            summary.target === target &&
-            summary.stop === stop
-        )
-        .sort(
-          (a, b) =>
-            b.targetBeforeStopRate -
-            a.targetBeforeStopRate
-        );
+  console.log(
+    "========================================\n"
+  );
 
-      const seenFeatures =
-        new Set<string>();
+  for (const path of PATHS) {
+    const targetNet =
+      path.target -
+      TOTAL_COST;
 
-      let printed = 0;
+    const stopNet =
+      path.stop -
+      TOTAL_COST;
 
-      for (const row of rows) {
-        if (
-          seenFeatures.has(row.feature)
-        ) {
-          continue;
-        }
+    /*
+     * p * targetNet +
+     * (1-p) * stopNet = 0
+     *
+     * p = -stopNet /
+     *     (targetNet - stopNet)
+     */
+    const breakEven =
+      -stopNet /
+      (targetNet - stopNet);
 
-        seenFeatures.add(row.feature);
-
-        console.log(
-          `${row.feature.padEnd(16)} ` +
-            `bucket ${row.bucket}: ` +
-            `target-first ` +
-            `${formatPercent(
-              row.targetBeforeStopRate
-            )}, ` +
-            `stop-first ` +
-            `${formatPercent(
-              row.stopBeforeTargetRate
-            )}, ` +
-            `neither ` +
-            `${formatPercent(
-              row.neitherRate
-            )}, ` +
-            `avg target time ` +
-            `${
-              row.averageTimeToTarget ===
-              null
-                ? "n/a"
-                : `${row.averageTimeToTarget.toFixed(
-                    1
-                  )}m`
-            }`
-        );
-
-        printed += 1;
-
-        if (printed >= 5) {
-          break;
-        }
-      }
-    }
+    console.log(
+      `${percentage(
+        path.target
+      )} target / ${percentage(
+        path.stop
+      )} stop: ` +
+        `${percentage(
+          breakEven
+        )}`
+    );
   }
 }
 
@@ -950,13 +1318,30 @@ function main(): void {
     `Input: ${inputFile}`
   );
 
-  const dataset =
-    JSON.parse(
-      fs.readFileSync(
-        inputFile,
-        "utf8"
-      )
-    ) as RawDataset;
+  const dataset = JSON.parse(
+    fs.readFileSync(
+      inputFile,
+      "utf8"
+    )
+  ) as RawDataset;
+
+  const researchDataset: RawDataset = {
+    ...dataset,
+    markets: dataset.markets.slice(
+      0,
+      RESEARCH_MARKET_LIMIT
+    ),
+  };
+
+  console.log(
+    `Markets: ${researchDataset.markets.length}`
+  );
+
+  console.log(
+    `Research markets: ${researchDataset.markets
+      .map((market) => market.symbol)
+      .join(", ")}`
+  );
 
   console.log(
     `Markets: ${dataset.markets.length}`
@@ -971,34 +1356,55 @@ function main(): void {
   );
 
   console.log(
-    `Assumed round-trip cost: ${formatPercent(
+    `Assumed trading cost: ${percentage(
       TOTAL_COST
     )}`
   );
 
+  printBreakEvenRates();
+
   console.log(
-    "\nBuilding path observations..."
+    "\nBuilding observations..."
   );
 
   const observations =
-    buildObservations(dataset);
+  buildObservations(researchDataset);
 
   console.log(
-    `\nDataset built: ${observations.length.toLocaleString()} observations`
+    `\nBuilt ${observations.length.toLocaleString()} observations`
   );
 
   console.log(
-    "\nCalculating feature summaries..."
+    "\nBuilding feature thresholds..."
   );
 
-  const summaries =
-    calculateFeatureSummaries(
+  const thresholds =
+    buildThresholds(
       observations
     );
 
-  printResults(summaries);
+  console.log(
+    "Searching combinations..."
+  );
 
-  printBestBuckets(summaries);
+  const results =
+    searchCombinations(
+      observations,
+      thresholds
+    );
+
+  console.log(
+    `\nFound ${results.length.toLocaleString()} qualifying combinations`
+  );
+
+  printResults(results);
+
+  const sortedResults =
+    [...results].sort(
+      (a, b) =>
+        b.expectancy -
+        a.expectancy
+    );
 
   const output = {
     generatedAt:
@@ -1008,7 +1414,7 @@ function main(): void {
       path.basename(inputFile),
 
     markets:
-      dataset.markets.length,
+      researchDataset.markets.length,
 
     interval:
       dataset.interval,
@@ -1021,35 +1427,31 @@ function main(): void {
 
     assumptions: {
       totalCost: TOTAL_COST,
-      totalCostPercent:
-        percentage(TOTAL_COST),
+
+      minimumCombinationObservations:
+        MIN_COMBINATION_OBSERVATIONS,
+
       maxForwardMinutes:
         MAX_FORWARD_MINUTES,
-      targets: TARGETS,
-      stops: STOPS,
+
+      percentiles:
+        PERCENTILES,
+
+      maxConditions:
+        MAX_CONDITIONS,
+
+      paths: PATHS,
     },
 
-    features: [
-      "return20",
-      "return50",
-      "slope20",
-      "slope50",
-      "drawdown20",
-      "drawdown50",
-      "volatility20",
-      "volatility50",
-      "efficiency20",
-      "efficiency50",
-      "acceleration",
-    ],
-
-    summaries,
+    bestResults:
+      sortedResults.slice(0, 500),
   };
 
-  const outputFile = path.join(
-    OUTPUT_DIR,
-    `path-analysis-${Date.now()}.json`
-  );
+  const outputFile =
+    path.join(
+      OUTPUT_DIR,
+      `combination-analysis-${Date.now()}.json`
+    );
 
   fs.writeFileSync(
     outputFile,
