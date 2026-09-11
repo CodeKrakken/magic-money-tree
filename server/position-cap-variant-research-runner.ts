@@ -138,12 +138,12 @@ const EXECUTION_COST = 0;
 const POSITION_NOTIONAL = 10;
 
 const MAX_CONCURRENT_POSITIONS = [
-  25,
+  40,
+  45,
   50,
-  75,
-  100,
-  125,
-  150,
+  55,
+  60,
+  65,
 ];
 
 const SLOPE_THRESHOLD =
