@@ -2,12 +2,25 @@ import Chart from 'react-apexcharts';
 import { indexedFrame } from '../../../../server/server';
 import { useEffect, useState } from 'react';
 
-const Graph = ({ history, title }: { history: any, title: string }) => {
+type Point = { x: Date, y: number[] }  
+type Line = { data: Point[] }[]  
 
-  const [series, setSeries] = useState([{data:[]}])
+const Graph = ({
+
+  history, 
+  title
+
+} : {
+
+  history : indexedFrame[],
+  title   : string
+
+}) => {
+    
+  const [line, setLine] = useState<Line>([{ data: [] }])
 
   useEffect(() => {
-    setSeries([
+    setLine([
       {
         data: history.map((frame: indexedFrame) => ({
           x: new Date(frame.time),
@@ -38,7 +51,7 @@ const Graph = ({ history, title }: { history: any, title: string }) => {
 
   
   return <>
-    <Chart options={options} series={series} type="candlestick" height={350} />
+    <Chart options={options} series={line} type="candlestick" height={350} />
   </>;
 };
 
