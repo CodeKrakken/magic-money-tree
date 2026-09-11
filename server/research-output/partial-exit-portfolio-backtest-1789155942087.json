@@ -1,0 +1,1610 @@
+{
+  "generatedAt": "2026-09-11T19:45:42.087Z",
+  "dataset": {
+    "path": "/home/pea/Documents/code/magic-money-tree/server/research-output/ema-data-1789061547934.json",
+    "markets": 60,
+    "candles": 2592000,
+    "signals": 49769,
+    "startTime": 1786469580000,
+    "endTime": 1789061520000,
+    "durationDays": 29.999305555555555
+  },
+  "methodology": {
+    "entrySignal": {
+      "slope20Lte": -0.0001425851160546487,
+      "accelerationGte": 0.00013986740450809692
+    },
+    "entryExecution": "signal candle close",
+    "exitExecution": "target/stop price when candle high/low reaches level",
+    "sameCandlePriority": "stop before targets",
+    "maxHold": "configuration-specific; time-limited runs exit remaining quantity at the close of the first candle at or after the holding-period deadline; if a stop or target is reached on that same candle, the stop/target event takes precedence; unlimited runs have no time limit",
+    "overlappingPositions": true,
+    "exitSchedules": [
+      "baseline_1pct",
+      "partial_0.5_1_2",
+      "delayed_partial_1_2_4"
+    ],
+    "holdingPeriodsMinutes": [
+      360,
+      720,
+      1440,
+      2880,
+      4320,
+      10080,
+      null
+    ],
+    "partialSelling": true,
+    "unitSize": 1,
+    "feeRate": 0.001,
+    "executionCost": 0,
+    "feeDefinition": "0.1% of actual monetary value of each buy or sell. Partial sale fees use actual sale value.",
+    "capitalDefinition": "sum of remaining quantity multiplied by each position's original entry price",
+    "minimumStartingCashDefinition": "minimum initial cash required so the historical cash balance never becomes negative after buys, fees and sale proceeds",
+    "equityDefinition": "cash balance plus mark-to-market value of all remaining open quantities",
+    "drawdownDefinition": "peak-to-trough decline in portfolio equity",
+    "profitFactorDefinition": "gross positive net P&L divided by gross negative net P&L for completed positions only; end-of-data positions are excluded",
+    "timeWeightedReturnDefinition": "final equity divided by initial starting cash minus one; there are no external cash flows after inception",
+    "openPositionValuation": "remaining quantity marked to the last observed close",
+    "openPositionExitFee": "no hypothetical exit fee is charged at end of data",
+    "optimisation": "signals calculated once per market; stop/target exits found by segment-tree first-crossing searches; holding-period deadlines found by binary search; portfolio events merged from sorted per-market streams; chronological mark-to-market uses a market-level heap",
+    "portfolioAlgorithm": "transaction event k-way merge plus market-level chronological mark-to-market heap",
+    "accountingInvariant": "final equity = minimum starting cash + realised net P&L + unrealised gross P&L"
+  },
+  "transactionCosts": {
+    "feeRate": 0.001,
+    "executionCost": 0
+  },
+  "runtime": {
+    "milliseconds": 12669,
+    "formatted": "12.7s"
+  },
+  "configurations": [
+    {
+      "name": "baseline_1pct_6h",
+      "targets": [
+        {
+          "name": "target_1pct",
+          "returnPct": 0.01,
+          "fraction": 1
+        }
+      ],
+      "stopPct": 0.1,
+      "maxHoldMinutes": 360,
+      "signals": 49769,
+      "completedPositions": 49364,
+      "openPositions": 405,
+      "winningPositions": 30972,
+      "losingPositions": 18797,
+      "winRate": 0.6223150957423296,
+      "realisedGross": 300994.965100293,
+      "realisedFees": 694627.5466741188,
+      "realisedNet": -393632.5815738007,
+      "unrealisedGross": 9706.691699999825,
+      "unrealisedFees": 0,
+      "combinedNet": -383925.88987380086,
+      "averageNetPerOriginalUnit": 0.00016541742105440492,
+      "medianNetPerOriginalUnit": 0.007989999999999883,
+      "profitFactor": 0.6587243687052212,
+      "maxOpenPositions": 791,
+      "maxOpenMarkets": 791,
+      "maxDrawdown": 0.053963981152746504,
+      "peakCapitalDeployed": 8762935.819600014,
+      "averageCapitalDeployed": 2588559.469387397,
+      "capitalDays": 77654986.47087929,
+      "minimumStartingCash": 8993834.464010375,
+      "finalEquity": 8609908.574136691,
+      "totalReturn": -0.04268767580836787,
+      "maxDrawdownAbsolute": 489027.3878087718,
+      "maxDrawdownPct": 0.053963981152746504,
+      "returnOnPeakCapital": -0.04381247310006263,
+      "returnOnAverageCapital": -0.14831642634220024,
+      "annualisedCapitalEfficiency": -0.8583820508097758,
+      "timeWeightedReturn": -0.042687675808354864,
+      "finalCash": 4130459.165036661,
+      "finalMarketValue": 4479449.40910003,
+      "averageHoldMinutes": 236.35189611862896,
+      "medianHoldMinutes": 328,
+      "targetExitCounts": {
+        "target_1pct": 25679
+      },
+      "stopExitCount": 60,
+      "timeLimitExitCount": 23625,
+      "endOfDataCount": 405,
+      "firstTargetTimes": {
+        "target_1pct": {
+          "count": 25679,
+          "averageMinutes": 122.82281241481365,
+          "medianMinutes": 96
+        }
+      }
+    },
+    {
+      "name": "baseline_1pct_12h",
+      "targets": [
+        {
+          "name": "target_1pct",
+          "returnPct": 0.01,
+          "fraction": 1
+        }
+      ],
+      "stopPct": 0.1,
+      "maxHoldMinutes": 720,
+      "signals": 49769,
+      "completedPositions": 49139,
+      "openPositions": 630,
+      "winningPositions": 34976,
+      "losingPositions": 14793,
+      "winRate": 0.7027667825353131,
+      "realisedGross": 330475.7472662939,
+      "realisedFees": 691617.4920907018,
+      "realisedNet": -361141.74482436967,
+      "unrealisedGross": -15889.719500000312,
+      "unrealisedFees": 0,
+      "combinedNet": -377031.46432436997,
+      "averageNetPerOriginalUnit": 0.0007397426439574049,
+      "medianNetPerOriginalUnit": 0.007989999999999957,
+      "profitFactor": 0.7528208157123167,
+      "maxOpenPositions": 1058,
+      "maxOpenMarkets": 1058,
+      "maxDrawdown": 0.055413024512701414,
+      "peakCapitalDeployed": 13023383.16760012,
+      "averageCapitalDeployed": 4602213.018663169,
+      "capitalDays": 138063194.57863212,
+      "minimumStartingCash": 13162139.599578772,
+      "finalEquity": 12785108.135254659,
+      "totalReturn": -0.028645150089156943,
+      "maxDrawdownAbsolute": 746067.7331674341,
+      "maxDrawdownPct": 0.055413024512701414,
+      "returnOnPeakCapital": -0.028950347192606432,
+      "returnOnAverageCapital": -0.08192394893400402,
+      "annualisedCapitalEfficiency": -0.6467865720957098,
+      "timeWeightedReturn": -0.028645150089137372,
+      "finalCash": 5291719.771754566,
+      "finalMarketValue": 7493388.363500092,
+      "averageHoldMinutes": 380.3786808848369,
+      "medianHoldMinutes": 324,
+      "targetExitCounts": {
+        "target_1pct": 32129
+      },
+      "stopExitCount": 148,
+      "timeLimitExitCount": 16862,
+      "endOfDataCount": 630,
+      "firstTargetTimes": {
+        "target_1pct": {
+          "count": 32129,
+          "averageMinutes": 202.09704628217497,
+          "medianMinutes": 137
+        }
+      }
+    },
+    {
+      "name": "baseline_1pct_24h",
+      "targets": [
+        {
+          "name": "target_1pct",
+          "returnPct": 0.01,
+          "fraction": 1
+        }
+      ],
+      "stopPct": 0.1,
+      "maxHoldMinutes": 1440,
+      "signals": 49769,
+      "completedPositions": 48579,
+      "openPositions": 1190,
+      "winningPositions": 37964,
+      "losingPositions": 11805,
+      "winRate": 0.7628041551970102,
+      "realisedGross": 483537.76479930157,
+      "realisedFees": 685136.2686759321,
+      "realisedNet": -201598.50387660277,
+      "unrealisedGross": -87284.0296000005,
+      "unrealisedFees": 0,
+      "combinedNet": -288882.5334766033,
+      "averageNetPerOriginalUnit": 0.000781057764213732,
+      "medianNetPerOriginalUnit": 0.007989999999999976,
+      "profitFactor": 0.8811701918432165,
+      "maxOpenPositions": 1444,
+      "maxOpenMarkets": 1444,
+      "maxDrawdown": 0.04392079039192306,
+      "peakCapitalDeployed": 20226286.088599958,
+      "averageCapitalDeployed": 7876134.734561738,
+      "capitalDays": 236278572.498842,
+      "minimumStartingCash": 20192647.490815785,
+      "finalEquity": 19903764.957340058,
+      "totalReturn": -0.01430632281418252,
+      "maxDrawdownAbsolute": 908686.0366144553,
+      "maxDrawdownPct": 0.04392079039192306,
+      "returnOnPeakCapital": -0.014282529783825451,
+      "returnOnAverageCapital": -0.03667821123081358,
+      "annualisedCapitalEfficiency": -0.3655286449259536,
+      "timeWeightedReturn": -0.014306322814139127,
+      "finalCash": 5847485.471639271,
+      "finalMarketValue": 14056279.485700786,
+      "averageHoldMinutes": 581.4253689865991,
+      "medianHoldMinutes": 317,
+      "targetExitCounts": {
+        "target_1pct": 36354
+      },
+      "stopExitCount": 303,
+      "timeLimitExitCount": 11922,
+      "endOfDataCount": 1190,
+      "firstTargetTimes": {
+        "target_1pct": {
+          "count": 36354,
+          "averageMinutes": 298.60224459481765,
+          "medianMinutes": 171
+        }
+      }
+    },
+    {
+      "name": "baseline_1pct_48h",
+      "targets": [
+        {
+          "name": "target_1pct",
+          "returnPct": 0.01,
+          "fraction": 1
+        }
+      ],
+      "stopPct": 0.1,
+      "maxHoldMinutes": 2880,
+      "signals": 49769,
+      "completedPositions": 48190,
+      "openPositions": 1579,
+      "winningPositions": 41525,
+      "losingPositions": 8244,
+      "winRate": 0.83435471880086,
+      "realisedGross": 1069192.520814302,
+      "realisedFees": 681668.4109586335,
+      "realisedNet": 387524.10985569307,
+      "unrealisedGross": -168276.6648000011,
+      "unrealisedFees": 0,
+      "combinedNet": 219247.44505569196,
+      "averageNetPerOriginalUnit": 0.0019818684923516043,
+      "medianNetPerOriginalUnit": 0.00798999999999999,
+      "profitFactor": 1.2936227752056462,
+      "maxOpenPositions": 2390,
+      "maxOpenMarkets": 2390,
+      "maxDrawdown": 0.02860615764041716,
+      "peakCapitalDeployed": 32194994.753999963,
+      "averageCapitalDeployed": 12483256.501671541,
+      "capitalDays": 374489026.12202007,
+      "minimumStartingCash": 31675538.850415125,
+      "finalEquity": 31894786.295471817,
+      "totalReturn": 0.006921664256165246,
+      "maxDrawdownAbsolute": 930067.6547493897,
+      "maxDrawdownPct": 0.02860615764041716,
+      "returnOnPeakCapital": 0.0068099854257144205,
+      "returnOnAverageCapital": 0.017563321319748106,
+      "annualisedCapitalEfficiency": 0.23612592245250785,
+      "timeWeightedReturn": 0.006921664256196891,
+      "finalCash": 13865986.971670793,
+      "finalMarketValue": 18028799.323801022,
+      "averageHoldMinutes": 839.8277235941067,
+      "medianHoldMinutes": 309,
+      "targetExitCounts": {
+        "target_1pct": 40852
+      },
+      "stopExitCount": 444,
+      "timeLimitExitCount": 6894,
+      "endOfDataCount": 1579,
+      "firstTargetTimes": {
+        "target_1pct": {
+          "count": 40852,
+          "averageMinutes": 492.25609517281896,
+          "medianMinutes": 214
+        }
+      }
+    },
+    {
+      "name": "baseline_1pct_72h",
+      "targets": [
+        {
+          "name": "target_1pct",
+          "returnPct": 0.01,
+          "fraction": 1
+        }
+      ],
+      "stopPct": 0.1,
+      "maxHoldMinutes": 4320,
+      "signals": 49769,
+      "completedPositions": 47976,
+      "openPositions": 1793,
+      "winningPositions": 43416,
+      "losingPositions": 6353,
+      "winRate": 0.872350258192851,
+      "realisedGross": 1470330.948706328,
+      "realisedFees": 677790.3539675411,
+      "realisedNet": 792540.5947387986,
+      "unrealisedGross": -263006.7988000011,
+      "unrealisedFees": 0,
+      "combinedNet": 529533.7959387975,
+      "averageNetPerOriginalUnit": 0.002461594957005191,
+      "medianNetPerOriginalUnit": 0.007989999999999997,
+      "profitFactor": 1.663140946120156,
+      "maxOpenPositions": 3099,
+      "maxOpenMarkets": 3099,
+      "maxDrawdown": 0.02653751665821789,
+      "peakCapitalDeployed": 43186772.699999996,
+      "averageCapitalDeployed": 15448281.587772416,
+      "capitalDays": 463437719.6598476,
+      "minimumStartingCash": 41988992.09504827,
+      "finalEquity": 42518525.89098602,
+      "totalReturn": 0.012611252843128975,
+      "maxDrawdownAbsolute": 1151822.6719272211,
+      "maxDrawdownPct": 0.02653751665821789,
+      "returnOnPeakCapital": 0.012261481070077681,
+      "returnOnAverageCapital": 0.03427784462175604,
+      "annualisedCapitalEfficiency": 0.507343733049358,
+      "timeWeightedReturn": 0.012611252843103937,
+      "finalCash": 20305261.28218567,
+      "finalMarketValue": 22213264.608800348,
+      "averageHoldMinutes": 987.8670376855094,
+      "medianHoldMinutes": 305,
+      "targetExitCounts": {
+        "target_1pct": 43042
+      },
+      "stopExitCount": 656,
+      "timeLimitExitCount": 4278,
+      "endOfDataCount": 1793,
+      "firstTargetTimes": {
+        "target_1pct": {
+          "count": 43042,
+          "averageMinutes": 642.495260443288,
+          "medianMinutes": 240
+        }
+      }
+    },
+    {
+      "name": "baseline_1pct_7d",
+      "targets": [
+        {
+          "name": "target_1pct",
+          "returnPct": 0.01,
+          "fraction": 1
+        }
+      ],
+      "stopPct": 0.1,
+      "maxHoldMinutes": 10080,
+      "signals": 49769,
+      "completedPositions": 47188,
+      "openPositions": 2581,
+      "winningPositions": 45645,
+      "losingPositions": 4124,
+      "winRate": 0.9171371737426912,
+      "realisedGross": 2859892.020519313,
+      "realisedFees": 641411.5432457462,
+      "realisedNet": 2218480.477273464,
+      "unrealisedGross": -1502248.9681999933,
+      "unrealisedFees": 0,
+      "combinedNet": 716231.509073471,
+      "averageNetPerOriginalUnit": 0.0032938648202640577,
+      "medianNetPerOriginalUnit": 0.00799,
+      "profitFactor": 82.59819474270563,
+      "maxOpenPositions": 4044,
+      "maxOpenMarkets": 4044,
+      "maxDrawdown": 0.032959388101761786,
+      "peakCapitalDeployed": 60328309.20120048,
+      "averageCapitalDeployed": 19584755.973093536,
+      "capitalDays": 587529078.6678247,
+      "minimumStartingCash": 58110618.083665684,
+      "finalEquity": 58826849.5927363,
+      "totalReturn": 0.012325312183777934,
+      "maxDrawdownAbsolute": 1987698.9183908552,
+      "maxDrawdownPct": 0.032959388101761786,
+      "returnOnPeakCapital": 0.01187222911692706,
+      "returnOnAverageCapital": 0.03657086716104422,
+      "annualisedCapitalEfficiency": 0.5485392120162844,
+      "timeWeightedReturn": 0.012325312183728787,
+      "finalCash": 84455.35973710971,
+      "finalMarketValue": 58742394.23299918,
+      "averageHoldMinutes": 1174.132279393066,
+      "medianHoldMinutes": 292,
+      "targetExitCounts": {
+        "target_1pct": 45410
+      },
+      "stopExitCount": 966,
+      "timeLimitExitCount": 812,
+      "endOfDataCount": 2581,
+      "firstTargetTimes": {
+        "target_1pct": {
+          "count": 45410,
+          "averageMinutes": 966.7155692578727,
+          "medianMinutes": 269
+        }
+      }
+    },
+    {
+      "name": "baseline_1pct_unlimited",
+      "targets": [
+        {
+          "name": "target_1pct",
+          "returnPct": 0.01,
+          "fraction": 1
+        }
+      ],
+      "stopPct": 0.1,
+      "maxHoldMinutes": null,
+      "signals": 49769,
+      "completedPositions": 47122,
+      "openPositions": 2647,
+      "winningPositions": 46365,
+      "losingPositions": 3404,
+      "winRate": 0.9316040105286423,
+      "realisedGross": 2869568.811389318,
+      "realisedFees": 641397.6040883154,
+      "realisedNet": 2228171.2073008823,
+      "unrealisedGross": -1503068.5372999937,
+      "unrealisedFees": 0,
+      "combinedNet": 725102.6700008886,
+      "averageNetPerOriginalUnit": 0.0037893691866541317,
+      "medianNetPerOriginalUnit": 0.007990000000000002,
+      "profitFactor": 114.68333875472351,
+      "maxOpenPositions": 4044,
+      "maxOpenMarkets": 4044,
+      "maxDrawdown": 0.03295924522086624,
+      "peakCapitalDeployed": 60351925.14950044,
+      "averageCapitalDeployed": 19606604.3674185,
+      "capitalDays": 588184515.3250777,
+      "minimumStartingCash": 58124543.30193829,
+      "finalEquity": 58849645.97193634,
+      "totalReturn": 0.012474982663248015,
+      "maxDrawdownAbsolute": 1988452.0140825585,
+      "maxDrawdownPct": 0.03295924522086624,
+      "returnOnPeakCapital": 0.012014573987568824,
+      "returnOnAverageCapital": 0.03698257262771295,
+      "annualisedCapitalEfficiency": 0.5560442505033965,
+      "timeWeightedReturn": 0.01247498266319913,
+      "finalCash": 84455.3597372103,
+      "finalMarketValue": 58765190.61219913,
+      "averageHoldMinutes": 1190.1973600441409,
+      "medianHoldMinutes": 291,
+      "targetExitCounts": {
+        "target_1pct": 46145
+      },
+      "stopExitCount": 977,
+      "timeLimitExitCount": 0,
+      "endOfDataCount": 2647,
+      "firstTargetTimes": {
+        "target_1pct": {
+          "count": 46145,
+          "averageMinutes": 1140.6475241087876,
+          "medianMinutes": 278
+        }
+      }
+    },
+    {
+      "name": "partial_0.5_1_2_6h",
+      "targets": [
+        {
+          "name": "target_0.5pct",
+          "returnPct": 0.005,
+          "fraction": 0.5
+        },
+        {
+          "name": "target_1pct",
+          "returnPct": 0.01,
+          "fraction": 0.25
+        },
+        {
+          "name": "target_2pct",
+          "returnPct": 0.02,
+          "fraction": 0.25
+        }
+      ],
+      "stopPct": 0.1,
+      "maxHoldMinutes": 360,
+      "signals": 49769,
+      "completedPositions": 49143,
+      "openPositions": 626,
+      "winningPositions": 31285,
+      "losingPositions": 18484,
+      "winRate": 0.6286041511784444,
+      "realisedGross": 391317.00031306304,
+      "realisedFees": 695956.0824621886,
+      "realisedNet": -304639.08214917395,
+      "unrealisedGross": 2499.5761249998677,
+      "unrealisedFees": 0,
+      "combinedNet": -302139.5060241741,
+      "averageNetPerOriginalUnit": -0.00006695427373762597,
+      "medianNetPerOriginalUnit": 0.0025329503407984363,
+      "profitFactor": 0.6715282547124779,
+      "maxOpenPositions": 856,
+      "maxOpenMarkets": 856,
+      "maxDrawdown": 0.047447205219697045,
+      "peakCapitalDeployed": 7941519.470000051,
+      "averageCapitalDeployed": 2340378.7751907874,
+      "capitalDays": 70209737.99268529,
+      "minimumStartingCash": 8109034.31717416,
+      "finalEquity": 7806894.811150002,
+      "totalReturn": -0.03725961615235386,
+      "maxDrawdownAbsolute": 387224.43027602695,
+      "maxDrawdownPct": 0.047447205219697045,
+      "returnOnPeakCapital": -0.038045553771609925,
+      "returnOnAverageCapital": -0.1290985498702208,
+      "annualisedCapitalEfficiency": -0.8141742805761795,
+      "timeWeightedReturn": -0.03725961615235185,
+      "finalCash": 4572866.270524868,
+      "finalMarketValue": 3234028.5406251345,
+      "averageHoldMinutes": 310.9560466393993,
+      "medianHoldMinutes": 360,
+      "targetExitCounts": {
+        "target_0.5pct": 37027,
+        "target_1pct": 25679,
+        "target_2pct": 12534
+      },
+      "stopExitCount": 32,
+      "timeLimitExitCount": 36577,
+      "endOfDataCount": 626,
+      "firstTargetTimes": {
+        "target_0.5pct": {
+          "count": 37027,
+          "averageMinutes": 82.22291841088935,
+          "medianMinutes": 46
+        },
+        "target_1pct": {
+          "count": 25679,
+          "averageMinutes": 122.82281241481365,
+          "medianMinutes": 96
+        },
+        "target_2pct": {
+          "count": 12534,
+          "averageMinutes": 168.1315621509494,
+          "medianMinutes": 162
+        }
+      }
+    },
+    {
+      "name": "partial_0.5_1_2_12h",
+      "targets": [
+        {
+          "name": "target_0.5pct",
+          "returnPct": 0.005,
+          "fraction": 0.5
+        },
+        {
+          "name": "target_1pct",
+          "returnPct": 0.01,
+          "fraction": 0.25
+        },
+        {
+          "name": "target_2pct",
+          "returnPct": 0.02,
+          "fraction": 0.25
+        }
+      ],
+      "stopPct": 0.1,
+      "maxHoldMinutes": 720,
+      "signals": 49769,
+      "completedPositions": 48781,
+      "openPositions": 988,
+      "winningPositions": 33782,
+      "losingPositions": 15987,
+      "winRate": 0.6787759448652776,
+      "realisedGross": 461161.83085106243,
+      "realisedFees": 692996.0216972382,
+      "realisedNet": -231834.1908462141,
+      "unrealisedGross": -23411.563725000255,
+      "unrealisedFees": 0,
+      "combinedNet": -255245.75457121435,
+      "averageNetPerOriginalUnit": 0.000544583650411231,
+      "medianNetPerOriginalUnit": 0.004275769230769194,
+      "profitFactor": 0.7872790824180522,
+      "maxOpenPositions": 1187,
+      "maxOpenMarkets": 1187,
+      "maxDrawdown": 0.0478886828243416,
+      "peakCapitalDeployed": 11826380.038575022,
+      "averageCapitalDeployed": 4074790.5300437007,
+      "capitalDays": 122240886.18566516,
+      "minimumStartingCash": 11906009.563027533,
+      "finalEquity": 11650763.808456447,
+      "totalReturn": -0.02143839656939675,
+      "maxDrawdownAbsolute": 582957.2118783984,
+      "maxDrawdownPct": 0.0478886828243416,
+      "returnOnPeakCapital": -0.021582745839272836,
+      "returnOnAverageCapital": -0.06264021492375386,
+      "annualisedCapitalEfficiency": -0.5450627523953301,
+      "timeWeightedReturn": -0.021438396569385954,
+      "finalCash": 5412740.812181233,
+      "finalMarketValue": 6238022.996275213,
+      "averageHoldMinutes": 550.2744921178328,
+      "medianHoldMinutes": 720,
+      "targetExitCounts": {
+        "target_0.5pct": 41229,
+        "target_1pct": 32129,
+        "target_2pct": 19385
+      },
+      "stopExitCount": 82,
+      "timeLimitExitCount": 29314,
+      "endOfDataCount": 988,
+      "firstTargetTimes": {
+        "target_0.5pct": {
+          "count": 41229,
+          "averageMinutes": 125.67840597637586,
+          "medianMinutes": 56
+        },
+        "target_1pct": {
+          "count": 32129,
+          "averageMinutes": 202.09704628217497,
+          "medianMinutes": 137
+        },
+        "target_2pct": {
+          "count": 19385,
+          "averageMinutes": 294.2362135671911,
+          "medianMinutes": 258
+        }
+      }
+    },
+    {
+      "name": "partial_0.5_1_2_24h",
+      "targets": [
+        {
+          "name": "target_0.5pct",
+          "returnPct": 0.005,
+          "fraction": 0.5
+        },
+        {
+          "name": "target_1pct",
+          "returnPct": 0.01,
+          "fraction": 0.25
+        },
+        {
+          "name": "target_2pct",
+          "returnPct": 0.02,
+          "fraction": 0.25
+        }
+      ],
+      "stopPct": 0.1,
+      "maxHoldMinutes": 1440,
+      "signals": 49769,
+      "completedPositions": 47894,
+      "openPositions": 1875,
+      "winningPositions": 35446,
+      "losingPositions": 14323,
+      "winRate": 0.7122104121039201,
+      "realisedGross": 592485.7748493842,
+      "realisedFees": 687891.5667326512,
+      "realisedNet": -95405.79188333947,
+      "unrealisedGross": -85126.19257500059,
+      "unrealisedFees": 0,
+      "combinedNet": -180531.98445834004,
+      "averageNetPerOriginalUnit": 0.0006753520407470136,
+      "medianNetPerOriginalUnit": 0.007989999999999867,
+      "profitFactor": 0.9201725931511936,
+      "maxOpenPositions": 1968,
+      "maxOpenMarkets": 1968,
+      "maxDrawdown": 0.03882465149966721,
+      "peakCapitalDeployed": 19012043.89359982,
+      "averageCapitalDeployed": 6847023.242545878,
+      "capitalDays": 205405942.39912456,
+      "minimumStartingCash": 18880774.642908927,
+      "finalEquity": 18700242.658449855,
+      "totalReturn": -0.009561683133914351,
+      "maxDrawdownAbsolute": 751081.0764116384,
+      "maxDrawdownPct": 0.03882465149966721,
+      "returnOnPeakCapital": -0.009495664194164522,
+      "returnOnAverageCapital": -0.026366492132895724,
+      "annualisedCapitalEfficiency": -0.27770919505647806,
+      "timeWeightedReturn": -0.009561683133953114,
+      "finalCash": 7288155.382475055,
+      "finalMarketValue": 11412087.2759748,
+      "averageHoldMinutes": 924.2452499269219,
+      "medianHoldMinutes": 1206,
+      "targetExitCounts": {
+        "target_0.5pct": 43739,
+        "target_1pct": 36363,
+        "target_2pct": 25299
+      },
+      "stopExitCount": 152,
+      "timeLimitExitCount": 22443,
+      "endOfDataCount": 1875,
+      "firstTargetTimes": {
+        "target_0.5pct": {
+          "count": 43739,
+          "averageMinutes": 176.00857358421547,
+          "medianMinutes": 64
+        },
+        "target_1pct": {
+          "count": 36363,
+          "averageMinutes": 298.78995132414815,
+          "medianMinutes": 171
+        },
+        "target_2pct": {
+          "count": 25299,
+          "averageMinutes": 468.1727736274161,
+          "medianMinutes": 366
+        }
+      }
+    },
+    {
+      "name": "partial_0.5_1_2_48h",
+      "targets": [
+        {
+          "name": "target_0.5pct",
+          "returnPct": 0.005,
+          "fraction": 0.5
+        },
+        {
+          "name": "target_1pct",
+          "returnPct": 0.01,
+          "fraction": 0.25
+        },
+        {
+          "name": "target_2pct",
+          "returnPct": 0.02,
+          "fraction": 0.25
+        }
+      ],
+      "stopPct": 0.1,
+      "maxHoldMinutes": 2880,
+      "signals": 49769,
+      "completedPositions": 46829,
+      "openPositions": 2940,
+      "winningPositions": 38135,
+      "losingPositions": 11634,
+      "winRate": 0.7662400289336736,
+      "realisedGross": 1197878.56732964,
+      "realisedFees": 683573.9127697153,
+      "realisedNet": 514304.65455983335,
+      "unrealisedGross": -177208.1976750009,
+      "unrealisedFees": 0,
+      "combinedNet": 337096.45688483247,
+      "averageNetPerOriginalUnit": 0.001858677712550668,
+      "medianNetPerOriginalUnit": 0.007989999999999924,
+      "profitFactor": 1.526042965344532,
+      "maxOpenPositions": 3111,
+      "maxOpenMarkets": 3111,
+      "maxDrawdown": 0.02555197871865272,
+      "peakCapitalDeployed": 27638405.428674676,
+      "averageCapitalDeployed": 10652833.41671661,
+      "capitalDays": 319577604.70051444,
+      "minimumStartingCash": 27015407.748663135,
+      "finalEquity": 27352504.2055481,
+      "totalReturn": 0.012477933334229013,
+      "maxDrawdownAbsolute": 711780.7885523736,
+      "maxDrawdownPct": 0.02555197871865272,
+      "returnOnPeakCapital": 0.012196668065918773,
+      "returnOnAverageCapital": 0.03164383067849864,
+      "annualisedCapitalEfficiency": 0.46126489294085293,
+      "timeWeightedReturn": 0.01247793333423397,
+      "finalCash": 11109452.179273024,
+      "finalMarketValue": 16243052.026275078,
+      "averageHoldMinutes": 1453.2664588182536,
+      "medianHoldMinutes": 1136,
+      "targetExitCounts": {
+        "target_0.5pct": 45839,
+        "target_1pct": 40861,
+        "target_2pct": 32524
+      },
+      "stopExitCount": 184,
+      "timeLimitExitCount": 14121,
+      "endOfDataCount": 2940,
+      "firstTargetTimes": {
+        "target_0.5pct": {
+          "count": 45839,
+          "averageMinutes": 261.6747093086673,
+          "medianMinutes": 72
+        },
+        "target_1pct": {
+          "count": 40861,
+          "averageMinutes": 492.3804850591028,
+          "medianMinutes": 214
+        },
+        "target_2pct": {
+          "count": 32524,
+          "averageMinutes": 836.911050301316,
+          "medianMinutes": 533
+        }
+      }
+    },
+    {
+      "name": "partial_0.5_1_2_72h",
+      "targets": [
+        {
+          "name": "target_0.5pct",
+          "returnPct": 0.005,
+          "fraction": 0.5
+        },
+        {
+          "name": "target_1pct",
+          "returnPct": 0.01,
+          "fraction": 0.25
+        },
+        {
+          "name": "target_2pct",
+          "returnPct": 0.02,
+          "fraction": 0.25
+        }
+      ],
+      "stopPct": 0.1,
+      "maxHoldMinutes": 4320,
+      "signals": 49769,
+      "completedPositions": 46064,
+      "openPositions": 3705,
+      "winningPositions": 39858,
+      "losingPositions": 9911,
+      "winRate": 0.8008599730756093,
+      "realisedGross": 1442826.7220891344,
+      "realisedFees": 679859.3332194692,
+      "realisedNet": 762967.3888695806,
+      "unrealisedGross": -252725.2626750007,
+      "unrealisedFees": 0,
+      "combinedNet": 510242.1261945799,
+      "averageNetPerOriginalUnit": 0.002338014686585133,
+      "medianNetPerOriginalUnit": 0.007989999999999935,
+      "profitFactor": 1.806259307230741,
+      "maxOpenPositions": 4012,
+      "maxOpenMarkets": 4012,
+      "maxDrawdown": 0.027917035685349846,
+      "peakCapitalDeployed": 33176165.972674564,
+      "averageCapitalDeployed": 13191371.873757053,
+      "capitalDays": 395731995.53779924,
+      "minimumStartingCash": 32539859.168190975,
+      "finalEquity": 33050101.294385996,
+      "totalReturn": 0.01568052656765528,
+      "maxDrawdownAbsolute": 943882.8619452715,
+      "maxDrawdownPct": 0.027917035685349846,
+      "returnOnPeakCapital": 0.015379779767645214,
+      "returnOnAverageCapital": 0.03867998954753575,
+      "annualisedCapitalEfficiency": 0.587340630321529,
+      "timeWeightedReturn": 0.01568052656766894,
+      "finalCash": 12923038.628111131,
+      "finalMarketValue": 20127062.666274864,
+      "averageHoldMinutes": 1779.2650225772838,
+      "medianHoldMinutes": 1086,
+      "targetExitCounts": {
+        "target_0.5pct": 46729,
+        "target_1pct": 43057,
+        "target_2pct": 36247
+      },
+      "stopExitCount": 291,
+      "timeLimitExitCount": 9526,
+      "endOfDataCount": 3705,
+      "firstTargetTimes": {
+        "target_0.5pct": {
+          "count": 46729,
+          "averageMinutes": 321.66900639859614,
+          "medianMinutes": 76
+        },
+        "target_1pct": {
+          "count": 43057,
+          "averageMinutes": 642.9681120375317,
+          "medianMinutes": 240
+        },
+        "target_2pct": {
+          "count": 36247,
+          "averageMinutes": 1110.903357519243,
+          "medianMinutes": 642
+        }
+      }
+    },
+    {
+      "name": "partial_0.5_1_2_7d",
+      "targets": [
+        {
+          "name": "target_0.5pct",
+          "returnPct": 0.005,
+          "fraction": 0.5
+        },
+        {
+          "name": "target_1pct",
+          "returnPct": 0.01,
+          "fraction": 0.25
+        },
+        {
+          "name": "target_2pct",
+          "returnPct": 0.02,
+          "fraction": 0.25
+        }
+      ],
+      "stopPct": 0.1,
+      "maxHoldMinutes": 10080,
+      "signals": 49769,
+      "completedPositions": 44412,
+      "openPositions": 5357,
+      "winningPositions": 43028,
+      "losingPositions": 6741,
+      "winRate": 0.8645542405915329,
+      "realisedGross": 2734544.2702453146,
+      "realisedFees": 650928.363484143,
+      "realisedNet": 2083615.9067611536,
+      "unrealisedGross": -1221963.206925008,
+      "unrealisedFees": 0,
+      "combinedNet": 861652.6998361456,
+      "averageNetPerOriginalUnit": 0.003472836931910453,
+      "medianNetPerOriginalUnit": 0.007989999999999943,
+      "profitFactor": 69.53736992028982,
+      "maxOpenPositions": 6248,
+      "maxOpenMarkets": 6248,
+      "maxDrawdown": 0.03261929122557035,
+      "peakCapitalDeployed": 51411528.428674,
+      "averageCapitalDeployed": 17209288.48954456,
+      "capitalDays": 516266703.79155236,
+      "minimumStartingCash": 49331500.765912496,
+      "finalEquity": 50193153.46574515,
+      "totalReturn": 0.017466581929563713,
+      "maxDrawdownAbsolute": 1677804.2682764381,
+      "maxDrawdownPct": 0.03261929122557035,
+      "returnOnPeakCapital": 0.016759912147555837,
+      "returnOnAverageCapital": 0.0500690484885322,
+      "annualisedCapitalEfficiency": 0.8127311405264193,
+      "timeWeightedReturn": 0.01746658192949302,
+      "finalCash": 812641.4602457859,
+      "finalMarketValue": 49380512.00549936,
+      "averageHoldMinutes": 2334.7416464018734,
+      "medianHoldMinutes": 997,
+      "targetExitCounts": {
+        "target_0.5pct": 47847,
+        "target_1pct": 45504,
+        "target_2pct": 41353
+      },
+      "stopExitCount": 458,
+      "timeLimitExitCount": 2601,
+      "endOfDataCount": 5357,
+      "firstTargetTimes": {
+        "target_0.5pct": {
+          "count": 47847,
+          "averageMinutes": 476.5862436516396,
+          "medianMinutes": 81
+        },
+        "target_1pct": {
+          "count": 45504,
+          "averageMinutes": 977.8150931786216,
+          "medianMinutes": 270
+        },
+        "target_2pct": {
+          "count": 41353,
+          "averageMinutes": 1833.1130994123764,
+          "medianMinutes": 834
+        }
+      }
+    },
+    {
+      "name": "partial_0.5_1_2_unlimited",
+      "targets": [
+        {
+          "name": "target_0.5pct",
+          "returnPct": 0.005,
+          "fraction": 0.5
+        },
+        {
+          "name": "target_1pct",
+          "returnPct": 0.01,
+          "fraction": 0.25
+        },
+        {
+          "name": "target_2pct",
+          "returnPct": 0.02,
+          "fraction": 0.25
+        }
+      ],
+      "stopPct": 0.1,
+      "maxHoldMinutes": null,
+      "signals": 49769,
+      "completedPositions": 43912,
+      "openPositions": 5857,
+      "winningPositions": 44532,
+      "losingPositions": 5237,
+      "winRate": 0.8947738552110752,
+      "realisedGross": 2796700.5646978444,
+      "realisedFees": 650805.468367879,
+      "realisedNet": 2145895.096329926,
+      "unrealisedGross": -1228937.1921775057,
+      "unrealisedFees": 0,
+      "combinedNet": 916957.9041524203,
+      "averageNetPerOriginalUnit": 0.004175605163114447,
+      "medianNetPerOriginalUnit": 0.007989999999999947,
+      "profitFactor": 209.3321160935558,
+      "maxOpenPositions": 6274,
+      "maxOpenMarkets": 6274,
+      "maxDrawdown": 0.032634508017930074,
+      "peakCapitalDeployed": 51596579.83938891,
+      "averageCapitalDeployed": 17339410.95112254,
+      "capitalDays": 520170287.27607125,
+      "minimumStartingCash": 49454272.98705873,
+      "finalEquity": 50371230.89120844,
+      "totalReturn": 0.018541530362651805,
+      "maxDrawdownAbsolute": 1684545.3982442468,
+      "maxDrawdownPct": 0.032634508017930074,
+      "returnOnPeakCapital": 0.01777167996419044,
+      "returnOnAverageCapital": 0.052882875129795406,
+      "annualisedCapitalEfficiency": 0.8727662020488927,
+      "timeWeightedReturn": 0.018541530362597092,
+      "finalCash": 812641.460245875,
+      "finalMarketValue": 49558589.43096256,
+      "averageHoldMinutes": 2378.479231189652,
+      "medianHoldMinutes": 964,
+      "targetExitCounts": {
+        "target_0.5pct": 48150,
+        "target_1pct": 46365,
+        "target_2pct": 43448
+      },
+      "stopExitCount": 464,
+      "timeLimitExitCount": 0,
+      "endOfDataCount": 5857,
+      "firstTargetTimes": {
+        "target_0.5pct": {
+          "count": 48150,
+          "averageMinutes": 548.7515472481828,
+          "medianMinutes": 82
+        },
+        "target_1pct": {
+          "count": 46365,
+          "averageMinutes": 1192.4311226140408,
+          "medianMinutes": 281
+        },
+        "target_2pct": {
+          "count": 43448,
+          "averageMinutes": 2363.9766387405634,
+          "medianMinutes": 952
+        }
+      }
+    },
+    {
+      "name": "delayed_partial_1_2_4_6h",
+      "targets": [
+        {
+          "name": "target_1pct",
+          "returnPct": 0.01,
+          "fraction": 0.5
+        },
+        {
+          "name": "target_2pct",
+          "returnPct": 0.02,
+          "fraction": 0.25
+        },
+        {
+          "name": "target_4pct",
+          "returnPct": 0.04,
+          "fraction": 0.25
+        }
+      ],
+      "stopPct": 0.1,
+      "maxHoldMinutes": 360,
+      "signals": 49769,
+      "completedPositions": 49068,
+      "openPositions": 701,
+      "winningPositions": 28318,
+      "losingPositions": 21451,
+      "winRate": 0.5689887279230043,
+      "realisedGross": 413481.1773875473,
+      "realisedFees": 694673.4230631922,
+      "realisedNet": -281192.2456756364,
+      "unrealisedGross": 10427.531549999832,
+      "unrealisedFees": 0,
+      "combinedNet": -270764.71412563656,
+      "averageNetPerOriginalUnit": 0.0004629782267444317,
+      "medianNetPerOriginalUnit": 0.001923416789396247,
+      "profitFactor": 0.7582681077239126,
+      "maxOpenPositions": 862,
+      "maxOpenMarkets": 862,
+      "maxDrawdown": 0.05328442066480222,
+      "peakCapitalDeployed": 8815077.179250076,
+      "averageCapitalDeployed": 2720787.060652168,
+      "capitalDays": 81621722.38410625,
+      "minimumStartingCash": 8922120.35815238,
+      "finalEquity": 8651355.644026369,
+      "totalReturn": -0.030347574708318253,
+      "maxDrawdownAbsolute": 484796.74725779705,
+      "maxDrawdownPct": 0.05328442066480222,
+      "returnOnPeakCapital": -0.030716091149263346,
+      "returnOnAverageCapital": -0.0995170544734709,
+      "annualisedCapitalEfficiency": -0.7209215611182539,
+      "timeWeightedReturn": -0.030347574708360248,
+      "finalCash": 4104575.571876411,
+      "finalMarketValue": 4546780.0721499575,
+      "averageHoldMinutes": 345.5735713703432,
+      "medianHoldMinutes": 360,
+      "targetExitCounts": {
+        "target_1pct": 25679,
+        "target_2pct": 12534,
+        "target_4pct": 4388
+      },
+      "stopExitCount": 60,
+      "timeLimitExitCount": 44620,
+      "endOfDataCount": 701,
+      "firstTargetTimes": {
+        "target_1pct": {
+          "count": 25679,
+          "averageMinutes": 122.82281241481365,
+          "medianMinutes": 96
+        },
+        "target_2pct": {
+          "count": 12534,
+          "averageMinutes": 168.1315621509494,
+          "medianMinutes": 162
+        },
+        "target_4pct": {
+          "count": 4388,
+          "averageMinutes": 201.70829535095714,
+          "medianMinutes": 205
+        }
+      }
+    },
+    {
+      "name": "delayed_partial_1_2_4_12h",
+      "targets": [
+        {
+          "name": "target_1pct",
+          "returnPct": 0.01,
+          "fraction": 0.5
+        },
+        {
+          "name": "target_2pct",
+          "returnPct": 0.02,
+          "fraction": 0.25
+        },
+        {
+          "name": "target_4pct",
+          "returnPct": 0.04,
+          "fraction": 0.25
+        }
+      ],
+      "stopPct": 0.1,
+      "maxHoldMinutes": 720,
+      "signals": 49769,
+      "completedPositions": 48649,
+      "openPositions": 1120,
+      "winningPositions": 30957,
+      "losingPositions": 18812,
+      "winRate": 0.622013703309289,
+      "realisedGross": 506348.41885044624,
+      "realisedFees": 691704.8331077929,
+      "realisedNet": -185356.41425735044,
+      "unrealisedGross": -16199.198400000321,
+      "unrealisedFees": 0,
+      "combinedNet": -201555.61265735075,
+      "averageNetPerOriginalUnit": 0.0014163549179286368,
+      "medianNetPerOriginalUnit": 0.004651077027675527,
+      "profitFactor": 0.8761654242061189,
+      "maxOpenPositions": 1265,
+      "maxOpenMarkets": 1265,
+      "maxDrawdown": 0.0583568938819651,
+      "peakCapitalDeployed": 13226336.649849933,
+      "averageCapitalDeployed": 5046767.530413892,
+      "capitalDays": 151399521.21274287,
+      "minimumStartingCash": 13161106.68340426,
+      "finalEquity": 12959551.070746955,
+      "totalReturn": -0.015314488173817937,
+      "maxDrawdownAbsolute": 798961.3251702897,
+      "maxDrawdownPct": 0.0583568938819651,
+      "returnOnPeakCapital": -0.015238959811266986,
+      "returnOnAverageCapital": -0.039937566262502465,
+      "annualisedCapitalEfficiency": -0.3911768776258341,
+      "timeWeightedReturn": -0.015314488173814422,
+      "finalCash": 5377940.531696997,
+      "finalMarketValue": 7581610.539049959,
+      "averageHoldMinutes": 655.6945672059035,
+      "medianHoldMinutes": 720,
+      "targetExitCounts": {
+        "target_1pct": 32129,
+        "target_2pct": 19385,
+        "target_4pct": 8775
+      },
+      "stopExitCount": 148,
+      "timeLimitExitCount": 39726,
+      "endOfDataCount": 1120,
+      "firstTargetTimes": {
+        "target_1pct": {
+          "count": 32129,
+          "averageMinutes": 202.09704628217497,
+          "medianMinutes": 137
+        },
+        "target_2pct": {
+          "count": 19385,
+          "averageMinutes": 294.2362135671911,
+          "medianMinutes": 258
+        },
+        "target_4pct": {
+          "count": 8775,
+          "averageMinutes": 369.06586894586894,
+          "medianMinutes": 360
+        }
+      }
+    },
+    {
+      "name": "delayed_partial_1_2_4_24h",
+      "targets": [
+        {
+          "name": "target_1pct",
+          "returnPct": 0.01,
+          "fraction": 0.5
+        },
+        {
+          "name": "target_2pct",
+          "returnPct": 0.02,
+          "fraction": 0.25
+        },
+        {
+          "name": "target_4pct",
+          "returnPct": 0.04,
+          "fraction": 0.25
+        }
+      ],
+      "stopPct": 0.1,
+      "maxHoldMinutes": 1440,
+      "signals": 49769,
+      "completedPositions": 47674,
+      "openPositions": 2095,
+      "winningPositions": 32366,
+      "losingPositions": 17403,
+      "winRate": 0.6503244991862405,
+      "realisedGross": 714677.377682931,
+      "realisedFees": 685182.9222251409,
+      "realisedNet": 29494.45545774168,
+      "unrealisedGross": -90861.47030000051,
+      "unrealisedFees": 0,
+      "combinedNet": -61367.01484225883,
+      "averageNetPerOriginalUnit": 0.0018363499518495436,
+      "medianNetPerOriginalUnit": 0.006438654779130167,
+      "profitFactor": 1.024986102853383,
+      "maxOpenPositions": 2230,
+      "maxOpenMarkets": 2230,
+      "maxDrawdown": 0.05074601868621138,
+      "peakCapitalDeployed": 20377073.296450164,
+      "averageCapitalDeployed": 9096023.45366429,
+      "capitalDays": 272874386.9269748,
+      "minimumStartingCash": 20061037.03401946,
+      "finalEquity": 19999670.019177068,
+      "totalReturn": -0.0030590150817324546,
+      "maxDrawdownAbsolute": 1062526.4935972802,
+      "maxDrawdownPct": 0.05074601868621138,
+      "returnOnPeakCapital": -0.003011571580936965,
+      "returnOnAverageCapital": -0.006746576144495035,
+      "annualisedCapitalEfficiency": -0.0791147150845517,
+      "timeWeightedReturn": -0.0030590150817390027,
+      "finalCash": 5762481.910551866,
+      "finalMarketValue": 14237188.108625203,
+      "averageHoldMinutes": 1188.5013004992238,
+      "medianHoldMinutes": 1440,
+      "targetExitCounts": {
+        "target_1pct": 36354,
+        "target_2pct": 25291,
+        "target_4pct": 14850
+      },
+      "stopExitCount": 303,
+      "timeLimitExitCount": 32521,
+      "endOfDataCount": 2095,
+      "firstTargetTimes": {
+        "target_1pct": {
+          "count": 36354,
+          "averageMinutes": 298.60224459481765,
+          "medianMinutes": 171
+        },
+        "target_2pct": {
+          "count": 25291,
+          "averageMinutes": 467.98248388754894,
+          "medianMinutes": 366
+        },
+        "target_4pct": {
+          "count": 14850,
+          "averageMinutes": 647.0285521885522,
+          "medianMinutes": 609.5
+        }
+      }
+    },
+    {
+      "name": "delayed_partial_1_2_4_48h",
+      "targets": [
+        {
+          "name": "target_1pct",
+          "returnPct": 0.01,
+          "fraction": 0.5
+        },
+        {
+          "name": "target_2pct",
+          "returnPct": 0.02,
+          "fraction": 0.25
+        },
+        {
+          "name": "target_4pct",
+          "returnPct": 0.04,
+          "fraction": 0.25
+        }
+      ],
+      "stopPct": 0.1,
+      "maxHoldMinutes": 2880,
+      "signals": 49769,
+      "completedPositions": 46354,
+      "openPositions": 3415,
+      "winningPositions": 34928,
+      "losingPositions": 14841,
+      "winRate": 0.7018023267495831,
+      "realisedGross": 1596438.030030938,
+      "realisedFees": 677919.9301376465,
+      "realisedNet": 918518.0998932048,
+      "unrealisedGross": -237481.4815000011,
+      "unrealisedFees": 0,
+      "combinedNet": 681036.6183932037,
+      "averageNetPerOriginalUnit": 0.004006640761839219,
+      "medianNetPerOriginalUnit": 0.011706040462427715,
+      "profitFactor": 1.6081903572293905,
+      "maxOpenPositions": 3635,
+      "maxOpenMarkets": 3635,
+      "maxDrawdown": 0.03339872468105466,
+      "peakCapitalDeployed": 32856190.53742531,
+      "averageCapitalDeployed": 15378790.39647099,
+      "capitalDays": 461353032.1785766,
+      "minimumStartingCash": 31710822.006387666,
+      "finalEquity": 32391858.62478111,
+      "totalReturn": 0.021476473181805858,
+      "maxDrawdownAbsolute": 1112825.9124763869,
+      "maxDrawdownPct": 0.03339872468105466,
+      "returnOnPeakCapital": 0.020727802196589387,
+      "returnOnAverageCapital": 0.04428414724668352,
+      "annualisedCapitalEfficiency": 0.6948169417751429,
+      "timeWeightedReturn": 0.021476473181813338,
+      "finalCash": 10156537.787556402,
+      "finalMarketValue": 22235320.837224707,
+      "averageHoldMinutes": 2024.5550977261942,
+      "medianHoldMinutes": 2880,
+      "targetExitCounts": {
+        "target_1pct": 40852,
+        "target_2pct": 32516,
+        "target_4pct": 22376
+      },
+      "stopExitCount": 444,
+      "timeLimitExitCount": 23534,
+      "endOfDataCount": 3415,
+      "firstTargetTimes": {
+        "target_1pct": {
+          "count": 40852,
+          "averageMinutes": 492.25609517281896,
+          "medianMinutes": 214
+        },
+        "target_2pct": {
+          "count": 32516,
+          "averageMinutes": 836.853764300652,
+          "medianMinutes": 533
+        },
+        "target_4pct": {
+          "count": 22376,
+          "averageMinutes": 1142.356766178048,
+          "medianMinutes": 966
+        }
+      }
+    },
+    {
+      "name": "delayed_partial_1_2_4_72h",
+      "targets": [
+        {
+          "name": "target_1pct",
+          "returnPct": 0.01,
+          "fraction": 0.5
+        },
+        {
+          "name": "target_2pct",
+          "returnPct": 0.02,
+          "fraction": 0.25
+        },
+        {
+          "name": "target_4pct",
+          "returnPct": 0.04,
+          "fraction": 0.25
+        }
+      ],
+      "stopPct": 0.1,
+      "maxHoldMinutes": 4320,
+      "signals": 49769,
+      "completedPositions": 45207,
+      "openPositions": 4562,
+      "winningPositions": 36324,
+      "losingPositions": 13445,
+      "winRate": 0.7298519158512327,
+      "realisedGross": 2243969.6556361243,
+      "realisedFees": 670471.3141650136,
+      "realisedNet": 1573498.3414710632,
+      "unrealisedGross": -392104.31599999894,
+      "unrealisedFees": 0,
+      "combinedNet": 1181394.0254710643,
+      "averageNetPerOriginalUnit": 0.005038182125952411,
+      "medianNetPerOriginalUnit": 0.01797999999999996,
+      "profitFactor": 2.1499798844084133,
+      "maxOpenPositions": 4711,
+      "maxOpenMarkets": 4711,
+      "maxDrawdown": 0.03361928785070941,
+      "peakCapitalDeployed": 45531391.40392455,
+      "averageCapitalDeployed": 19887462.843691215,
+      "capitalDays": 596610074.5726506,
+      "minimumStartingCash": 43454683.69132129,
+      "finalEquity": 44636077.716791786,
+      "totalReturn": 0.027186805313393885,
+      "maxDrawdownAbsolute": 1543416.9896558747,
+      "maxDrawdownPct": 0.03361928785070941,
+      "returnOnPeakCapital": 0.025946802613399485,
+      "returnOnAverageCapital": 0.059403958903980106,
+      "annualisedCapitalEfficiency": 1.0189796429950242,
+      "timeWeightedReturn": 0.027186805313380802,
+      "finalCash": 14459232.115816489,
+      "finalMarketValue": 30176845.600975297,
+      "averageHoldMinutes": 2633.3473355896213,
+      "medianHoldMinutes": 2816,
+      "targetExitCounts": {
+        "target_1pct": 43042,
+        "target_2pct": 36237,
+        "target_4pct": 26780
+      },
+      "stopExitCount": 656,
+      "timeLimitExitCount": 17771,
+      "endOfDataCount": 4562,
+      "firstTargetTimes": {
+        "target_1pct": {
+          "count": 43042,
+          "averageMinutes": 642.495260443288,
+          "medianMinutes": 240
+        },
+        "target_2pct": {
+          "count": 36237,
+          "averageMinutes": 1110.7740982973205,
+          "medianMinutes": 642
+        },
+        "target_4pct": {
+          "count": 26780,
+          "averageMinutes": 1531.6036221060492,
+          "medianMinutes": 1239
+        }
+      }
+    },
+    {
+      "name": "delayed_partial_1_2_4_7d",
+      "targets": [
+        {
+          "name": "target_1pct",
+          "returnPct": 0.01,
+          "fraction": 0.5
+        },
+        {
+          "name": "target_2pct",
+          "returnPct": 0.02,
+          "fraction": 0.25
+        },
+        {
+          "name": "target_4pct",
+          "returnPct": 0.04,
+          "fraction": 0.25
+        }
+      ],
+      "stopPct": 0.1,
+      "maxHoldMinutes": 10080,
+      "signals": 49769,
+      "completedPositions": 42881,
+      "openPositions": 6888,
+      "winningPositions": 39896,
+      "losingPositions": 9873,
+      "winRate": 0.8016235005726456,
+      "realisedGross": 4507174.193915926,
+      "realisedFees": 625322.0226280378,
+      "realisedNet": 3881852.17128797,
+      "unrealisedGross": -1891056.05465,
+      "unrealisedFees": 0,
+      "combinedNet": 1990796.11663797,
+      "averageNetPerOriginalUnit": 0.007758606556350757,
+      "medianNetPerOriginalUnit": 0.017979999999999996,
+      "profitFactor": 53.79848770332244,
+      "maxOpenPositions": 8934,
+      "maxOpenMarkets": 8934,
+      "maxDrawdown": 0.034760363027129614,
+      "peakCapitalDeployed": 78042323.26294929,
+      "averageCapitalDeployed": 27971089.40835589,
+      "capitalDays": 839113257.8830321,
+      "minimumStartingCash": 74161024.23760727,
+      "finalEquity": 76151820.35424615,
+      "totalReturn": 0.026844237078759648,
+      "maxDrawdownAbsolute": 2718354.1245671064,
+      "maxDrawdownPct": 0.034760363027129614,
+      "returnOnPeakCapital": 0.025509185700819642,
+      "returnOnAverageCapital": 0.0711733492955499,
+      "annualisedCapitalEfficiency": 1.309675568617564,
+      "timeWeightedReturn": 0.026844237078772037,
+      "finalCash": 61430.41669482937,
+      "finalMarketValue": 76090389.93755132,
+      "averageHoldMinutes": 3966.130687250764,
+      "medianHoldMinutes": 2604,
+      "targetExitCounts": {
+        "target_1pct": 45410,
+        "target_2pct": 41264,
+        "target_4pct": 35107
+      },
+      "stopExitCount": 966,
+      "timeLimitExitCount": 6808,
+      "endOfDataCount": 6888,
+      "firstTargetTimes": {
+        "target_1pct": {
+          "count": 45410,
+          "averageMinutes": 966.7155692578727,
+          "medianMinutes": 269
+        },
+        "target_2pct": {
+          "count": 41264,
+          "averageMinutes": 1822.4454003489725,
+          "medianMinutes": 831
+        },
+        "target_4pct": {
+          "count": 35107,
+          "averageMinutes": 2795.0428689435157,
+          "medianMinutes": 1897
+        }
+      }
+    },
+    {
+      "name": "delayed_partial_1_2_4_unlimited",
+      "targets": [
+        {
+          "name": "target_1pct",
+          "returnPct": 0.01,
+          "fraction": 0.5
+        },
+        {
+          "name": "target_2pct",
+          "returnPct": 0.02,
+          "fraction": 0.25
+        },
+        {
+          "name": "target_4pct",
+          "returnPct": 0.04,
+          "fraction": 0.25
+        }
+      ],
+      "stopPct": 0.1,
+      "maxHoldMinutes": null,
+      "signals": 49769,
+      "completedPositions": 40405,
+      "openPositions": 9364,
+      "winningPositions": 41756,
+      "losingPositions": 8013,
+      "winRate": 0.838996162269686,
+      "realisedGross": 4935106.658618485,
+      "realisedFees": 618497.8925227777,
+      "realisedNet": 4316608.766095779,
+      "unrealisedGross": -2106716.746347503,
+      "unrealisedFees": 0,
+      "combinedNet": 2209892.019748276,
+      "averageNetPerOriginalUnit": 0.009289965558920062,
+      "medianNetPerOriginalUnit": 0.017980000000000006,
+      "profitFactor": 200.10840239005415,
+      "maxOpenPositions": 11274,
+      "maxOpenMarkets": 11274,
+      "maxDrawdown": 0.035803412466460474,
+      "peakCapitalDeployed": 85288150.31790955,
+      "averageCapitalDeployed": 30190379.42618374,
+      "capitalDays": 905690417.2442441,
+      "minimumStartingCash": 80972221.20038685,
+      "finalEquity": 83182113.22013922,
+      "totalReturn": 0.027291977260687005,
+      "maxDrawdownAbsolute": 3061528.9556449503,
+      "maxDrawdownPct": 0.035803412466460474,
+      "returnOnPeakCapital": 0.025910891624580393,
+      "returnOnAverageCapital": 0.07319855072214376,
+      "annualisedCapitalEfficiency": 1.3634073972229035,
+      "timeWeightedReturn": 0.02729197726073762,
+      "finalCash": 55321.40432343277,
+      "finalMarketValue": 83126791.81581579,
+      "averageHoldMinutes": 3955.11770820443,
+      "medianHoldMinutes": 2317,
+      "targetExitCounts": {
+        "target_1pct": 46145,
+        "target_2pct": 43230,
+        "target_4pct": 39428
+      },
+      "stopExitCount": 977,
+      "timeLimitExitCount": 0,
+      "endOfDataCount": 9364,
+      "firstTargetTimes": {
+        "target_1pct": {
+          "count": 46145,
+          "averageMinutes": 1140.6475241087876,
+          "medianMinutes": 278
+        },
+        "target_2pct": {
+          "count": 43230,
+          "averageMinutes": 2312.1175572519082,
+          "medianMinutes": 941.5
+        },
+        "target_4pct": {
+          "count": 39428,
+          "averageMinutes": 3965.639418687227,
+          "medianMinutes": 2299
+        }
+      }
+    }
+  ]
+}
