@@ -1,10 +1,12 @@
 import React, { useRef, useEffect, useState } from 'react';
 
-interface ILogProps {
-  log: string[];
+interface LogProps {
+  
 }
 
-const Log: React.FC<ILogProps> = ({ log }) => {
+const Log = (
+  log: string[]
+) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
 
