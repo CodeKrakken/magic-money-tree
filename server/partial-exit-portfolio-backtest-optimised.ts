@@ -118,6 +118,10 @@ interface PortfolioMetrics {
 
   finalCash: number;
   finalMarketValue: number;
+
+  hypotheticalLiquidationFee: number;
+  hypotheticalLiquidationEquity: number;
+  hypotheticalLiquidationReturn: number;
 }
 
 interface ConfigurationResult {
@@ -179,6 +183,10 @@ interface ConfigurationResult {
       medianMinutes: number;
     }
   >;
+
+  hypotheticalLiquidationFee: number;
+  hypotheticalLiquidationEquity: number;
+  hypotheticalLiquidationReturn: number;
 }
 
 interface PreparedMarket {
@@ -1664,6 +1672,8 @@ function buildResult(
         0.5
       ),
     };
+
+    
   }
 
   return {
@@ -1747,6 +1757,15 @@ function buildResult(
       portfolio.finalCash,
     finalMarketValue:
       portfolio.finalMarketValue,
+
+    hypotheticalLiquidationFee:
+      portfolio.hypotheticalLiquidationFee,
+
+    hypotheticalLiquidationEquity:
+      portfolio.hypotheticalLiquidationEquity,
+
+    hypotheticalLiquidationReturn:
+      portfolio.hypotheticalLiquidationReturn,
 
     averageHoldMinutes:
       stats.holdTimes.length === 0
@@ -2013,6 +2032,32 @@ function main(): void {
         eventSweep.minimumStartingCash
       );
 
+          /*
+     * Hypothetical liquidation is diagnostic only.
+     *
+     * The primary portfolio valuation remains:
+     *   cash + mark-to-market value of open assets
+     *
+     * This calculates what the portfolio would be worth if all remaining
+     * assets were sold at the final candle close and the normal exit fee
+     * were paid. It does NOT alter the strategy's actual return.
+     */
+    const hypotheticalLiquidationFee =
+      equitySweep.finalMarketValue *
+      (FEE_RATE + EXECUTION_COST);
+
+    const hypotheticalLiquidationEquity =
+      equitySweep.finalCash +
+      equitySweep.finalMarketValue -
+      hypotheticalLiquidationFee;
+
+    const hypotheticalLiquidationReturn =
+      eventSweep.minimumStartingCash > 0
+        ? hypotheticalLiquidationEquity /
+            eventSweep.minimumStartingCash -
+          1
+        : 0;
+
     const combinedNet =
       stats.realisedNet +
       stats.unrealisedGross;
@@ -2125,6 +2170,10 @@ function main(): void {
 
       finalMarketValue:
         equitySweep.finalMarketValue,
+
+      hypotheticalLiquidationFee,
+      hypotheticalLiquidationEquity,
+      hypotheticalLiquidationReturn,
     };
 
     const result = buildResult(
@@ -2151,6 +2200,15 @@ function main(): void {
     );
     console.log(
       `  final equity: ${result.finalEquity.toFixed(2)}`
+    );
+    console.log(
+      `  hypothetical liquidation equity: ${result.hypotheticalLiquidationEquity.toFixed(2)}`
+    );
+    console.log(
+      `  hypothetical liquidation return: ${(result.hypotheticalLiquidationReturn * 100).toFixed(4)}%`
+    );
+    console.log(
+      `  hypothetical liquidation fee: ${result.hypotheticalLiquidationFee.toFixed(2)}`
     );
     console.log(
       `  total return: ${(result.totalReturn * 100).toFixed(4)}%`
