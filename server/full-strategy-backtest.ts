@@ -657,20 +657,17 @@ function main() {
     );
 
   const output = {
-    generatedAt:
-      new Date().toISOString(),
+    generatedAt: new Date().toISOString(),
 
     source: {
       file: SOURCE_PATH,
-      markets:
-        dataset.markets.length,
+      markets: dataset.markets.length,
       observationsExamined,
       signals,
     },
 
     strategy: {
-      type:
-        "fixed whole-dataset backtest",
+      type: "fixed whole-dataset backtest",
 
       entry: {
         rule:
@@ -685,42 +682,24 @@ function main() {
       },
 
       exit: {
-        takeProfit:
-          TAKE_PROFIT,
-
-        stopLoss:
-          STOP_LOSS,
-
-        maxHoldMinutes:
-          MAX_HOLD_MINUTES,
+        takeProfit: TAKE_PROFIT,
+        stopLoss: STOP_LOSS,
+        maxHoldMinutes: MAX_HOLD_MINUTES,
       },
 
-      thresholdsWereNotRecalculated:
-        true,
-
-      parametersWereNotOptimised:
-        true,
+      thresholdsWereNotRecalculated: true,
+      parametersWereNotOptimised: true,
     },
 
     assumptions: {
-      feeRate:
-        FEE_RATE,
-
-      executionCost:
-        EXECUTION_COST,
-
-      totalRoundTripCost:
-        TOTAL_COST,
+      feeRate: FEE_RATE,
+      executionCost: EXECUTION_COST,
+      totalRoundTripCost: TOTAL_COST,
     },
 
     overall,
-
     byMarket,
-
-    byMonth:
-      groupByMonth(trades),
-
-    trades,
+    byMonth: groupByMonth(trades),
   };
 
   fs.mkdirSync(
