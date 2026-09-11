@@ -1722,7 +1722,7 @@ function main(): void {
   const outputPath =
     path.join(
       OUTPUT_DIR,
-      `position-capacity-${Date.now()}.json`
+      `oos-position-capacity-${Date.now()}.json`
     );
 
   fs.writeFileSync(
