@@ -1,0 +1,264 @@
+{
+  "generatedAt": "2026-09-11T17:41:03.425Z",
+  "dataset": {
+    "path": "/home/pea/Documents/code/magic-money-tree/server/research-output/ema-data-1789061547934.json",
+    "markets": 60,
+    "candles": 2592000,
+    "signals": 49769,
+    "startTime": 1786469580000,
+    "endTime": 1789061520000,
+    "durationDays": 29.999305555555555
+  },
+  "methodology": {
+    "entrySignal": {
+      "slope20Lte": -0.0001425851160546487,
+      "accelerationGte": 0.00013986740450809692
+    },
+    "entryExecution": "signal candle close",
+    "exitExecution": "target/stop price when candle high/low reaches level",
+    "sameCandlePriority": "stop before targets",
+    "maxHold": "none",
+    "overlappingPositions": true,
+    "partialSelling": true,
+    "unitSize": 1,
+    "feeRate": 0.001,
+    "executionCost": 0,
+    "feeDefinition": "0.1% of actual monetary value of each buy or sell. Partial sale fees use actual sale value.",
+    "capitalDefinition": "sum of remaining quantity multiplied by each position's original entry price",
+    "minimumStartingCashDefinition": "minimum initial cash required so the historical cash balance never becomes negative after buys, fees and sale proceeds",
+    "equityDefinition": "cash balance plus mark-to-market value of all remaining open quantities",
+    "drawdownDefinition": "peak-to-trough decline in portfolio equity",
+    "profitFactorDefinition": "gross positive net P&L divided by gross negative net P&L for completed positions only; end-of-data positions are excluded",
+    "timeWeightedReturnDefinition": "final equity divided by initial starting cash minus one; there are no external cash flows after inception",
+    "openPositionValuation": "remaining quantity marked to the last observed close",
+    "openPositionExitFee": "no hypothetical exit fee is charged at end of data",
+    "optimisation": "signals calculated once per market; exits found by segment-tree first-crossing searches; portfolio events merged from sorted per-market streams; chronological mark-to-market uses a market-level heap",
+    "portfolioAlgorithm": "transaction event k-way merge plus market-level chronological mark-to-market heap",
+    "accountingInvariant": "final equity = minimum starting cash + realised net P&L + unrealised gross P&L"
+  },
+  "transactionCosts": {
+    "feeRate": 0.001,
+    "executionCost": 0
+  },
+  "runtime": {
+    "milliseconds": 2655,
+    "formatted": "2.7s"
+  },
+  "configurations": [
+    {
+      "name": "baseline_1pct_10pct",
+      "targets": [
+        {
+          "name": "target_1pct",
+          "returnPct": 0.01,
+          "fraction": 1
+        }
+      ],
+      "stopPct": 0.1,
+      "signals": 49769,
+      "completedPositions": 47122,
+      "openPositions": 2647,
+      "winningPositions": 46365,
+      "losingPositions": 3404,
+      "winRate": 0.9316040105286423,
+      "realisedGross": 2869568.811389318,
+      "realisedFees": 641397.6040883154,
+      "realisedNet": 2228171.2073008823,
+      "unrealisedGross": -1503068.5372999937,
+      "unrealisedFees": 0,
+      "combinedNet": 725102.6700008886,
+      "averageNetPerOriginalUnit": 0.0037893691866541317,
+      "medianNetPerOriginalUnit": 0.007990000000000002,
+      "profitFactor": 114.68333875472351,
+      "maxOpenPositions": 4044,
+      "maxOpenMarkets": 4044,
+      "maxDrawdown": 0.03295924522086624,
+      "peakCapitalDeployed": 60351925.14950044,
+      "averageCapitalDeployed": 19606604.3674185,
+      "capitalDays": 588184515.3250777,
+      "minimumStartingCash": 58124543.30193829,
+      "finalEquity": 58849645.97193634,
+      "totalReturn": 0.012474982663248015,
+      "maxDrawdownAbsolute": 1988452.0140825585,
+      "maxDrawdownPct": 0.03295924522086624,
+      "returnOnPeakCapital": 0.012014573987568824,
+      "returnOnAverageCapital": 0.03698257262771295,
+      "annualisedCapitalEfficiency": 0.5560442505033965,
+      "timeWeightedReturn": 0.01247498266319913,
+      "finalCash": 84455.3597372103,
+      "finalMarketValue": 58765190.61219913,
+      "averageHoldMinutes": 1190.1973600441409,
+      "medianHoldMinutes": 291,
+      "targetExitCounts": {
+        "target_1pct": 46145
+      },
+      "stopExitCount": 977,
+      "endOfDataCount": 2647,
+      "firstTargetTimes": {
+        "target_1pct": {
+          "count": 46145,
+          "averageMinutes": 1140.6475241087876,
+          "medianMinutes": 278
+        }
+      }
+    },
+    {
+      "name": "partial_0.5_1_2",
+      "targets": [
+        {
+          "name": "target_0.5pct",
+          "returnPct": 0.005,
+          "fraction": 0.5
+        },
+        {
+          "name": "target_1pct",
+          "returnPct": 0.01,
+          "fraction": 0.25
+        },
+        {
+          "name": "target_2pct",
+          "returnPct": 0.02,
+          "fraction": 0.25
+        }
+      ],
+      "stopPct": 0.1,
+      "signals": 49769,
+      "completedPositions": 43912,
+      "openPositions": 5857,
+      "winningPositions": 44532,
+      "losingPositions": 5237,
+      "winRate": 0.8947738552110752,
+      "realisedGross": 2796700.5646978444,
+      "realisedFees": 650805.468367879,
+      "realisedNet": 2145895.096329926,
+      "unrealisedGross": -1228937.1921775057,
+      "unrealisedFees": 0,
+      "combinedNet": 916957.9041524203,
+      "averageNetPerOriginalUnit": 0.004175605163114447,
+      "medianNetPerOriginalUnit": 0.007989999999999947,
+      "profitFactor": 209.3321160935558,
+      "maxOpenPositions": 6274,
+      "maxOpenMarkets": 6274,
+      "maxDrawdown": 0.032634508017930074,
+      "peakCapitalDeployed": 51596579.83938891,
+      "averageCapitalDeployed": 17339410.95112254,
+      "capitalDays": 520170287.27607125,
+      "minimumStartingCash": 49454272.98705873,
+      "finalEquity": 50371230.89120844,
+      "totalReturn": 0.018541530362651805,
+      "maxDrawdownAbsolute": 1684545.3982442468,
+      "maxDrawdownPct": 0.032634508017930074,
+      "returnOnPeakCapital": 0.01777167996419044,
+      "returnOnAverageCapital": 0.052882875129795406,
+      "annualisedCapitalEfficiency": 0.8727662020488927,
+      "timeWeightedReturn": 0.018541530362597092,
+      "finalCash": 812641.460245875,
+      "finalMarketValue": 49558589.43096256,
+      "averageHoldMinutes": 2378.479231189652,
+      "medianHoldMinutes": 964,
+      "targetExitCounts": {
+        "target_0.5pct": 48150,
+        "target_1pct": 46365,
+        "target_2pct": 43448
+      },
+      "stopExitCount": 464,
+      "endOfDataCount": 5857,
+      "firstTargetTimes": {
+        "target_0.5pct": {
+          "count": 48150,
+          "averageMinutes": 548.7515472481828,
+          "medianMinutes": 82
+        },
+        "target_1pct": {
+          "count": 46365,
+          "averageMinutes": 1192.4311226140408,
+          "medianMinutes": 281
+        },
+        "target_2pct": {
+          "count": 43448,
+          "averageMinutes": 2363.9766387405634,
+          "medianMinutes": 952
+        }
+      }
+    },
+    {
+      "name": "delayed_partial_1_2_4",
+      "targets": [
+        {
+          "name": "target_1pct",
+          "returnPct": 0.01,
+          "fraction": 0.5
+        },
+        {
+          "name": "target_2pct",
+          "returnPct": 0.02,
+          "fraction": 0.25
+        },
+        {
+          "name": "target_4pct",
+          "returnPct": 0.04,
+          "fraction": 0.25
+        }
+      ],
+      "stopPct": 0.1,
+      "signals": 49769,
+      "completedPositions": 40405,
+      "openPositions": 9364,
+      "winningPositions": 41756,
+      "losingPositions": 8013,
+      "winRate": 0.838996162269686,
+      "realisedGross": 4935106.658618485,
+      "realisedFees": 618497.8925227777,
+      "realisedNet": 4316608.766095779,
+      "unrealisedGross": -2106716.746347503,
+      "unrealisedFees": 0,
+      "combinedNet": 2209892.019748276,
+      "averageNetPerOriginalUnit": 0.009289965558920062,
+      "medianNetPerOriginalUnit": 0.017980000000000006,
+      "profitFactor": 200.10840239005415,
+      "maxOpenPositions": 11274,
+      "maxOpenMarkets": 11274,
+      "maxDrawdown": 0.035803412466460474,
+      "peakCapitalDeployed": 85288150.31790955,
+      "averageCapitalDeployed": 30190379.42618374,
+      "capitalDays": 905690417.2442441,
+      "minimumStartingCash": 80972221.20038685,
+      "finalEquity": 83182113.22013922,
+      "totalReturn": 0.027291977260687005,
+      "maxDrawdownAbsolute": 3061528.9556449503,
+      "maxDrawdownPct": 0.035803412466460474,
+      "returnOnPeakCapital": 0.025910891624580393,
+      "returnOnAverageCapital": 0.07319855072214376,
+      "annualisedCapitalEfficiency": 1.3634073972229035,
+      "timeWeightedReturn": 0.02729197726073762,
+      "finalCash": 55321.40432343277,
+      "finalMarketValue": 83126791.81581579,
+      "averageHoldMinutes": 3955.11770820443,
+      "medianHoldMinutes": 2317,
+      "targetExitCounts": {
+        "target_1pct": 46145,
+        "target_2pct": 43230,
+        "target_4pct": 39428
+      },
+      "stopExitCount": 977,
+      "endOfDataCount": 9364,
+      "firstTargetTimes": {
+        "target_1pct": {
+          "count": 46145,
+          "averageMinutes": 1140.6475241087876,
+          "medianMinutes": 278
+        },
+        "target_2pct": {
+          "count": 43230,
+          "averageMinutes": 2312.1175572519082,
+          "medianMinutes": 941.5
+        },
+        "target_4pct": {
+          "count": 39428,
+          "averageMinutes": 3965.639418687227,
+          "medianMinutes": 2299
+        }
+      }
+    }
+  ]
+}
