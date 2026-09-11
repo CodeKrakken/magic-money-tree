@@ -1,9 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
 
-interface LogProps {
-  
-}
-
 const Log = (
   log: string[]
 ) => {
