@@ -123,7 +123,7 @@ const DATASET_PATH = path.join(
   process.cwd(),
   "server",
   "research-output",
-  "ema-data-1789061547934.json"
+  "ema-data-oos-60-1789165540440.json"
 );
 
 const OUTPUT_DIR = path.join(
@@ -138,7 +138,7 @@ const EXECUTION_COST = 0;
 const POSITION_NOTIONAL = 10;
 
 const MAX_CONCURRENT_POSITIONS = [
-  45, 46, 47, 48, 49, 50
+  43
 ];
 
 const SLOPE_THRESHOLD =

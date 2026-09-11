@@ -1,0 +1,362 @@
+{
+  "generatedAt": "2026-09-11T21:48:07.260Z",
+  "methodology": {
+    "purpose": "Determine the minimum useful concurrent-position capacity while keeping the entry signal fixed.",
+    "positionNotional": 10,
+    "minimumTransactionNotional": 10,
+    "capacities": [
+      45,
+      46,
+      47,
+      48,
+      49,
+      50
+    ],
+    "slopeThreshold": -0.0001425851160546487,
+    "accelerationThreshold": 0.000181827625860526,
+    "accelerationMultiplier": 1.3,
+    "targets": [
+      {
+        "name": "target_1pct",
+        "returnPct": 0.01,
+        "fraction": 0.5
+      },
+      {
+        "name": "target_2pct",
+        "returnPct": 0.02,
+        "fraction": 0.25
+      },
+      {
+        "name": "target_4pct",
+        "returnPct": 0.04,
+        "fraction": 0.25
+      }
+    ],
+    "stopPct": 0.1,
+    "maxHoldMinutes": 2880,
+    "feeRate": 0.001,
+    "executionCost": 0,
+    "entryExecution": "signal candle close",
+    "targetExecution": "target price when candle high reaches target",
+    "stopExecution": "stop price when candle low reaches stop",
+    "sameCandlePriority": "stop before targets",
+    "simultaneousEntrySelection": "highest frozen signal score first",
+    "portfolioCapacity": "maximum number of simultaneously open positions",
+    "candidatePositions": "generated once and reused across all capacity tests",
+    "rankingPriority": "return on peak capital"
+  },
+  "dataset": {
+    "path": "/home/pea/Documents/code/magic-money-tree/server/research-output/ema-data-1789061547934.json",
+    "markets": 60,
+    "startTime": 1786469580000,
+    "endTime": 1789061520000,
+    "durationDays": 29.999305555555555
+  },
+  "runtime": {
+    "totalMilliseconds": 155
+  },
+  "results": [
+    {
+      "maxConcurrentPositions": 45,
+      "candidateSignals": 48395,
+      "acceptedSignals": 1124,
+      "completedPositions": 1079,
+      "openPositions": 45,
+      "winningPositions": 856,
+      "losingPositions": 268,
+      "winRate": 0.7615658362989324,
+      "realisedGross": 94.66709195058095,
+      "realisedFees": 22.27716709195119,
+      "realisedNet": 72.38992485863507,
+      "unrealisedGross": -4.3224221950898745,
+      "combinedNet": 68.0675026635452,
+      "profitFactor": 2.3256074169774155,
+      "minimumStartingCash": 450.44999999999976,
+      "peakCapitalDeployed": 450,
+      "averageCapitalDeployed": 281.963818606912,
+      "finalEquity": 518.5175026635496,
+      "totalReturn": 0.15111000702307745,
+      "maxDrawdownAbsolute": 345.79332539296644,
+      "maxDrawdownPct": 0.4370860727734403,
+      "returnOnPeakCapital": 0.15126111703010045,
+      "returnOnAverageCapital": 0.24140509587309372,
+      "annualisedCapitalEfficiency": 12.913090830266727,
+      "averageHoldMinutes": 1724.8962001853567,
+      "medianHoldMinutes": 1906,
+      "maxOpenPositions": 45,
+      "maxOpenMarkets": 19
+    },
+    {
+      "maxConcurrentPositions": 46,
+      "candidateSignals": 48395,
+      "acceptedSignals": 1149,
+      "completedPositions": 1103,
+      "openPositions": 46,
+      "winningPositions": 875,
+      "losingPositions": 274,
+      "winRate": 0.7615317667536988,
+      "realisedGross": 96.59314361347187,
+      "realisedFees": 22.76909314361413,
+      "realisedNet": 73.82405046986322,
+      "unrealisedGross": -4.25748713015481,
+      "combinedNet": 69.56656333970841,
+      "profitFactor": 2.3209299892128397,
+      "minimumStartingCash": 460.45999999999975,
+      "peakCapitalDeployed": 460,
+      "averageCapitalDeployed": 288.16755017477254,
+      "finalEquity": 530.0265633397137,
+      "totalReturn": 0.1510805788552935,
+      "maxDrawdownAbsolute": 345.88747572064705,
+      "maxDrawdownPct": 0.4309203259797024,
+      "returnOnPeakCapital": 0.1512316594341487,
+      "returnOnAverageCapital": 0.24141012163762557,
+      "annualisedCapitalEfficiency": 12.913776635952074,
+      "averageHoldMinutes": 1725.114233907525,
+      "medianHoldMinutes": 1906,
+      "maxOpenPositions": 46,
+      "maxOpenMarkets": 19
+    },
+    {
+      "maxConcurrentPositions": 47,
+      "candidateSignals": 48395,
+      "acceptedSignals": 1175,
+      "completedPositions": 1128,
+      "openPositions": 47,
+      "winningPositions": 895,
+      "losingPositions": 280,
+      "winRate": 0.7617021276595745,
+      "realisedGross": 98.98507540619389,
+      "realisedFees": 23.28648507540689,
+      "realisedNet": 75.69859033079273,
+      "unrealisedGross": -4.189579685486802,
+      "combinedNet": 71.50901064530592,
+      "profitFactor": 2.326434244910964,
+      "minimumStartingCash": 470.46999999999974,
+      "peakCapitalDeployed": 470,
+      "averageCapitalDeployed": 294.4762610245614,
+      "finalEquity": 541.9790106453115,
+      "totalReturn": 0.15199483632390154,
+      "maxDrawdownAbsolute": 351.0457122434186,
+      "maxDrawdownPct": 0.4308819805105051,
+      "returnOnPeakCapital": 0.15214683116022537,
+      "returnOnAverageCapital": 0.24283455106536267,
+      "annualisedCapitalEfficiency": 13.109406907138581,
+      "averageHoldMinutes": 1723.9397163120568,
+      "medianHoldMinutes": 1894.5,
+      "maxOpenPositions": 47,
+      "maxOpenMarkets": 19
+    },
+    {
+      "maxConcurrentPositions": 48,
+      "candidateSignals": 48395,
+      "acceptedSignals": 1197,
+      "completedPositions": 1149,
+      "openPositions": 48,
+      "winningPositions": 910,
+      "losingPositions": 287,
+      "winRate": 0.7602339181286549,
+      "realisedGross": 100.55527099872366,
+      "realisedFees": 23.723055270999467,
+      "realisedNet": 76.83221572773014,
+      "unrealisedGross": -4.4862638041604495,
+      "combinedNet": 72.3459519235697,
+      "profitFactor": 2.322714190187835,
+      "minimumStartingCash": 480.47999999999973,
+      "peakCapitalDeployed": 480,
+      "averageCapitalDeployed": 300.68381212528004,
+      "finalEquity": 552.8259519235752,
+      "totalReturn": 0.15057016301109252,
+      "maxDrawdownAbsolute": 363.4692057753207,
+      "maxDrawdownPct": 0.43619021904952165,
+      "returnOnPeakCapital": 0.15072073317410353,
+      "returnOnAverageCapital": 0.24060474493860257,
+      "annualisedCapitalEfficiency": 12.804271596221106,
+      "averageHoldMinutes": 1727.6736292428197,
+      "medianHoldMinutes": 1904,
+      "maxOpenPositions": 48,
+      "maxOpenMarkets": 19
+    },
+    {
+      "maxConcurrentPositions": 49,
+      "candidateSignals": 48395,
+      "acceptedSignals": 1220,
+      "completedPositions": 1171,
+      "openPositions": 49,
+      "winningPositions": 928,
+      "losingPositions": 292,
+      "winRate": 0.760655737704918,
+      "realisedGross": 102.96607791706346,
+      "realisedFees": 24.180466077917856,
+      "realisedNet": 78.78561183915181,
+      "unrealisedGross": -4.4132527266176504,
+      "combinedNet": 74.37235911253416,
+      "profitFactor": 2.3451024335680786,
+      "minimumStartingCash": 490.4899999999997,
+      "peakCapitalDeployed": 490,
+      "averageCapitalDeployed": 307.11584758906497,
+      "finalEquity": 564.86235911254,
+      "totalReturn": 0.15162869602343412,
+      "maxDrawdownAbsolute": 374.7224214006346,
+      "maxDrawdownPct": 0.44007432404145347,
+      "returnOnPeakCapital": 0.15178032471945746,
+      "returnOnAverageCapital": 0.24216385997784057,
+      "annualisedCapitalEfficiency": 13.016982245004874,
+      "averageHoldMinutes": 1730.999146029035,
+      "medianHoldMinutes": 1906,
+      "maxOpenPositions": 49,
+      "maxOpenMarkets": 19
+    },
+    {
+      "maxConcurrentPositions": 50,
+      "candidateSignals": 48395,
+      "acceptedSignals": 1239,
+      "completedPositions": 1189,
+      "openPositions": 50,
+      "winningPositions": 942,
+      "losingPositions": 297,
+      "winRate": 0.7602905569007264,
+      "realisedGross": 104.37653768058021,
+      "realisedFees": 24.55687653768141,
+      "realisedNet": 79.81966114290532,
+      "unrealisedGross": -4.712671331268812,
+      "combinedNet": 75.10698981163651,
+      "profitFactor": 2.3407630242920305,
+      "minimumStartingCash": 500.4999999999997,
+      "peakCapitalDeployed": 500,
+      "averageCapitalDeployed": 313.2668580291219,
+      "finalEquity": 575.6069898116423,
+      "totalReturn": 0.15006391570756553,
+      "maxDrawdownAbsolute": 387.0645280060554,
+      "maxDrawdownPct": 0.44496098772036075,
+      "returnOnPeakCapital": 0.15021397962327301,
+      "returnOnAverageCapital": 0.2397540240425127,
+      "annualisedCapitalEfficiency": 12.68946077759352,
+      "averageHoldMinutes": 1738.430613961312,
+      "medianHoldMinutes": 1916,
+      "maxOpenPositions": 50,
+      "maxOpenMarkets": 19
+    }
+  ],
+  "rankings": {
+    "byCapitalEfficiency": [
+      {
+        "maxConcurrentPositions": 47,
+        "returnOnPeakCapital": 0.15214683116022537,
+        "totalReturn": 0.15199483632390154,
+        "combinedNet": 71.50901064530592,
+        "minimumStartingCash": 470.46999999999974
+      },
+      {
+        "maxConcurrentPositions": 49,
+        "returnOnPeakCapital": 0.15178032471945746,
+        "totalReturn": 0.15162869602343412,
+        "combinedNet": 74.37235911253416,
+        "minimumStartingCash": 490.4899999999997
+      },
+      {
+        "maxConcurrentPositions": 45,
+        "returnOnPeakCapital": 0.15126111703010045,
+        "totalReturn": 0.15111000702307745,
+        "combinedNet": 68.0675026635452,
+        "minimumStartingCash": 450.44999999999976
+      },
+      {
+        "maxConcurrentPositions": 46,
+        "returnOnPeakCapital": 0.1512316594341487,
+        "totalReturn": 0.1510805788552935,
+        "combinedNet": 69.56656333970841,
+        "minimumStartingCash": 460.45999999999975
+      },
+      {
+        "maxConcurrentPositions": 48,
+        "returnOnPeakCapital": 0.15072073317410353,
+        "totalReturn": 0.15057016301109252,
+        "combinedNet": 72.3459519235697,
+        "minimumStartingCash": 480.47999999999973
+      },
+      {
+        "maxConcurrentPositions": 50,
+        "returnOnPeakCapital": 0.15021397962327301,
+        "totalReturn": 0.15006391570756553,
+        "combinedNet": 75.10698981163651,
+        "minimumStartingCash": 500.4999999999997
+      }
+    ],
+    "byReturn": [
+      {
+        "maxConcurrentPositions": 47,
+        "totalReturn": 0.15199483632390154,
+        "combinedNet": 71.50901064530592,
+        "minimumStartingCash": 470.46999999999974
+      },
+      {
+        "maxConcurrentPositions": 49,
+        "totalReturn": 0.15162869602343412,
+        "combinedNet": 74.37235911253416,
+        "minimumStartingCash": 490.4899999999997
+      },
+      {
+        "maxConcurrentPositions": 45,
+        "totalReturn": 0.15111000702307745,
+        "combinedNet": 68.0675026635452,
+        "minimumStartingCash": 450.44999999999976
+      },
+      {
+        "maxConcurrentPositions": 46,
+        "totalReturn": 0.1510805788552935,
+        "combinedNet": 69.56656333970841,
+        "minimumStartingCash": 460.45999999999975
+      },
+      {
+        "maxConcurrentPositions": 48,
+        "totalReturn": 0.15057016301109252,
+        "combinedNet": 72.3459519235697,
+        "minimumStartingCash": 480.47999999999973
+      },
+      {
+        "maxConcurrentPositions": 50,
+        "totalReturn": 0.15006391570756553,
+        "combinedNet": 75.10698981163651,
+        "minimumStartingCash": 500.4999999999997
+      }
+    ],
+    "byProfit": [
+      {
+        "maxConcurrentPositions": 50,
+        "combinedNet": 75.10698981163651,
+        "totalReturn": 0.15006391570756553,
+        "minimumStartingCash": 500.4999999999997
+      },
+      {
+        "maxConcurrentPositions": 49,
+        "combinedNet": 74.37235911253416,
+        "totalReturn": 0.15162869602343412,
+        "minimumStartingCash": 490.4899999999997
+      },
+      {
+        "maxConcurrentPositions": 48,
+        "combinedNet": 72.3459519235697,
+        "totalReturn": 0.15057016301109252,
+        "minimumStartingCash": 480.47999999999973
+      },
+      {
+        "maxConcurrentPositions": 47,
+        "combinedNet": 71.50901064530592,
+        "totalReturn": 0.15199483632390154,
+        "minimumStartingCash": 470.46999999999974
+      },
+      {
+        "maxConcurrentPositions": 46,
+        "combinedNet": 69.56656333970841,
+        "totalReturn": 0.1510805788552935,
+        "minimumStartingCash": 460.45999999999975
+      },
+      {
+        "maxConcurrentPositions": 45,
+        "combinedNet": 68.0675026635452,
+        "totalReturn": 0.15111000702307745,
+        "minimumStartingCash": 450.44999999999976
+      }
+    ]
+  }
+}
