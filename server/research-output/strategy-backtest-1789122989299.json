@@ -1,0 +1,1529 @@
+{
+  "generatedAt": "2026-09-11T10:36:29.299Z",
+  "source": {
+    "file": "ema-data-1789061547934.json",
+    "path": "/home/pea/Documents/code/magic-money-tree/server/research-output/ema-data-1789061547934.json",
+    "markets": 60,
+    "observations": 2586000
+  },
+  "assumptions": {
+    "feeRate": 0.002,
+    "executionCost": 0,
+    "totalRoundTripCost": 0.002,
+    "trainRatio": 0.6,
+    "validationRatio": 0.2,
+    "testRatio": 0.2
+  },
+  "signal": {
+    "rule": "slope20 <= P20 AND acceleration >= P80",
+    "slopePercentile": 20,
+    "accelerationPercentile": 80,
+    "thresholds": {
+      "slope20": -0.0001425851160546487,
+      "acceleration": 0.00013986740450809692
+    },
+    "thresholdsCalculatedFrom": "train only"
+  },
+  "parameterSearch": {
+    "takeProfitLevels": [
+      0.002,
+      0.003,
+      0.005,
+      0.0075,
+      0.01
+    ],
+    "stopLossLevels": [
+      0.002,
+      0.003,
+      0.005,
+      0.0075,
+      0.01
+    ],
+    "holdMinutes": [
+      10,
+      20,
+      30,
+      50
+    ],
+    "selectedFrom": "validation only",
+    "candidateCount": 100,
+    "validationRanking": [
+      {
+        "parameters": {
+          "takeProfit": 0.01,
+          "stopLoss": 0.01,
+          "maxHoldMinutes": 50
+        },
+        "compoundedReturn": -0.02188197396884639,
+        "averageNetReturn": 0.000013620682730222415,
+        "medianNetReturn": 0.0022550341078609887,
+        "winRate": 0.5614886731391586,
+        "trades": 618,
+        "profitFactor": 1.0031576099410668,
+        "maxDrawdown": 0.2002691764377125
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.01,
+          "stopLoss": 0.0075,
+          "maxHoldMinutes": 50
+        },
+        "compoundedReturn": -0.08849771268373174,
+        "averageNetReturn": -0.00009752752208195073,
+        "medianNetReturn": 0.0012634032634033527,
+        "winRate": 0.5363214837712519,
+        "trades": 647,
+        "profitFactor": 0.9772589479777265,
+        "maxDrawdown": 0.21509478586959424
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.01,
+          "stopLoss": 0.01,
+          "maxHoldMinutes": 30
+        },
+        "compoundedReturn": -0.17894431293622037,
+        "averageNetReturn": -0.0002786215838127231,
+        "medianNetReturn": 0.000021520510317564814,
+        "winRate": 0.5032258064516129,
+        "trades": 620,
+        "profitFactor": 0.9264439587902243,
+        "maxDrawdown": 0.21768481581324028
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.0075,
+          "stopLoss": 0.01,
+          "maxHoldMinutes": 50
+        },
+        "compoundedReturn": -0.20233826637750263,
+        "averageNetReturn": -0.0003118577083542979,
+        "medianNetReturn": 0.004194507536650962,
+        "winRate": 0.5912636505460218,
+        "trades": 641,
+        "profitFactor": 0.9235290182947135,
+        "maxDrawdown": 0.2463397314246481
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.0075,
+          "stopLoss": 0.0075,
+          "maxHoldMinutes": 50
+        },
+        "compoundedReturn": -0.2754160261691958,
+        "averageNetReturn": -0.00044121850223715996,
+        "medianNetReturn": 0.002987531172069959,
+        "winRate": 0.5646359583952452,
+        "trades": 673,
+        "profitFactor": 0.8918422128132636,
+        "maxDrawdown": 0.29898387979979457
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.01,
+          "stopLoss": 0.0075,
+          "maxHoldMinutes": 30
+        },
+        "compoundedReturn": -0.28149551351703206,
+        "averageNetReturn": -0.00047308898023706506,
+        "medianNetReturn": -0.0005119047619046562,
+        "winRate": 0.48377125193199383,
+        "trades": 647,
+        "profitFactor": 0.8782541063671306,
+        "maxDrawdown": 0.3021588671403171
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.005,
+          "stopLoss": 0.01,
+          "maxHoldMinutes": 50
+        },
+        "compoundedReturn": -0.3005440516735626,
+        "averageNetReturn": -0.0004845535617145427,
+        "medianNetReturn": 0.0033631368743894958,
+        "winRate": 0.6575144508670521,
+        "trades": 692,
+        "profitFactor": 0.8627612457544632,
+        "maxDrawdown": 0.32252149200909974
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.0075,
+          "stopLoss": 0.01,
+          "maxHoldMinutes": 30
+        },
+        "compoundedReturn": -0.32863616410898955,
+        "averageNetReturn": -0.0005859813198217631,
+        "medianNetReturn": 0.0004937655860350904,
+        "winRate": 0.5318818040435459,
+        "trades": 643,
+        "profitFactor": 0.841035493413649,
+        "maxDrawdown": 0.3544586308047648
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.005,
+          "stopLoss": 0.01,
+          "maxHoldMinutes": 30
+        },
+        "compoundedReturn": -0.3375266663870504,
+        "averageNetReturn": -0.0005660552296425036,
+        "medianNetReturn": 0.0030779839832612028,
+        "winRate": 0.5994236311239193,
+        "trades": 694,
+        "profitFactor": 0.8255989259669808,
+        "maxDrawdown": 0.35439122355298797
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.01,
+          "stopLoss": 0.005,
+          "maxHoldMinutes": 50
+        },
+        "compoundedReturn": -0.3640129544444013,
+        "averageNetReturn": -0.0005945185618830875,
+        "medianNetReturn": -0.0023044878445150335,
+        "winRate": 0.4635854341736695,
+        "trades": 714,
+        "profitFactor": 0.8623415493202612,
+        "maxDrawdown": 0.3821898814689927
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.01,
+          "stopLoss": 0.01,
+          "maxHoldMinutes": 20
+        },
+        "compoundedReturn": -0.3696322309740173,
+        "averageNetReturn": -0.0006761138048184311,
+        "medianNetReturn": -0.00043505477308291955,
+        "winRate": 0.47699386503067487,
+        "trades": 652,
+        "profitFactor": 0.8022372583276394,
+        "maxDrawdown": 0.38195693658066565
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.005,
+          "stopLoss": 0.0075,
+          "maxHoldMinutes": 50
+        },
+        "compoundedReturn": -0.37663470849797864,
+        "averageNetReturn": -0.0006228724093632047,
+        "medianNetReturn": 0.003319148936170137,
+        "winRate": 0.6303448275862069,
+        "trades": 725,
+        "profitFactor": 0.824917456091726,
+        "maxDrawdown": 0.3879925317513091
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.0075,
+          "stopLoss": 0.0075,
+          "maxHoldMinutes": 30
+        },
+        "compoundedReturn": -0.4144709184058999,
+        "averageNetReturn": -0.0007629185206731496,
+        "medianNetReturn": 0.00022593210907073842,
+        "winRate": 0.5111441307578009,
+        "trades": 673,
+        "profitFactor": 0.798659240577401,
+        "maxDrawdown": 0.42742942208060697
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.005,
+          "stopLoss": 0.0075,
+          "maxHoldMinutes": 30
+        },
+        "compoundedReturn": -0.4324509227244938,
+        "averageNetReturn": -0.000755183691304063,
+        "medianNetReturn": 0.0030632911392405333,
+        "winRate": 0.5779310344827586,
+        "trades": 725,
+        "profitFactor": 0.775379458529288,
+        "maxDrawdown": 0.443422794297288
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.005,
+          "stopLoss": 0.01,
+          "maxHoldMinutes": 20
+        },
+        "compoundedReturn": -0.4438257269472283,
+        "averageNetReturn": -0.0007953265746566457,
+        "medianNetReturn": 0.0008146235235444461,
+        "winRate": 0.5446927374301676,
+        "trades": 716,
+        "profitFactor": 0.7450019824893971,
+        "maxDrawdown": 0.45124983781064887
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.01,
+          "stopLoss": 0.0075,
+          "maxHoldMinutes": 20
+        },
+        "compoundedReturn": -0.4448157357475889,
+        "averageNetReturn": -0.0008343423450744168,
+        "medianNetReturn": -0.0008773611199008862,
+        "winRate": 0.4588235294117647,
+        "trades": 680,
+        "profitFactor": 0.7639380938773155,
+        "maxDrawdown": 0.4523027807509662
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.0075,
+          "stopLoss": 0.01,
+          "maxHoldMinutes": 20
+        },
+        "compoundedReturn": -0.45757237044923904,
+        "averageNetReturn": -0.0008806257244124684,
+        "medianNetReturn": -0.00022024471635151248,
+        "winRate": 0.4903417533432392,
+        "trades": 673,
+        "profitFactor": 0.7413902726710911,
+        "maxDrawdown": 0.46310578198300417
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.01,
+          "stopLoss": 0.003,
+          "maxHoldMinutes": 50
+        },
+        "compoundedReturn": -0.4629301606118268,
+        "averageNetReturn": -0.0007483905336434257,
+        "medianNetReturn": -0.00522927879440249,
+        "winRate": 0.3989962358845671,
+        "trades": 797,
+        "profitFactor": 0.8135239031619759,
+        "maxDrawdown": 0.4666544726134948
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.01,
+          "stopLoss": 0.005,
+          "maxHoldMinutes": 30
+        },
+        "compoundedReturn": -0.4639909968221626,
+        "averageNetReturn": -0.0008399681660748158,
+        "medianNetReturn": -0.0017507376996253026,
+        "winRate": 0.4341736694677871,
+        "trades": 714,
+        "profitFactor": 0.7874521933329833,
+        "maxDrawdown": 0.48235582340605915
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.003,
+          "stopLoss": 0.01,
+          "maxHoldMinutes": 50
+        },
+        "compoundedReturn": -0.47021917964363247,
+        "averageNetReturn": -0.0007869503603506417,
+        "medianNetReturn": 0.001620730340392897,
+        "winRate": 0.7487244897959183,
+        "trades": 784,
+        "profitFactor": 0.7213918225182259,
+        "maxDrawdown": 0.4792619633335352
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.003,
+          "stopLoss": 0.01,
+          "maxHoldMinutes": 30
+        },
+        "compoundedReturn": -0.48503126315381906,
+        "averageNetReturn": -0.000823205363261622,
+        "medianNetReturn": 0.0014533863576174939,
+        "winRate": 0.6959287531806616,
+        "trades": 786,
+        "profitFactor": 0.6969196361124953,
+        "maxDrawdown": 0.493418621514592
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.0075,
+          "stopLoss": 0.005,
+          "maxHoldMinutes": 50
+        },
+        "compoundedReturn": -0.49728892945760994,
+        "averageNetReturn": -0.0008893697437399727,
+        "medianNetReturn": -0.0007192118226602134,
+        "winRate": 0.4926372155287818,
+        "trades": 747,
+        "profitFactor": 0.7824534405836999,
+        "maxDrawdown": 0.5087251359272951
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.005,
+          "stopLoss": 0.0075,
+          "maxHoldMinutes": 20
+        },
+        "compoundedReturn": -0.5265008020873865,
+        "averageNetReturn": -0.0009747918784177768,
+        "medianNetReturn": 0.0006298487836948769,
+        "winRate": 0.527369826435247,
+        "trades": 749,
+        "profitFactor": 0.6993930769757454,
+        "maxDrawdown": 0.5291865980550408
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.0075,
+          "stopLoss": 0.0075,
+          "maxHoldMinutes": 20
+        },
+        "compoundedReturn": -0.5278549149235526,
+        "averageNetReturn": -0.0010369770839996342,
+        "medianNetReturn": -0.0006117538176770836,
+        "winRate": 0.4723404255319149,
+        "trades": 705,
+        "profitFactor": 0.7048761885479488,
+        "maxDrawdown": 0.531188588861738
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.003,
+          "stopLoss": 0.01,
+          "maxHoldMinutes": 20
+        },
+        "compoundedReturn": -0.5415479331993097,
+        "averageNetReturn": -0.0009545719564224139,
+        "medianNetReturn": 0.0013388981636059966,
+        "winRate": 0.6379525593008739,
+        "trades": 801,
+        "profitFactor": 0.6434063197431501,
+        "maxDrawdown": 0.54555940832228
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.003,
+          "stopLoss": 0.0075,
+          "maxHoldMinutes": 50
+        },
+        "compoundedReturn": -0.5454895082400883,
+        "averageNetReturn": -0.0009319908823468993,
+        "medianNetReturn": 0.0015644847699287662,
+        "winRate": 0.7218863361547763,
+        "trades": 827,
+        "profitFactor": 0.6775783254008811,
+        "maxDrawdown": 0.5496960073814503
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.005,
+          "stopLoss": 0.005,
+          "maxHoldMinutes": 50
+        },
+        "compoundedReturn": -0.5732631728593465,
+        "averageNetReturn": -0.0010310421357120102,
+        "medianNetReturn": 0.003115089514066362,
+        "winRate": 0.5588599752168525,
+        "trades": 807,
+        "profitFactor": 0.7145944305997326,
+        "maxDrawdown": 0.5785934673656271
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.003,
+          "stopLoss": 0.0075,
+          "maxHoldMinutes": 30
+        },
+        "compoundedReturn": -0.5742613734052923,
+        "averageNetReturn": -0.001012431975191843,
+        "medianNetReturn": 0.0014176349965824304,
+        "winRate": 0.6735187424425635,
+        "trades": 827,
+        "profitFactor": 0.643293754845989,
+        "maxDrawdown": 0.5796732292985807
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.01,
+          "stopLoss": 0.005,
+          "maxHoldMinutes": 20
+        },
+        "compoundedReturn": -0.5756472893795771,
+        "averageNetReturn": -0.0011382996188869148,
+        "medianNetReturn": -0.001729510413849054,
+        "winRate": 0.42857142857142855,
+        "trades": 735,
+        "profitFactor": 0.6874352395481219,
+        "maxDrawdown": 0.5813699801082102
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.0075,
+          "stopLoss": 0.005,
+          "maxHoldMinutes": 30
+        },
+        "compoundedReturn": -0.5773308598665261,
+        "averageNetReturn": -0.0011249817246051159,
+        "medianNetReturn": -0.0011042513608490161,
+        "winRate": 0.4605087014725569,
+        "trades": 747,
+        "profitFactor": 0.7077248937679627,
+        "maxDrawdown": 0.5892596069604142
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.01,
+          "stopLoss": 0.003,
+          "maxHoldMinutes": 30
+        },
+        "compoundedReturn": -0.5829898713655893,
+        "averageNetReturn": -0.0010695017238004562,
+        "medianNetReturn": -0.005025718608169581,
+        "winRate": 0.38017565872020076,
+        "trades": 797,
+        "profitFactor": 0.7194602382222565,
+        "maxDrawdown": 0.5862925351076652
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.002,
+          "stopLoss": 0.01,
+          "maxHoldMinutes": 30
+        },
+        "compoundedReturn": -0.5852447076999462,
+        "averageNetReturn": -0.0009785634133760229,
+        "medianNetReturn": 0.0005773195876288568,
+        "winRate": 0.7805429864253394,
+        "trades": 884,
+        "profitFactor": 0.5583434792260836,
+        "maxDrawdown": 0.5871342558766984
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.002,
+          "stopLoss": 0.01,
+          "maxHoldMinutes": 50
+        },
+        "compoundedReturn": -0.5951995803534837,
+        "averageNetReturn": -0.0010067781323227047,
+        "medianNetReturn": 0.0006284095056828826,
+        "winRate": 0.8140589569160998,
+        "trades": 882,
+        "profitFactor": 0.560042284048057,
+        "maxDrawdown": 0.5970437759770039
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.0075,
+          "stopLoss": 0.003,
+          "maxHoldMinutes": 50
+        },
+        "compoundedReturn": -0.599554078511515,
+        "averageNetReturn": -0.0010718429016491164,
+        "medianNetReturn": -0.005110419906687478,
+        "winRate": 0.42565947242206237,
+        "trades": 834,
+        "profitFactor": 0.723568977822767,
+        "maxDrawdown": 0.6020001586073351
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.005,
+          "stopLoss": 0.005,
+          "maxHoldMinutes": 30
+        },
+        "compoundedReturn": -0.6004164451502585,
+        "averageNetReturn": -0.001114203927207903,
+        "medianNetReturn": 0.0009455081001472649,
+        "winRate": 0.5278810408921933,
+        "trades": 807,
+        "profitFactor": 0.6778576451644147,
+        "maxDrawdown": 0.6068392081826551
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.003,
+          "stopLoss": 0.0075,
+          "maxHoldMinutes": 20
+        },
+        "compoundedReturn": -0.6138384797508682,
+        "averageNetReturn": -0.001112766844006463,
+        "medianNetReturn": 0.0013185840707965486,
+        "winRate": 0.6242568370986921,
+        "trades": 841,
+        "profitFactor": 0.6013146710150756,
+        "maxDrawdown": 0.6157969127757429
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.005,
+          "stopLoss": 0.01,
+          "maxHoldMinutes": 10
+        },
+        "compoundedReturn": -0.6197388781281852,
+        "averageNetReturn": -0.0011388184255570904,
+        "medianNetReturn": -0.0006691150428967934,
+        "winRate": 0.4461722488038278,
+        "trades": 836,
+        "profitFactor": 0.5921455666411606,
+        "maxDrawdown": 0.6210861476338488
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.002,
+          "stopLoss": 0.01,
+          "maxHoldMinutes": 20
+        },
+        "compoundedReturn": -0.6205195741711491,
+        "averageNetReturn": -0.0010573103582133378,
+        "medianNetReturn": 0.000525252525252597,
+        "winRate": 0.7353266888150609,
+        "trades": 903,
+        "profitFactor": 0.5216159828348622,
+        "maxDrawdown": 0.6241709721291859
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.01,
+          "stopLoss": 0.01,
+          "maxHoldMinutes": 10
+        },
+        "compoundedReturn": -0.6255718608003016,
+        "averageNetReturn": -0.0012314231102431754,
+        "medianNetReturn": -0.0010401188908720754,
+        "winRate": 0.3979591836734694,
+        "trades": 784,
+        "profitFactor": 0.5861600531916988,
+        "maxDrawdown": 0.6259641972324638
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.01,
+          "stopLoss": 0.002,
+          "maxHoldMinutes": 50
+        },
+        "compoundedReturn": -0.6321823163386125,
+        "averageNetReturn": -0.0010861882335943933,
+        "medianNetReturn": -0.00435317187959605,
+        "winRate": 0.3259176863181313,
+        "trades": 899,
+        "profitFactor": 0.7143594393800952,
+        "maxDrawdown": 0.6350516596519069
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.003,
+          "stopLoss": 0.01,
+          "maxHoldMinutes": 10
+        },
+        "compoundedReturn": -0.6330807888796502,
+        "averageNetReturn": -0.0011010155543131448,
+        "medianNetReturn": 0.000718525615059586,
+        "winRate": 0.5389755011135857,
+        "trades": 898,
+        "profitFactor": 0.564113187349545,
+        "maxDrawdown": 0.6336480946286379
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.0075,
+          "stopLoss": 0.005,
+          "maxHoldMinutes": 20
+        },
+        "compoundedReturn": -0.6340769279042704,
+        "averageNetReturn": -0.0012828683267275868,
+        "medianNetReturn": -0.0015002498750624742,
+        "winRate": 0.4434330299089727,
+        "trades": 769,
+        "profitFactor": 0.6431498160142464,
+        "maxDrawdown": 0.6366606002697867
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.01,
+          "stopLoss": 0.0075,
+          "maxHoldMinutes": 10
+        },
+        "compoundedReturn": -0.6364263024941077,
+        "averageNetReturn": -0.0012444781167987049,
+        "medianNetReturn": -0.0010806945863126565,
+        "winRate": 0.3979974968710889,
+        "trades": 799,
+        "profitFactor": 0.5879842032304323,
+        "maxDrawdown": 0.6368072653341667
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.005,
+          "stopLoss": 0.005,
+          "maxHoldMinutes": 20
+        },
+        "compoundedReturn": -0.6383032295558856,
+        "averageNetReturn": -0.001213242950545297,
+        "medianNetReturn": -0.00021193206183733708,
+        "winRate": 0.49514563106796117,
+        "trades": 824,
+        "profitFactor": 0.6370528635471088,
+        "maxDrawdown": 0.6396512055724255
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.01,
+          "stopLoss": 0.003,
+          "maxHoldMinutes": 20
+        },
+        "compoundedReturn": -0.638509140731373,
+        "averageNetReturn": -0.0012337755500058947,
+        "medianNetReturn": -0.002798722044728528,
+        "winRate": 0.3856613102595797,
+        "trades": 809,
+        "profitFactor": 0.6505248064412025,
+        "maxDrawdown": 0.6397330332894202
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.0075,
+          "stopLoss": 0.01,
+          "maxHoldMinutes": 10
+        },
+        "compoundedReturn": -0.6393095426099744,
+        "averageNetReturn": -0.001261136054007096,
+        "medianNetReturn": -0.0008835246195711948,
+        "winRate": 0.40703517587939697,
+        "trades": 796,
+        "profitFactor": 0.572702621525702,
+        "maxDrawdown": 0.639687484309201
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.0075,
+          "stopLoss": 0.0075,
+          "maxHoldMinutes": 10
+        },
+        "compoundedReturn": -0.6526064569120191,
+        "averageNetReturn": -0.0012788460075670483,
+        "medianNetReturn": -0.0009322929332230539,
+        "winRate": 0.40663390663390664,
+        "trades": 814,
+        "profitFactor": 0.5740239013414641,
+        "maxDrawdown": 0.6529704657270153
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.005,
+          "stopLoss": 0.0075,
+          "maxHoldMinutes": 10
+        },
+        "compoundedReturn": -0.6556486159305983,
+        "averageNetReturn": -0.0012274675960711008,
+        "medianNetReturn": -0.0006836677661912188,
+        "winRate": 0.44042056074766356,
+        "trades": 856,
+        "profitFactor": 0.5728661647071354,
+        "maxDrawdown": 0.6560094370850251
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.003,
+          "stopLoss": 0.005,
+          "maxHoldMinutes": 50
+        },
+        "compoundedReturn": -0.6603747356140006,
+        "averageNetReturn": -0.0011587280046197962,
+        "medianNetReturn": 0.0014191937810733597,
+        "winRate": 0.6546840958605664,
+        "trades": 918,
+        "profitFactor": 0.6049084626667517,
+        "maxDrawdown": 0.6624235068991834
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.0075,
+          "stopLoss": 0.003,
+          "maxHoldMinutes": 30
+        },
+        "compoundedReturn": -0.6730214346145067,
+        "averageNetReturn": -0.0013173627668222718,
+        "medianNetReturn": -0.004529197536830896,
+        "winRate": 0.4040767386091127,
+        "trades": 834,
+        "profitFactor": 0.6454403597180882,
+        "maxDrawdown": 0.674199117098131
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.003,
+          "stopLoss": 0.005,
+          "maxHoldMinutes": 30
+        },
+        "compoundedReturn": -0.6742309485745207,
+        "averageNetReturn": -0.0012047712248714198,
+        "medianNetReturn": 0.0013349221480776236,
+        "winRate": 0.6285403050108932,
+        "trades": 918,
+        "profitFactor": 0.5830554949317489,
+        "maxDrawdown": 0.6761961329943795
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.002,
+          "stopLoss": 0.0075,
+          "maxHoldMinutes": 50
+        },
+        "compoundedReturn": -0.674355798589455,
+        "averageNetReturn": -0.0011839612918394505,
+        "medianNetReturn": 0.0005713552741545298,
+        "winRate": 0.7826552462526767,
+        "trades": 934,
+        "profitFactor": 0.5083327770157728,
+        "maxDrawdown": 0.6748275062392937
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.003,
+          "stopLoss": 0.0075,
+          "maxHoldMinutes": 10
+        },
+        "compoundedReturn": -0.6763426100325145,
+        "averageNetReturn": -0.0012024561658228812,
+        "medianNetReturn": 0.0005693037747878122,
+        "winRate": 0.5334773218142549,
+        "trades": 926,
+        "profitFactor": 0.5402986466231392,
+        "maxDrawdown": 0.6770317377338463
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.002,
+          "stopLoss": 0.0075,
+          "maxHoldMinutes": 30
+        },
+        "compoundedReturn": -0.6788807628154829,
+        "averageNetReturn": -0.0011997188145309423,
+        "medianNetReturn": 0.0005353646043776434,
+        "winRate": 0.7548179871520343,
+        "trades": 934,
+        "profitFactor": 0.49735883205458864,
+        "maxDrawdown": 0.6793459158875602
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.005,
+          "stopLoss": 0.003,
+          "maxHoldMinutes": 50
+        },
+        "compoundedReturn": -0.6852261868260641,
+        "averageNetReturn": -0.001253270675193362,
+        "medianNetReturn": -0.003792832419700352,
+        "winRate": 0.486784140969163,
+        "trades": 908,
+        "profitFactor": 0.6420303972921048,
+        "maxDrawdown": 0.6861819310619907
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.003,
+          "stopLoss": 0.005,
+          "maxHoldMinutes": 20
+        },
+        "compoundedReturn": -0.6901481928728268,
+        "averageNetReturn": -0.0012503733820044068,
+        "medianNetReturn": 0.0012656023222061847,
+        "winRate": 0.5967567567567568,
+        "trades": 925,
+        "profitFactor": 0.5620035071887214,
+        "maxDrawdown": 0.690627264848864
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.01,
+          "stopLoss": 0.002,
+          "maxHoldMinutes": 30
+        },
+        "compoundedReturn": -0.6903865312328132,
+        "averageNetReturn": -0.0012801697022548797,
+        "medianNetReturn": -0.004306927881885246,
+        "winRate": 0.3236929922135706,
+        "trades": 899,
+        "profitFactor": 0.6505648825513309,
+        "maxDrawdown": 0.6925481303229998
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.01,
+          "stopLoss": 0.005,
+          "maxHoldMinutes": 10
+        },
+        "compoundedReturn": -0.6904186438678634,
+        "averageNetReturn": -0.0013843309082967868,
+        "medianNetReturn": -0.0012593376362288727,
+        "winRate": 0.38802395209580837,
+        "trades": 835,
+        "profitFactor": 0.5455494974863148,
+        "maxDrawdown": 0.690743032000092
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.0075,
+          "stopLoss": 0.003,
+          "maxHoldMinutes": 20
+        },
+        "compoundedReturn": -0.6928725106673718,
+        "averageNetReturn": -0.0013747506977726076,
+        "medianNetReturn": -0.002412941117699739,
+        "winRate": 0.39952718676122934,
+        "trades": 846,
+        "profitFactor": 0.6042906205969095,
+        "maxDrawdown": 0.6931385121661405
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.002,
+          "stopLoss": 0.0075,
+          "maxHoldMinutes": 20
+        },
+        "compoundedReturn": -0.6941266191391241,
+        "averageNetReturn": -0.0012418519544733532,
+        "medianNetReturn": 0.00046558715118561085,
+        "winRate": 0.7165605095541401,
+        "trades": 942,
+        "profitFactor": 0.47548223064827044,
+        "maxDrawdown": 0.6946820506258202
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.005,
+          "stopLoss": 0.003,
+          "maxHoldMinutes": 30
+        },
+        "compoundedReturn": -0.6979645300641673,
+        "averageNetReturn": -0.0012998076714294134,
+        "medianNetReturn": -0.002,
+        "winRate": 0.46806167400881055,
+        "trades": 908,
+        "profitFactor": 0.6162282178093582,
+        "maxDrawdown": 0.6988815970098762
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.005,
+          "stopLoss": 0.005,
+          "maxHoldMinutes": 10
+        },
+        "compoundedReturn": -0.6989439726211678,
+        "averageNetReturn": -0.0013146582385949123,
+        "medianNetReturn": -0.0008835246195711948,
+        "winRate": 0.4312638580931264,
+        "trades": 902,
+        "profitFactor": 0.5457754098895786,
+        "maxDrawdown": 0.7000106175707941
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.002,
+          "stopLoss": 0.01,
+          "maxHoldMinutes": 10
+        },
+        "compoundedReturn": -0.7063390191383501,
+        "averageNetReturn": -0.0012206722284406433,
+        "medianNetReturn": 0.0003006134969325575,
+        "winRate": 0.6283987915407855,
+        "trades": 993,
+        "profitFactor": 0.44949138300853614,
+        "maxDrawdown": 0.707676884094559
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.003,
+          "stopLoss": 0.005,
+          "maxHoldMinutes": 10
+        },
+        "compoundedReturn": -0.7065761507719976,
+        "averageNetReturn": -0.0012383660699459896,
+        "medianNetReturn": 0.0004752475247524774,
+        "winRate": 0.5240040858018387,
+        "trades": 979,
+        "profitFactor": 0.5280141164243387,
+        "maxDrawdown": 0.7070298229469946
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.0075,
+          "stopLoss": 0.005,
+          "maxHoldMinutes": 10
+        },
+        "compoundedReturn": -0.707169057450639,
+        "averageNetReturn": -0.0014181843432605806,
+        "medianNetReturn": -0.0012389649923896223,
+        "winRate": 0.3929824561403509,
+        "trades": 855,
+        "profitFactor": 0.5338698693287341,
+        "maxDrawdown": 0.7074758940240655
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.005,
+          "stopLoss": 0.003,
+          "maxHoldMinutes": 20
+        },
+        "compoundedReturn": -0.7076685134705172,
+        "averageNetReturn": -0.0013264720729649388,
+        "medianNetReturn": -0.002,
+        "winRate": 0.4491803278688525,
+        "trades": 915,
+        "profitFactor": 0.592788439226127,
+        "maxDrawdown": 0.7077740582467589
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.0075,
+          "stopLoss": 0.002,
+          "maxHoldMinutes": 50
+        },
+        "compoundedReturn": -0.7198973710030648,
+        "averageNetReturn": -0.0013355161974994852,
+        "medianNetReturn": -0.004318841358988966,
+        "winRate": 0.35394456289978676,
+        "trades": 938,
+        "profitFactor": 0.6368125932003751,
+        "maxDrawdown": 0.7218494809774905
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.01,
+          "stopLoss": 0.003,
+          "maxHoldMinutes": 10
+        },
+        "compoundedReturn": -0.7275309229428926,
+        "averageNetReturn": -0.0014300901351909302,
+        "medianNetReturn": -0.002,
+        "winRate": 0.37193763919821826,
+        "trades": 898,
+        "profitFactor": 0.529417352017092,
+        "maxDrawdown": 0.7291826817534361
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.01,
+          "stopLoss": 0.002,
+          "maxHoldMinutes": 20
+        },
+        "compoundedReturn": -0.7372934205547308,
+        "averageNetReturn": -0.0014561285106692026,
+        "medianNetReturn": -0.004206693637366586,
+        "winRate": 0.33812154696132596,
+        "trades": 905,
+        "profitFactor": 0.580187867701547,
+        "maxDrawdown": 0.7384113074945654
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.002,
+          "stopLoss": 0.005,
+          "maxHoldMinutes": 50
+        },
+        "compoundedReturn": -0.7414276603128886,
+        "averageNetReturn": -0.0012865875715479512,
+        "medianNetReturn": 0.0005015644555694827,
+        "winRate": 0.7259615384615384,
+        "trades": 1040,
+        "profitFactor": 0.4676311500485062,
+        "maxDrawdown": 0.7426056679286681
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.002,
+          "stopLoss": 0.005,
+          "maxHoldMinutes": 20
+        },
+        "compoundedReturn": -0.7435582475084934,
+        "averageNetReturn": -0.0012890863047052997,
+        "medianNetReturn": 0.0004283632831472168,
+        "winRate": 0.6880382775119617,
+        "trades": 1045,
+        "profitFactor": 0.4560060007697423,
+        "maxDrawdown": 0.7447265485642226
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.002,
+          "stopLoss": 0.0075,
+          "maxHoldMinutes": 10
+        },
+        "compoundedReturn": -0.7457476843140554,
+        "averageNetReturn": -0.0013289734776358298,
+        "medianNetReturn": 0.0002831050228309113,
+        "winRate": 0.6186274509803922,
+        "trades": 1020,
+        "profitFactor": 0.42799815707391764,
+        "maxDrawdown": 0.7466237436470208
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.002,
+          "stopLoss": 0.005,
+          "maxHoldMinutes": 30
+        },
+        "compoundedReturn": -0.7461854723639405,
+        "averageNetReturn": -0.0013046777805869338,
+        "medianNetReturn": 0.00047247152414009626,
+        "winRate": 0.7115384615384616,
+        "trades": 1040,
+        "profitFactor": 0.4598366902116174,
+        "maxDrawdown": 0.7473418042705651
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.0075,
+          "stopLoss": 0.003,
+          "maxHoldMinutes": 10
+        },
+        "compoundedReturn": -0.7495378022023188,
+        "averageNetReturn": -0.0014852648227607985,
+        "medianNetReturn": -0.0017017805957869597,
+        "winRate": 0.37635574837310193,
+        "trades": 922,
+        "profitFactor": 0.5121811402453934,
+        "maxDrawdown": 0.7504251926348545
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.003,
+          "stopLoss": 0.003,
+          "maxHoldMinutes": 50
+        },
+        "compoundedReturn": -0.7518863249381412,
+        "averageNetReturn": -0.0013183699990502536,
+        "medianNetReturn": 0.001258446331472209,
+        "winRate": 0.5793499043977055,
+        "trades": 1046,
+        "profitFactor": 0.5417080959668729,
+        "maxDrawdown": 0.7521463054894226
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.0075,
+          "stopLoss": 0.002,
+          "maxHoldMinutes": 30
+        },
+        "compoundedReturn": -0.7525388957508888,
+        "averageNetReturn": -0.0014689923082035897,
+        "medianNetReturn": -0.004272728577093985,
+        "winRate": 0.34754797441364604,
+        "trades": 938,
+        "profitFactor": 0.5889298319061923,
+        "maxDrawdown": 0.7536437499609957
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.003,
+          "stopLoss": 0.003,
+          "maxHoldMinutes": 30
+        },
+        "compoundedReturn": -0.7539662866669072,
+        "averageNetReturn": -0.0013267023208627003,
+        "medianNetReturn": 0.001182823012690461,
+        "winRate": 0.5669216061185468,
+        "trades": 1046,
+        "profitFactor": 0.5338334030383918,
+        "maxDrawdown": 0.7542240877752509
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.003,
+          "stopLoss": 0.003,
+          "maxHoldMinutes": 20
+        },
+        "compoundedReturn": -0.7572304260176409,
+        "averageNetReturn": -0.0013372499938263892,
+        "medianNetReturn": 0.0011025041997482238,
+        "winRate": 0.5486641221374046,
+        "trades": 1048,
+        "profitFactor": 0.5240447340939884,
+        "maxDrawdown": 0.7574848068681223
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.005,
+          "stopLoss": 0.003,
+          "maxHoldMinutes": 10
+        },
+        "compoundedReturn": -0.7584461677681575,
+        "averageNetReturn": -0.0014393678814985048,
+        "medianNetReturn": -0.0014252873563216344,
+        "winRate": 0.4083930399181167,
+        "trades": 977,
+        "profitFactor": 0.5113325092064871,
+        "maxDrawdown": 0.758960481490982
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.005,
+          "stopLoss": 0.002,
+          "maxHoldMinutes": 50
+        },
+        "compoundedReturn": -0.7645169928648241,
+        "averageNetReturn": -0.0013928479283159482,
+        "medianNetReturn": -0.004227998821882571,
+        "winRate": 0.4191033138401559,
+        "trades": 1026,
+        "profitFactor": 0.5821749615603414,
+        "maxDrawdown": 0.7655538452972538
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.005,
+          "stopLoss": 0.002,
+          "maxHoldMinutes": 30
+        },
+        "compoundedReturn": -0.7711461350842735,
+        "averageNetReturn": -0.0014211310294082017,
+        "medianNetReturn": -0.004200892789866071,
+        "winRate": 0.41130604288499023,
+        "trades": 1026,
+        "profitFactor": 0.5666177690601577,
+        "maxDrawdown": 0.7721537988193157
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.0075,
+          "stopLoss": 0.002,
+          "maxHoldMinutes": 20
+        },
+        "compoundedReturn": -0.771828037803872,
+        "averageNetReturn": -0.001547152507209269,
+        "medianNetReturn": -0.00419780219780219,
+        "winRate": 0.350635593220339,
+        "trades": 944,
+        "profitFactor": 0.5468319010793535,
+        "maxDrawdown": 0.7722231202316793
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.002,
+          "stopLoss": 0.005,
+          "maxHoldMinutes": 10
+        },
+        "compoundedReturn": -0.7771551693621532,
+        "averageNetReturn": -0.0013639727498761058,
+        "medianNetReturn": 0.0002831050228311333,
+        "winRate": 0.608615948670944,
+        "trades": 1091,
+        "profitFactor": 0.4163650544518914,
+        "maxDrawdown": 0.7781704090739728
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.003,
+          "stopLoss": 0.003,
+          "maxHoldMinutes": 10
+        },
+        "compoundedReturn": -0.7806665397724507,
+        "averageNetReturn": -0.0013961462377378904,
+        "medianNetReturn": -0.00005068226120852164,
+        "winRate": 0.4976787372330548,
+        "trades": 1077,
+        "profitFactor": 0.48290335202915297,
+        "maxDrawdown": 0.781133542127277
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.005,
+          "stopLoss": 0.002,
+          "maxHoldMinutes": 20
+        },
+        "compoundedReturn": -0.7823787676374062,
+        "averageNetReturn": -0.001467825497728936,
+        "medianNetReturn": -0.004117969901915984,
+        "winRate": 0.4036964980544747,
+        "trades": 1028,
+        "profitFactor": 0.5435132546627119,
+        "maxDrawdown": 0.7827555813528019
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.01,
+          "stopLoss": 0.002,
+          "maxHoldMinutes": 10
+        },
+        "compoundedReturn": -0.7879869874326876,
+        "averageNetReturn": -0.0015695574582098707,
+        "medianNetReturn": -0.0025962788085010496,
+        "winRate": 0.3374233128834356,
+        "trades": 978,
+        "profitFactor": 0.48735006996117397,
+        "maxDrawdown": 0.7882595143134353
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.002,
+          "stopLoss": 0.003,
+          "maxHoldMinutes": 50
+        },
+        "compoundedReturn": -0.8006394333342146,
+        "averageNetReturn": -0.0013565362811120488,
+        "medianNetReturn": 0.0003696682464453555,
+        "winRate": 0.6581849024597116,
+        "trades": 1179,
+        "profitFactor": 0.4294383823828711,
+        "maxDrawdown": 0.8014949638665282
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.0075,
+          "stopLoss": 0.002,
+          "maxHoldMinutes": 10
+        },
+        "compoundedReturn": -0.8023040452760641,
+        "averageNetReturn": -0.0015981105789541186,
+        "medianNetReturn": -0.002544959128065292,
+        "winRate": 0.34228855721393037,
+        "trades": 1005,
+        "profitFactor": 0.47527059717960496,
+        "maxDrawdown": 0.8025581686490824
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.002,
+          "stopLoss": 0.003,
+          "maxHoldMinutes": 30
+        },
+        "compoundedReturn": -0.8027003188189886,
+        "averageNetReturn": -0.001365430717318067,
+        "medianNetReturn": 0.00035404896421842476,
+        "winRate": 0.6505513146734521,
+        "trades": 1179,
+        "profitFactor": 0.4253616971737175,
+        "maxDrawdown": 0.803547005323191
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.002,
+          "stopLoss": 0.003,
+          "maxHoldMinutes": 20
+        },
+        "compoundedReturn": -0.8044309147972039,
+        "averageNetReturn": -0.0013730367990131096,
+        "medianNetReturn": 0.000327901563019763,
+        "winRate": 0.638676844783715,
+        "trades": 1179,
+        "profitFactor": 0.4198567233121074,
+        "maxDrawdown": 0.8052701746687315
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.005,
+          "stopLoss": 0.002,
+          "maxHoldMinutes": 10
+        },
+        "compoundedReturn": -0.8097649553327997,
+        "averageNetReturn": -0.001534343097004799,
+        "medianNetReturn": -0.0023050991130461034,
+        "winRate": 0.375,
+        "trades": 1072,
+        "profitFactor": 0.4841281188973633,
+        "maxDrawdown": 0.8101700016660764
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.003,
+          "stopLoss": 0.002,
+          "maxHoldMinutes": 50
+        },
+        "compoundedReturn": -0.8194220788922768,
+        "averageNetReturn": -0.0014431232558639094,
+        "medianNetReturn": 0.0010396627028007605,
+        "winRate": 0.5093537414965986,
+        "trades": 1176,
+        "profitFactor": 0.48930144676708176,
+        "maxDrawdown": 0.819611293563605
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.003,
+          "stopLoss": 0.002,
+          "maxHoldMinutes": 30
+        },
+        "compoundedReturn": -0.8219088017485153,
+        "averageNetReturn": -0.0014549567011209361,
+        "medianNetReturn": 0.0010023591344345845,
+        "winRate": 0.5034013605442177,
+        "trades": 1176,
+        "profitFactor": 0.48469332373058105,
+        "maxDrawdown": 0.8220954107610506
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.003,
+          "stopLoss": 0.002,
+          "maxHoldMinutes": 20
+        },
+        "compoundedReturn": -0.8237544612415182,
+        "averageNetReturn": -0.0014627657489228822,
+        "medianNetReturn": -0.0009852866565194223,
+        "winRate": 0.49447748513169076,
+        "trades": 1177,
+        "profitFactor": 0.4769601489584727,
+        "maxDrawdown": 0.8239391363196488
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.002,
+          "stopLoss": 0.003,
+          "maxHoldMinutes": 10
+        },
+        "compoundedReturn": -0.831267398642102,
+        "averageNetReturn": -0.001468537929611492,
+        "medianNetReturn": 0.00022849502302779885,
+        "winRate": 0.5818786367414797,
+        "trades": 1203,
+        "profitFactor": 0.38191377057418885,
+        "maxDrawdown": 0.8317977957050512
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.003,
+          "stopLoss": 0.002,
+          "maxHoldMinutes": 10
+        },
+        "compoundedReturn": -0.8403351687382205,
+        "averageNetReturn": -0.0015237890155603254,
+        "medianNetReturn": -0.001345950689649376,
+        "winRate": 0.4602510460251046,
+        "trades": 1195,
+        "profitFactor": 0.44198612290697264,
+        "maxDrawdown": 0.8405820317367791
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.002,
+          "stopLoss": 0.002,
+          "maxHoldMinutes": 50
+        },
+        "compoundedReturn": -0.8708938854663639,
+        "averageNetReturn": -0.0015245885337826736,
+        "medianNetReturn": 0.00023713646532441852,
+        "winRate": 0.5802098950524738,
+        "trades": 1334,
+        "profitFactor": 0.3723657390502732,
+        "maxDrawdown": 0.871482068975661
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.002,
+          "stopLoss": 0.002,
+          "maxHoldMinutes": 30
+        },
+        "compoundedReturn": -0.8716262036435735,
+        "averageNetReturn": -0.0015288528828014257,
+        "medianNetReturn": 0.0002340172008719072,
+        "winRate": 0.5787106446776612,
+        "trades": 1334,
+        "profitFactor": 0.37128190926326665,
+        "maxDrawdown": 0.8722110508470965
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.002,
+          "stopLoss": 0.002,
+          "maxHoldMinutes": 20
+        },
+        "compoundedReturn": -0.8738907802570812,
+        "averageNetReturn": -0.0015422573124365586,
+        "medianNetReturn": 0.00021729490022171123,
+        "winRate": 0.5697151424287856,
+        "trades": 1334,
+        "profitFactor": 0.3654700898399232,
+        "maxDrawdown": 0.8744653104696203
+      },
+      {
+        "parameters": {
+          "takeProfit": 0.002,
+          "stopLoss": 0.002,
+          "maxHoldMinutes": 10
+        },
+        "compoundedReturn": -0.8873140802609978,
+        "averageNetReturn": -0.0016110381790316512,
+        "medianNetReturn": 0.00008986415882983496,
+        "winRate": 0.5337787676317743,
+        "trades": 1347,
+        "profitFactor": 0.3395851338748064,
+        "maxDrawdown": 0.887827456408672
+      }
+    ]
+  },
+  "selectedParameters": {
+    "takeProfit": 0.01,
+    "stopLoss": 0.01,
+    "maxHoldMinutes": 50
+  },
+  "results": {
+    "train": {
+      "parameters": {
+        "takeProfit": 0.01,
+        "stopLoss": 0.01,
+        "maxHoldMinutes": 50
+      },
+      "trades": 2471,
+      "winningTrades": 1260,
+      "losingTrades": 1211,
+      "winRate": 0.509915014164306,
+      "averageNetReturn": -0.0008800201751246846,
+      "medianNetReturn": 0.0003730422401517792,
+      "compoundedReturn": -0.9033137653880076,
+      "totalNetReturn": -2.174529852733096,
+      "averageHoldMinutes": 27.028733306353704,
+      "profitFactor": 0.833028216002603,
+      "maxDrawdown": 0.9043166213268264,
+      "exitReasons": {
+        "take_profit": 922,
+        "stop_loss": 740,
+        "timeout": 809
+      }
+    },
+    "validation": {
+      "parameters": {
+        "takeProfit": 0.01,
+        "stopLoss": 0.01,
+        "maxHoldMinutes": 50
+      },
+      "trades": 618,
+      "winningTrades": 347,
+      "losingTrades": 271,
+      "winRate": 0.5614886731391586,
+      "averageNetReturn": 0.000013620682730222415,
+      "medianNetReturn": 0.0022550341078609887,
+      "compoundedReturn": -0.02188197396884639,
+      "totalNetReturn": 0.008417581927277453,
+      "averageHoldMinutes": 31.885113268608414,
+      "profitFactor": 1.0031576099410668,
+      "maxDrawdown": 0.2002691764377125,
+      "exitReasons": {
+        "take_profit": 242,
+        "stop_loss": 143,
+        "timeout": 233
+      }
+    },
+    "test": {
+      "parameters": {
+        "takeProfit": 0.01,
+        "stopLoss": 0.01,
+        "maxHoldMinutes": 50
+      },
+      "trades": 763,
+      "winningTrades": 428,
+      "losingTrades": 335,
+      "winRate": 0.5609436435124509,
+      "averageNetReturn": 0.00011963978341514586,
+      "medianNetReturn": 0.00178250591016549,
+      "compoundedReturn": 0.050139243446558845,
+      "totalNetReturn": 0.0912851547457563,
+      "averageHoldMinutes": 31.85845347313237,
+      "profitFactor": 1.0280167612719122,
+      "maxDrawdown": 0.1908722899039117,
+      "exitReasons": {
+        "take_profit": 283,
+        "stop_loss": 163,
+        "timeout": 317
+      }
+    }
+  }
+}
