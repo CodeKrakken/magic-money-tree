@@ -3,3 +3,4 @@ node_modules
 package-lock.json
 server/dist
 research/data/ema-data-1789041161149.json
+client/build
