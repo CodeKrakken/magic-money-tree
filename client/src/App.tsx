@@ -3,7 +3,7 @@ import Text from "./components/Text/Text"
 import type { wallet, market } from '../../server/server'
 import Wallet from "./components/Wallet/Wallet"
 import CurrentTask from "./components/CurrentTask/CurrentTask"
-import MarketGraph from "./components/MarketGraph/MarketGraph"
+import Graph from "./components/Graph/Graph"
 import './App.css'
 import StringList from "./components/StringList/StringList"
 
@@ -157,7 +157,7 @@ export default function App() {
         <div className="full-width">
           {
             currentMarket?.histories?.minutes
-            ? <MarketGraph title={currentMarket.name} history={currentMarket.histories.minutes} />
+            ? <Graph title={currentMarket.name} history={currentMarket.histories.minutes} />
             : null
           }
         </div>
