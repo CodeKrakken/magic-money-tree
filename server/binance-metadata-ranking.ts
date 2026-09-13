@@ -1,3 +1,21 @@
+/**
+ * Binance metadata profitability-ranking research
+ *
+ * Tests whether Binance exchangeInfo metadata can predict the profitability
+ * ranking produced by the existing trading strategy.
+ *
+ * IMPORTANT:
+ * - Does NOT rerun the trading strategy.
+ * - Does NOT use strategy-derived variables as predictors.
+ * - Sample 60 markets are used for feature selection/model fitting.
+ * - OutOfSample 60 markets are a true market-universe holdout.
+ *
+ * Usage:
+ *
+ *   npx tsx server/binance-metadata-ranking.ts \
+ *     server/research-output/market-strategy-ranking-independent-1789232701426.json
+ */
+
 import fs from "node:fs";
 import path from "node:path";
 
@@ -30,45 +48,59 @@ interface ExperimentInput {
   };
 }
 
-interface FeatureValue {
-  feature: string;
-  value: number;
-}
-
 interface FeatureStats {
   feature: string;
+
   sampleSpearman: number;
   samplePearson: number;
+
   oosSpearman: number;
   oosPearson: number;
+
   allSpearman: number;
   allPearson: number;
+
   sampleMean: number;
   sampleStd: number;
+
   oosMean: number;
   oosStd: number;
+
   uniqueValues: number;
+
+  sampleUniqueValues: number;
+  oosUniqueValues: number;
+
   sampleMin: number;
   sampleMax: number;
+
+  oosMin: number;
+  oosMax: number;
+
+  usableForTraining: boolean;
 }
 
 interface ModelCoefficient {
   feature: string;
   coefficient: number;
   absCoefficient: number;
-  trainingCorrelation: number;
+  sampleSpearman: number;
 }
 
 interface ScoredMarket {
   symbol: string;
   datasetGroup: DatasetGroup;
   binanceArrayPosition: number;
+
   actualNetProfit: number;
   actualRank: number;
+
   predictedScore: number;
   predictedRank: number;
+
   actualQuartile: number;
   predictedQuartile: number;
+
   rankError: number;
   absoluteRankError: number;
 }
@@ -77,13 +109,48 @@ const INPUT_PATH = process.argv[2];
 
 if (!INPUT_PATH) {
   console.error(
-    "Usage: npx tsx server/binance-metadata-ranking.ts <market-strategy-ranking-json>",
+    "Usage: npx tsx server/binance-metadata-ranking.ts <input-json>",
   );
   process.exit(1);
 }
 
 const RIDGE_LAMBDA = 10;
 const TOP_FEATURE_COUNT = 5;
+
+/**
+ * Features which are definitely strategy-derived and therefore must never
+ * become predictors.
+ */
+const FORBIDDEN_FEATURE_TERMS = [
+  "signals",
+  "accepted",
+  "rejectedByCapacity",
+  "buys",
+  "sells",
+  "winningPositions",
+  "losingPositions",
+  "flatPositions",
+  "grossProfit",
+  "fees",
+  "netProfit",
+  "returnPct",
+  "totalBuyNotional",
+  "totalSellNotional",
+  "target1PctCount",
+  "target2PctCount",
+  "target4PctCount",
+  "stopCount",
+  "maxHoldCount",
+  "endOfDataCount",
+  "averageHoldMinutes",
+  "medianHoldMinutes",
+  "averageProfitPerAcceptedPosition",
+  "firstTarget1AvgMinutes",
+  "firstTarget2AvgMinutes",
+  "firstTarget4AvgMinutes",
+  "averageSlope20",
+  "averageAcceleration",
+];
 
 function readJson(filePath: string): ExperimentInput {
   const resolved = path.resolve(filePath);
@@ -92,14 +159,65 @@ function readJson(filePath: string): ExperimentInput {
     throw new Error(`Input file does not exist: ${resolved}`);
   }
 
-  return JSON.parse(fs.readFileSync(resolved, "utf8")) as ExperimentInput;
+  return JSON.parse(
+    fs.readFileSync(resolved, "utf8"),
+  ) as ExperimentInput;
 }
 
 function isFiniteNumber(value: unknown): value is number {
-  return typeof value === "number" && Number.isFinite(value);
+  return (
+    typeof value === "number" &&
+    Number.isFinite(value)
+  );
 }
 
-function flattenNumericValues(
+/**
+ * Convert Binance numeric strings such as:
+ *
+ *   "0.00001000"
+ *   "100000.00000000"
+ *
+ * into actual numbers.
+ */
+function numericString(value: unknown): number | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  if (value.trim() === "") {
+    return null;
+  }
+
+  const parsed = Number(value);
+
+  return Number.isFinite(parsed)
+    ? parsed
+    : null;
+}
+
+/**
+ * Flatten Binance metadata.
+ *
+ * The important part is handling arrays of filter objects.
+ *
+ * Example:
+ *
+ * filters: [
+ *   {
+ *     filterType: "PRICE_FILTER",
+ *     minPrice: "0.00000100",
+ *     maxPrice: "100000.00000000",
+ *     tickSize: "0.00000100"
+ *   }
+ * ]
+ *
+ * becomes:
+ *
+ * PRICE_FILTER.minPrice
+ * PRICE_FILTER.maxPrice
+ * PRICE_FILTER.tickSize
+ */
+function flattenBinanceMetadata(
   value: unknown,
   prefix = "",
 ): Map<string, number> {
@@ -109,14 +227,15 @@ function flattenNumericValues(
     if (prefix) {
       result.set(prefix, value);
     }
+
     return result;
   }
 
-  if (typeof value === "string") {
-    const numeric = Number(value);
+  const parsedString = numericString(value);
 
-    if (Number.isFinite(numeric) && prefix) {
-      result.set(prefix, numeric);
+  if (parsedString !== null) {
+    if (prefix) {
+      result.set(prefix, parsedString);
     }
 
     return result;
@@ -124,29 +243,110 @@ function flattenNumericValues(
 
   if (Array.isArray(value)) {
     /*
-     * Arrays such as permissions/orderTypes are categorical collections.
-     * Their contents are not directly numeric predictors.
+     * Binance's filters array contains objects with filterType.
      *
-     * We deliberately only expose the length.
+     * Flatten each filter by its filterType rather than treating
+     * the entire array as an opaque value.
      */
-    if (prefix) {
-      result.set(`${prefix}.__length`, value.length);
+    for (const item of value) {
+      if (
+        item &&
+        typeof item === "object" &&
+        !Array.isArray(item)
+      ) {
+        const object =
+          item as Record<string, unknown>;
+
+        const filterType =
+          typeof object.filterType === "string"
+            ? object.filterType
+            : null;
+
+        const childPrefix =
+          filterType
+            ? filterType
+            : prefix
+              ? `${prefix}[]`
+              : "array";
+
+        for (const [key, child] of Object.entries(
+          object,
+        )) {
+          /*
+           * filterType itself is categorical and is not a numeric
+           * predictor.
+           */
+          if (key === "filterType") {
+            continue;
+          }
+
+          const fieldPrefix =
+            `${childPrefix}.${key}`;
+
+          for (const [
+            flattenedName,
+            flattenedValue,
+          ] of flattenBinanceMetadata(
+            child,
+            fieldPrefix,
+          )) {
+            result.set(
+              flattenedName,
+              flattenedValue,
+            );
+          }
+        }
+      } else {
+        /*
+         * For non-object arrays, retain only the length.
+         */
+        if (prefix) {
+          result.set(
+            `${prefix}.__length`,
+            value.length,
+          );
+        }
+      }
     }
 
     return result;
   }
 
-  if (value && typeof value === "object") {
+  if (
+    value &&
+    typeof value === "object"
+  ) {
     for (const [key, child] of Object.entries(
       value as Record<string, unknown>,
     )) {
-      const childPrefix = prefix ? `${prefix}.${key}` : key;
+      /*
+       * Skip obviously categorical fields.
+       */
+      if (
+        key === "symbol" ||
+        key === "status" ||
+        key === "baseAsset" ||
+        key === "quoteAsset" ||
+        key === "filterType"
+      ) {
+        continue;
+      }
 
-      for (const [name, numeric] of flattenNumericValues(
+      const childPrefix = prefix
+        ? `${prefix}.${key}`
+        : key;
+
+      for (const [
+        flattenedName,
+        flattenedValue,
+      ] of flattenBinanceMetadata(
         child,
         childPrefix,
       )) {
-        result.set(name, numeric);
+        result.set(
+          flattenedName,
+          flattenedValue,
+        );
       }
     }
   }
@@ -154,14 +354,22 @@ function flattenNumericValues(
   return result;
 }
 
-function extractFeatures(market: MarketResult): Map<string, number> {
-  const features = flattenNumericValues(market.binance);
+function extractFeatures(
+  market: MarketResult,
+): Map<string, number> {
+  const features = flattenBinanceMetadata(
+    market.binance,
+  );
 
   /*
-   * This field is outside exchangeInfo.symbol and is included explicitly.
-   * It is still Binance-derived and was part of the original research output.
+   * Binance array position is stored outside the binance object
+   * in the research output, so add it explicitly.
    */
-  if (isFiniteNumber(market.binanceArrayPosition)) {
+  if (
+    isFiniteNumber(
+      market.binanceArrayPosition,
+    )
+  ) {
     features.set(
       "binanceArrayPosition",
       market.binanceArrayPosition,
@@ -169,49 +377,21 @@ function extractFeatures(market: MarketResult): Map<string, number> {
   }
 
   /*
-   * Do not allow strategy results to leak into the predictors.
+   * Remove anything that could be derived from the strategy.
    */
-  const forbidden = [
-    "signals",
-    "accepted",
-    "rejectedByCapacity",
-    "buys",
-    "sells",
-    "winningPositions",
-    "losingPositions",
-    "flatPositions",
-    "grossProfit",
-    "fees",
-    "netProfit",
-    "returnPct",
-    "totalBuyNotional",
-    "totalSellNotional",
-    "target1PctCount",
-    "target2PctCount",
-    "target4PctCount",
-    "stopCount",
-    "maxHoldCount",
-    "endOfDataCount",
-    "averageHoldMinutes",
-    "medianHoldMinutes",
-    "averageProfitPerAcceptedPosition",
-    "firstTarget1AvgMinutes",
-    "firstTarget2AvgMinutes",
-    "firstTarget4AvgMinutes",
-    "averageSlope20",
-    "averageAcceleration",
-  ];
+  for (const feature of [
+    ...features.keys(),
+  ]) {
+    const forbidden =
+      FORBIDDEN_FEATURE_TERMS.some(
+        (term) =>
+          feature === term ||
+          feature.endsWith(`.${term}`) ||
+          feature.includes(`.${term}.`),
+      );
 
-  for (const key of [...features.keys()]) {
-    if (
-      forbidden.some(
-        (blocked) =>
-          key === blocked ||
-          key.endsWith(`.${blocked}`) ||
-          key.includes(blocked),
-      )
-    ) {
-      features.delete(key);
+    if (forbidden) {
+      features.delete(feature);
     }
   }
 
@@ -223,10 +403,18 @@ function mean(values: number[]): number {
     return 0;
   }
 
-  return values.reduce((sum, value) => sum + value, 0) / values.length;
+  return (
+    values.reduce(
+      (sum, value) =>
+        sum + value,
+      0,
+    ) / values.length
+  );
 }
 
-function standardDeviation(values: number[]): number {
+function standardDeviation(
+  values: number[],
+): number {
   if (values.length < 2) {
     return 0;
   }
@@ -235,7 +423,9 @@ function standardDeviation(values: number[]): number {
 
   const variance =
     values.reduce(
-      (sum, value) => sum + (value - average) ** 2,
+      (sum, value) =>
+        sum +
+        (value - average) ** 2,
       0,
     ) / values.length;
 
@@ -246,7 +436,10 @@ function pearsonCorrelation(
   x: number[],
   y: number[],
 ): number {
-  if (x.length !== y.length || x.length < 2) {
+  if (
+    x.length !== y.length ||
+    x.length < 2
+  ) {
     return 0;
   }
 
@@ -266,7 +459,10 @@ function pearsonCorrelation(
     yVariance += dy * dy;
   }
 
-  const denominator = Math.sqrt(xVariance * yVariance);
+  const denominator =
+    Math.sqrt(
+      xVariance * yVariance,
+    );
 
   if (denominator === 0) {
     return 0;
@@ -275,15 +471,25 @@ function pearsonCorrelation(
   return numerator / denominator;
 }
 
-function rankValues(values: number[]): number[] {
-  const indexed = values.map((value, index) => ({
-    value,
-    index,
-  }));
+function rankValues(
+  values: number[],
+): number[] {
+  const indexed = values.map(
+    (value, index) => ({
+      value,
+      index,
+    }),
+  );
 
-  indexed.sort((a, b) => a.value - b.value);
+  indexed.sort(
+    (a, b) =>
+      a.value - b.value,
+  );
 
-  const ranks = new Array<number>(values.length);
+  const ranks =
+    new Array<number>(
+      values.length,
+    );
 
   let i = 0;
 
@@ -292,15 +498,25 @@ function rankValues(values: number[]): number[] {
 
     while (
       j < indexed.length &&
-      indexed[j].value === indexed[i].value
+      indexed[j].value ===
+        indexed[i].value
     ) {
       j += 1;
     }
 
-    const averageRank = (i + 1 + j) / 2;
+    /*
+     * Average rank for ties.
+     */
+    const averageRank =
+      (i + 1 + j) / 2;
 
-    for (let k = i; k < j; k += 1) {
-      ranks[indexed[k].index] = averageRank;
+    for (
+      let k = i;
+      k < j;
+      k += 1
+    ) {
+      ranks[indexed[k].index] =
+        averageRank;
     }
 
     i = j;
@@ -319,85 +535,197 @@ function spearmanCorrelation(
   );
 }
 
-function percentileRanks(values: number[]): number[] {
+/**
+ * Percentile ranks in [0,1].
+ */
+function percentileRanks(
+  values: number[],
+): number[] {
   if (values.length === 1) {
     return [0.5];
   }
 
-  const ranks = rankValues(values);
+  const ranks =
+    rankValues(values);
 
   return ranks.map(
-    (rank) => (rank - 1) / (values.length - 1),
+    (rank) =>
+      (rank - 1) /
+      (values.length - 1),
   );
 }
 
-function invertMatrix(matrix: number[][]): number[][] {
+/**
+ * Calculate an OOS percentile using ONLY the training values.
+ *
+ * This is important: OOS observations must not influence their own
+ * transformation.
+ */
+function percentileFromTraining(
+  value: number,
+  trainingValues: number[],
+): number {
+  if (
+    trainingValues.length === 0
+  ) {
+    return 0.5;
+  }
+
+  let less = 0;
+  let equal = 0;
+
+  for (
+    const trainingValue of
+      trainingValues
+  ) {
+    if (
+      trainingValue < value
+    ) {
+      less += 1;
+    } else if (
+      trainingValue === value
+    ) {
+      equal += 1;
+    }
+  }
+
+  return (
+    less +
+    equal / 2
+  ) / trainingValues.length;
+}
+
+function invertMatrix(
+  matrix: number[][],
+): number[][] {
   const n = matrix.length;
 
-  const augmented = matrix.map((row, rowIndex) => [
-    ...row,
-    ...Array.from(
-      { length: n },
-      (_, columnIndex) =>
-        rowIndex === columnIndex ? 1 : 0,
-    ),
-  ]);
-
-  for (let column = 0; column < n; column += 1) {
-    let pivotRow = column;
-    let pivotAbs = Math.abs(
-      augmented[pivotRow][column],
+  const augmented =
+    matrix.map(
+      (row, rowIndex) => [
+        ...row,
+        ...Array.from(
+          { length: n },
+          (_, columnIndex) =>
+            rowIndex ===
+            columnIndex
+              ? 1
+              : 0,
+        ),
+      ],
     );
 
-    for (let row = column + 1; row < n; row += 1) {
-      const candidateAbs = Math.abs(
-        augmented[row][column],
+  for (
+    let column = 0;
+    column < n;
+    column += 1
+  ) {
+    let pivotRow =
+      column;
+
+    let pivotAbs =
+      Math.abs(
+        augmented[
+          pivotRow
+        ][column],
       );
 
-      if (candidateAbs > pivotAbs) {
+    for (
+      let row =
+        column + 1;
+      row < n;
+      row += 1
+    ) {
+      const candidateAbs =
+        Math.abs(
+          augmented[row][
+            column
+          ],
+        );
+
+      if (
+        candidateAbs >
+        pivotAbs
+      ) {
         pivotRow = row;
-        pivotAbs = candidateAbs;
+        pivotAbs =
+          candidateAbs;
       }
     }
 
-    if (pivotAbs < 1e-12) {
+    if (
+      pivotAbs <
+      1e-12
+    ) {
       throw new Error(
         `Matrix is singular at column ${column}`,
       );
     }
 
-    if (pivotRow !== column) {
-      const temp = augmented[column];
-      augmented[column] = augmented[pivotRow];
-      augmented[pivotRow] = temp;
+    if (
+      pivotRow !==
+      column
+    ) {
+      const temp =
+        augmented[column];
+
+      augmented[column] =
+        augmented[pivotRow];
+
+      augmented[
+        pivotRow
+      ] = temp;
     }
 
-    const pivot = augmented[column][column];
+    const pivot =
+      augmented[column][
+        column
+      ];
 
-    for (let j = 0; j < 2 * n; j += 1) {
-      augmented[column][j] /= pivot;
+    for (
+      let j = 0;
+      j < 2 * n;
+      j += 1
+    ) {
+      augmented[column][j] /=
+        pivot;
     }
 
-    for (let row = 0; row < n; row += 1) {
-      if (row === column) {
+    for (
+      let row = 0;
+      row < n;
+      row += 1
+    ) {
+      if (
+        row === column
+      ) {
         continue;
       }
 
-      const factor = augmented[row][column];
+      const factor =
+        augmented[row][
+          column
+        ];
 
       if (factor === 0) {
         continue;
       }
 
-      for (let j = 0; j < 2 * n; j += 1) {
+      for (
+        let j = 0;
+        j < 2 * n;
+        j += 1
+      ) {
         augmented[row][j] -=
-          factor * augmented[column][j];
+          factor *
+          augmented[column][j];
       }
     }
   }
 
-  return augmented.map((row) =>
-    row.slice(n),
+  return augmented.map(
+    (row) =>
+      row.slice(n),
   );
 }
 
@@ -407,23 +735,43 @@ function matrixMultiply(
 ): number[][] {
   const rows = a.length;
   const inner = b.length;
-  const columns = b[0].length;
+  const columns =
+    b[0].length;
 
-  const result = Array.from(
-    { length: rows },
-    () => Array<number>(columns).fill(0),
-  );
+  const result =
+    Array.from(
+      { length: rows },
+      () =>
+        Array<number>(
+          columns,
+        ).fill(0),
+    );
 
-  for (let i = 0; i < rows; i += 1) {
-    for (let k = 0; k < inner; k += 1) {
-      const value = a[i][k];
+  for (
+    let i = 0;
+    i < rows;
+    i += 1
+  ) {
+    for (
+      let k = 0;
+      k < inner;
+      k += 1
+    ) {
+      const value =
+        a[i][k];
 
       if (value === 0) {
         continue;
       }
 
-      for (let j = 0; j < columns; j += 1) {
-        result[i][j] += value * b[k][j];
+      for (
+        let j = 0;
+        j < columns;
+        j += 1
+      ) {
+        result[i][j] +=
+          value *
+          b[k][j];
       }
     }
   }
@@ -434,8 +782,12 @@ function matrixMultiply(
 function matrixTranspose(
   matrix: number[][],
 ): number[][] {
-  return matrix[0].map((_, columnIndex) =>
-    matrix.map((row) => row[columnIndex]),
+  return matrix[0].map(
+    (_, columnIndex) =>
+      matrix.map(
+        (row) =>
+          row[columnIndex],
+      ),
   );
 }
 
@@ -444,50 +796,71 @@ function fitRidgeRegression(
   y: number[],
   lambda: number,
 ): number[] {
-  const rows = x.length;
-  const columns = x[0].length;
+  const xWithIntercept =
+    x.map((row) => [
+      1,
+      ...row,
+    ]);
 
-  const xWithIntercept = x.map((row) => [
-    1,
-    ...row,
-  ]);
+  const xt =
+    matrixTranspose(
+      xWithIntercept,
+    );
 
-  const xt = matrixTranspose(xWithIntercept);
-
-  const xtx = matrixMultiply(
-    xt,
-    xWithIntercept,
-  );
+  const xtx =
+    matrixMultiply(
+      xt,
+      xWithIntercept,
+    );
 
   /*
-   * Do not penalise the intercept.
+   * Penalise predictors but not the intercept.
    */
-  for (let i = 1; i < xtx.length; i += 1) {
-    xtx[i][i] += lambda;
+  for (
+    let i = 1;
+    i < xtx.length;
+    i += 1
+  ) {
+    xtx[i][i] +=
+      lambda;
   }
 
-  const inverse = invertMatrix(xtx);
+  const inverse =
+    invertMatrix(xtx);
 
-  const yMatrix = y.map((value) => [value]);
+  const yMatrix =
+    y.map((value) => [
+      value,
+    ]);
 
-  const xty = matrixMultiply(
-    xt,
-    yMatrix,
+  const xty =
+    matrixMultiply(
+      xt,
+      yMatrix,
+    );
+
+  const coefficients =
+    matrixMultiply(
+      inverse,
+      xty,
+    );
+
+  return coefficients.map(
+    (row) => row[0],
   );
-
-  const coefficients = matrixMultiply(
-    inverse,
-    xty,
-  );
-
-  return coefficients.map((row) => row[0]);
 }
 
-function quartile(rank: number, count: number): number {
+function quartile(
+  rank: number,
+  count: number,
+): number {
+  if (count <= 1) {
+    return 1;
+  }
+
   const percentile =
-    count <= 1
-      ? 0
-      : (rank - 1) / (count - 1);
+    (rank - 1) /
+    (count - 1);
 
   if (percentile < 0.25) {
     return 1;
@@ -504,43 +877,53 @@ function quartile(rank: number, count: number): number {
   return 4;
 }
 
-function formatNumber(value: number): number {
-  if (!Number.isFinite(value)) {
-    return 0;
-  }
-
-  return Number(value.toFixed(10));
-}
-
 function getFeatureValues(
   markets: MarketResult[],
   feature: string,
 ): number[] {
-  return markets.map((market) => {
-    const features = extractFeatures(market);
-    return features.get(feature) ?? 0;
-  });
+  return markets.map(
+    (market) =>
+      extractFeatures(
+        market,
+      ).get(feature) ?? 0,
+  );
 }
 
 function selectVaryingFeatures(
   markets: MarketResult[],
 ): string[] {
-  const allFeatures = new Set<string>();
+  const allFeatures =
+    new Set<string>();
 
-  for (const market of markets) {
-    for (const feature of extractFeatures(market).keys()) {
-      allFeatures.add(feature);
+  for (
+    const market of markets
+  ) {
+    for (
+      const feature of
+        extractFeatures(
+          market,
+        ).keys()
+    ) {
+      allFeatures.add(
+        feature,
+      );
     }
   }
 
-  return [...allFeatures]
+  return [
+    ...allFeatures,
+  ]
     .filter((feature) => {
-      const values = getFeatureValues(
-        markets,
-        feature,
-      );
+      const values =
+        getFeatureValues(
+          markets,
+          feature,
+        );
 
-      return new Set(values).size > 1;
+      return (
+        new Set(values)
+          .size > 1
+      );
     })
     .sort();
 }
@@ -550,278 +933,387 @@ function calculateFeatureStats(
   oos: MarketResult[],
   features: string[],
 ): FeatureStats[] {
-  const sampleTarget = sample.map(
-    (market) => market.netProfit,
-  );
-
-  const oosTarget = oos.map(
-    (market) => market.netProfit,
-  );
-
-  const allMarkets = [...sample, ...oos];
-
-  const allTarget = allMarkets.map(
-    (market) => market.netProfit,
-  );
-
-  const stats: FeatureStats[] = [];
-
-  for (const feature of features) {
-    const sampleValues = getFeatureValues(
-      sample,
-      feature,
+  const sampleTarget =
+    sample.map(
+      (market) =>
+        market.netProfit,
     );
 
-    const oosValues = getFeatureValues(
-      oos,
-      feature,
+  const oosTarget =
+    oos.map(
+      (market) =>
+        market.netProfit,
     );
 
-    const allValues = getFeatureValues(
-      allMarkets,
-      feature,
+  const allMarkets = [
+    ...sample,
+    ...oos,
+  ];
+
+  const allTarget =
+    allMarkets.map(
+      (market) =>
+        market.netProfit,
     );
 
-    stats.push({
-      feature,
-      sampleSpearman: spearmanCorrelation(
-        sampleValues,
-        sampleTarget,
-      ),
-      samplePearson: pearsonCorrelation(
-        sampleValues,
-        sampleTarget,
-      ),
-      oosSpearman: spearmanCorrelation(
-        oosValues,
-        oosTarget,
-      ),
-      oosPearson: pearsonCorrelation(
-        oosValues,
-        oosTarget,
-      ),
-      allSpearman: spearmanCorrelation(
-        allValues,
-        allTarget,
-      ),
-      allPearson: pearsonCorrelation(
-        allValues,
-        allTarget,
-      ),
-      sampleMean: mean(sampleValues),
-      sampleStd: standardDeviation(
-        sampleValues,
-      ),
-      oosMean: mean(oosValues),
-      oosStd: standardDeviation(
-        oosValues,
-      ),
-      uniqueValues: new Set(allValues).size,
-      sampleMin: Math.min(...sampleValues),
-      sampleMax: Math.max(...sampleValues),
-    });
-  }
+  return features
+    .map((feature) => {
+      const sampleValues =
+        getFeatureValues(
+          sample,
+          feature,
+        );
 
-  return stats.sort(
-    (a, b) =>
-      Math.abs(b.sampleSpearman) -
-      Math.abs(a.sampleSpearman),
-  );
-}
+      const oosValues =
+        getFeatureValues(
+          oos,
+          feature,
+        );
 
-function standardiseForTraining(
-  values: number[],
-  trainingMean: number,
-  trainingStd: number,
-): number[] {
-  if (trainingStd === 0) {
-    return values.map(() => 0);
-  }
+      const allValues =
+        getFeatureValues(
+          allMarkets,
+          feature,
+        );
 
-  return values.map(
-    (value) =>
-      (value - trainingMean) /
-      trainingStd,
-  );
+      const sampleStd =
+        standardDeviation(
+          sampleValues,
+        );
+
+      return {
+        feature,
+
+        sampleSpearman:
+          sampleStd === 0
+            ? 0
+            : spearmanCorrelation(
+                sampleValues,
+                sampleTarget,
+              ),
+
+        samplePearson:
+          sampleStd === 0
+            ? 0
+            : pearsonCorrelation(
+                sampleValues,
+                sampleTarget,
+              ),
+
+        oosSpearman:
+          standardDeviation(
+            oosValues,
+          ) === 0
+            ? 0
+            : spearmanCorrelation(
+                oosValues,
+                oosTarget,
+              ),
+
+        oosPearson:
+          standardDeviation(
+            oosValues,
+          ) === 0
+            ? 0
+            : pearsonCorrelation(
+                oosValues,
+                oosTarget,
+              ),
+
+        allSpearman:
+          standardDeviation(
+            allValues,
+          ) === 0
+            ? 0
+            : spearmanCorrelation(
+                allValues,
+                allTarget,
+              ),
+
+        allPearson:
+          standardDeviation(
+            allValues,
+          ) === 0
+            ? 0
+            : pearsonCorrelation(
+                allValues,
+                allTarget,
+              ),
+
+        sampleMean:
+          mean(sampleValues),
+
+        sampleStd,
+
+        oosMean:
+          mean(oosValues),
+
+        oosStd:
+          standardDeviation(
+            oosValues,
+          ),
+
+        uniqueValues:
+          new Set(allValues)
+            .size,
+
+        sampleUniqueValues:
+          new Set(
+            sampleValues,
+          ).size,
+
+        oosUniqueValues:
+          new Set(
+            oosValues,
+          ).size,
+
+        sampleMin:
+          Math.min(
+            ...sampleValues,
+          ),
+
+        sampleMax:
+          Math.max(
+            ...sampleValues,
+          ),
+
+        oosMin:
+          Math.min(
+            ...oosValues,
+          ),
+
+        oosMax:
+          Math.max(
+            ...oosValues,
+          ),
+
+        usableForTraining:
+          sampleStd > 0,
+      };
+    })
+    .sort(
+      (a, b) =>
+        Math.abs(
+          b.sampleSpearman,
+        ) -
+        Math.abs(
+          a.sampleSpearman,
+        ),
+    );
 }
 
 function buildModel(
   sample: MarketResult[],
   oos: MarketResult[],
   featureStats: FeatureStats[],
-): {
-  features: string[];
-  coefficients: ModelCoefficient[];
-  sampleScores: number[];
-  oosScores: number[];
-} {
+) {
   /*
-   * We select the strongest features in the Sample universe only.
+   * Select only features that actually vary in Sample.
    *
-   * This prevents OOS performance from influencing feature selection.
+   * This is critical. A field that is constant across the training
+   * universe cannot contribute to a Sample-trained model.
    */
-  const selectedStats = featureStats
-    .filter(
+  const selectedStats =
+    featureStats
+      .filter(
+        (stat) =>
+          stat.usableForTraining &&
+          Number.isFinite(
+            stat.sampleSpearman,
+          ),
+      )
+      .slice(
+        0,
+        TOP_FEATURE_COUNT,
+      );
+
+  const features =
+    selectedStats.map(
       (stat) =>
-        stat.sampleStd > 0 &&
-        Number.isFinite(stat.sampleSpearman),
-    )
-    .slice(0, TOP_FEATURE_COUNT);
+        stat.feature,
+    );
 
-  const features = selectedStats.map(
-    (stat) => stat.feature,
-  );
-
-  if (features.length === 0) {
+  if (
+    features.length === 0
+  ) {
     throw new Error(
-      "No varying numeric Binance features were available.",
+      "No varying Binance metadata features are available for training.",
     );
   }
-
-  const trainingStatistics = new Map<
-    string,
-    { mean: number; std: number }
-  >();
-
-  for (const feature of features) {
-    const values = getFeatureValues(
-      sample,
-      feature,
-    );
-
-    trainingStatistics.set(feature, {
-      mean: mean(values),
-      std: standardDeviation(values),
-    });
-  }
-
-  const sampleX = sample.map((market) =>
-    features.map((feature) => {
-      const values = getFeatureValues(
-        sample,
-        feature,
-      );
-
-      const statistics =
-        trainingStatistics.get(feature)!;
-
-      /*
-       * Percentile rank is the primary representation.
-       * This removes arbitrary scale differences.
-       */
-      const ranked =
-        percentileRanks(values);
-
-      const index = sample.indexOf(market);
-
-      /*
-       * Light standardisation is retained after ranking
-       * to make the regression numerically stable.
-       */
-      return standardiseForTraining(
-        [ranked[index]],
-        0.5,
-        Math.sqrt(1 / 12),
-      )[0];
-    }),
-  );
-
-  const oosX = oos.map((market) =>
-    features.map((feature) => {
-      /*
-       * OOS is transformed using the Sample empirical
-       * distribution, not an OOS-fitted distribution.
-       */
-      const trainingValues = getFeatureValues(
-        sample,
-        feature,
-      );
-
-      const value = extractFeatures(
-        market,
-      ).get(feature) ?? 0;
-
-      const less = trainingValues.filter(
-        (trainingValue) =>
-          trainingValue < value,
-      ).length;
-
-      const equal = trainingValues.filter(
-        (trainingValue) =>
-          trainingValue === value,
-      ).length;
-
-      const percentile =
-        trainingValues.length === 1
-          ? 0.5
-          : (
-              less +
-              equal / 2
-            ) /
-            trainingValues.length;
-
-      return standardiseForTraining(
-        [percentile],
-        0.5,
-        Math.sqrt(1 / 12),
-      )[0];
-    }),
-  );
 
   /*
-   * Target is the actual profitability percentile.
+   * Convert each Sample feature into its percentile rank.
    *
-   * Higher score = more profitable market.
+   * This avoids problems such as tickSize being tiny while maxQty is
+   * potentially very large.
    */
-  const sampleProfitRanks = percentileRanks(
-    sample.map((market) => market.netProfit),
-  );
+  const trainingFeatureValues =
+    new Map<
+      string,
+      number[]
+    >();
 
-  const coefficients = fitRidgeRegression(
-    sampleX,
-    sampleProfitRanks,
-    RIDGE_LAMBDA,
-  );
+  for (
+    const feature of
+      features
+  ) {
+    trainingFeatureValues.set(
+      feature,
+      getFeatureValues(
+        sample,
+        feature,
+      ),
+    );
+  }
 
-  const intercept = coefficients[0];
+  const sampleX =
+    sample.map(
+      (_, index) =>
+        features.map(
+          (feature) => {
+            const values =
+              trainingFeatureValues.get(
+                feature,
+              )!;
+
+            const ranks =
+              percentileRanks(
+                values,
+              );
+
+            /*
+             * Convert [0,1] percentile to approximately standard-normal
+             * scale using the known variance of a uniform distribution.
+             *
+             * This is just numerical scaling for ridge regression.
+             */
+            return (
+              ranks[index] -
+              0.5
+            ) /
+              Math.sqrt(
+                1 / 12,
+              );
+          },
+        ),
+    );
+
+  const oosX =
+    oos.map(
+      (market) =>
+        features.map(
+          (feature) => {
+            const trainingValues =
+              trainingFeatureValues.get(
+                feature,
+              )!;
+
+            const value =
+              extractFeatures(
+                market,
+              ).get(
+                feature,
+              ) ?? 0;
+
+            const percentile =
+              percentileFromTraining(
+                value,
+                trainingValues,
+              );
+
+            return (
+              percentile -
+              0.5
+            ) /
+              Math.sqrt(
+                1 / 12,
+              );
+          },
+        ),
+    );
+
+  /*
+   * Higher target = more profitable market.
+   */
+  const sampleTarget =
+    percentileRanks(
+      sample.map(
+        (market) =>
+          market.netProfit,
+      ),
+    );
+
+  const coefficients =
+    fitRidgeRegression(
+      sampleX,
+      sampleTarget,
+      RIDGE_LAMBDA,
+    );
+
+  const intercept =
+    coefficients[0];
 
   const featureCoefficients =
     coefficients.slice(1);
 
   const modelCoefficients =
-    features.map((feature, index) => ({
-      feature,
-      coefficient:
-        featureCoefficients[index],
-      absCoefficient:
-        Math.abs(
-          featureCoefficients[index],
-        ),
-      trainingCorrelation:
-        selectedStats[index]
-          ?.sampleSpearman ?? 0,
-    }));
+    features.map(
+      (feature, index) => ({
+        feature,
 
-  const score = (
+        coefficient:
+          featureCoefficients[
+            index
+          ],
+
+        absCoefficient:
+          Math.abs(
+            featureCoefficients[
+              index
+            ],
+          ),
+
+        sampleSpearman:
+          selectedStats[
+            index
+          ]?.sampleSpearman ??
+          0,
+      }),
+    );
+
+  function score(
     matrix: number[][],
-  ): number[] =>
-    matrix.map((row) => {
-      let value = intercept;
+  ): number[] {
+    return matrix.map(
+      (row) => {
+        let value =
+          intercept;
 
-      for (let i = 0; i < row.length; i += 1) {
-        value +=
-          row[i] *
-          featureCoefficients[i];
-      }
+        for (
+          let i = 0;
+          i < row.length;
+          i += 1
+        ) {
+          value +=
+            row[i] *
+            featureCoefficients[
+              i
+            ];
+        }
 
-      return value;
-    });
+        return value;
+      },
+    );
+  }
 
   return {
     features,
-    coefficients: modelCoefficients,
-    sampleScores: score(sampleX),
-    oosScores: score(oosX),
+    coefficients:
+      modelCoefficients,
+    sampleScores:
+      score(sampleX),
+    oosScores:
+      score(oosX),
   };
 }
 
@@ -829,188 +1321,248 @@ function createScoredMarkets(
   markets: MarketResult[],
   scores: number[],
 ): ScoredMarket[] {
-  const actualRanks = rankValues(
-    markets.map(
-      (market) => -market.netProfit,
-    ),
-  );
+  /*
+   * Rank 1 = highest actual profit.
+   */
+  const actualRanks =
+    rankValues(
+      markets.map(
+        (market) =>
+          -market.netProfit,
+      ),
+    );
 
   /*
-   * rankValues ranks ascending. Since negative profit is used,
-   * rank 1 means highest actual profit.
+   * Rank 1 = highest predicted score.
    */
-  const predictedRanks = rankValues(
-    scores.map((score) => -score),
+  const predictedRanks =
+    rankValues(
+      scores.map(
+        (score) => -score,
+      ),
+    );
+
+  return markets.map(
+    (market, index) => {
+      const actualRank =
+        actualRanks[index];
+
+      const predictedRank =
+        predictedRanks[index];
+
+      return {
+        symbol:
+          market.symbol,
+
+        datasetGroup:
+          market.datasetGroup,
+
+        binanceArrayPosition:
+          market.binanceArrayPosition,
+
+        actualNetProfit:
+          market.netProfit,
+
+        actualRank,
+
+        predictedScore:
+          scores[index],
+
+        predictedRank,
+
+        actualQuartile:
+          quartile(
+            actualRank,
+            markets.length,
+          ),
+
+        predictedQuartile:
+          quartile(
+            predictedRank,
+            markets.length,
+          ),
+
+        rankError:
+          predictedRank -
+          actualRank,
+
+        absoluteRankError:
+          Math.abs(
+            predictedRank -
+              actualRank,
+          ),
+      };
+    },
   );
+}
 
-  const count = markets.length;
+function intersectionCount(
+  a: Set<string>,
+  b: Set<string>,
+): number {
+  let count = 0;
 
-  return markets.map((market, index) => {
-    const actualRank = actualRanks[index];
-    const predictedRank = predictedRanks[index];
+  for (const value of a) {
+    if (b.has(value)) {
+      count += 1;
+    }
+  }
 
-    return {
-      symbol: market.symbol,
-      datasetGroup: market.datasetGroup,
-      binanceArrayPosition:
-        market.binanceArrayPosition,
-      actualNetProfit:
-        market.netProfit,
-      actualRank,
-      predictedScore:
-        scores[index],
-      predictedRank,
-      actualQuartile:
-        quartile(actualRank, count),
-      predictedQuartile:
-        quartile(predictedRank, count),
-      rankError:
-        predictedRank - actualRank,
-      absoluteRankError:
-        Math.abs(
-          predictedRank - actualRank,
-        ),
-    };
-  });
+  return count;
 }
 
 function topBottomOverlap(
   scored: ScoredMarket[],
   count: number,
-): {
-  topOverlap: number;
-  bottomOverlap: number;
-} {
-  const actualTop = new Set(
-    [...scored]
-      .sort(
-        (a, b) =>
-          a.actualRank -
-          b.actualRank,
-      )
-      .slice(0, count)
-      .map((market) => market.symbol),
-  );
+) {
+  const actualTop =
+    new Set(
+      [...scored]
+        .sort(
+          (a, b) =>
+            a.actualRank -
+            b.actualRank,
+        )
+        .slice(0, count)
+        .map(
+          (market) =>
+            market.symbol,
+        ),
+    );
 
-  const predictedTop = new Set(
-    [...scored]
-      .sort(
-        (a, b) =>
-          a.predictedRank -
-          b.predictedRank,
-      )
-      .slice(0, count)
-      .map((market) => market.symbol),
-  );
+  const predictedTop =
+    new Set(
+      [...scored]
+        .sort(
+          (a, b) =>
+            a.predictedRank -
+            b.predictedRank,
+        )
+        .slice(0, count)
+        .map(
+          (market) =>
+            market.symbol,
+        ),
+    );
 
-  const actualBottom = new Set(
-    [...scored]
-      .sort(
-        (a, b) =>
-          b.actualRank -
-          a.actualRank,
-      )
-      .slice(0, count)
-      .map((market) => market.symbol),
-  );
+  const actualBottom =
+    new Set(
+      [...scored]
+        .sort(
+          (a, b) =>
+            b.actualRank -
+            a.actualRank,
+        )
+        .slice(0, count)
+        .map(
+          (market) =>
+            market.symbol,
+        ),
+    );
 
-  const predictedBottom = new Set(
-    [...scored]
-      .sort(
-        (a, b) =>
-          b.predictedRank -
-          a.predictedRank,
-      )
-      .slice(0, count)
-      .map((market) => market.symbol),
-  );
-
-  const intersectionSize = (
-    a: Set<string>,
-    b: Set<string>,
-  ): number =>
-    [...a].filter((value) =>
-      b.has(value),
-    ).length;
+  const predictedBottom =
+    new Set(
+      [...scored]
+        .sort(
+          (a, b) =>
+            b.predictedRank -
+            a.predictedRank,
+        )
+        .slice(0, count)
+        .map(
+          (market) =>
+            market.symbol,
+        ),
+    );
 
   return {
     topOverlap:
-      intersectionSize(
+      intersectionCount(
         actualTop,
         predictedTop,
       ),
+
     bottomOverlap:
-      intersectionSize(
+      intersectionCount(
         actualBottom,
         predictedBottom,
       ),
   };
 }
 
+function median(
+  values: number[],
+): number {
+  if (values.length === 0) {
+    return 0;
+  }
+
+  const sorted =
+    [...values].sort(
+      (a, b) => a - b,
+    );
+
+  const middle =
+    Math.floor(
+      sorted.length / 2,
+    );
+
+  if (
+    sorted.length % 2 ===
+    1
+  ) {
+    return sorted[middle];
+  }
+
+  return (
+    sorted[middle - 1] +
+    sorted[middle]
+  ) / 2;
+}
+
 function quartilePerformance(
   scored: ScoredMarket[],
-): Array<{
-  predictedQuartile: number;
-  markets: number;
-  meanActualNetProfit: number;
-  medianActualNetProfit: number;
-  totalActualNetProfit: number;
-  meanActualRank: number;
-}> {
+) {
   const result = [];
 
   for (
-    let quartileNumber = 1;
-    quartileNumber <= 4;
-    quartileNumber += 1
+    let q = 1;
+    q <= 4;
+    q += 1
   ) {
-    const markets = scored.filter(
-      (market) =>
-        market.predictedQuartile ===
-        quartileNumber,
-    );
+    const markets =
+      scored.filter(
+        (market) =>
+          market.predictedQuartile ===
+          q,
+      );
 
-    const profits = markets.map(
-      (market) =>
-        market.actualNetProfit,
-    );
-
-    const sortedProfits = [
-      ...profits,
-    ].sort((a, b) => a - b);
-
-    const median =
-      sortedProfits.length === 0
-        ? 0
-        : sortedProfits.length % 2 === 1
-          ? sortedProfits[
-              Math.floor(
-                sortedProfits.length / 2,
-              )
-            ]
-          : (
-              sortedProfits[
-                sortedProfits.length / 2 - 1
-              ] +
-              sortedProfits[
-                sortedProfits.length / 2
-              ]
-            ) / 2;
+    const profits =
+      markets.map(
+        (market) =>
+          market.actualNetProfit,
+      );
 
     result.push({
       predictedQuartile:
-        quartileNumber,
-      markets: markets.length,
+        q,
+
+      markets:
+        markets.length,
+
       meanActualNetProfit:
         mean(profits),
+
       medianActualNetProfit:
-        median,
+        median(profits),
+
       totalActualNetProfit:
         profits.reduce(
           (sum, value) =>
             sum + value,
           0,
         ),
+
       meanActualRank:
         mean(
           markets.map(
@@ -1027,44 +1579,76 @@ function quartilePerformance(
 function summariseModel(
   scored: ScoredMarket[],
 ) {
-  const actualRanks = scored.map(
-    (market) => market.actualRank,
-  );
+  const predictedScores =
+    scored.map(
+      (market) =>
+        market.predictedScore,
+    );
 
-  const predictedRanks = scored.map(
-    (market) => market.predictedRank,
-  );
+  const actualProfits =
+    scored.map(
+      (market) =>
+        market.actualNetProfit,
+    );
 
-  const actualProfits = scored.map(
-    (market) =>
-      market.actualNetProfit,
-  );
+  const predictedRanks =
+    scored.map(
+      (market) =>
+        market.predictedRank,
+    );
 
-  const predictedScores = scored.map(
-    (market) =>
-      market.predictedScore,
-  );
+  const actualRanks =
+    scored.map(
+      (market) =>
+        market.actualRank,
+    );
 
   const overlap =
-    topBottomOverlap(scored, 10);
+    topBottomOverlap(
+      scored,
+      10,
+    );
+
+  const predictedTop =
+    [...scored]
+      .sort(
+        (a, b) =>
+          a.predictedRank -
+          b.predictedRank,
+      )
+      .slice(0, 10);
+
+  const predictedBottom =
+    [...scored]
+      .sort(
+        (a, b) =>
+          b.predictedRank -
+          a.predictedRank,
+      )
+      .slice(0, 10);
 
   return {
-    markets: scored.length,
-    spearmanPredictedVsActualRank:
+    markets:
+      scored.length,
+
+    spearmanPredictedScoreVsActualProfitRank:
       spearmanCorrelation(
         predictedScores,
         actualProfits,
       ),
+
     spearmanPredictedRankVsActualRank:
       spearmanCorrelation(
         predictedRanks,
         actualRanks,
       ),
+
     pearsonPredictedScoreVsActualProfit:
       pearsonCorrelation(
         predictedScores,
         actualProfits,
       ),
+
     meanAbsoluteRankError:
       mean(
         scored.map(
@@ -1072,64 +1656,66 @@ function summariseModel(
             market.absoluteRankError,
         ),
       ),
+
     top10Overlap:
       overlap.topOverlap,
+
     bottom10Overlap:
       overlap.bottomOverlap,
+
     predictedTop10MeanProfit:
       mean(
-        [...scored]
-          .sort(
-            (a, b) =>
-              a.predictedRank -
-              b.predictedRank,
-          )
-          .slice(0, 10)
-          .map(
-            (market) =>
-              market.actualNetProfit,
-          ),
+        predictedTop.map(
+          (market) =>
+            market.actualNetProfit,
+        ),
       ),
+
     predictedBottom10MeanProfit:
       mean(
-        [...scored]
-          .sort(
-            (a, b) =>
-              b.predictedRank -
-              a.predictedRank,
-          )
-          .slice(0, 10)
-          .map(
-            (market) =>
-              market.actualNetProfit,
-          ),
+        predictedBottom.map(
+          (market) =>
+            market.actualNetProfit,
+        ),
       ),
+
     quartiles:
-      quartilePerformance(scored),
+      quartilePerformance(
+        scored,
+      ),
   };
 }
 
 function printFeatureTable(
   stats: FeatureStats[],
 ): void {
-  console.log("\nFeature correlations");
   console.log(
-    "--------------------------------------------------------------------------",
+    "\n============================================================",
   );
+
   console.log(
-    "Feature".padEnd(55) +
+    "BINANCE FEATURE CORRELATIONS",
+  );
+
+  console.log(
+    "============================================================",
+  );
+
+  console.log(
+    "Feature".padEnd(65) +
       "Sample".padStart(10) +
       "OOS".padStart(10) +
       "All".padStart(10) +
       "Unique".padStart(9),
   );
+
   console.log(
-    "--------------------------------------------------------------------------",
+    "-".repeat(104),
   );
 
   for (const stat of stats) {
     console.log(
-      stat.feature.padEnd(55) +
+      stat.feature.padEnd(65) +
         stat.sampleSpearman
           .toFixed(4)
           .padStart(10) +
@@ -1139,54 +1725,75 @@ function printFeatureTable(
         stat.allSpearman
           .toFixed(4)
           .padStart(10) +
-        String(stat.uniqueValues).padStart(9),
+        String(
+          stat.uniqueValues,
+        ).padStart(9),
     );
   }
 
   console.log(
-    "--------------------------------------------------------------------------",
+    "-".repeat(104),
   );
 }
 
-function printModel(
+function printModelSummary(
   label: string,
-  summary: ReturnType<typeof summariseModel>,
+  summary: ReturnType<
+    typeof summariseModel
+  >,
 ): void {
-  console.log(`\n${label}`);
   console.log(
-    "--------------------------------------------------------------------------",
+    `\n${label}`,
   );
+
+  console.log(
+    "-".repeat(70),
+  );
+
   console.log(
     `Markets:                         ${summary.markets}`,
   );
+
   console.log(
-    `Predicted score vs profit:      ${summary.pearsonPredictedScoreVsActualProfit.toFixed(4)}`,
+    `Score vs actual profit:          ${summary.pearsonPredictedScoreVsActualProfit.toFixed(4)}`,
   );
+
   console.log(
-    `Predicted score vs profit rank: ${summary.spearmanPredictedVsActualRank.toFixed(4)}`,
+    `Score vs actual profit rank:     ${summary.spearmanPredictedScoreVsActualProfitRank.toFixed(4)}`,
   );
+
   console.log(
-    `Predicted rank vs actual rank:  ${summary.spearmanPredictedRankVsActualRank.toFixed(4)}`,
+    `Predicted rank vs actual rank:   ${summary.spearmanPredictedRankVsActualRank.toFixed(4)}`,
   );
+
   console.log(
     `Mean absolute rank error:        ${summary.meanAbsoluteRankError.toFixed(2)}`,
   );
+
   console.log(
-    `Top 10 overlap:                 ${summary.top10Overlap}/10`,
-  );
-  console.log(
-    `Bottom 10 overlap:              ${summary.bottom10Overlap}/10`,
-  );
-  console.log(
-    `Predicted top-10 mean profit:   ${summary.predictedTop10MeanProfit.toFixed(4)}`,
-  );
-  console.log(
-    `Predicted bottom-10 mean profit:${summary.predictedBottom10MeanProfit.toFixed(4)}`,
+    `Top 10 overlap:                  ${summary.top10Overlap}/10`,
   );
 
-  console.log("\nPredicted quartile performance:");
+  console.log(
+    `Bottom 10 overlap:               ${summary.bottom10Overlap}/10`,
+  );
 
-  for (const quartile of summary.quartiles) {
+  console.log(
+    `Predicted top-10 mean profit:    ${summary.predictedTop10MeanProfit.toFixed(4)}`,
+  );
+
+  console.log(
+    `Predicted bottom-10 mean profit: ${summary.predictedBottom10MeanProfit.toFixed(4)}`,
+  );
+
+  console.log(
+    "\nPredicted quartile performance:",
+  );
+
+  for (
+    const quartile of
+      summary.quartiles
+  ) {
     console.log(
       `  Q${quartile.predictedQuartile}: ` +
         `${quartile.markets} markets | ` +
@@ -1202,53 +1809,71 @@ function main(): void {
   console.log(
     "============================================================",
   );
+
   console.log(
     "Binance Metadata Profitability Ranking Research",
   );
+
   console.log(
     "============================================================",
   );
 
-  const input = readJson(INPUT_PATH);
+  const input =
+    readJson(INPUT_PATH);
 
-  const sample = input.sample?.markets ?? [];
+  const sample =
+    input.sample?.markets ??
+    [];
+
   const oos =
-    input.outOfSample?.markets ?? [];
+    input.outOfSample
+      ?.markets ?? [];
 
-  if (sample.length === 0) {
+  if (
+    sample.length === 0
+  ) {
     throw new Error(
-      "Sample market data is missing from the input.",
+      "Sample market data is missing.",
     );
   }
 
-  if (oos.length === 0) {
+  if (
+    oos.length === 0
+  ) {
     throw new Error(
-      "OutOfSample market data is missing from the input.",
+      "OutOfSample market data is missing.",
     );
   }
-
-  console.log(
-    `Input: ${path.resolve(INPUT_PATH)}`,
-  );
-  console.log(
-    `Sample markets: ${sample.length}`,
-  );
-  console.log(
-    `OutOfSample markets: ${oos.length}`,
-  );
 
   const allMarkets = [
     ...sample,
     ...oos,
   ];
 
+  console.log(
+    `Input: ${path.resolve(INPUT_PATH)}`,
+  );
+
+  console.log(
+    `Sample markets: ${sample.length}`,
+  );
+
+  console.log(
+    `OutOfSample markets: ${oos.length}`,
+  );
+
+  /*
+   * Extract all varying numeric Binance metadata.
+   *
+   * This is where the previous runner failed to descend into filters[].
+   */
   const features =
     selectVaryingFeatures(
       allMarkets,
     );
 
   console.log(
-    `Varying numeric Binance features: ${features.length}`,
+    `Varying Binance features found: ${features.length}`,
   );
 
   const featureStats =
@@ -1258,24 +1883,41 @@ function main(): void {
       features,
     );
 
-  printFeatureTable(featureStats);
-
-  /*
-   * Fit the model using Sample only.
-   */
-  const model = buildModel(
-    sample,
-    oos,
+  printFeatureTable(
     featureStats,
   );
 
-  console.log("\nSelected model features:");
+  /*
+   * Model is fitted ONLY on Sample.
+   */
+  const model =
+    buildModel(
+      sample,
+      oos,
+      featureStats,
+    );
 
-  for (const coefficient of model.coefficients) {
+  console.log(
+    "\n============================================================",
+  );
+
+  console.log(
+    "SELECTED MODEL FEATURES",
+  );
+
+  console.log(
+    "============================================================",
+  );
+
+  for (
+    const coefficient of
+      model.coefficients
+  ) {
     console.log(
-      `  ${coefficient.feature}: ` +
-        `coefficient=${coefficient.coefficient.toFixed(6)} ` +
-        `sampleCorrelation=${coefficient.trainingCorrelation.toFixed(4)}`,
+      `${coefficient.feature}\n` +
+        `  coefficient:       ${coefficient.coefficient.toFixed(8)}\n` +
+        `  |coefficient|:     ${coefficient.absCoefficient.toFixed(8)}\n` +
+        `  Sample Spearman:   ${coefficient.sampleSpearman.toFixed(6)}`,
     );
   }
 
@@ -1291,10 +1933,6 @@ function main(): void {
       model.oosScores,
     );
 
-  /*
-   * All-120 scores are useful for describing the model,
-   * but they are NOT used to fit it.
-   */
   const allScored = [
     ...sampleScored,
     ...oosScored,
@@ -1315,62 +1953,73 @@ function main(): void {
       allScored,
     );
 
-  printModel(
-    "Sample model fit",
+  printModelSummary(
+    "SAMPLE MODEL FIT",
     sampleSummary,
   );
 
-  printModel(
-    "OutOfSample holdout",
+  printModelSummary(
+    "OUT-OF-SAMPLE HOLDOUT",
     oosSummary,
   );
 
-  printModel(
-    "All 120 markets",
+  printModelSummary(
+    "ALL 120 MARKETS",
     allSummary,
   );
 
   /*
-   * Produce a compact market ranking.
+   * Print OOS ranking.
    */
-  const oosRanking = [
-    ...oosScored,
-  ].sort(
-    (a, b) =>
-      a.predictedRank -
-      b.predictedRank,
+  console.log(
+    "\n============================================================",
   );
 
   console.log(
-    "\nOutOfSample predicted ranking",
+    "OUT-OF-SAMPLE PREDICTED RANKING",
   );
+
   console.log(
-    "--------------------------------------------------------------------------",
+    "============================================================",
   );
+
   console.log(
     "Rank".padStart(5) +
-      " Symbol".padEnd(12) +
-      "Predicted".padStart(12) +
-      "Actual".padStart(9) +
+      " Symbol".padEnd(13) +
+      "PredScore".padStart(12) +
+      "ActualRank".padStart(12) +
       "NetProfit".padStart(12) +
       "BinancePos".padStart(12),
   );
+
   console.log(
-    "--------------------------------------------------------------------------",
+    "-".repeat(66),
   );
 
-  for (const market of oosRanking) {
+  const oosRanking =
+    [...oosScored].sort(
+      (a, b) =>
+        a.predictedRank -
+        b.predictedRank,
+    );
+
+  for (
+    const market of
+      oosRanking
+  ) {
     console.log(
       String(
         market.predictedRank,
       ).padStart(5) +
-        ` ${market.symbol}`.padEnd(12) +
+        ` ${market.symbol}`.padEnd(
+          13,
+        ) +
         market.predictedScore
           .toFixed(4)
           .padStart(12) +
         market.actualRank
           .toFixed(1)
-          .padStart(9) +
+          .padStart(12) +
         market.actualNetProfit
           .toFixed(4)
           .padStart(12) +
@@ -1391,41 +2040,67 @@ function main(): void {
       "binance_metadata_profitability_ranking",
 
     inputFile:
-      path.resolve(INPUT_PATH),
+      path.resolve(
+        INPUT_PATH,
+      ),
 
     methodology: {
       trainingUniverse:
         "Sample",
+
       holdoutUniverse:
         "OutOfSample",
+
       target:
         "market netProfit profitability ranking",
+
       model:
         "ridge regression",
+
       ridgeLambda:
         RIDGE_LAMBDA,
+
       featureSelection:
-        `top ${TOP_FEATURE_COUNT} Sample-only absolute Spearman correlations`,
+        `top ${TOP_FEATURE_COUNT} Sample-only absolute Spearman correlations among features varying in Sample`,
+
       featureTransformation:
         "Sample empirical percentile ranks",
+
+      oosFeatureTransformation:
+        "Sample empirical distribution applied to OOS values",
+
       targetTransformation:
         "profitability percentile rank",
+
       strategyVariablesUsed:
         false,
+
       binanceMetadataUsed:
         true,
+
       binanceArrayPositionUsed:
         true,
+
+      filterArraysExpanded:
+        true,
+
+      filterExtraction:
+        "filterType-qualified numeric fields",
     },
 
     marketCounts: {
       sample:
         sample.length,
+
       outOfSample:
         oos.length,
+
       total:
         allMarkets.length,
     },
+
+    featureCount:
+      features.length,
 
     featureStats,
 
@@ -1468,7 +2143,9 @@ function main(): void {
 
   fs.mkdirSync(
     outputDir,
-    { recursive: true },
+    {
+      recursive: true,
+    },
   );
 
   const outputPath =
@@ -1493,9 +2170,11 @@ function main(): void {
   console.log(
     "\n============================================================",
   );
+
   console.log(
     "Research complete",
   );
+
   console.log(
     "============================================================",
   );
