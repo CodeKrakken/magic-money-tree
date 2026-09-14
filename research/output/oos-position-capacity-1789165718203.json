@@ -1,0 +1,112 @@
+{
+  "generatedAt": "2026-09-11T22:28:38.203Z",
+  "methodology": {
+    "purpose": "Determine the minimum useful concurrent-position capacity while keeping the entry signal fixed.",
+    "positionNotional": 10,
+    "minimumTransactionNotional": 10,
+    "capacities": [
+      43
+    ],
+    "slopeThreshold": -0.0001425851160546487,
+    "accelerationThreshold": 0.000181827625860526,
+    "accelerationMultiplier": 1.3,
+    "targets": [
+      {
+        "name": "target_1pct",
+        "returnPct": 0.01,
+        "fraction": 0.5
+      },
+      {
+        "name": "target_2pct",
+        "returnPct": 0.02,
+        "fraction": 0.25
+      },
+      {
+        "name": "target_4pct",
+        "returnPct": 0.04,
+        "fraction": 0.25
+      }
+    ],
+    "stopPct": 0.1,
+    "maxHoldMinutes": 2880,
+    "feeRate": 0.001,
+    "executionCost": 0,
+    "entryExecution": "signal candle close",
+    "targetExecution": "target price when candle high reaches target",
+    "stopExecution": "stop price when candle low reaches stop",
+    "sameCandlePriority": "stop before targets",
+    "simultaneousEntrySelection": "highest frozen signal score first",
+    "portfolioCapacity": "maximum number of simultaneously open positions",
+    "candidatePositions": "generated once and reused across all capacity tests",
+    "rankingPriority": "return on peak capital"
+  },
+  "dataset": {
+    "path": "/home/pea/Documents/code/magic-money-tree/server/research-output/ema-data-oos-60-1789165540440.json",
+    "markets": 60,
+    "startTime": 1786469580000,
+    "endTime": 1789061520000,
+    "durationDays": 29.999305555555555
+  },
+  "runtime": {
+    "totalMilliseconds": 41
+  },
+  "results": [
+    {
+      "maxConcurrentPositions": 43,
+      "candidateSignals": 63734,
+      "acceptedSignals": 824,
+      "completedPositions": 781,
+      "openPositions": 43,
+      "winningPositions": 502,
+      "losingPositions": 322,
+      "winRate": 0.6092233009708737,
+      "realisedGross": 25.07751782213384,
+      "realisedFees": 16.162577517821997,
+      "realisedNet": 8.914940304311651,
+      "unrealisedGross": -5.667894443596583,
+      "combinedNet": 3.247045860715068,
+      "profitFactor": 1.155842124675262,
+      "minimumStartingCash": 430.4299999999998,
+      "peakCapitalDeployed": 430,
+      "averageCapitalDeployed": 312.40885205676085,
+      "finalEquity": 433.6770458607248,
+      "totalReturn": 0.007543725717805612,
+      "maxDrawdownAbsolute": 330.40632182179877,
+      "maxDrawdownPct": 0.4671696460866604,
+      "returnOnPeakCapital": 0.007551269443523414,
+      "returnOnAverageCapital": 0.01039357828479559,
+      "annualisedCapitalEfficiency": 0.1341592641685596,
+      "averageHoldMinutes": 2310.706786171575,
+      "medianHoldMinutes": 2880,
+      "maxOpenPositions": 43,
+      "maxOpenMarkets": 20
+    }
+  ],
+  "rankings": {
+    "byCapitalEfficiency": [
+      {
+        "maxConcurrentPositions": 43,
+        "returnOnPeakCapital": 0.007551269443523414,
+        "totalReturn": 0.007543725717805612,
+        "combinedNet": 3.247045860715068,
+        "minimumStartingCash": 430.4299999999998
+      }
+    ],
+    "byReturn": [
+      {
+        "maxConcurrentPositions": 43,
+        "totalReturn": 0.007543725717805612,
+        "combinedNet": 3.247045860715068,
+        "minimumStartingCash": 430.4299999999998
+      }
+    ],
+    "byProfit": [
+      {
+        "maxConcurrentPositions": 43,
+        "combinedNet": 3.247045860715068,
+        "totalReturn": 0.007543725717805612,
+        "minimumStartingCash": 430.4299999999998
+      }
+    ]
+  }
+}

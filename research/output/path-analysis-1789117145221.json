@@ -1,0 +1,1329 @@
+{
+  "generatedAt": "2026-09-11T08:59:05.221Z",
+  "sourceFile": "ema-data-1789061547934.json",
+  "signal": {
+    "conditions": [
+      {
+        "feature": "slope20",
+        "operator": "<=",
+        "percentile": 20,
+        "threshold": -0.00014247403014451264
+      },
+      {
+        "feature": "acceleration",
+        "operator": ">=",
+        "percentile": 80,
+        "threshold": 0.0001391412049997598
+      }
+    ]
+  },
+  "horizons": [
+    5,
+    10,
+    20,
+    30,
+    50,
+    75,
+    120
+  ],
+  "upsideThresholds": [
+    0.001,
+    0.002,
+    0.003,
+    0.005,
+    0.0075,
+    0.01
+  ],
+  "downsideThresholds": [
+    0.001,
+    0.002,
+    0.003,
+    0.005
+  ],
+  "recoveryWindows": [
+    5,
+    10,
+    20
+  ],
+  "costs": [
+    0,
+    0.0005,
+    0.001,
+    0.0015,
+    0.002,
+    0.0025,
+    0.003
+  ],
+  "discovery": {
+    "start": "2026-08-11T17:33:00.000Z",
+    "end": "2026-09-01T17:32:00.000Z",
+    "observations": 9773,
+    "horizons": {
+      "5": {
+        "observations": 9773,
+        "averageReturn": 0.000333632409230895,
+        "medianReturn": 0,
+        "positiveRate": 0.47754016166990687,
+        "returnAboveCost": {
+          "0": 0.47754016166990687,
+          "0.0005": 0.45861045738258466,
+          "0.001": 0.4227975033254886,
+          "0.0015": 0.37654763122889595,
+          "0.002": 0.3399160953647805,
+          "0.0025": 0.2981684232067942,
+          "0.003": 0.2596950782768853
+        },
+        "averageMfe": 0.0045544223769576255,
+        "medianMfe": 0.00260319821494992,
+        "averageMae": -0.004391698430141167,
+        "medianMae": -0.00230700976042586
+      },
+      "10": {
+        "observations": 9773,
+        "averageReturn": 0.0008212098322905272,
+        "medianReturn": 0.0007541478129713397,
+        "positiveRate": 0.5265527473651898,
+        "returnAboveCost": {
+          "0": 0.5265527473651898,
+          "0.0005": 0.5148879566151642,
+          "0.001": 0.4839864934001842,
+          "0.0015": 0.4477642484395784,
+          "0.002": 0.41563491251406937,
+          "0.0025": 0.37941266755346365,
+          "0.003": 0.3411439680753095
+        },
+        "averageMfe": 0.006704889372325382,
+        "medianMfe": 0.0040106951871659025,
+        "averageMae": -0.006106357805145488,
+        "medianMae": -0.003279953694771409
+      },
+      "20": {
+        "observations": 9773,
+        "averageReturn": 0.0012669269826686804,
+        "medianReturn": 0.0014326647564468775,
+        "positiveRate": 0.552338074286299,
+        "returnAboveCost": {
+          "0": 0.552338074286299,
+          "0.0005": 0.5423104471503121,
+          "0.001": 0.5221528701524608,
+          "0.0015": 0.4953443159725775,
+          "0.002": 0.47088918448787476,
+          "0.0025": 0.4466386984549268,
+          "0.003": 0.41942085337153384
+        },
+        "averageMfe": 0.009808728786389363,
+        "medianMfe": 0.005994005994006013,
+        "averageMae": -0.008528224849555344,
+        "medianMae": -0.004524886877828149
+      },
+      "30": {
+        "observations": 9773,
+        "averageReturn": 0.00147148938024035,
+        "medianReturn": 0.00227790432801811,
+        "positiveRate": 0.5843650874859306,
+        "returnAboveCost": {
+          "0": 0.5843650874859306,
+          "0.0005": 0.5744397830758211,
+          "0.001": 0.557965824209557,
+          "0.0015": 0.5317712063849381,
+          "0.002": 0.5128415020976159,
+          "0.0025": 0.49033050240458403,
+          "0.003": 0.46536375729049423
+        },
+        "averageMfe": 0.012137914072107073,
+        "medianMfe": 0.007615230460921829,
+        "averageMae": -0.010172721522050515,
+        "medianMae": -0.0053837759185159095
+      },
+      "50": {
+        "observations": 9773,
+        "averageReturn": 0.0008630487103266302,
+        "medianReturn": 0.0023102310231022383,
+        "positiveRate": 0.5680957740714213,
+        "returnAboveCost": {
+          "0": 0.5680957740714213,
+          "0.0005": 0.5615471196152666,
+          "0.001": 0.5472219379924281,
+          "0.0015": 0.52931546096388,
+          "0.002": 0.5119205975647191,
+          "0.0025": 0.4896142433234421,
+          "0.003": 0.4677171799856748
+        },
+        "averageMfe": 0.01530093005789004,
+        "medianMfe": 0.009759759759759845,
+        "averageMae": -0.013423414656524036,
+        "medianMae": -0.0070224719101122934
+      },
+      "75": {
+        "observations": 9773,
+        "averageReturn": 0.00044294757123023175,
+        "medianReturn": 0.0024154589371980784,
+        "positiveRate": 0.5630819605034278,
+        "returnAboveCost": {
+          "0": 0.5630819605034278,
+          "0.0005": 0.5573518878542925,
+          "0.001": 0.5456870971042669,
+          "0.0015": 0.5294177836897574,
+          "0.002": 0.5148879566151642,
+          "0.0025": 0.4961628977795968,
+          "0.003": 0.47835874347692625
+        },
+        "averageMfe": 0.01797402820108162,
+        "medianMfe": 0.011396561715279141,
+        "averageMae": -0.01634560234222867,
+        "medianMae": -0.00831255195344971
+      },
+      "120": {
+        "observations": 9773,
+        "averageReturn": 0.0004897908859411424,
+        "medianReturn": 0.0016339869281045694,
+        "positiveRate": 0.5328967563695897,
+        "returnAboveCost": {
+          "0": 0.5328967563695897,
+          "0.0005": 0.5272690064463317,
+          "0.001": 0.5171390565844675,
+          "0.0015": 0.5030185204133838,
+          "0.002": 0.49319553872915173,
+          "0.0025": 0.47846106620280365,
+          "0.003": 0.4652614345646168
+        },
+        "averageMfe": 0.022426185696474053,
+        "medianMfe": 0.01325757575757569,
+        "averageMae": -0.019948765131622522,
+        "medianMae": -0.010362694300518172
+      }
+    },
+    "upsideThresholds": [
+      {
+        "threshold": 0.001,
+        "reached": 9248,
+        "reachedRate": 0.9462805689143559,
+        "averageMinutes": 7.16955017301038,
+        "medianMinutes": 2
+      },
+      {
+        "threshold": 0.002,
+        "reached": 8994,
+        "reachedRate": 0.9202905965414918,
+        "averageMinutes": 10.140204580831666,
+        "medianMinutes": 3
+      },
+      {
+        "threshold": 0.003,
+        "reached": 8655,
+        "reachedRate": 0.8856031924690474,
+        "averageMinutes": 13.500982091276718,
+        "medianMinutes": 5
+      },
+      {
+        "threshold": 0.005,
+        "reached": 7886,
+        "reachedRate": 0.8069170162693134,
+        "averageMinutes": 19.440147096119706,
+        "medianMinutes": 10
+      },
+      {
+        "threshold": 0.0075,
+        "reached": 6990,
+        "reachedRate": 0.7152358538831475,
+        "averageMinutes": 25.36351931330472,
+        "medianMinutes": 16
+      },
+      {
+        "threshold": 0.01,
+        "reached": 6093,
+        "reachedRate": 0.6234523687711041,
+        "averageMinutes": 30.450516986706056,
+        "medianMinutes": 21
+      }
+    ],
+    "downsideThresholds": [
+      {
+        "threshold": 0.001,
+        "reached": 8824,
+        "reachedRate": 0.902895733142331,
+        "averageMinutes": 8.653558476881233,
+        "medianMinutes": 2
+      },
+      {
+        "threshold": 0.002,
+        "reached": 8302,
+        "reachedRate": 0.849483270234319,
+        "averageMinutes": 12.292339195374609,
+        "medianMinutes": 3
+      },
+      {
+        "threshold": 0.003,
+        "reached": 7743,
+        "reachedRate": 0.7922848664688428,
+        "averageMinutes": 16.22420250548883,
+        "medianMinutes": 5
+      },
+      {
+        "threshold": 0.005,
+        "reached": 6763,
+        "reachedRate": 0.6920085951089737,
+        "averageMinutes": 22.28167972793139,
+        "medianMinutes": 9
+      }
+    ],
+    "recoveryBranches": [
+      {
+        "threshold": 0.001,
+        "withinMinutes": 5,
+        "observations": 6900,
+        "averageReturnAfter20m": 0.0014395829355289178,
+        "medianReturnAfter20m": 0.001548330015483268,
+        "averageReturnAfter50m": 0.0005001457418459035,
+        "medianReturnAfter50m": 0.0017638283954753975,
+        "averageMfeAfterConfirmation": 0.017067424261718527,
+        "averageMaeAfterConfirmation": -0.014910004630144627
+      },
+      {
+        "threshold": 0.001,
+        "withinMinutes": 10,
+        "observations": 7733,
+        "averageReturnAfter20m": 0.0014094732728478683,
+        "medianReturnAfter20m": 0.001510574018126709,
+        "averageReturnAfter50m": 0.0005462513242943672,
+        "medianReturnAfter50m": 0.0018022077044379525,
+        "averageMfeAfterConfirmation": 0.016357628949832503,
+        "averageMaeAfterConfirmation": -0.014357511729900855
+      },
+      {
+        "threshold": 0.001,
+        "withinMinutes": 20,
+        "observations": 8415,
+        "averageReturnAfter20m": 0.0013632883624560268,
+        "medianReturnAfter20m": 0.001477832512315258,
+        "averageReturnAfter50m": 0.0004727476492548193,
+        "medianReturnAfter50m": 0.0016934801016088574,
+        "averageMfeAfterConfirmation": 0.015768070507790718,
+        "averageMaeAfterConfirmation": -0.013887028040917676
+      },
+      {
+        "threshold": 0.002,
+        "withinMinutes": 5,
+        "observations": 5646,
+        "averageReturnAfter20m": 0.0013655306577821202,
+        "medianReturnAfter20m": 0.0014550747651184137,
+        "averageReturnAfter50m": -0.000020470023218501204,
+        "medianReturnAfter50m": 0.001218857757219971,
+        "averageMfeAfterConfirmation": 0.017890372803369362,
+        "averageMaeAfterConfirmation": -0.016152179231755513
+      },
+      {
+        "threshold": 0.002,
+        "withinMinutes": 10,
+        "observations": 6786,
+        "averageReturnAfter20m": 0.001338726469879299,
+        "medianReturnAfter20m": 0.0014054987298162125,
+        "averageReturnAfter50m": 0.00011428904306278595,
+        "medianReturnAfter50m": 0.0013131982023928401,
+        "averageMfeAfterConfirmation": 0.01681453632855244,
+        "averageMaeAfterConfirmation": -0.015168840607290669
+      },
+      {
+        "threshold": 0.002,
+        "withinMinutes": 20,
+        "observations": 7752,
+        "averageReturnAfter20m": 0.0013319308449040257,
+        "medianReturnAfter20m": 0.0013616834733226613,
+        "averageReturnAfter50m": 0.00008170555017368274,
+        "medianReturnAfter50m": 0.0012728207158150262,
+        "averageMfeAfterConfirmation": 0.015970384125031652,
+        "averageMaeAfterConfirmation": -0.014413959842284775
+      },
+      {
+        "threshold": 0.003,
+        "withinMinutes": 5,
+        "observations": 4451,
+        "averageReturnAfter20m": 0.0012598368471227308,
+        "medianReturnAfter20m": 0.0013368983957218195,
+        "averageReturnAfter50m": -0.0004944666173328738,
+        "medianReturnAfter50m": 0.0007532011046949005,
+        "averageMfeAfterConfirmation": 0.019330924288915783,
+        "averageMaeAfterConfirmation": -0.01781579362239248
+      },
+      {
+        "threshold": 0.003,
+        "withinMinutes": 10,
+        "observations": 5772,
+        "averageReturnAfter20m": 0.0012618580068541516,
+        "medianReturnAfter20m": 0.001248398996960387,
+        "averageReturnAfter50m": -0.0002015150597607824,
+        "medianReturnAfter50m": 0.0008254299185130876,
+        "averageMfeAfterConfirmation": 0.017689148846737803,
+        "averageMaeAfterConfirmation": -0.016152634982628502
+      },
+      {
+        "threshold": 0.003,
+        "withinMinutes": 20,
+        "observations": 6925,
+        "averageReturnAfter20m": 0.0012341226665963671,
+        "medianReturnAfter20m": 0.0012658227848101333,
+        "averageReturnAfter50m": -0.0002339282939349951,
+        "medianReturnAfter50m": 0.0008618213157138843,
+        "averageMfeAfterConfirmation": 0.016479161316098848,
+        "averageMaeAfterConfirmation": -0.015109596968233703
+      },
+      {
+        "threshold": 0.005,
+        "withinMinutes": 5,
+        "observations": 2788,
+        "averageReturnAfter20m": 0.0006873009553009888,
+        "medianReturnAfter20m": 0.0005530348274718211,
+        "averageReturnAfter50m": -0.0017448335295759839,
+        "medianReturnAfter50m": 0,
+        "averageMfeAfterConfirmation": 0.02317900777176882,
+        "averageMaeAfterConfirmation": -0.0222423013290983
+      },
+      {
+        "threshold": 0.005,
+        "withinMinutes": 10,
+        "observations": 4136,
+        "averageReturnAfter20m": 0.0009912125666363442,
+        "medianReturnAfter20m": 0.0009225162908377271,
+        "averageReturnAfter50m": -0.0010535268039821894,
+        "medianReturnAfter50m": 0,
+        "averageMfeAfterConfirmation": 0.02002333088516605,
+        "averageMaeAfterConfirmation": -0.018945769271857222
+      },
+      {
+        "threshold": 0.005,
+        "withinMinutes": 20,
+        "observations": 5485,
+        "averageReturnAfter20m": 0.00091931478228835,
+        "medianReturnAfter20m": 0.0010288065843622185,
+        "averageReturnAfter50m": -0.0009342878900470852,
+        "medianReturnAfter50m": 0.00014322543683764621,
+        "averageMfeAfterConfirmation": 0.01782505692045994,
+        "averageMaeAfterConfirmation": -0.01692067799845196
+      },
+      {
+        "threshold": 0.0075,
+        "withinMinutes": 5,
+        "observations": 1672,
+        "averageReturnAfter20m": -0.00019637929754805363,
+        "medianReturnAfter20m": 0,
+        "averageReturnAfter50m": -0.0033059759662493957,
+        "medianReturnAfter50m": -0.0014129067887393987,
+        "averageMfeAfterConfirmation": 0.028554342468450525,
+        "averageMaeAfterConfirmation": -0.028838807626156728
+      },
+      {
+        "threshold": 0.0075,
+        "withinMinutes": 10,
+        "observations": 2720,
+        "averageReturnAfter20m": 0.0003693176545562312,
+        "medianReturnAfter20m": 0,
+        "averageReturnAfter50m": -0.0022988608488541296,
+        "medianReturnAfter50m": -0.00048780487804889194,
+        "averageMfeAfterConfirmation": 0.02379364662401,
+        "averageMaeAfterConfirmation": -0.02335671027370197
+      },
+      {
+        "threshold": 0.0075,
+        "withinMinutes": 20,
+        "observations": 4078,
+        "averageReturnAfter20m": 0.00016684697879164906,
+        "medianReturnAfter20m": 0,
+        "averageReturnAfter50m": -0.002061270546075755,
+        "medianReturnAfter50m": 0,
+        "averageMfeAfterConfirmation": 0.019813012830089214,
+        "averageMaeAfterConfirmation": -0.02007099266534037
+      },
+      {
+        "threshold": 0.01,
+        "withinMinutes": 5,
+        "observations": 1102,
+        "averageReturnAfter20m": -0.0013636853320987405,
+        "medianReturnAfter20m": -0.0007396449704143437,
+        "averageReturnAfter50m": -0.0043482591726537664,
+        "medianReturnAfter50m": -0.003325942350332678,
+        "averageMfeAfterConfirmation": 0.03356168725739531,
+        "averageMaeAfterConfirmation": -0.03354819540672634
+      },
+      {
+        "threshold": 0.01,
+        "withinMinutes": 10,
+        "observations": 1866,
+        "averageReturnAfter20m": -0.00047343017809857386,
+        "medianReturnAfter20m": 0,
+        "averageReturnAfter50m": -0.0036219462793063767,
+        "medianReturnAfter50m": -0.0025826446280992066,
+        "averageMfeAfterConfirmation": 0.027670627917232748,
+        "averageMaeAfterConfirmation": -0.027569560835326464
+      },
+      {
+        "threshold": 0.01,
+        "withinMinutes": 20,
+        "observations": 2976,
+        "averageReturnAfter20m": -0.0006366234973438163,
+        "medianReturnAfter20m": 0,
+        "averageReturnAfter50m": -0.003203565338856388,
+        "medianReturnAfter50m": -0.0014727540500736325,
+        "averageMfeAfterConfirmation": 0.02251735007852248,
+        "averageMaeAfterConfirmation": -0.023341151040105777
+      }
+    ],
+    "failureBranches": [
+      {
+        "threshold": 0.001,
+        "withinMinutes": 5,
+        "observations": 2873,
+        "averageReturnAfter20m": -0.002758957606299278,
+        "medianReturnAfter20m": -0.0011164867882397234,
+        "averageReturnAfter50m": -0.002387538724649975,
+        "medianReturnAfter50m": 0
+      },
+      {
+        "threshold": 0.001,
+        "withinMinutes": 10,
+        "observations": 2040,
+        "averageReturnAfter20m": -0.004829496795348534,
+        "medianReturnAfter20m": -0.0026326566791129435,
+        "averageReturnAfter50m": -0.0044711254753156396,
+        "medianReturnAfter50m": -0.0010369918990608684
+      },
+      {
+        "threshold": 0.001,
+        "withinMinutes": 20,
+        "observations": 1358,
+        "averageReturnAfter20m": -0.008473320745217418,
+        "medianReturnAfter20m": -0.005002780867630674,
+        "averageReturnAfter50m": -0.007901968051625083,
+        "medianReturnAfter50m": -0.004255319148936065
+      },
+      {
+        "threshold": 0.002,
+        "withinMinutes": 5,
+        "observations": 4127,
+        "averageReturnAfter20m": -0.0020189408937114945,
+        "medianReturnAfter20m": -0.0005497526113248385,
+        "averageReturnAfter50m": -0.0015350167488667316,
+        "medianReturnAfter50m": 0.0004123711340207059
+      },
+      {
+        "threshold": 0.002,
+        "withinMinutes": 10,
+        "observations": 2987,
+        "averageReturnAfter20m": -0.004145270847780331,
+        "medianReturnAfter20m": -0.0022015655577299897,
+        "averageReturnAfter50m": -0.003402136133159088,
+        "medianReturnAfter50m": -0.0005321979776478081
+      },
+      {
+        "threshold": 0.002,
+        "withinMinutes": 20,
+        "observations": 2021,
+        "averageReturnAfter20m": -0.007768711284905938,
+        "medianReturnAfter20m": -0.004461795872838792,
+        "averageReturnAfter50m": -0.006747082679384298,
+        "medianReturnAfter50m": -0.003273322422258418
+      },
+      {
+        "threshold": 0.003,
+        "withinMinutes": 5,
+        "observations": 5322,
+        "averageReturnAfter20m": -0.0014724687562286366,
+        "medianReturnAfter20m": 0,
+        "averageReturnAfter50m": -0.0010536031033661992,
+        "medianReturnAfter50m": 0.001007659093616664
+      },
+      {
+        "threshold": 0.003,
+        "withinMinutes": 10,
+        "observations": 4001,
+        "averageReturnAfter20m": -0.0035184619523039597,
+        "medianReturnAfter20m": -0.0016677785190126748,
+        "averageReturnAfter50m": -0.0028035503246352056,
+        "medianReturnAfter50m": 0
+      },
+      {
+        "threshold": 0.003,
+        "withinMinutes": 20,
+        "observations": 2848,
+        "averageReturnAfter20m": -0.006710293397210691,
+        "medianReturnAfter20m": -0.0037735849056603765,
+        "averageReturnAfter50m": -0.00563757629521338,
+        "medianReturnAfter50m": -0.0023872058077999414
+      },
+      {
+        "threshold": 0.005,
+        "withinMinutes": 5,
+        "observations": 6985,
+        "averageReturnAfter20m": -0.0005824504217818852,
+        "medianReturnAfter20m": 0,
+        "averageReturnAfter50m": -0.0002673879577876361,
+        "medianReturnAfter50m": 0.0015313935681469104
+      },
+      {
+        "threshold": 0.005,
+        "withinMinutes": 10,
+        "observations": 5637,
+        "averageReturnAfter20m": -0.002327795510587906,
+        "medianReturnAfter20m": -0.0005980861244018199,
+        "averageReturnAfter50m": -0.001661636086059212,
+        "medianReturnAfter50m": 0.0001725030188028942
+      },
+      {
+        "threshold": 0.005,
+        "withinMinutes": 20,
+        "observations": 4288,
+        "averageReturnAfter20m": -0.005062134228598399,
+        "medianReturnAfter20m": -0.0024697457668472755,
+        "averageReturnAfter50m": -0.0039212224711991876,
+        "medianReturnAfter50m": -0.0009620510428466345
+      },
+      {
+        "threshold": 0.0075,
+        "withinMinutes": 5,
+        "observations": 8101,
+        "averageReturnAfter20m": 0.00002260792278414111,
+        "medianReturnAfter20m": 0.000822368421052655,
+        "averageReturnAfter50m": 0.00021558775008021516,
+        "medianReturnAfter50m": 0.001997632435631891
+      },
+      {
+        "threshold": 0.0075,
+        "withinMinutes": 10,
+        "observations": 7053,
+        "averageReturnAfter20m": -0.0012749045300415247,
+        "medianReturnAfter20m": 0,
+        "averageReturnAfter50m": -0.0008627144192798009,
+        "medianReturnAfter50m": 0.0012970168612191912
+      },
+      {
+        "threshold": 0.0075,
+        "withinMinutes": 20,
+        "observations": 5695,
+        "averageReturnAfter20m": -0.003575716018853656,
+        "medianReturnAfter20m": -0.0012463647694225255,
+        "averageReturnAfter50m": -0.002711350103589714,
+        "medianReturnAfter50m": 0
+      },
+      {
+        "threshold": 0.01,
+        "withinMinutes": 5,
+        "observations": 8671,
+        "averageReturnAfter20m": 0.0003901032768506448,
+        "medianReturnAfter20m": 0.0010948905109491314,
+        "averageReturnAfter50m": 0.0003372672679797127,
+        "medianReturnAfter50m": 0.0021822149481725006
+      },
+      {
+        "threshold": 0.01,
+        "withinMinutes": 10,
+        "observations": 7907,
+        "averageReturnAfter20m": -0.0006311181619329594,
+        "medianReturnAfter20m": 0.0003980891719745916,
+        "averageReturnAfter50m": -0.00044519454490844925,
+        "medianReturnAfter50m": 0.0016465422612512715
+      },
+      {
+        "threshold": 0.01,
+        "withinMinutes": 20,
+        "observations": 6797,
+        "averageReturnAfter20m": -0.002496876401351776,
+        "medianReturnAfter20m": 0,
+        "averageReturnAfter50m": -0.0019474080128087058,
+        "medianReturnAfter50m": 0.0006232471174820731
+      }
+    ],
+    "costSensitivity": [
+      {
+        "cost": 0,
+        "observations": 9773,
+        "averageNetReturn": 0.0012669269826686804,
+        "medianNetReturn": 0.0014326647564468775,
+        "profitableRate": 0.552338074286299,
+        "totalSimpleReturn": 12.381677401621014
+      },
+      {
+        "cost": 0.0005,
+        "observations": 9773,
+        "averageNetReturn": 0.0007669269826686781,
+        "medianNetReturn": 0.0009326647564468775,
+        "profitableRate": 0.5423104471503121,
+        "totalSimpleReturn": 7.4951774016209916
+      },
+      {
+        "cost": 0.001,
+        "observations": 9773,
+        "averageNetReturn": 0.0002669269826687017,
+        "medianNetReturn": 0.0004326647564468775,
+        "profitableRate": 0.5221528701524608,
+        "totalSimpleReturn": 2.6086774016212213
+      },
+      {
+        "cost": 0.0015,
+        "observations": 9773,
+        "averageNetReturn": -0.00023307301733129502,
+        "medianNetReturn": -0.00006733524355312251,
+        "profitableRate": 0.4953443159725775,
+        "totalSimpleReturn": -2.277822598378746
+      },
+      {
+        "cost": 0.002,
+        "observations": 9773,
+        "averageNetReturn": -0.0007330730173312247,
+        "medianNetReturn": -0.0005673352435531225,
+        "profitableRate": 0.47088918448787476,
+        "totalSimpleReturn": -7.1643225983780585
+      },
+      {
+        "cost": 0.0025,
+        "observations": 9773,
+        "averageNetReturn": -0.0012330730173313307,
+        "medianNetReturn": -0.0010673352435531225,
+        "profitableRate": 0.4466386984549268,
+        "totalSimpleReturn": -12.050822598379096
+      },
+      {
+        "cost": 0.003,
+        "observations": 9773,
+        "averageNetReturn": -0.0017330730173312965,
+        "medianNetReturn": -0.0015673352435531225,
+        "profitableRate": 0.41942085337153384,
+        "totalSimpleReturn": -16.93732259837876
+      }
+    ]
+  },
+  "outOfSample": {
+    "start": "2026-09-01T17:32:00.000Z",
+    "end": "2026-09-10T17:32:00.001Z",
+    "observations": 4191,
+    "horizons": {
+      "5": {
+        "observations": 4191,
+        "averageReturn": 0.00048443255711215234,
+        "medianReturn": 0.0001725774441279082,
+        "positiveRate": 0.5029825817227392,
+        "returnAboveCost": {
+          "0": 0.5029825817227392,
+          "0.0005": 0.48079217370555954,
+          "0.001": 0.44547840610832734,
+          "0.0015": 0.38463373896444764,
+          "0.002": 0.3493199713672155,
+          "0.0025": 0.2996898115008351,
+          "0.003": 0.25483178239083754
+        },
+        "averageMfe": 0.003990576237190945,
+        "medianMfe": 0.0025706940874037354,
+        "averageMae": -0.0037013043370460767,
+        "medianMae": -0.002207505518763808
+      },
+      "10": {
+        "observations": 4191,
+        "averageReturn": 0.0008732336488366823,
+        "medianReturn": 0.0008469791078484779,
+        "positiveRate": 0.5351944643283226,
+        "returnAboveCost": {
+          "0": 0.5351944643283226,
+          "0.0005": 0.518492006680983,
+          "0.001": 0.49200668098305894,
+          "0.0015": 0.4442853734192317,
+          "0.002": 0.41040324504891434,
+          "0.0025": 0.3681698878549272,
+          "0.003": 0.3304700548795037
+        },
+        "averageMfe": 0.0058489224737295255,
+        "medianMfe": 0.003935286401399285,
+        "averageMae": -0.005279493229927982,
+        "medianMae": -0.0029733959311423197
+      },
+      "20": {
+        "observations": 4191,
+        "averageReturn": 0.0016518982374902188,
+        "medianReturn": 0.0014641288433381305,
+        "positiveRate": 0.5724170842281079,
+        "returnAboveCost": {
+          "0": 0.5724170842281079,
+          "0.0005": 0.5583392984967788,
+          "0.001": 0.5373419231686948,
+          "0.0015": 0.49797184442853737,
+          "0.002": 0.4767358625626342,
+          "0.0025": 0.44380816034359344,
+          "0.003": 0.41040324504891434
+        },
+        "averageMfe": 0.008586986182767384,
+        "medianMfe": 0.005555555555555536,
+        "averageMae": -0.007170438827103522,
+        "medianMae": -0.004081632653061273
+      },
+      "30": {
+        "observations": 4191,
+        "averageReturn": 0.0021168554160816196,
+        "medianReturn": 0.0024937655860350905,
+        "positiveRate": 0.6055833929849678,
+        "returnAboveCost": {
+          "0": 0.6055833929849678,
+          "0.0005": 0.5943688857074684,
+          "0.001": 0.5769506084466715,
+          "0.0015": 0.5456931519923646,
+          "0.002": 0.5275590551181102,
+          "0.0025": 0.49964209019327127,
+          "0.003": 0.4700548795036984
+        },
+        "averageMfe": 0.01053306506659537,
+        "medianMfe": 0.007069408740359773,
+        "averageMae": -0.008610073703180255,
+        "medianMae": -0.004728598167668241
+      },
+      "50": {
+        "observations": 4191,
+        "averageReturn": 0.0032230293578508996,
+        "medianReturn": 0.003975014196479387,
+        "positiveRate": 0.6363636363636364,
+        "returnAboveCost": {
+          "0": 0.6363636363636364,
+          "0.0005": 0.6270579813886901,
+          "0.001": 0.6151276544977332,
+          "0.0015": 0.5946074922452875,
+          "0.002": 0.5805297065139585,
+          "0.0025": 0.5612025769506085,
+          "0.003": 0.5378191362443331
+        },
+        "averageMfe": 0.014093601977464459,
+        "medianMfe": 0.010070493454179319,
+        "averageMae": -0.010849641247373363,
+        "medianMae": -0.005810575246949501
+      },
+      "75": {
+        "observations": 4191,
+        "averageReturn": 0.0030468259568887323,
+        "medianReturn": 0.003765060240963791,
+        "positiveRate": 0.5969935576234788,
+        "returnAboveCost": {
+          "0": 0.5969935576234788,
+          "0.0005": 0.5895967549510857,
+          "0.001": 0.5783822476735863,
+          "0.0015": 0.5619183965640658,
+          "0.002": 0.5499880696731091,
+          "0.0025": 0.53591028394178,
+          "0.003": 0.5189692197566214
+        },
+        "averageMfe": 0.017463111465734066,
+        "medianMfe": 0.012171372930866786,
+        "averageMae": -0.012910254231785035,
+        "medianMae": -0.007170435741864378
+      },
+      "120": {
+        "observations": 4191,
+        "averageReturn": 0.0020695601931907844,
+        "medianReturn": 0.0011609345523146963,
+        "positiveRate": 0.5213552851348127,
+        "returnAboveCost": {
+          "0": 0.5213552851348127,
+          "0.0005": 0.5163445478406108,
+          "0.001": 0.507754712479122,
+          "0.0015": 0.49129086136960154,
+          "0.002": 0.4812693867811978,
+          "0.0025": 0.4628966833691243,
+          "0.003": 0.44810307802433785
+        },
+        "averageMfe": 0.021704361792409147,
+        "medianMfe": 0.01386962552011095,
+        "averageMae": -0.016573732063028816,
+        "medianMae": -0.010309278350515427
+      }
+    },
+    "upsideThresholds": [
+      {
+        "threshold": 0.001,
+        "reached": 4037,
+        "reachedRate": 0.963254593175853,
+        "averageMinutes": 6.911320287342086,
+        "medianMinutes": 2
+      },
+      {
+        "threshold": 0.002,
+        "reached": 3940,
+        "reachedRate": 0.9401097590073968,
+        "averageMinutes": 10.385532994923858,
+        "medianMinutes": 3
+      },
+      {
+        "threshold": 0.003,
+        "reached": 3806,
+        "reachedRate": 0.9081364829396326,
+        "averageMinutes": 14.604046242774567,
+        "medianMinutes": 6
+      },
+      {
+        "threshold": 0.005,
+        "reached": 3532,
+        "reachedRate": 0.8427582915771892,
+        "averageMinutes": 21.213759909399773,
+        "medianMinutes": 12
+      },
+      {
+        "threshold": 0.0075,
+        "reached": 3195,
+        "reachedRate": 0.7623478883321403,
+        "averageMinutes": 28.480438184663537,
+        "medianMinutes": 20
+      },
+      {
+        "threshold": 0.01,
+        "reached": 2777,
+        "reachedRate": 0.6626103555237414,
+        "averageMinutes": 33.91897731364782,
+        "medianMinutes": 27
+      }
+    ],
+    "downsideThresholds": [
+      {
+        "threshold": 0.001,
+        "reached": 3819,
+        "reachedRate": 0.9112383679312813,
+        "averageMinutes": 8.461377323906781,
+        "medianMinutes": 2
+      },
+      {
+        "threshold": 0.002,
+        "reached": 3601,
+        "reachedRate": 0.8592221426867096,
+        "averageMinutes": 12.948625381838378,
+        "medianMinutes": 3
+      },
+      {
+        "threshold": 0.003,
+        "reached": 3374,
+        "reachedRate": 0.8050584586017657,
+        "averageMinutes": 18.543864848844102,
+        "medianMinutes": 6
+      },
+      {
+        "threshold": 0.005,
+        "reached": 2988,
+        "reachedRate": 0.7129563350035791,
+        "averageMinutes": 28.66532797858099,
+        "medianMinutes": 13
+      }
+    ],
+    "recoveryBranches": [
+      {
+        "threshold": 0.001,
+        "withinMinutes": 5,
+        "observations": 3085,
+        "averageReturnAfter20m": 0.0014012868295952806,
+        "medianReturnAfter20m": 0.0013742556115436955,
+        "averageReturnAfter50m": 0.002787940695998225,
+        "medianReturnAfter50m": 0.00356718192627814,
+        "averageMfeAfterConfirmation": 0.014973754619105339,
+        "averageMaeAfterConfirmation": -0.011886918796093564
+      },
+      {
+        "threshold": 0.001,
+        "withinMinutes": 10,
+        "observations": 3441,
+        "averageReturnAfter20m": 0.0014311843261783932,
+        "medianReturnAfter20m": 0.0013736263736263687,
+        "averageReturnAfter50m": 0.0027649225629088983,
+        "medianReturnAfter50m": 0.003504672897196137,
+        "averageMfeAfterConfirmation": 0.014504133654854595,
+        "averageMaeAfterConfirmation": -0.011478488709120967
+      },
+      {
+        "threshold": 0.001,
+        "withinMinutes": 20,
+        "observations": 3688,
+        "averageReturnAfter20m": 0.0014503288877326926,
+        "medianReturnAfter20m": 0.001385681293302632,
+        "averageReturnAfter50m": 0.002693085135876052,
+        "medianReturnAfter50m": 0.0033762975088631464,
+        "averageMfeAfterConfirmation": 0.014207737299842592,
+        "averageMaeAfterConfirmation": -0.01117365331723585
+      },
+      {
+        "threshold": 0.002,
+        "withinMinutes": 5,
+        "observations": 2479,
+        "averageReturnAfter20m": 0.0013094201574171602,
+        "medianReturnAfter20m": 0.001302996892853514,
+        "averageReturnAfter50m": 0.002632863692097687,
+        "medianReturnAfter50m": 0.0031195840554592014,
+        "averageMfeAfterConfirmation": 0.015666647544624806,
+        "averageMaeAfterConfirmation": -0.012710443272219589
+      },
+      {
+        "threshold": 0.002,
+        "withinMinutes": 10,
+        "observations": 2956,
+        "averageReturnAfter20m": 0.0012474348289734974,
+        "medianReturnAfter20m": 0.0012953367875647714,
+        "averageReturnAfter50m": 0.0024160020751123356,
+        "medianReturnAfter50m": 0.002941176470588447,
+        "averageMfeAfterConfirmation": 0.014906216576796158,
+        "averageMaeAfterConfirmation": -0.012173527858117969
+      },
+      {
+        "threshold": 0.002,
+        "withinMinutes": 20,
+        "observations": 3362,
+        "averageReturnAfter20m": 0.0013342274067803938,
+        "medianReturnAfter20m": 0.0013520816223651089,
+        "averageReturnAfter50m": 0.0024232844553389483,
+        "medianReturnAfter50m": 0.002928257686676261,
+        "averageMfeAfterConfirmation": 0.014352118800932904,
+        "averageMaeAfterConfirmation": -0.011524122964190775
+      },
+      {
+        "threshold": 0.003,
+        "withinMinutes": 5,
+        "observations": 1859,
+        "averageReturnAfter20m": 0.0012639055636553928,
+        "medianReturnAfter20m": 0.0015878056525882034,
+        "averageReturnAfter50m": 0.0025741989662260633,
+        "medianReturnAfter50m": 0.0030150753768842797,
+        "averageMfeAfterConfirmation": 0.01704041678091119,
+        "averageMaeAfterConfirmation": -0.014068463889940258
+      },
+      {
+        "threshold": 0.003,
+        "withinMinutes": 10,
+        "observations": 2421,
+        "averageReturnAfter20m": 0.0011361661471002496,
+        "medianReturnAfter20m": 0.0012953367875647714,
+        "averageReturnAfter50m": 0.002137279474244807,
+        "medianReturnAfter50m": 0.002542246149244809,
+        "averageMfeAfterConfirmation": 0.01572385670334575,
+        "averageMaeAfterConfirmation": -0.01317029640724575
+      },
+      {
+        "threshold": 0.003,
+        "withinMinutes": 20,
+        "observations": 2952,
+        "averageReturnAfter20m": 0.0012310422365613791,
+        "medianReturnAfter20m": 0.0013324450366423157,
+        "averageReturnAfter50m": 0.0021284655900909023,
+        "medianReturnAfter50m": 0.0024968789013732895,
+        "averageMfeAfterConfirmation": 0.01482241652410248,
+        "averageMaeAfterConfirmation": -0.01212923484397215
+      },
+      {
+        "threshold": 0.005,
+        "withinMinutes": 5,
+        "observations": 1108,
+        "averageReturnAfter20m": 0.0007880974917698555,
+        "medianReturnAfter20m": 0.002047300051208678,
+        "averageReturnAfter50m": 0.0018842537825309324,
+        "medianReturnAfter50m": 0.002812205748970009,
+        "averageMfeAfterConfirmation": 0.01973474466708131,
+        "averageMaeAfterConfirmation": -0.01718130426622132
+      },
+      {
+        "threshold": 0.005,
+        "withinMinutes": 10,
+        "observations": 1699,
+        "averageReturnAfter20m": 0.0009019723707591477,
+        "medianReturnAfter20m": 0.0014471780028944004,
+        "averageReturnAfter50m": 0.001770661805333964,
+        "medianReturnAfter50m": 0.00222717149220486,
+        "averageMfeAfterConfirmation": 0.017587869913502363,
+        "averageMaeAfterConfirmation": -0.015179941041207347
+      },
+      {
+        "threshold": 0.005,
+        "withinMinutes": 20,
+        "observations": 2261,
+        "averageReturnAfter20m": 0.0008168718470957363,
+        "medianReturnAfter20m": 0.0013966480446927498,
+        "averageReturnAfter50m": 0.0017368962948171045,
+        "medianReturnAfter50m": 0.0020481810201893325,
+        "averageMfeAfterConfirmation": 0.016162254975929376,
+        "averageMaeAfterConfirmation": -0.01369709898843916
+      },
+      {
+        "threshold": 0.0075,
+        "withinMinutes": 5,
+        "observations": 602,
+        "averageReturnAfter20m": 0.00015427669792504324,
+        "medianReturnAfter20m": 0.0021528525296017342,
+        "averageReturnAfter50m": 0.0019398041680254437,
+        "medianReturnAfter50m": 0.0027180373134879643,
+        "averageMfeAfterConfirmation": 0.023833001532838384,
+        "averageMaeAfterConfirmation": -0.021378730098086742
+      },
+      {
+        "threshold": 0.0075,
+        "withinMinutes": 10,
+        "observations": 1068,
+        "averageReturnAfter20m": 0.0006261303351845405,
+        "medianReturnAfter20m": 0.0014698576581636535,
+        "averageReturnAfter50m": 0.0016304822642581448,
+        "medianReturnAfter50m": 0.0013992551009920362,
+        "averageMfeAfterConfirmation": 0.020308475874305856,
+        "averageMaeAfterConfirmation": -0.017811315349114853
+      },
+      {
+        "threshold": 0.0075,
+        "withinMinutes": 20,
+        "observations": 1612,
+        "averageReturnAfter20m": 0.0004036768815750587,
+        "medianReturnAfter20m": 0.0011510460140176093,
+        "averageReturnAfter50m": 0.001475012573234371,
+        "medianReturnAfter50m": 0.0012749408577721333,
+        "averageMfeAfterConfirmation": 0.017832620300613267,
+        "averageMaeAfterConfirmation": -0.015657977335177303
+      },
+      {
+        "threshold": 0.01,
+        "withinMinutes": 5,
+        "observations": 351,
+        "averageReturnAfter20m": -0.0008016897347310588,
+        "medianReturnAfter20m": 0.0017746228926354135,
+        "averageReturnAfter50m": 0.0015187020816026938,
+        "medianReturnAfter50m": 0,
+        "averageMfeAfterConfirmation": 0.028376641957298627,
+        "averageMaeAfterConfirmation": -0.02552913809240343
+      },
+      {
+        "threshold": 0.01,
+        "withinMinutes": 10,
+        "observations": 689,
+        "averageReturnAfter20m": 0.0003179817472996946,
+        "medianReturnAfter20m": 0.0017746228926354135,
+        "averageReturnAfter50m": 0.001685374657992864,
+        "medianReturnAfter50m": 0,
+        "averageMfeAfterConfirmation": 0.023913093878034843,
+        "averageMaeAfterConfirmation": -0.02060919505684636
+      },
+      {
+        "threshold": 0.01,
+        "withinMinutes": 20,
+        "observations": 1173,
+        "averageReturnAfter20m": -0.0003837299122917495,
+        "medianReturnAfter20m": 0.0005820721769500548,
+        "averageReturnAfter50m": 0.001227329930286583,
+        "medianReturnAfter50m": 0,
+        "averageMfeAfterConfirmation": 0.0199973999184632,
+        "averageMaeAfterConfirmation": -0.017653912787370798
+      }
+    ],
+    "failureBranches": [
+      {
+        "threshold": 0.001,
+        "withinMinutes": 5,
+        "observations": 1106,
+        "averageReturnAfter20m": -0.002046591607773479,
+        "medianReturnAfter20m": -0.0012004896114493069,
+        "averageReturnAfter50m": -0.00011565656738916513,
+        "medianReturnAfter50m": 0.0010590475805936084
+      },
+      {
+        "threshold": 0.001,
+        "withinMinutes": 10,
+        "observations": 750,
+        "averageReturnAfter20m": -0.004163371234776863,
+        "medianReturnAfter20m": -0.002328300671398109,
+        "averageReturnAfter50m": -0.0019130607126325732,
+        "medianReturnAfter50m": -0.0003905487358454307
+      },
+      {
+        "threshold": 0.001,
+        "withinMinutes": 20,
+        "observations": 503,
+        "averageReturnAfter20m": -0.007287233692563896,
+        "medianReturnAfter20m": -0.00451745379876789,
+        "averageReturnAfter50m": -0.0045430780497114544,
+        "medianReturnAfter50m": -0.0024526979677645944
+      },
+      {
+        "threshold": 0.002,
+        "withinMinutes": 5,
+        "observations": 1712,
+        "averageReturnAfter20m": -0.0014551922177997512,
+        "medianReturnAfter20m": -0.0007629759826888183,
+        "averageReturnAfter50m": 0.00029494462828486847,
+        "medianReturnAfter50m": 0.0018057345276788483
+      },
+      {
+        "threshold": 0.002,
+        "withinMinutes": 10,
+        "observations": 1235,
+        "averageReturnAfter20m": -0.0032330463371949853,
+        "medianReturnAfter20m": -0.0016085790884717843,
+        "averageReturnAfter50m": -0.000820870909157375,
+        "medianReturnAfter50m": 0.0007993605115907965
+      },
+      {
+        "threshold": 0.002,
+        "withinMinutes": 20,
+        "observations": 829,
+        "averageReturnAfter20m": -0.00641303024339642,
+        "medianReturnAfter20m": -0.0036923076923076614,
+        "averageReturnAfter50m": -0.003492280125308571,
+        "medianReturnAfter50m": -0.0013636363636363447
+      },
+      {
+        "threshold": 0.003,
+        "withinMinutes": 5,
+        "observations": 2332,
+        "averageReturnAfter20m": -0.000818821530090481,
+        "medianReturnAfter20m": 0,
+        "averageReturnAfter50m": 0.0007797645639650765,
+        "medianReturnAfter50m": 0.002366893739075948
+      },
+      {
+        "threshold": 0.003,
+        "withinMinutes": 10,
+        "observations": 1770,
+        "averageReturnAfter20m": -0.002443294988692008,
+        "medianReturnAfter20m": -0.0012180430602701242,
+        "averageReturnAfter50m": -0.00025024006461268894,
+        "medianReturnAfter50m": 0.0014498006524102935
+      },
+      {
+        "threshold": 0.003,
+        "withinMinutes": 20,
+        "observations": 1239,
+        "averageReturnAfter20m": -0.005166979127104178,
+        "medianReturnAfter20m": -0.0027515723270440384,
+        "averageReturnAfter50m": -0.0026411562638032704,
+        "medianReturnAfter50m": -0.000652315720808927
+      },
+      {
+        "threshold": 0.005,
+        "withinMinutes": 5,
+        "observations": 3083,
+        "averageReturnAfter20m": 0.000004036118092192164,
+        "medianReturnAfter20m": 0.0003993610223642641,
+        "averageReturnAfter50m": 0.0016663626296296872,
+        "medianReturnAfter50m": 0.002868617326448719
+      },
+      {
+        "threshold": 0.005,
+        "withinMinutes": 10,
+        "observations": 2492,
+        "averageReturnAfter20m": -0.0015504529391758505,
+        "medianReturnAfter20m": -0.0003738892082373324,
+        "averageReturnAfter50m": 0.0005568487721644797,
+        "medianReturnAfter50m": 0.002226601473659384
+      },
+      {
+        "threshold": 0.005,
+        "withinMinutes": 20,
+        "observations": 1930,
+        "averageReturnAfter20m": -0.0036676451004515175,
+        "medianReturnAfter20m": -0.0016521356905588869,
+        "averageReturnAfter50m": -0.0012762634288848984,
+        "medianReturnAfter50m": 0.00043658608551255806
+      },
+      {
+        "threshold": 0.0075,
+        "withinMinutes": 5,
+        "observations": 3589,
+        "averageReturnAfter20m": 0.0005546480011817671,
+        "medianReturnAfter20m": 0.0009770395701027557,
+        "averageReturnAfter50m": 0.002063868020550093,
+        "medianReturnAfter50m": 0.003323836657169954
+      },
+      {
+        "threshold": 0.0075,
+        "withinMinutes": 10,
+        "observations": 3123,
+        "averageReturnAfter20m": -0.0006757382249355215,
+        "medianReturnAfter20m": 0,
+        "averageReturnAfter50m": 0.0011129561835694654,
+        "medianReturnAfter50m": 0.00277392510402219
+      },
+      {
+        "threshold": 0.0075,
+        "withinMinutes": 20,
+        "observations": 2579,
+        "averageReturnAfter20m": -0.0025778716932705428,
+        "medianReturnAfter20m": -0.0009380863039399889,
+        "averageReturnAfter50m": -0.00039611718063202814,
+        "medianReturnAfter50m": 0.0016438356164383272
+      },
+      {
+        "threshold": 0.01,
+        "withinMinutes": 5,
+        "observations": 3840,
+        "averageReturnAfter20m": 0.0008820611398363356,
+        "medianReturnAfter20m": 0.0012311574926675561,
+        "averageReturnAfter50m": 0.0023591824013591183,
+        "medianReturnAfter50m": 0.00361932516350838
+      },
+      {
+        "threshold": 0.01,
+        "withinMinutes": 10,
+        "observations": 3502,
+        "averageReturnAfter20m": -0.00015113874714011422,
+        "medianReturnAfter20m": 0.0006057915284585214,
+        "averageReturnAfter50m": 0.001465420749120236,
+        "medianReturnAfter50m": 0.0031046470283924155
+      },
+      {
+        "threshold": 0.01,
+        "withinMinutes": 20,
+        "observations": 3018,
+        "averageReturnAfter20m": -0.0018000277076648276,
+        "medianReturnAfter20m": 0,
+        "averageReturnAfter50m": 0.00014270987073703798,
+        "medianReturnAfter50m": 0.002361278379945597
+      }
+    ],
+    "costSensitivity": [
+      {
+        "cost": 0,
+        "observations": 4191,
+        "averageNetReturn": 0.0016518982374902188,
+        "medianNetReturn": 0.0014641288433381305,
+        "profitableRate": 0.5724170842281079,
+        "totalSimpleReturn": 6.923105513321508
+      },
+      {
+        "cost": 0.0005,
+        "observations": 4191,
+        "averageNetReturn": 0.0011518982374902102,
+        "medianNetReturn": 0.0009641288433381305,
+        "profitableRate": 0.5583392984967788,
+        "totalSimpleReturn": 4.827605513321471
+      },
+      {
+        "cost": 0.001,
+        "observations": 4191,
+        "averageNetReturn": 0.0006518982374902321,
+        "medianNetReturn": 0.0004641288433381305,
+        "profitableRate": 0.5373419231686948,
+        "totalSimpleReturn": 2.7321055133215624
+      },
+      {
+        "cost": 0.0015,
+        "observations": 4191,
+        "averageNetReturn": 0.00015189823749021738,
+        "medianNetReturn": -0.000035871156661869495,
+        "profitableRate": 0.49797184442853737,
+        "totalSimpleReturn": 0.6366055133215011
+      },
+      {
+        "cost": 0.002,
+        "observations": 4191,
+        "averageNetReturn": -0.00034810176250978043,
+        "medianNetReturn": -0.0005358711566618695,
+        "profitableRate": 0.4767358625626342,
+        "totalSimpleReturn": -1.4588944866784899
+      },
+      {
+        "cost": 0.0025,
+        "observations": 4191,
+        "averageNetReturn": -0.0008481017625097764,
+        "medianNetReturn": -0.0010358711566618695,
+        "profitableRate": 0.44380816034359344,
+        "totalSimpleReturn": -3.554394486678473
+      },
+      {
+        "cost": 0.003,
+        "observations": 4191,
+        "averageNetReturn": -0.0013481017625097637,
+        "medianNetReturn": -0.0015358711566618695,
+        "profitableRate": 0.41040324504891434,
+        "totalSimpleReturn": -5.649894486678419
+      }
+    ]
+  }
+}

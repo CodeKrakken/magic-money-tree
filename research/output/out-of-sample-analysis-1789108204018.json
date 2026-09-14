@@ -1,0 +1,1809 @@
+{
+  "generatedAt": "2026-09-11T06:30:04.018Z",
+  "sourceFile": "ema-data-1789061547934.json",
+  "markets": 60,
+  "discoveryObservations": 1807200,
+  "testObservations": 92528,
+  "discoveryStart": "2026-08-11T18:23:00.000Z",
+  "discoveryEnd": "2026-09-01T16:23:00.000Z",
+  "testStart": "2026-09-01T16:23:00.000Z",
+  "testEnd": "2026-09-10T15:32:00.000Z",
+  "trainRatio": 0.7,
+  "totalCost": 0.002,
+  "minCombinationObservations": 500,
+  "maxConditions": 2,
+  "tradeCooldownMinutes": 60,
+  "horizons": [
+    5,
+    10,
+    20,
+    50,
+    120
+  ],
+  "selectedSignals": [
+    {
+      "conditions": [
+        {
+          "feature": "slope20",
+          "operator": "<=",
+          "percentile": 20,
+          "threshold": -0.00014247403014451264
+        },
+        {
+          "feature": "acceleration",
+          "operator": ">=",
+          "percentile": 80,
+          "threshold": 0.0001391412049997598
+        }
+      ],
+      "discovery": {
+        "conditions": [
+          {
+            "feature": "slope20",
+            "operator": "<=",
+            "percentile": 20,
+            "threshold": -0.00014247403014451264
+          },
+          {
+            "feature": "acceleration",
+            "operator": ">=",
+            "percentile": 80,
+            "threshold": 0.0001391412049997598
+          }
+        ],
+        "observations": 9732,
+        "horizons": {
+          "5": {
+            "averageReturn": 0.0003368657158290121,
+            "medianReturn": 0,
+            "positiveRate": 0.4773941635840526,
+            "profitableRate": 0.3406288532675709,
+            "averageMfe": 0.004562373895223402,
+            "averageMae": -0.004395397908317989,
+            "medianMfe": 0.002610967169899836,
+            "medianMae": -0.002306907417698567
+          },
+          "10": {
+            "averageReturn": 0.0008264693902196192,
+            "medianReturn": 0.0007601682251415776,
+            "positiveRate": 0.5267159884915742,
+            "profitableRate": 0.41605014385532263,
+            "averageMfe": 0.006719260096230726,
+            "averageMae": -0.006112863351960732,
+            "medianMfe": 0.004018082379770416,
+            "medianMae": -0.0032842520214447224
+          },
+          "20": {
+            "averageReturn": 0.0012744322512616923,
+            "medianReturn": 0.001440292769019802,
+            "positiveRate": 0.5521989313604604,
+            "profitableRate": 0.47143444307439375,
+            "averageMfe": 0.009833932593310791,
+            "averageMae": -0.008541404615529163,
+            "medianMfe": 0.006012024048096309,
+            "medianMae": -0.004543734085747653
+          },
+          "50": {
+            "averageReturn": 0.0008563160975246164,
+            "medianReturn": 0.002302821040475078,
+            "positiveRate": 0.5674064940402795,
+            "profitableRate": 0.5116111796136457,
+            "averageMfe": 0.015333139368466486,
+            "averageMae": -0.013449107933068425,
+            "medianMfe": 0.009803921568627416,
+            "medianMae": -0.007053716766142082
+          },
+          "120": {
+            "averageReturn": 0.0005422489696038674,
+            "medianReturn": 0.0017050310772075417,
+            "positiveRate": 0.5348335388409371,
+            "profitableRate": 0.49506781750924783,
+            "averageMfe": 0.022470365581591357,
+            "averageMae": -0.019949404964395342,
+            "medianMfe": 0.013280215085791358,
+            "medianMae": -0.010288065843621408
+          }
+        }
+      }
+    },
+    {
+      "conditions": [
+        {
+          "feature": "slope20",
+          "operator": "<=",
+          "percentile": 20,
+          "threshold": -0.00014247403014451264
+        },
+        {
+          "feature": "acceleration",
+          "operator": ">=",
+          "percentile": 70,
+          "threshold": 0.00007605303180753252
+        }
+      ],
+      "discovery": {
+        "conditions": [
+          {
+            "feature": "slope20",
+            "operator": "<=",
+            "percentile": 20,
+            "threshold": -0.00014247403014451264
+          },
+          {
+            "feature": "acceleration",
+            "operator": ">=",
+            "percentile": 70,
+            "threshold": 0.00007605303180753252
+          }
+        ],
+        "observations": 16188,
+        "horizons": {
+          "5": {
+            "averageReturn": 0.00028926175519646626,
+            "medianReturn": 0,
+            "positiveRate": 0.4626266370150729,
+            "profitableRate": 0.3117123795404003,
+            "averageMfe": 0.0037305589523162403,
+            "averageMae": -0.0036184483674250923,
+            "medianMfe": 0.0021668472372697867,
+            "medianMae": -0.0018831406652982108
+          },
+          "10": {
+            "averageReturn": 0.0007314902134867673,
+            "medianReturn": 0.0004987531172071513,
+            "positiveRate": 0.5147640227328886,
+            "profitableRate": 0.39158636026686433,
+            "averageMfe": 0.005551007185164203,
+            "averageMae": -0.005088289378423174,
+            "medianMfe": 0.00328947368421062,
+            "medianMae": -0.0028328611898017497
+          },
+          "20": {
+            "averageReturn": 0.0012462193330897069,
+            "medianReturn": 0.0013008670252031562,
+            "positiveRate": 0.549728193723746,
+            "profitableRate": 0.4588584136397331,
+            "averageMfe": 0.008165015055184568,
+            "averageMae": -0.007090291251475251,
+            "medianMfe": 0.005005005005005003,
+            "medianMae": -0.003937869363703772
+          },
+          "50": {
+            "averageReturn": 0.0011528984080385752,
+            "medianReturn": 0.002113758959400247,
+            "positiveRate": 0.5699283419817148,
+            "profitableRate": 0.5046330615270571,
+            "averageMfe": 0.012852246858327664,
+            "averageMae": -0.010990443962569488,
+            "medianMfe": 0.008376567741908203,
+            "medianMae": -0.005891757022251365
+          },
+          "120": {
+            "averageReturn": 0.0013787425160021545,
+            "medianReturn": 0.0016319872157671833,
+            "positiveRate": 0.5369409439090684,
+            "profitableRate": 0.49283419817148505,
+            "averageMfe": 0.019378382680603053,
+            "averageMae": -0.016392003050148093,
+            "medianMfe": 0.011752962901277142,
+            "medianMae": -0.00896533869680377
+          }
+        }
+      }
+    },
+    {
+      "conditions": [
+        {
+          "feature": "return20",
+          "operator": "<=",
+          "percentile": 20,
+          "threshold": -0.00272479560226202
+        },
+        {
+          "feature": "acceleration",
+          "operator": ">=",
+          "percentile": 80,
+          "threshold": 0.0001391412049997598
+        }
+      ],
+      "discovery": {
+        "conditions": [
+          {
+            "feature": "return20",
+            "operator": "<=",
+            "percentile": 20,
+            "threshold": -0.00272479560226202
+          },
+          {
+            "feature": "acceleration",
+            "operator": ">=",
+            "percentile": 80,
+            "threshold": 0.0001391412049997598
+          }
+        ],
+        "observations": 17504,
+        "horizons": {
+          "5": {
+            "averageReturn": 0.00041845967542433564,
+            "medianReturn": 0,
+            "positiveRate": 0.47154936014625226,
+            "profitableRate": 0.3175845521023766,
+            "averageMfe": 0.0039019266280368677,
+            "averageMae": -0.0036846759411260956,
+            "medianMfe": 0.0022461718151403076,
+            "medianMae": -0.001769911504424737
+          },
+          "10": {
+            "averageReturn": 0.0008328460129892119,
+            "medianReturn": 0.0006643786518387707,
+            "positiveRate": 0.523308957952468,
+            "profitableRate": 0.4053359232175503,
+            "averageMfe": 0.005774807084712184,
+            "averageMae": -0.0051404099405531435,
+            "medianMfe": 0.0034406958165768,
+            "medianMae": -0.002773925104022079
+          },
+          "20": {
+            "averageReturn": 0.0011532484770808834,
+            "medianReturn": 0.001322751322751392,
+            "positiveRate": 0.5485031992687386,
+            "profitableRate": 0.4630941499085923,
+            "averageMfe": 0.00835641123298666,
+            "averageMae": -0.007219177253952102,
+            "medianMfe": 0.005106382978723234,
+            "medianMae": -0.003850473386452058
+          },
+          "50": {
+            "averageReturn": 0.0010535023791134674,
+            "medianReturn": 0.0019136916764632694,
+            "positiveRate": 0.5622714808043876,
+            "profitableRate": 0.4971435100548446,
+            "averageMfe": 0.013102278542061668,
+            "averageMae": -0.011193926764099638,
+            "medianMfe": 0.008218585580888393,
+            "medianMae": -0.005821072251970094
+          },
+          "120": {
+            "averageReturn": 0.0012780798225392913,
+            "medianReturn": 0.001542614731970593,
+            "positiveRate": 0.532849634369287,
+            "profitableRate": 0.48851691042047535,
+            "averageMfe": 0.01978573210215457,
+            "averageMae": -0.01691339159594636,
+            "medianMfe": 0.011748733779618714,
+            "medianMae": -0.008986251945406476
+          }
+        }
+      }
+    },
+    {
+      "conditions": [
+        {
+          "feature": "return20",
+          "operator": "<=",
+          "percentile": 20,
+          "threshold": -0.00272479560226202
+        },
+        {
+          "feature": "acceleration",
+          "operator": ">=",
+          "percentile": 70,
+          "threshold": 0.00007605303180753252
+        }
+      ],
+      "discovery": {
+        "conditions": [
+          {
+            "feature": "return20",
+            "operator": "<=",
+            "percentile": 20,
+            "threshold": -0.00272479560226202
+          },
+          {
+            "feature": "acceleration",
+            "operator": ">=",
+            "percentile": 70,
+            "threshold": 0.00007605303180753252
+          }
+        ],
+        "observations": 28132,
+        "horizons": {
+          "5": {
+            "averageReturn": 0.00038225031593145195,
+            "medianReturn": 0,
+            "positiveRate": 0.46160955495521117,
+            "profitableRate": 0.29628181430399547,
+            "averageMfe": 0.003290801076265982,
+            "averageMae": -0.003077197885740458,
+            "medianMfe": 0.0019300361881784411,
+            "medianMae": -0.001466365252617674
+          },
+          "10": {
+            "averageReturn": 0.0007434618695432865,
+            "medianReturn": 0.00044257581277640234,
+            "positiveRate": 0.5124058012228068,
+            "profitableRate": 0.3814161808616522,
+            "averageMfe": 0.004877065956508563,
+            "averageMae": -0.0043376215737621505,
+            "medianMfe": 0.003030303030302939,
+            "medianMae": -0.0023595837397210606
+          },
+          "20": {
+            "averageReturn": 0.0011128337099283252,
+            "medianReturn": 0.0011439466574073576,
+            "positiveRate": 0.5435091710507607,
+            "profitableRate": 0.4462889236456704,
+            "averageMfe": 0.0071072037441269045,
+            "averageMae": -0.006104879753033479,
+            "medianMfe": 0.004438526409232146,
+            "medianMae": -0.0032863849765258912
+          },
+          "50": {
+            "averageReturn": 0.0012538156912295848,
+            "medianReturn": 0.0017391304347826875,
+            "positiveRate": 0.5641262619081473,
+            "profitableRate": 0.4913266031565477,
+            "averageMfe": 0.011285332823948155,
+            "averageMae": -0.009439294338510757,
+            "medianMfe": 0.007347795661301726,
+            "medianMae": -0.005025125628140725
+          },
+          "120": {
+            "averageReturn": 0.001590538419693741,
+            "medianReturn": 0.0014900354400307902,
+            "positiveRate": 0.533271719038817,
+            "profitableRate": 0.4857813166500782,
+            "averageMfe": 0.01726981105631898,
+            "averageMae": -0.014323669364645365,
+            "medianMfe": 0.01055360962926255,
+            "medianMae": -0.007824726134585291
+          }
+        }
+      }
+    },
+    {
+      "conditions": [
+        {
+          "feature": "slope20",
+          "operator": "<=",
+          "percentile": 30,
+          "threshold": -0.00007650075858691711
+        },
+        {
+          "feature": "acceleration",
+          "operator": ">=",
+          "percentile": 80,
+          "threshold": 0.0001391412049997598
+        }
+      ],
+      "discovery": {
+        "conditions": [
+          {
+            "feature": "slope20",
+            "operator": "<=",
+            "percentile": 30,
+            "threshold": -0.00007650075858691711
+          },
+          {
+            "feature": "acceleration",
+            "operator": ">=",
+            "percentile": 80,
+            "threshold": 0.0001391412049997598
+          }
+        ],
+        "observations": 16117,
+        "horizons": {
+          "5": {
+            "averageReturn": 0.00025966385359558716,
+            "medianReturn": 0,
+            "positiveRate": 0.46255506607929514,
+            "profitableRate": 0.31004529378916673,
+            "averageMfe": 0.0037467085162507037,
+            "averageMae": -0.003654630202910573,
+            "medianMfe": 0.0021567217828899476,
+            "medianMae": -0.0018785222291798354
+          },
+          "10": {
+            "averageReturn": 0.0006563706277845161,
+            "medianReturn": 0.00044802867383508804,
+            "positiveRate": 0.5135571136067506,
+            "profitableRate": 0.3874790593782962,
+            "averageMfe": 0.005518946517833728,
+            "averageMae": -0.005113888929989777,
+            "medianMfe": 0.0032573289902280145,
+            "medianMae": -0.002804487179487225
+          },
+          "20": {
+            "averageReturn": 0.0011059376480698896,
+            "medianReturn": 0.0011871784724970524,
+            "positiveRate": 0.5462555066079295,
+            "profitableRate": 0.454364956257368,
+            "averageMfe": 0.008118293228521945,
+            "averageMae": -0.007131047804410751,
+            "medianMfe": 0.004983388704318914,
+            "medianMae": -0.0039432176656151174
+          },
+          "50": {
+            "averageReturn": 0.0009140320173630761,
+            "medianReturn": 0.001775410563692903,
+            "positiveRate": 0.557858162188993,
+            "profitableRate": 0.49376434820376003,
+            "averageMfe": 0.012750562731858988,
+            "averageMae": -0.011173742898350334,
+            "medianMfe": 0.008185189921984914,
+            "medianMae": -0.005935422602089235
+          },
+          "120": {
+            "averageReturn": 0.0009038503320149468,
+            "medianReturn": 0.0014560279557367384,
+            "positiveRate": 0.5318607681330272,
+            "profitableRate": 0.48656697896630885,
+            "averageMfe": 0.018873673463779054,
+            "averageMae": -0.01663568959416893,
+            "medianMfe": 0.011580381471389734,
+            "medianMae": -0.009015921734126353
+          }
+        }
+      }
+    },
+    {
+      "conditions": [
+        {
+          "feature": "slope20",
+          "operator": "<=",
+          "percentile": 20,
+          "threshold": -0.00014247403014451264
+        },
+        {
+          "feature": "acceleration",
+          "operator": ">=",
+          "percentile": 60,
+          "threshold": 0.00003196647230652161
+        }
+      ],
+      "discovery": {
+        "conditions": [
+          {
+            "feature": "slope20",
+            "operator": "<=",
+            "percentile": 20,
+            "threshold": -0.00014247403014451264
+          },
+          {
+            "feature": "acceleration",
+            "operator": ">=",
+            "percentile": 60,
+            "threshold": 0.00003196647230652161
+          }
+        ],
+        "observations": 23937,
+        "horizons": {
+          "5": {
+            "averageReturn": 0.0002308986018020049,
+            "medianReturn": 0,
+            "positiveRate": 0.4526883068053641,
+            "profitableRate": 0.2898859506203785,
+            "averageMfe": 0.003230742773195909,
+            "averageMae": -0.003161274927591247,
+            "medianMfe": 0.0017937219730941312,
+            "medianMae": -0.0016111707841031109
+          },
+          "10": {
+            "averageReturn": 0.0005807850053976952,
+            "medianReturn": 0.00029291154071464653,
+            "positiveRate": 0.5035300998454276,
+            "profitableRate": 0.3682165684922923,
+            "averageMfe": 0.0048263316475440155,
+            "averageMae": -0.004516517478580334,
+            "medianMfe": 0.002936857562408246,
+            "medianMae": -0.0025607879347492313
+          },
+          "20": {
+            "averageReturn": 0.001071458009846035,
+            "medianReturn": 0.001079913606911509,
+            "positiveRate": 0.5414630070601997,
+            "profitableRate": 0.44065672390023813,
+            "averageMfe": 0.0071246238537647985,
+            "averageMae": -0.006293711319534731,
+            "medianMfe": 0.004451038575667532,
+            "medianMae": -0.00355182434614143
+          },
+          "50": {
+            "averageReturn": 0.0012659769686032018,
+            "medianReturn": 0.0019381723035178933,
+            "positiveRate": 0.5683251869490746,
+            "profitableRate": 0.497597861051928,
+            "averageMfe": 0.011375107804517998,
+            "averageMae": -0.009633648303136623,
+            "medianMfe": 0.0075154730327144925,
+            "medianMae": -0.005298013245033206
+          },
+          "120": {
+            "averageReturn": 0.0014041009909585042,
+            "medianReturn": 0.001521491061239999,
+            "positiveRate": 0.5368258344821824,
+            "profitableRate": 0.4883652922254251,
+            "averageMfe": 0.017168065786094068,
+            "averageMae": -0.01446525921076552,
+            "medianMfe": 0.01072386058981234,
+            "medianMae": -0.008073817762399127
+          }
+        }
+      }
+    },
+    {
+      "conditions": [
+        {
+          "feature": "drawdown50",
+          "operator": ">=",
+          "percentile": 80,
+          "threshold": -0.002594033721834421
+        },
+        {
+          "feature": "volatility20",
+          "operator": ">=",
+          "percentile": 80,
+          "threshold": 0.0015221948036924005
+        }
+      ],
+      "discovery": {
+        "conditions": [
+          {
+            "feature": "drawdown50",
+            "operator": ">=",
+            "percentile": 80,
+            "threshold": -0.002594033721834421
+          },
+          {
+            "feature": "volatility20",
+            "operator": ">=",
+            "percentile": 80,
+            "threshold": 0.0015221948036924005
+          }
+        ],
+        "observations": 2383,
+        "horizons": {
+          "5": {
+            "averageReturn": 0.00022822204126490052,
+            "medianReturn": 0,
+            "positiveRate": 0.3634074695761645,
+            "profitableRate": 0.2652119177507344,
+            "averageMfe": 0.0024029124468062223,
+            "averageMae": -0.0019056613861375916,
+            "medianMfe": 0.0009615384615384581,
+            "medianMae": -0.0008250825082508628
+          },
+          "10": {
+            "averageReturn": 0.0005394736128397653,
+            "medianReturn": 0,
+            "positiveRate": 0.41544271926143517,
+            "profitableRate": 0.34662190516156105,
+            "averageMfe": 0.003922276387913147,
+            "averageMae": -0.0028670609517819842,
+            "medianMfe": 0.002309468822170979,
+            "medianMae": -0.002032520325203291
+          },
+          "20": {
+            "averageReturn": 0.0010589324467813327,
+            "medianReturn": 0,
+            "positiveRate": 0.4540495174150231,
+            "profitableRate": 0.39404112463281576,
+            "averageMfe": 0.0063563363213403066,
+            "averageMae": -0.004260743990047122,
+            "medianMfe": 0.0035486160397444344,
+            "medianMae": -0.0025316455696203777
+          },
+          "50": {
+            "averageReturn": 0.0006790471094359457,
+            "medianReturn": 0,
+            "positiveRate": 0.42761225346202264,
+            "profitableRate": 0.3843894250944188,
+            "averageMfe": 0.009722880367396372,
+            "averageMae": -0.006752390810208518,
+            "medianMfe": 0.00568678915135612,
+            "medianMae": -0.004683840749414525
+          },
+          "120": {
+            "averageReturn": 0.0002453007653403043,
+            "medianReturn": -0.0007363770250368162,
+            "positiveRate": 0.43348720100713384,
+            "profitableRate": 0.4083088543852287,
+            "averageMfe": 0.0131785961536847,
+            "averageMae": -0.009199225364495531,
+            "medianMfe": 0.008313539192398967,
+            "medianMae": -0.0068728522336770626
+          }
+        }
+      }
+    },
+    {
+      "conditions": [
+        {
+          "feature": "return20",
+          "operator": "<=",
+          "percentile": 30,
+          "threshold": -0.0014662756584584713
+        },
+        {
+          "feature": "acceleration",
+          "operator": ">=",
+          "percentile": 80,
+          "threshold": 0.0001391412049997598
+        }
+      ],
+      "discovery": {
+        "conditions": [
+          {
+            "feature": "return20",
+            "operator": "<=",
+            "percentile": 30,
+            "threshold": -0.0014662756584584713
+          },
+          {
+            "feature": "acceleration",
+            "operator": ">=",
+            "percentile": 80,
+            "threshold": 0.0001391412049997598
+          }
+        ],
+        "observations": 27190,
+        "horizons": {
+          "5": {
+            "averageReturn": 0.0003466684998299088,
+            "medianReturn": 0,
+            "positiveRate": 0.4636998896653181,
+            "profitableRate": 0.2909893343140861,
+            "averageMfe": 0.0032826693033785963,
+            "averageMae": -0.0031106493767030026,
+            "medianMfe": 0.0018827960562756152,
+            "medianMae": -0.0015251458620262892
+          },
+          "10": {
+            "averageReturn": 0.0007060103137677583,
+            "medianReturn": 0.0004370153166874946,
+            "positiveRate": 0.5134976094152262,
+            "profitableRate": 0.3782272894446488,
+            "averageMfe": 0.004898643404738896,
+            "averageMae": -0.0043954657215160625,
+            "medianMfe": 0.002989536621823774,
+            "medianMae": -0.0023947924252547548
+          },
+          "20": {
+            "averageReturn": 0.0010519227307277284,
+            "medianReturn": 0.0010944912073345137,
+            "positiveRate": 0.5438028687017286,
+            "profitableRate": 0.44280985656491356,
+            "averageMfe": 0.0071612473694858715,
+            "averageMae": -0.00619757273604434,
+            "medianMfe": 0.004441154700222105,
+            "medianMae": -0.0033429842133474996
+          },
+          "50": {
+            "averageReturn": 0.0010601108222878055,
+            "medianReturn": 0.001570351758793942,
+            "positiveRate": 0.5563810224347187,
+            "profitableRate": 0.48282456785582933,
+            "averageMfe": 0.011405733481374827,
+            "averageMae": -0.009709205749831029,
+            "medianMfe": 0.007375271149674623,
+            "medianMae": -0.005154639175257714
+          },
+          "120": {
+            "averageReturn": 0.0015021099326900358,
+            "medianReturn": 0.0013067626353828743,
+            "positiveRate": 0.5280250091945569,
+            "profitableRate": 0.47877896285399046,
+            "averageMfe": 0.017512672558654664,
+            "averageMae": -0.014690858849181114,
+            "medianMfe": 0.010612726222564373,
+            "medianMae": -0.008016032064128154
+          }
+        }
+      }
+    },
+    {
+      "conditions": [
+        {
+          "feature": "slope20",
+          "operator": "<=",
+          "percentile": 30,
+          "threshold": -0.00007650075858691711
+        },
+        {
+          "feature": "acceleration",
+          "operator": ">=",
+          "percentile": 70,
+          "threshold": 0.00007605303180753252
+        }
+      ],
+      "discovery": {
+        "conditions": [
+          {
+            "feature": "slope20",
+            "operator": "<=",
+            "percentile": 30,
+            "threshold": -0.00007650075858691711
+          },
+          {
+            "feature": "acceleration",
+            "operator": ">=",
+            "percentile": 70,
+            "threshold": 0.00007605303180753252
+          }
+        ],
+        "observations": 28943,
+        "horizons": {
+          "5": {
+            "averageReturn": 0.00021260811435213028,
+            "medianReturn": 0,
+            "positiveRate": 0.44836402584390006,
+            "profitableRate": 0.27498877103271946,
+            "averageMfe": 0.0030024709376785304,
+            "averageMae": -0.002935737062323374,
+            "medianMfe": 0.0016090104585679832,
+            "medianMae": -0.0014756517461878005
+          },
+          "10": {
+            "averageReturn": 0.0005356048972612451,
+            "medianReturn": 0,
+            "positiveRate": 0.4982897419065059,
+            "profitableRate": 0.3545935113844453,
+            "averageMfe": 0.004465549688422278,
+            "averageMae": -0.004177963005128595,
+            "medianMfe": 0.002680965147453085,
+            "medianMae": -0.0023714665148928393
+          },
+          "20": {
+            "averageReturn": 0.0009951737591521567,
+            "medianReturn": 0.000914076782449813,
+            "positiveRate": 0.5348788999067132,
+            "profitableRate": 0.429913968835297,
+            "averageMfe": 0.006631705570549571,
+            "averageMae": -0.00585031506680524,
+            "medianMfe": 0.004113127594027599,
+            "medianMae": -0.00328515111695149
+          },
+          "50": {
+            "averageReturn": 0.0010354636527955799,
+            "medianReturn": 0.0015355086372361715,
+            "positiveRate": 0.5557475037141969,
+            "profitableRate": 0.4800815395777908,
+            "averageMfe": 0.010566138948062525,
+            "averageMae": -0.00913269881933573,
+            "medianMfe": 0.0070120763537202535,
+            "medianMae": -0.005038759689922401
+          },
+          "120": {
+            "averageReturn": 0.0013273044459049118,
+            "medianReturn": 0.0012300123001229846,
+            "positiveRate": 0.5290398369208444,
+            "profitableRate": 0.4767301247279135,
+            "averageMfe": 0.01601233747112691,
+            "averageMae": -0.01367423954018404,
+            "medianMfe": 0.010053619302949013,
+            "medianMae": -0.007776049766718529
+          }
+        }
+      }
+    },
+    {
+      "conditions": [
+        {
+          "feature": "return20",
+          "operator": "<=",
+          "percentile": 20,
+          "threshold": -0.00272479560226202
+        },
+        {
+          "feature": "acceleration",
+          "operator": ">=",
+          "percentile": 60,
+          "threshold": 0.00003196647230652161
+        }
+      ],
+      "discovery": {
+        "conditions": [
+          {
+            "feature": "return20",
+            "operator": "<=",
+            "percentile": 20,
+            "threshold": -0.00272479560226202
+          },
+          {
+            "feature": "acceleration",
+            "operator": ">=",
+            "percentile": 60,
+            "threshold": 0.00003196647230652161
+          }
+        ],
+        "observations": 40156,
+        "horizons": {
+          "5": {
+            "averageReturn": 0.0003499240532367146,
+            "medianReturn": 0,
+            "positiveRate": 0.4531327821496165,
+            "profitableRate": 0.2787130192250224,
+            "averageMfe": 0.002908459371786076,
+            "averageMae": -0.002697607433346443,
+            "medianMfe": 0.0016420361247948545,
+            "medianMae": -0.0012878416316919883
+          },
+          "10": {
+            "averageReturn": 0.0006483324142072279,
+            "medianReturn": 0.00026072231126339496,
+            "positiveRate": 0.50348640302819,
+            "profitableRate": 0.36086761629644387,
+            "averageMfe": 0.00432603111962508,
+            "averageMae": -0.0038569016862357863,
+            "medianMfe": 0.002789400278939924,
+            "medianMae": -0.002085723247211624
+          },
+          "20": {
+            "averageReturn": 0.0009916456908707061,
+            "medianReturn": 0.000935891641528519,
+            "positiveRate": 0.5344157784639905,
+            "profitableRate": 0.42805558322542087,
+            "averageMfe": 0.006327729255552935,
+            "averageMae": -0.005453107897165099,
+            "medianMfe": 0.0039980597659776684,
+            "medianMae": -0.0030286204710956444
+          },
+          "50": {
+            "averageReturn": 0.001306541010412883,
+            "medianReturn": 0.0015723270440251014,
+            "positiveRate": 0.5600408407211873,
+            "profitableRate": 0.48251817910150413,
+            "averageMfe": 0.010170345480982463,
+            "averageMae": -0.008409077251486678,
+            "medianMfe": 0.006644518272425293,
+            "medianMae": -0.004577396204261064
+          },
+          "120": {
+            "averageReturn": 0.0015440717494367687,
+            "medianReturn": 0.0013513513513514486,
+            "positiveRate": 0.5299581631636617,
+            "profitableRate": 0.47888235880067737,
+            "averageMfe": 0.015603064906552323,
+            "averageMae": -0.012825435212707206,
+            "medianMfe": 0.009615384615384581,
+            "medianMae": -0.007166746297181059
+          }
+        }
+      }
+    }
+  ],
+  "outOfSample": [
+    {
+      "conditions": [
+        {
+          "feature": "slope20",
+          "operator": "<=",
+          "percentile": 20,
+          "threshold": -0.00014247403014451264
+        },
+        {
+          "feature": "acceleration",
+          "operator": ">=",
+          "percentile": 80,
+          "threshold": 0.0001391412049997598
+        }
+      ],
+      "observations": 4231,
+      "horizons": {
+        "5": {
+          "averageReturn": 0.0004743841309653051,
+          "medianReturn": 0.0001725774441279082,
+          "positiveRate": 0.5029543843063106,
+          "profitableRate": 0.3474355944221224,
+          "averageMfe": 0.0039773236451372635,
+          "averageMae": -0.003700149167484671,
+          "medianMfe": 0.0025673940949935137,
+          "medianMae": -0.0022083179977916423
+        },
+        "10": {
+          "averageReturn": 0.0008605219364701868,
+          "medianReturn": 0.0008250825082507518,
+          "positiveRate": 0.5346253840699599,
+          "profitableRate": 0.4095958402268967,
+          "averageMfe": 0.005824174629504765,
+          "averageMae": -0.00527347372266743,
+          "medianMfe": 0.00390625,
+          "medianMae": -0.0029733959311423197
+        },
+        "20": {
+          "averageReturn": 0.0016302410614291373,
+          "medianReturn": 0.001458434613514914,
+          "positiveRate": 0.5724415031907351,
+          "profitableRate": 0.47530134719924366,
+          "averageMfe": 0.00854130135928269,
+          "averageMae": -0.007154659268810842,
+          "medianMfe": 0.005514705882353033,
+          "medianMae": -0.004072134962187279
+        },
+        "50": {
+          "averageReturn": 0.0032157759004517858,
+          "medianReturn": 0.003975014196479387,
+          "positiveRate": 0.6372016071850626,
+          "profitableRate": 0.5804774285038998,
+          "averageMfe": 0.01403212216626215,
+          "averageMae": -0.010817731507185473,
+          "medianMfe": 0.010001587553579938,
+          "medianMae": -0.005772646536412074
+        },
+        "120": {
+          "averageReturn": 0.001930285084532092,
+          "medianReturn": 0.00105152471083092,
+          "positiveRate": 0.5168990782320965,
+          "profitableRate": 0.4769558024107776,
+          "averageMfe": 0.02161096655140174,
+          "averageMae": -0.01660782918441201,
+          "medianMfe": 0.013822688274547357,
+          "medianMae": -0.010452961672473893
+        }
+      }
+    },
+    {
+      "conditions": [
+        {
+          "feature": "slope20",
+          "operator": "<=",
+          "percentile": 20,
+          "threshold": -0.00014247403014451264
+        },
+        {
+          "feature": "acceleration",
+          "operator": ">=",
+          "percentile": 70,
+          "threshold": 0.00007605303180753252
+        }
+      ],
+      "observations": 7225,
+      "horizons": {
+        "5": {
+          "averageReturn": 0.00040728471366649336,
+          "medianReturn": 0,
+          "positiveRate": 0.4877508650519031,
+          "profitableRate": 0.31252595155709345,
+          "averageMfe": 0.003334033307165167,
+          "averageMae": -0.0030914729919688257,
+          "medianMfe": 0.0022198731501057445,
+          "medianMae": -0.0017778551358879069
+        },
+        "10": {
+          "averageReturn": 0.0006833081338793137,
+          "medianReturn": 0.0004732607666824151,
+          "positiveRate": 0.5182006920415225,
+          "profitableRate": 0.38173010380622835,
+          "averageMfe": 0.004874041921494075,
+          "averageMae": -0.004455191004524118,
+          "medianMfe": 0.0031813763239953996,
+          "medianMae": -0.002564102564102666
+        },
+        "20": {
+          "averageReturn": 0.0013684005589440005,
+          "medianReturn": 0.001293661060802087,
+          "positiveRate": 0.5649826989619378,
+          "profitableRate": 0.453840830449827,
+          "averageMfe": 0.007189414967824003,
+          "averageMae": -0.006089893261159002,
+          "medianMfe": 0.0047671433810048125,
+          "medianMae": -0.0036251785125782643
+        },
+        "50": {
+          "averageReturn": 0.002686675613002721,
+          "medianReturn": 0.0029850746268655914,
+          "positiveRate": 0.6149480968858132,
+          "profitableRate": 0.5478200692041523,
+          "averageMfe": 0.011845861441733007,
+          "averageMae": -0.00920685593277029,
+          "medianMfe": 0.008534850640113945,
+          "medianMae": -0.005267778753292429
+        },
+        "120": {
+          "averageReturn": 0.0020545642113057685,
+          "medianReturn": 0.0014981273408238849,
+          "positiveRate": 0.5357785467128028,
+          "profitableRate": 0.48899653979238755,
+          "averageMfe": 0.018398111104213716,
+          "averageMae": -0.014173476603734934,
+          "medianMfe": 0.01206549841999438,
+          "medianMae": -0.008825978351373776
+        }
+      }
+    },
+    {
+      "conditions": [
+        {
+          "feature": "return20",
+          "operator": "<=",
+          "percentile": 20,
+          "threshold": -0.00272479560226202
+        },
+        {
+          "feature": "acceleration",
+          "operator": ">=",
+          "percentile": 80,
+          "threshold": 0.0001391412049997598
+        }
+      ],
+      "observations": 7411,
+      "horizons": {
+        "5": {
+          "averageReturn": 0.00033216100938866745,
+          "medianReturn": 0,
+          "positiveRate": 0.48468492781001216,
+          "profitableRate": 0.3152071245445959,
+          "averageMfe": 0.0033852570558714616,
+          "averageMae": -0.0032736085126762043,
+          "medianMfe": 0.0022158911047800434,
+          "medianMae": -0.0015952597994530748
+        },
+        "10": {
+          "averageReturn": 0.0005950085822704794,
+          "medianReturn": 0.0005099439061704292,
+          "positiveRate": 0.5176089596545675,
+          "profitableRate": 0.3872621778437458,
+          "averageMfe": 0.004977671578121248,
+          "averageMae": -0.004672066911513911,
+          "medianMfe": 0.003236245954692407,
+          "medianMae": -0.0025064983290011833
+        },
+        "20": {
+          "averageReturn": 0.001195800974938369,
+          "medianReturn": 0.0012787723785165905,
+          "positiveRate": 0.5582242612333018,
+          "profitableRate": 0.45418971798677643,
+          "averageMfe": 0.0073955181591698746,
+          "averageMae": -0.00651347449844585,
+          "medianMfe": 0.0048123860622240056,
+          "medianMae": -0.003568242640499708
+        },
+        "50": {
+          "averageReturn": 0.002317407461388558,
+          "medianReturn": 0.002949541767618191,
+          "positiveRate": 0.613547429496694,
+          "profitableRate": 0.542571852651464,
+          "averageMfe": 0.012036409763242804,
+          "averageMae": -0.00973342690979901,
+          "medianMfe": 0.008494337108594152,
+          "medianMae": -0.005303287021348635
+        },
+        "120": {
+          "averageReturn": 0.0016010488399575225,
+          "medianReturn": 0.0014388489208634336,
+          "positiveRate": 0.5338011064633653,
+          "profitableRate": 0.4861692079341519,
+          "averageMfe": 0.018770084449357644,
+          "averageMae": -0.014978878406453549,
+          "medianMfe": 0.0121765601217656,
+          "medianMae": -0.008836524300441906
+        }
+      }
+    },
+    {
+      "conditions": [
+        {
+          "feature": "return20",
+          "operator": "<=",
+          "percentile": 20,
+          "threshold": -0.00272479560226202
+        },
+        {
+          "feature": "acceleration",
+          "operator": ">=",
+          "percentile": 70,
+          "threshold": 0.00007605303180753252
+        }
+      ],
+      "observations": 12128,
+      "horizons": {
+        "5": {
+          "averageReturn": 0.00027849422775322454,
+          "medianReturn": 0,
+          "positiveRate": 0.4750164907651715,
+          "profitableRate": 0.2843007915567282,
+          "averageMfe": 0.002902266866501966,
+          "averageMae": -0.0028083355743202094,
+          "medianMfe": 0.0018811726438158205,
+          "medianMae": -0.0013921921271974336
+        },
+        "10": {
+          "averageReturn": 0.00044777360128354476,
+          "medianReturn": 0.0001662826725273847,
+          "positiveRate": 0.5023087071240105,
+          "profitableRate": 0.35883905013192613,
+          "averageMfe": 0.004238284899200458,
+          "averageMae": -0.004041152130846648,
+          "medianMfe": 0.0027743099437980145,
+          "medianMae": -0.002250875254712459
+        },
+        "20": {
+          "averageReturn": 0.0009977399039777456,
+          "medianReturn": 0.001072961373390413,
+          "positiveRate": 0.549802110817942,
+          "profitableRate": 0.4313984168865435,
+          "averageMfe": 0.00631311500961789,
+          "averageMae": -0.005618958871750781,
+          "medianMfe": 0.0042417815482502785,
+          "medianMae": -0.0032022524115768447
+        },
+        "50": {
+          "averageReturn": 0.001993445876390643,
+          "medianReturn": 0.002344221690517845,
+          "positiveRate": 0.5972955145118733,
+          "profitableRate": 0.5173977572559367,
+          "averageMfe": 0.010313306600856291,
+          "averageMae": -0.00842250908014054,
+          "medianMfe": 0.007269534688508994,
+          "medianMae": -0.004854368932038833
+        },
+        "120": {
+          "averageReturn": 0.0018540512931889232,
+          "medianReturn": 0.0017886753964071467,
+          "positiveRate": 0.5469986807387863,
+          "profitableRate": 0.49381596306068604,
+          "averageMfe": 0.016287134559128162,
+          "averageMae": -0.012961404228263217,
+          "medianMfe": 0.010736196319018232,
+          "medianMae": -0.007717750826901959
+        }
+      }
+    },
+    {
+      "conditions": [
+        {
+          "feature": "slope20",
+          "operator": "<=",
+          "percentile": 30,
+          "threshold": -0.00007650075858691711
+        },
+        {
+          "feature": "acceleration",
+          "operator": ">=",
+          "percentile": 80,
+          "threshold": 0.0001391412049997598
+        }
+      ],
+      "observations": 7217,
+      "horizons": {
+        "5": {
+          "averageReturn": 0.0003830419824926281,
+          "medianReturn": 0,
+          "positiveRate": 0.48496605237633367,
+          "profitableRate": 0.3053900512678398,
+          "averageMfe": 0.0033209465159787844,
+          "averageMae": -0.0031021870911606014,
+          "medianMfe": 0.002159827213822796,
+          "medianMae": -0.0017431725740847392
+        },
+        "10": {
+          "averageReturn": 0.0007379776986420394,
+          "medianReturn": 0.0005534034311012181,
+          "positiveRate": 0.5223777192739365,
+          "profitableRate": 0.3821532492725509,
+          "averageMfe": 0.004915044936500771,
+          "averageMae": -0.004448657896658714,
+          "medianMfe": 0.0030978934324659146,
+          "medianMae": -0.0025395033860045046
+        },
+        "20": {
+          "averageReturn": 0.001331753383443182,
+          "medianReturn": 0.0012009951102340821,
+          "positiveRate": 0.553831231813773,
+          "profitableRate": 0.4474158237494804,
+          "averageMfe": 0.0072316357104026,
+          "averageMae": -0.006110378599998194,
+          "medianMfe": 0.004750593824228044,
+          "medianMae": -0.003605227579990933
+        },
+        "50": {
+          "averageReturn": 0.002699608924318349,
+          "medianReturn": 0.0030358227079538835,
+          "positiveRate": 0.6211722322294583,
+          "profitableRate": 0.5492586947485104,
+          "averageMfe": 0.011872111545174315,
+          "averageMae": -0.009242330705228887,
+          "medianMfe": 0.008510638297872353,
+          "medianMae": -0.005313496280552554
+        },
+        "120": {
+          "averageReturn": 0.0020762148475228703,
+          "medianReturn": 0.0013793103448276334,
+          "positiveRate": 0.5284744353609533,
+          "profitableRate": 0.4846889289178329,
+          "averageMfe": 0.018602104359473105,
+          "averageMae": -0.01423732527282559,
+          "medianMfe": 0.0122376378512985,
+          "medianMae": -0.008846657929226787
+        }
+      }
+    },
+    {
+      "conditions": [
+        {
+          "feature": "slope20",
+          "operator": "<=",
+          "percentile": 20,
+          "threshold": -0.00014247403014451264
+        },
+        {
+          "feature": "acceleration",
+          "operator": ">=",
+          "percentile": 60,
+          "threshold": 0.00003196647230652161
+        }
+      ],
+      "observations": 10719,
+      "horizons": {
+        "5": {
+          "averageReturn": 0.00036153667019498894,
+          "medianReturn": 0,
+          "positiveRate": 0.4818546506203937,
+          "profitableRate": 0.28985912865006064,
+          "averageMfe": 0.002933341347067497,
+          "averageMae": -0.002731354682527919,
+          "medianMfe": 0.001894836570345726,
+          "medianMae": -0.001474165253924964
+        },
+        "10": {
+          "averageReturn": 0.0006103082124041497,
+          "medianReturn": 0.00037467216185826935,
+          "positiveRate": 0.5118014740180987,
+          "profitableRate": 0.36467954100195915,
+          "averageMfe": 0.004319789535408304,
+          "averageMae": -0.0039356791192832405,
+          "medianMfe": 0.002811621368322248,
+          "medianMae": -0.002315580549123508
+        },
+        "20": {
+          "averageReturn": 0.0012349473444963172,
+          "medianReturn": 0.0011803588290839606,
+          "positiveRate": 0.5600335852225021,
+          "profitableRate": 0.4380072767982088,
+          "averageMfe": 0.006390110880841205,
+          "averageMae": -0.005430384878017125,
+          "medianMfe": 0.004372267332916957,
+          "medianMae": -0.003236245954692629
+        },
+        "50": {
+          "averageReturn": 0.00238171973159595,
+          "medianReturn": 0.002557544757033181,
+          "positiveRate": 0.6087321578505458,
+          "profitableRate": 0.5285940852691482,
+          "averageMfe": 0.010520655318535632,
+          "averageMae": -0.00816209751722347,
+          "medianMfe": 0.007575757575757347,
+          "medianMae": -0.004894578313253128
+        },
+        "120": {
+          "averageReturn": 0.002311395049772858,
+          "medianReturn": 0.0019792182088074206,
+          "positiveRate": 0.5503311876107846,
+          "profitableRate": 0.4996734770034518,
+          "averageMfe": 0.016537065331000307,
+          "averageMae": -0.012627021209848302,
+          "medianMfe": 0.011267291387773382,
+          "medianMae": -0.007881882770870208
+        }
+      }
+    },
+    {
+      "conditions": [
+        {
+          "feature": "drawdown50",
+          "operator": ">=",
+          "percentile": 80,
+          "threshold": -0.002594033721834421
+        },
+        {
+          "feature": "volatility20",
+          "operator": ">=",
+          "percentile": 80,
+          "threshold": 0.0015221948036924005
+        }
+      ],
+      "observations": 834,
+      "horizons": {
+        "5": {
+          "averageReturn": 0.00011424645887393748,
+          "medianReturn": 0,
+          "positiveRate": 0.27218225419664266,
+          "profitableRate": 0.2446043165467626,
+          "averageMfe": 0.0031878460563024963,
+          "averageMae": -0.0022026629171807053,
+          "medianMfe": 0,
+          "medianMae": -0.0010040201126598758
+        },
+        "10": {
+          "averageReturn": 0.0004021607479248427,
+          "medianReturn": 0,
+          "positiveRate": 0.3261390887290168,
+          "profitableRate": 0.2865707434052758,
+          "averageMfe": 0.00495184966731624,
+          "averageMae": -0.0031543899472084775,
+          "medianMfe": 0.0017703659981936903,
+          "medianMae": -0.002256317689530829
+        },
+        "20": {
+          "averageReturn": 0.00045643031077229274,
+          "medianReturn": -0.0008760606358289014,
+          "positiveRate": 0.3441247002398082,
+          "profitableRate": 0.3117505995203837,
+          "averageMfe": 0.007738832847603411,
+          "averageMae": -0.0046065774775940534,
+          "medianMfe": 0.0024937655860348684,
+          "medianMae": -0.003835091083413178
+        },
+        "50": {
+          "averageReturn": -0.0009408375689925012,
+          "medianReturn": -0.002512562814070418,
+          "positiveRate": 0.32973621103117506,
+          "profitableRate": 0.30335731414868106,
+          "averageMfe": 0.01059651124257217,
+          "averageMae": -0.007716130771692146,
+          "medianMfe": 0.0044642857142858094,
+          "medianMae": -0.005640859284890443
+        },
+        "120": {
+          "averageReturn": -0.0015095231645699742,
+          "medianReturn": -0.002512562814070418,
+          "positiveRate": 0.32014388489208634,
+          "profitableRate": 0.302158273381295,
+          "averageMfe": 0.012466490518663196,
+          "averageMae": -0.010559491520021006,
+          "medianMfe": 0.005541561712846255,
+          "medianMae": -0.008230452674897082
+        }
+      }
+    },
+    {
+      "conditions": [
+        {
+          "feature": "return20",
+          "operator": "<=",
+          "percentile": 30,
+          "threshold": -0.0014662756584584713
+        },
+        {
+          "feature": "acceleration",
+          "operator": ">=",
+          "percentile": 80,
+          "threshold": 0.0001391412049997598
+        }
+      ],
+      "observations": 11864,
+      "horizons": {
+        "5": {
+          "averageReturn": 0.00026396516383082603,
+          "medianReturn": 0,
+          "positiveRate": 0.47387053270397844,
+          "profitableRate": 0.2866655428186109,
+          "averageMfe": 0.0028880059136925425,
+          "averageMae": -0.0028186825544740234,
+          "medianMfe": 0.001851423380807793,
+          "medianMae": -0.0013967874029091054
+        },
+        "10": {
+          "averageReturn": 0.0005049098032135407,
+          "medianReturn": 0.0003926958721981455,
+          "positiveRate": 0.5123061362103843,
+          "profitableRate": 0.36168240053944706,
+          "averageMfe": 0.004286164924100035,
+          "averageMae": -0.004053792610206939,
+          "medianMfe": 0.002707092582566295,
+          "medianMae": -0.0022624434389140746
+        },
+        "20": {
+          "averageReturn": 0.0009896363831464496,
+          "medianReturn": 0.0010020050140411296,
+          "positiveRate": 0.5453472690492246,
+          "profitableRate": 0.42852326365475385,
+          "averageMfe": 0.0063698384912695164,
+          "averageMae": -0.005677912646760658,
+          "medianMfe": 0.004230132684527654,
+          "medianMae": -0.0031874204584168564
+        },
+        "50": {
+          "averageReturn": 0.0020171073699940686,
+          "medianReturn": 0.0023980815347721673,
+          "positiveRate": 0.6048550236008091,
+          "profitableRate": 0.5246122724207687,
+          "averageMfe": 0.010454451343969391,
+          "averageMae": -0.008533822220801627,
+          "medianMfe": 0.007281340056278451,
+          "medianMae": -0.004847950639047971
+        },
+        "120": {
+          "averageReturn": 0.0015900945643104842,
+          "medianReturn": 0.0015066500188207765,
+          "positiveRate": 0.5401213755900203,
+          "profitableRate": 0.4862609575185435,
+          "averageMfe": 0.016481962574566786,
+          "averageMae": -0.01339394099379184,
+          "medianMfe": 0.010777464657243274,
+          "medianMae": -0.007812500000000056
+        }
+      }
+    },
+    {
+      "conditions": [
+        {
+          "feature": "slope20",
+          "operator": "<=",
+          "percentile": 30,
+          "threshold": -0.00007650075858691711
+        },
+        {
+          "feature": "acceleration",
+          "operator": ">=",
+          "percentile": 70,
+          "threshold": 0.00007605303180753252
+        }
+      ],
+      "observations": 13453,
+      "horizons": {
+        "5": {
+          "averageReturn": 0.00029107113889589273,
+          "medianReturn": 0,
+          "positiveRate": 0.4680740355311083,
+          "profitableRate": 0.2667063108600312,
+          "averageMfe": 0.002701602260986409,
+          "averageMae": -0.002537866001151387,
+          "medianMfe": 0.001640689089417613,
+          "medianMae": -0.0013812154696132284
+        },
+        "10": {
+          "averageReturn": 0.0005186427663770114,
+          "medianReturn": 0.0002718868950517539,
+          "positiveRate": 0.5048688024975841,
+          "profitableRate": 0.34661413811045866,
+          "averageMfe": 0.003995973195257814,
+          "averageMae": -0.003692349405957909,
+          "medianMfe": 0.0025839793281654533,
+          "medianMae": -0.00222717149220486
+        },
+        "20": {
+          "averageReturn": 0.0009935357801672305,
+          "medianReturn": 0.0009216589861751334,
+          "positiveRate": 0.5433732253029064,
+          "profitableRate": 0.4158923660150152,
+          "averageMfe": 0.005894030398490186,
+          "averageMae": -0.005128681813902973,
+          "medianMfe": 0.003994190268700182,
+          "medianMae": -0.0030487804878049918
+        },
+        "50": {
+          "averageReturn": 0.0021035147247875758,
+          "medianReturn": 0.002200220022002153,
+          "positiveRate": 0.5960752248569092,
+          "profitableRate": 0.5086597784880695,
+          "averageMfe": 0.00974908013930145,
+          "averageMae": -0.007781073166561732,
+          "medianMfe": 0.007018247443352665,
+          "medianMae": -0.0047935103244838295
+        },
+        "120": {
+          "averageReturn": 0.0020182461210998194,
+          "medianReturn": 0.001685630004214067,
+          "positiveRate": 0.5443395525161674,
+          "profitableRate": 0.4913402215119304,
+          "averageMfe": 0.015449783122512635,
+          "averageMae": -0.012017182845074493,
+          "medianMfe": 0.01030927835051565,
+          "medianMae": -0.007535321821036001
+        }
+      }
+    },
+    {
+      "conditions": [
+        {
+          "feature": "return20",
+          "operator": "<=",
+          "percentile": 20,
+          "threshold": -0.00272479560226202
+        },
+        {
+          "feature": "acceleration",
+          "operator": ">=",
+          "percentile": 60,
+          "threshold": 0.00003196647230652161
+        }
+      ],
+      "observations": 17446,
+      "horizons": {
+        "5": {
+          "averageReturn": 0.0002913859111763142,
+          "medianReturn": 0,
+          "positiveRate": 0.4718560128396194,
+          "profitableRate": 0.2700905651725324,
+          "averageMfe": 0.0026170809782783172,
+          "averageMae": -0.0024843391021799896,
+          "medianMfe": 0.001653361050503066,
+          "medianMae": -0.0012853470437018677
+        },
+        "10": {
+          "averageReturn": 0.0004624995787446,
+          "medianReturn": 0.00017287229571860685,
+          "positiveRate": 0.5024647483663877,
+          "profitableRate": 0.3470709618250602,
+          "averageMfe": 0.0038479961742996496,
+          "averageMae": -0.0035935834562721876,
+          "medianMfe": 0.0025888770801018035,
+          "medianMae": -0.0020269892336836626
+        },
+        "20": {
+          "averageReturn": 0.0009525160445514699,
+          "medianReturn": 0.0009737098344694273,
+          "positiveRate": 0.5462570216668577,
+          "profitableRate": 0.41797546715579503,
+          "averageMfe": 0.005709843078444227,
+          "averageMae": -0.005027683138290507,
+          "medianMfe": 0.0039001288861062466,
+          "medianMae": -0.002894356005788634
+        },
+        "50": {
+          "averageReturn": 0.0017962000107621212,
+          "medianReturn": 0.00202204025926922,
+          "positiveRate": 0.5879284649776453,
+          "profitableRate": 0.501375673506821,
+          "averageMfe": 0.00930823334398257,
+          "averageMae": -0.0075838385614962105,
+          "medianMfe": 0.006611570247933907,
+          "medianMae": -0.004464285714285698
+        },
+        "120": {
+          "averageReturn": 0.001919376857025086,
+          "medianReturn": 0.001904057167680162,
+          "positiveRate": 0.5533073483893156,
+          "profitableRate": 0.4973059727158088,
+          "averageMfe": 0.014791942787986068,
+          "averageMae": -0.011795548366913747,
+          "medianMfe": 0.009940183639177813,
+          "medianMae": -0.007069814421878762
+        }
+      }
+    }
+  ],
+  "tradingStyle": [
+    {
+      "conditions": [
+        {
+          "feature": "slope20",
+          "operator": "<=",
+          "percentile": 20,
+          "threshold": -0.00014247403014451264
+        },
+        {
+          "feature": "acceleration",
+          "operator": ">=",
+          "percentile": 80,
+          "threshold": 0.0001391412049997598
+        }
+      ],
+      "opportunities": 4231,
+      "trades": 871,
+      "totalNetReturn": -0.4754342238060809,
+      "averageNetReturn": -0.0006845583890502825,
+      "medianNetReturn": -0.0008108108108109118,
+      "winRate": 0.44202066590126293,
+      "profitableRate": 0.44202066590126293,
+      "maximumDrawdown": -0.5844910528666694
+    },
+    {
+      "conditions": [
+        {
+          "feature": "slope20",
+          "operator": "<=",
+          "percentile": 20,
+          "threshold": -0.00014247403014451264
+        },
+        {
+          "feature": "acceleration",
+          "operator": ">=",
+          "percentile": 70,
+          "threshold": 0.00007605303180753252
+        }
+      ],
+      "opportunities": 7225,
+      "trades": 1465,
+      "totalNetReturn": -0.8398636139489308,
+      "averageNetReturn": -0.0012147602148313897,
+      "medianNetReturn": -0.0012790194664744608,
+      "winRate": 0.3986348122866894,
+      "profitableRate": 0.3986348122866894,
+      "maximumDrawdown": -0.8513409805479398
+    },
+    {
+      "conditions": [
+        {
+          "feature": "return20",
+          "operator": "<=",
+          "percentile": 20,
+          "threshold": -0.00272479560226202
+        },
+        {
+          "feature": "acceleration",
+          "operator": ">=",
+          "percentile": 80,
+          "threshold": 0.0001391412049997598
+        }
+      ],
+      "opportunities": 7411,
+      "trades": 1780,
+      "totalNetReturn": -0.9185767400391468,
+      "averageNetReturn": -0.0013728263164747767,
+      "medianNetReturn": -0.0012512166677880448,
+      "winRate": 0.4101123595505618,
+      "profitableRate": 0.4101123595505618,
+      "maximumDrawdown": -0.9204295036552497
+    },
+    {
+      "conditions": [
+        {
+          "feature": "return20",
+          "operator": "<=",
+          "percentile": 20,
+          "threshold": -0.00272479560226202
+        },
+        {
+          "feature": "acceleration",
+          "operator": ">=",
+          "percentile": 70,
+          "threshold": 0.00007605303180753252
+        }
+      ],
+      "opportunities": 12128,
+      "trades": 2636,
+      "totalNetReturn": -0.9840413078424394,
+      "averageNetReturn": -0.0015399524678939664,
+      "medianNetReturn": -0.0015044767706762201,
+      "winRate": 0.37822458270106224,
+      "profitableRate": 0.37822458270106224,
+      "maximumDrawdown": -0.9845299305893541
+    },
+    {
+      "conditions": [
+        {
+          "feature": "slope20",
+          "operator": "<=",
+          "percentile": 30,
+          "threshold": -0.00007650075858691711
+        },
+        {
+          "feature": "acceleration",
+          "operator": ">=",
+          "percentile": 80,
+          "threshold": 0.0001391412049997598
+        }
+      ],
+      "opportunities": 7217,
+      "trades": 1470,
+      "totalNetReturn": -0.8244898118431869,
+      "averageNetReturn": -0.0011447534720620998,
+      "medianNetReturn": -0.001093035836840504,
+      "winRate": 0.41360544217687073,
+      "profitableRate": 0.41360544217687073,
+      "maximumDrawdown": -0.8317721239164935
+    },
+    {
+      "conditions": [
+        {
+          "feature": "slope20",
+          "operator": "<=",
+          "percentile": 20,
+          "threshold": -0.00014247403014451264
+        },
+        {
+          "feature": "acceleration",
+          "operator": ">=",
+          "percentile": 60,
+          "threshold": 0.00003196647230652161
+        }
+      ],
+      "opportunities": 10719,
+      "trades": 2049,
+      "totalNetReturn": -0.9548175819213532,
+      "averageNetReturn": -0.0014824687126271617,
+      "medianNetReturn": -0.001374609130706748,
+      "winRate": 0.38555392874572963,
+      "profitableRate": 0.38555392874572963,
+      "maximumDrawdown": -0.9551024006747941
+    },
+    {
+      "conditions": [
+        {
+          "feature": "drawdown50",
+          "operator": ">=",
+          "percentile": 80,
+          "threshold": -0.002594033721834421
+        },
+        {
+          "feature": "volatility20",
+          "operator": ">=",
+          "percentile": 80,
+          "threshold": 0.0015221948036924005
+        }
+      ],
+      "opportunities": 834,
+      "trades": 115,
+      "totalNetReturn": -0.04764301265237181,
+      "averageNetReturn": -0.00026888560605577274,
+      "medianNetReturn": -0.002,
+      "winRate": 0.3565217391304348,
+      "profitableRate": 0.3565217391304348,
+      "maximumDrawdown": -0.2117450870617893
+    },
+    {
+      "conditions": [
+        {
+          "feature": "return20",
+          "operator": "<=",
+          "percentile": 30,
+          "threshold": -0.0014662756584584713
+        },
+        {
+          "feature": "acceleration",
+          "operator": ">=",
+          "percentile": 80,
+          "threshold": 0.0001391412049997598
+        }
+      ],
+      "opportunities": 11864,
+      "trades": 2589,
+      "totalNetReturn": -0.9822693427099554,
+      "averageNetReturn": -0.0015256341455242043,
+      "medianNetReturn": -0.0015176073323686073,
+      "winRate": 0.3831595210505987,
+      "profitableRate": 0.3831595210505987,
+      "maximumDrawdown": -0.9826377528569233
+    },
+    {
+      "conditions": [
+        {
+          "feature": "slope20",
+          "operator": "<=",
+          "percentile": 30,
+          "threshold": -0.00007650075858691711
+        },
+        {
+          "feature": "acceleration",
+          "operator": ">=",
+          "percentile": 70,
+          "threshold": 0.00007605303180753252
+        }
+      ],
+      "opportunities": 13453,
+      "trades": 2416,
+      "totalNetReturn": -0.9740496402429185,
+      "averageNetReturn": -0.0014824490950845167,
+      "medianNetReturn": -0.0014776660991793183,
+      "winRate": 0.37665562913907286,
+      "profitableRate": 0.37665562913907286,
+      "maximumDrawdown": -0.975374091249184
+    },
+    {
+      "conditions": [
+        {
+          "feature": "return20",
+          "operator": "<=",
+          "percentile": 20,
+          "threshold": -0.00272479560226202
+        },
+        {
+          "feature": "acceleration",
+          "operator": ">=",
+          "percentile": 60,
+          "threshold": 0.00003196647230652161
+        }
+      ],
+      "opportunities": 17446,
+      "trades": 3443,
+      "totalNetReturn": -0.9962482544313179,
+      "averageNetReturn": -0.0015965661353444975,
+      "medianNetReturn": -0.0016073812328227782,
+      "winRate": 0.3682834737147836,
+      "profitableRate": 0.3682834737147836,
+      "maximumDrawdown": -0.9963852698796135
+    }
+  ]
+}

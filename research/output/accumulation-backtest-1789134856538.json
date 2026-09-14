@@ -1,0 +1,276 @@
+{
+  "generatedAt": "2026-09-11T13:54:16.538Z",
+  "sourceFile": "server/research-output/ema-data-1789061547934.json",
+  "markets": 60,
+  "observationsExamined": 2589000,
+  "entryRule": {
+    "slope20LessThanOrEqual": -0.0001425851160546487,
+    "accelerationGreaterThanOrEqual": 0.00013986740450809692
+  },
+  "positionModel": {
+    "unitSize": 1,
+    "overlappingPositions": true,
+    "additionalUnitOnEverySignal": true,
+    "partialSelling": false,
+    "maxHoldMinutes": null
+  },
+  "costs": {
+    "feeRate": 0.002,
+    "executionCost": 0,
+    "totalCost": 0.002
+  },
+  "results": [
+    {
+      "profitTarget": 0.005,
+      "profitTargetPercent": 0.5,
+      "stopLoss": 0.05,
+      "stopLossPercent": 5,
+      "summary": {
+        "signals": 50521,
+        "closedLots": 49769,
+        "winningLots": 47024,
+        "losingLots": 2745,
+        "openLotsAtEnd": 752,
+        "winRate": 0.9448451847535615,
+        "averageNetReturn": 0.00045374939673098285,
+        "medianNetReturn": 0.0029999999999998934,
+        "totalNetReturn": 22.582653725904287,
+        "profitFactor": 1.1906868556699437,
+        "averageHoldMinutes": 496.87970423355904,
+        "medianHoldMinutes": 88,
+        "maximumOpenLots": 2289,
+        "maximumOpenMarkets": 21,
+        "maximumDrawdown": 16.792061438983524,
+        "exits": {
+          "profit": 46989,
+          "stop": 2028,
+          "endOfData": 752
+        }
+      }
+    },
+    {
+      "profitTarget": 0.005,
+      "profitTargetPercent": 0.5,
+      "stopLoss": 0.075,
+      "stopLossPercent": 7.5,
+      "summary": {
+        "signals": 50714,
+        "closedLots": 49769,
+        "winningLots": 47864,
+        "losingLots": 1905,
+        "openLotsAtEnd": 945,
+        "winRate": 0.9617231610038377,
+        "averageNetReturn": 0.0009214260665529171,
+        "medianNetReturn": 0.0029999999999998934,
+        "totalNetReturn": 45.85845390627213,
+        "profitFactor": 1.469514116466228,
+        "averageHoldMinutes": 569.9118728525789,
+        "medianHoldMinutes": 90,
+        "maximumOpenLots": 2381,
+        "maximumOpenMarkets": 21,
+        "maximumDrawdown": 17.88864942337288,
+        "exits": {
+          "profit": 47829,
+          "stop": 995,
+          "endOfData": 945
+        }
+      }
+    },
+    {
+      "profitTarget": 0.005,
+      "profitTargetPercent": 0.5,
+      "stopLoss": 0.1,
+      "stopLossPercent": 10,
+      "summary": {
+        "signals": 50924,
+        "closedLots": 49769,
+        "winningLots": 48185,
+        "losingLots": 1584,
+        "openLotsAtEnd": 1155,
+        "winRate": 0.9681729590709076,
+        "averageNetReturn": 0.001224538808918434,
+        "medianNetReturn": 0.0029999999999998934,
+        "totalNetReturn": 60.94407198106154,
+        "profitFactor": 1.729436413298762,
+        "averageHoldMinutes": 621.9609797263357,
+        "medianHoldMinutes": 90,
+        "maximumOpenLots": 2419,
+        "maximumOpenMarkets": 21,
+        "maximumDrawdown": 17.786280245514586,
+        "exits": {
+          "profit": 48150,
+          "stop": 464,
+          "endOfData": 1155
+        }
+      }
+    },
+    {
+      "profitTarget": 0.0075,
+      "profitTargetPercent": 0.75,
+      "stopLoss": 0.05,
+      "stopLossPercent": 5,
+      "summary": {
+        "signals": 50932,
+        "closedLots": 49769,
+        "winningLots": 45639,
+        "losingLots": 4130,
+        "openLotsAtEnd": 1163,
+        "winRate": 0.917016616769475,
+        "averageNetReturn": 0.0014383209530936302,
+        "medianNetReturn": 0.005500000000000062,
+        "totalNetReturn": 71.58379551451688,
+        "profitFactor": 1.3996311930361605,
+        "averageHoldMinutes": 773.2682794510639,
+        "medianHoldMinutes": 183,
+        "maximumOpenLots": 3206,
+        "maximumOpenMarkets": 21,
+        "maximumDrawdown": 12.110734673609718,
+        "exits": {
+          "profit": 45529,
+          "stop": 3077,
+          "endOfData": 1163
+        }
+      }
+    },
+    {
+      "profitTarget": 0.0075,
+      "profitTargetPercent": 0.75,
+      "stopLoss": 0.075,
+      "stopLossPercent": 7.5,
+      "summary": {
+        "signals": 51270,
+        "closedLots": 49769,
+        "winningLots": 46878,
+        "losingLots": 2891,
+        "openLotsAtEnd": 1501,
+        "winRate": 0.9419116317386325,
+        "averageNetReturn": 0.002181879260210669,
+        "medianNetReturn": 0.005500000000000062,
+        "totalNetReturn": 108.58994890142478,
+        "profitFactor": 1.7291195043532352,
+        "averageHoldMinutes": 890.0661656854669,
+        "medianHoldMinutes": 188,
+        "maximumOpenLots": 3357,
+        "maximumOpenMarkets": 21,
+        "maximumDrawdown": 14.05695017160956,
+        "exits": {
+          "profit": 46768,
+          "stop": 1500,
+          "endOfData": 1501
+        }
+      }
+    },
+    {
+      "profitTarget": 0.0075,
+      "profitTargetPercent": 0.75,
+      "stopLoss": 0.1,
+      "stopLossPercent": 10,
+      "summary": {
+        "signals": 51618,
+        "closedLots": 49769,
+        "winningLots": 47346,
+        "losingLots": 2423,
+        "openLotsAtEnd": 1849,
+        "winRate": 0.9513150756495007,
+        "averageNetReturn": 0.0026555180164513437,
+        "medianNetReturn": 0.005500000000000062,
+        "totalNetReturn": 132.16247616076691,
+        "profitFactor": 2.033048264248283,
+        "averageHoldMinutes": 973.188430549137,
+        "medianHoldMinutes": 189,
+        "maximumOpenLots": 3402,
+        "maximumOpenMarkets": 21,
+        "maximumDrawdown": 12.388101991193347,
+        "exits": {
+          "profit": 47236,
+          "stop": 684,
+          "endOfData": 1849
+        }
+      }
+    },
+    {
+      "profitTarget": 0.01,
+      "profitTargetPercent": 1,
+      "stopLoss": 0.05,
+      "stopLossPercent": 5,
+      "summary": {
+        "signals": 51452,
+        "closedLots": 49769,
+        "winningLots": 44077,
+        "losingLots": 5692,
+        "openLotsAtEnd": 1683,
+        "winRate": 0.8856316180755088,
+        "averageNetReturn": 0.0020894859033153755,
+        "medianNetReturn": 0.008000000000000009,
+        "totalNetReturn": 103.99162392210292,
+        "profitFactor": 1.4196503994885408,
+        "averageHoldMinutes": 1029.4309911792482,
+        "medianHoldMinutes": 304,
+        "maximumOpenLots": 3831,
+        "maximumOpenMarkets": 21,
+        "maximumDrawdown": 9.252050129360537,
+        "exits": {
+          "profit": 43885,
+          "stop": 4201,
+          "endOfData": 1683
+        }
+      }
+    },
+    {
+      "profitTarget": 0.01,
+      "profitTargetPercent": 1,
+      "stopLoss": 0.075,
+      "stopLossPercent": 7.5,
+      "summary": {
+        "signals": 51940,
+        "closedLots": 49769,
+        "winningLots": 45660,
+        "losingLots": 4109,
+        "openLotsAtEnd": 2171,
+        "winRate": 0.9174385661757318,
+        "averageNetReturn": 0.0030121295900614655,
+        "medianNetReturn": 0.008000000000000009,
+        "totalNetReturn": 149.91067756776908,
+        "profitFactor": 1.6987203644045732,
+        "averageHoldMinutes": 1181.3997066446984,
+        "medianHoldMinutes": 318,
+        "maximumOpenLots": 3996,
+        "maximumOpenMarkets": 21,
+        "maximumDrawdown": 11.76369574512697,
+        "exits": {
+          "profit": 45468,
+          "stop": 2130,
+          "endOfData": 2171
+        }
+      }
+    },
+    {
+      "profitTarget": 0.01,
+      "profitTargetPercent": 1,
+      "stopLoss": 0.1,
+      "stopLossPercent": 10,
+      "summary": {
+        "signals": 52416,
+        "closedLots": 49769,
+        "winningLots": 46337,
+        "losingLots": 3432,
+        "openLotsAtEnd": 2647,
+        "winRate": 0.9310414113202998,
+        "averageNetReturn": 0.0037434922351347283,
+        "medianNetReturn": 0.008000000000000009,
+        "totalNetReturn": 186.30986505042029,
+        "profitFactor": 2.014941306729227,
+        "averageHoldMinutes": 1296.3519861761338,
+        "medianHoldMinutes": 322,
+        "maximumOpenLots": 4044,
+        "maximumOpenMarkets": 21,
+        "maximumDrawdown": 9.631782330951236,
+        "exits": {
+          "profit": 46145,
+          "stop": 977,
+          "endOfData": 2647
+        }
+      }
+    }
+  ]
+}

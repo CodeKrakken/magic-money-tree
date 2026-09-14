@@ -1,6 +1,13 @@
 node_modules
 .env
 package-lock.json
+<<<<<<< HEAD
 server/dist
 research/data/ema-data-1789041161149.json
 client/build
+=======
+server/research-output/ema-data-1789041161149.json
+server/research-output/ema-data-1789061547934.json
+server/research-output/ema-data-oos-60-1789165540440.json
+server/dist/
+>>>>>>> trading-logic
