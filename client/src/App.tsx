@@ -79,7 +79,7 @@ export default function App() {
     fetchTradingMode();
     fetchData();
 
-    return () => cancelled = true;
+  return () => { cancelled = true };
 
   }, []);
 
