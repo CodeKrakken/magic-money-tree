@@ -23,8 +23,10 @@ const Graph = ({
     setLine([
       {
         data: history.map((frame: indexedFrame) => ({
+
           x: new Date(frame.time),
           y: [frame.open, frame.high, frame.low, frame.close],
+
         }))
       }
     ])
@@ -48,7 +50,6 @@ const Graph = ({
       },
     },
   };
-
   
   return <>
     <Chart options={options} series={line} type="candlestick" height={350} />
