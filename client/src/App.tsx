@@ -17,22 +17,20 @@ export default function App() {
   const [tradingMode, setTradingMode] = useState<'simulation' | 'test' | 'live'>('simulation')
 
   useEffect(() => {
-
     let cancelled = false;
 
     const fetchTradingMode = async () => {
-
       try {
-
         const response = await fetch('/api/trading-mode', {
           cache: 'no-store',
           headers: { 'Cache-Control': 'no-store' }
         });
 
-        if (!response.ok) return;        
+        if (!response.ok) {
+          return;
+        }
 
         const data = await response.json();
-
         if (!cancelled && data?.tradingMode) {
           setTradingMode(data.tradingMode);
         }
@@ -42,34 +40,25 @@ export default function App() {
     };
 
     const fetchData = async () => {
-
       try {
-
         const url = `/data?t=${Date.now()}`;
-
         const response = await fetch(url, {
           cache: 'no-store',
           headers: { 'Cache-Control': 'no-store' }
         });
-
         if (!response.ok) {
           return;
         }
-
         if (cancelled) return;
-
         const data = await response.json();
-
         setWallet(data.wallet);
         setcurrentTask(data.currentTask);
         setTransactions(data.transactions);
         setMarketChart(data.marketChart);
         setCurrentMarket(data.currentMarket);
-
         if (data.tradingMode) {
           setTradingMode(data.tradingMode);
         }
-
       } catch (error) {
         console.error('[App] Error fetching data:', error);
       }
@@ -79,20 +68,21 @@ export default function App() {
     fetchTradingMode();
     fetchData();
 
-  return () => { cancelled = true };
-
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const isLiveMode = tradingMode === 'live';
 
   const handleModeChange = async () => {
-
     const nextMode = isLiveMode ? 'simulation' : 'live';
 
     if (nextMode === 'live') {
-
       const confirmed = window.confirm('Enable live trading? Real Binance orders may be placed.');
-      if (!confirmed) return;
+      if (!confirmed) {
+        return;
+      }
     }
 
     const response = await fetch('/api/trading-mode', {
@@ -102,14 +92,14 @@ export default function App() {
     });
 
     const data = await response.json();
-
     if (response.ok && data?.tradingMode) {
-
       setTradingMode(data.tradingMode);
       return;
     }
 
-    if (data?.error) window.alert(data.error)
+    if (data?.error) {
+      window.alert(data.error);
+    }
   };
 
   return <>
