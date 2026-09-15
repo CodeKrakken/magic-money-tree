@@ -353,7 +353,19 @@ interface DatasetOutput {
 
   marketSummaries: MarketBehaviourSummary[];
   groupSummaries: GroupSummary[];
+
+  /*
+   * Signal observations deliberately remain available internally while
+   * processing, but are NOT included in the JSON output.
+   */
   signalObservations: SignalObservation[];
+}
+
+interface SignalFileManifest {
+  file: string;
+  bytes: number;
+  megabytes: number;
+  observations: number;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -370,6 +382,15 @@ const LONG_WINDOW = 50;
 
 const MINUTE_MS = 60_000;
 const DAY_MS = 24 * 60 * MINUTE_MS;
+
+/*
+ * Keep a comfortable margin below GitHub's 100 MB file limit.
+ *
+ * The limit is measured using actual UTF-8 byte length, not character
+ * count and not number of rows.
+ */
+const MAX_SIGNAL_FILE_BYTES =
+  75 * 1024 * 1024;
 
 const FORWARD_HORIZONS = [
   5,
@@ -691,13 +712,6 @@ function buildRegressionSlopes(
     const incoming =
       closes[end];
 
-    /*
-     * When the window moves right:
-     *
-     * old x positions become one smaller,
-     * then the incoming value receives
-     * position windowSize - 1.
-     */
     sumXY =
       sumXY -
       (sumY - outgoing) +
@@ -1226,7 +1240,6 @@ function findFirstAtLeast(
   candles: Candle[],
   startIndex: number,
   endIndex: number,
-  entryPrice: number,
   targetPrice: number
 ): number {
   for (
@@ -1396,15 +1409,11 @@ function buildSignalObservation(
           candles,
           signalIndex + 1,
           endIndex,
-          entryPrice,
           targetPrice
         );
 
       return index >= 0
-        ? (
-            index -
-            signalIndex
-          )
+        ? index - signalIndex
         : null;
     };
 
@@ -2204,15 +2213,6 @@ function buildGroupSummary(
     return result;
   };
 
-  const medianMetric = (
-    selector: (
-      market: MarketBehaviourSummary
-    ) => number
-  ): number =>
-    median(
-      withSignals.map(selector)
-    );
-
   return {
     marketClass,
 
@@ -2520,7 +2520,10 @@ function buildGroupSummary(
 function csvEscape(
   value: unknown
 ): string {
-  if (value === null || value === undefined) {
+  if (
+    value === null ||
+    value === undefined
+  ) {
     return "";
   }
 
@@ -2529,7 +2532,8 @@ function csvEscape(
   if (
     text.includes(",") ||
     text.includes('"') ||
-    text.includes("\n")
+    text.includes("\n") ||
+    text.includes("\r")
   ) {
     return `"${text.replaceAll(
       '"',
@@ -2551,7 +2555,7 @@ function toCsv(
     Object.keys(rows[0]);
 
   const lines = [
-    headers.join(","),
+    headers.join(",") + "\n",
   ];
 
   for (const row of rows) {
@@ -2563,11 +2567,202 @@ function toCsv(
               row[header]
             )
         )
-        .join(",")
+        .join(",") + "\n"
     );
   }
 
-  return lines.join("\n") + "\n";
+  return lines.join("");
+}
+
+/* -------------------------------------------------------------------------- */
+/* Signal CSV sharding                                                         */
+/* -------------------------------------------------------------------------- */
+
+function signalObservationToRow(
+  observation: SignalObservation,
+  headers: string[]
+): string {
+  return (
+    headers
+      .map(
+        header =>
+          csvEscape(
+            observation[
+              header as keyof SignalObservation
+            ]
+          )
+      )
+      .join(",") + "\n"
+  );
+}
+
+function writeSignalCsvShards(
+  observations: SignalObservation[],
+  outputDirectory: string,
+  timestamp: number
+): SignalFileManifest[] {
+  if (observations.length === 0) {
+    return [];
+  }
+
+  const headers =
+    Object.keys(
+      observations[0]
+    );
+
+  const header =
+    headers.join(",") + "\n";
+
+  const headerBytes =
+    Buffer.byteLength(
+      header,
+      "utf8"
+    );
+
+  if (
+    headerBytes >=
+    MAX_SIGNAL_FILE_BYTES
+  ) {
+    throw new Error(
+      "Signal CSV header exceeds maximum file size."
+    );
+  }
+
+  const manifests: SignalFileManifest[] =
+    [];
+
+  let shardNumber = 1;
+  let currentRows: string[] = [
+    header,
+  ];
+  let currentBytes =
+    headerBytes;
+  let currentObservations = 0;
+
+  const flushShard = (): void => {
+    if (
+      currentObservations === 0
+    ) {
+      return;
+    }
+
+    const suffix =
+      shardNumber
+        .toString()
+        .padStart(2, "0");
+
+    const filename =
+      `plan-a-market-behaviour-signals-${timestamp}-${suffix}.csv`;
+
+    const filePath =
+      path.join(
+        outputDirectory,
+        filename
+      );
+
+    const contents =
+      currentRows.join("");
+
+    const bytes =
+      Buffer.byteLength(
+        contents,
+        "utf8"
+      );
+
+    if (
+      bytes >=
+      MAX_SIGNAL_FILE_BYTES
+    ) {
+      throw new Error(
+        `Signal shard ${filename} is ${bytes} bytes, exceeding the configured limit.`
+      );
+    }
+
+    fs.writeFileSync(
+      filePath,
+      contents,
+      "utf8"
+    );
+
+    manifests.push({
+      file: filename,
+      bytes,
+      megabytes:
+        bytes /
+        (1024 * 1024),
+      observations:
+        currentObservations,
+    });
+
+    console.log(
+      `  Signal shard ${suffix}: ` +
+        `${currentObservations.toLocaleString()} observations | ` +
+        `${(
+          bytes /
+          (1024 * 1024)
+        ).toFixed(2)} MiB`
+    );
+
+    shardNumber++;
+
+    currentRows = [
+      header,
+    ];
+
+    currentBytes =
+      headerBytes;
+
+    currentObservations =
+      0;
+  };
+
+  for (
+    const observation of observations
+  ) {
+    const row =
+      signalObservationToRow(
+        observation,
+        headers
+      );
+
+    const rowBytes =
+      Buffer.byteLength(
+        row,
+        "utf8"
+      );
+
+    /*
+     * A single observation should obviously be much smaller than the
+     * limit. Keep the explicit check so the size guarantee cannot silently
+     * fail if the schema grows substantially in the future.
+     */
+    if (
+      headerBytes +
+        rowBytes >=
+      MAX_SIGNAL_FILE_BYTES
+    ) {
+      throw new Error(
+        `A single signal observation is too large to fit in a signal CSV shard.`
+      );
+    }
+
+    if (
+      currentObservations > 0 &&
+      currentBytes +
+        rowBytes >=
+        MAX_SIGNAL_FILE_BYTES
+    ) {
+      flushShard();
+    }
+
+    currentRows.push(row);
+    currentBytes += rowBytes;
+    currentObservations++;
+  }
+
+  flushShard();
+
+  return manifests;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2823,32 +3018,48 @@ function main(): void {
   console.log(
     `Strategy results: ${STRATEGY_RESULTS_PATH}`
   );
+
   console.log(
     `Original candles: ${ORIGINAL_DATASET_PATH}`
   );
+
   console.log(
     `OOS candles: ${OOS_DATASET_PATH}`
   );
+
   console.log("");
 
   console.log(
     "Strategy:"
   );
+
   console.log(
     `  slope20 <= ${SLOPE_THRESHOLD}`
   );
+
   console.log(
     `  acceleration >= ${ACCELERATION_THRESHOLD}`
   );
+
   console.log(
     "  stop = -10%"
   );
+
   console.log(
     "  maximum forward horizon = 2880 minutes"
   );
+
   console.log(
     "  market classes: positive / flat / negative"
   );
+
+  console.log(
+    `  maximum signal CSV shard size = ${(
+      MAX_SIGNAL_FILE_BYTES /
+      (1024 * 1024)
+    ).toFixed(0)} MiB`
+  );
+
   console.log("");
 
   const ranking =
@@ -2895,8 +3106,7 @@ function main(): void {
     outputs.push(output);
 
     /*
-     * Explicitly release the dataset before
-     * loading/processing the next one.
+     * The dataset variable goes out of scope here before the next iteration.
      */
   }
 
@@ -3015,6 +3225,34 @@ function main(): void {
       )
   );
 
+  fs.mkdirSync(
+    OUTPUT_DIR,
+    {
+      recursive: true,
+    }
+  );
+
+  const timestamp =
+    Date.now();
+
+  /*
+   * Write the signal data first.
+   *
+   * The large signal observation array is intentionally kept out of the
+   * JSON. Instead, the JSON receives this compact manifest.
+   */
+  console.log("");
+  console.log(
+    "Writing signal CSV shards..."
+  );
+
+  const signalFiles =
+    writeSignalCsvShards(
+      combinedObservations,
+      OUTPUT_DIR,
+      timestamp
+    );
+
   const output = {
     generatedAt:
       new Date().toISOString(),
@@ -3099,12 +3337,16 @@ function main(): void {
       dataset => ({
         dataset:
           dataset.dataset,
+
         markets:
           dataset.markets,
+
         totalCandidateSignals:
           dataset.totalCandidateSignals,
+
         observations:
           dataset.observations,
+
         groupSummaries:
           dataset.groupSummaries,
       })
@@ -3125,15 +3367,15 @@ function main(): void {
 
       marketSummaries:
         combinedMarketSummaries,
-
-      signalObservations:
-        combinedObservations,
     },
+
+    signalFiles,
 
     runtime: {
       milliseconds:
         Date.now() -
         globalStartedAt,
+
       formatted:
         formatDuration(
           Date.now() -
@@ -3141,16 +3383,6 @@ function main(): void {
         ),
     },
   };
-
-  fs.mkdirSync(
-    OUTPUT_DIR,
-    {
-      recursive: true,
-    }
-  );
-
-  const timestamp =
-    Date.now();
 
   const jsonPath =
     path.join(
@@ -3170,12 +3402,6 @@ function main(): void {
       `plan-a-market-behaviour-groups-${timestamp}.csv`
     );
 
-  const signalCsvPath =
-    path.join(
-      OUTPUT_DIR,
-      `plan-a-market-behaviour-signals-${timestamp}.csv`
-    );
-
   const correlationCsvPath =
     path.join(
       OUTPUT_DIR,
@@ -3188,7 +3414,8 @@ function main(): void {
       output,
       null,
       2
-    )
+    ),
+    "utf8"
   );
 
   fs.writeFileSync(
@@ -3197,7 +3424,8 @@ function main(): void {
       combinedMarketSummaries as unknown as Array<
         Record<string, unknown>
       >
-    )
+    ),
+    "utf8"
   );
 
   fs.writeFileSync(
@@ -3206,16 +3434,8 @@ function main(): void {
       combinedGroupSummaries as unknown as Array<
         Record<string, unknown>
       >
-    )
-  );
-
-  fs.writeFileSync(
-    signalCsvPath,
-    toCsv(
-      combinedObservations as unknown as Array<
-        Record<string, unknown>
-      >
-    )
+    ),
+    "utf8"
   );
 
   fs.writeFileSync(
@@ -3224,8 +3444,14 @@ function main(): void {
       correlationResults as unknown as Array<
         Record<string, unknown>
       >
-    )
+    ),
+    "utf8"
   );
+
+  const jsonBytes =
+    fs.statSync(
+      jsonPath
+    ).size;
 
   console.log("");
   console.log(
@@ -3245,6 +3471,10 @@ function main(): void {
 
   console.log(
     `Signal observations: ${combinedObservations.length.toLocaleString()}`
+  );
+
+  console.log(
+    `Signal CSV shards: ${signalFiles.length}`
   );
 
   console.log("");
@@ -3327,6 +3557,13 @@ function main(): void {
   );
 
   console.log(
+    `JSON size: ${(
+      jsonBytes /
+      (1024 * 1024)
+    ).toFixed(2)} MiB`
+  );
+
+  console.log(
     `Markets CSV: ${marketCsvPath}`
   );
 
@@ -3334,9 +3571,20 @@ function main(): void {
     `Groups CSV: ${groupCsvPath}`
   );
 
-  console.log(
-    `Signals CSV: ${signalCsvPath}`
-  );
+  for (
+    const signalFile of
+    signalFiles
+  ) {
+    console.log(
+      `Signals CSV: ${path.join(
+        OUTPUT_DIR,
+        signalFile.file
+      )} ` +
+        `(${signalFile.megabytes.toFixed(
+          2
+        )} MiB)`
+    );
+  }
 
   console.log(
     `Correlations CSV: ${correlationCsvPath}`
