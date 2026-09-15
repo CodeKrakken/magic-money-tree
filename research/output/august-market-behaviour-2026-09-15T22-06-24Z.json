@@ -1,0 +1,1086 @@
+{
+  "generatedAt": "2026-09-15T22:06:24.268Z",
+  "source": {
+    "hourlyFile": "research/data/binance-august-2026-1h-2026-09-15T16-55-45Z.json",
+    "strategyFile": "research/output/market-strategy-ranking-independent-1789232701426.json",
+    "interval": "1h",
+    "startTimeIso": "2026-08-01T00:00:00.000Z",
+    "endTimeExclusiveIso": "2026-09-01T00:00:00.000Z"
+  },
+  "summary": {
+    "hourlyMarkets": 482,
+    "marketsWithCandles": 482,
+    "matchedMarkets": 118,
+    "unmatchedHourlyMarkets": 364,
+    "positiveMarkets": 27,
+    "flatMarkets": 75,
+    "negativeMarkets": 16
+  },
+  "correlations": [
+    {
+      "feature": "totalReturn",
+      "spearman": 0.230085,
+      "pearson": 0.234458
+    },
+    {
+      "feature": "meanHourlyReturn",
+      "spearman": 0.224845,
+      "pearson": 0.163601
+    },
+    {
+      "feature": "efficiency168h",
+      "spearman": -0.194251,
+      "pearson": -0.15794
+    },
+    {
+      "feature": "return6h",
+      "spearman": -0.181749,
+      "pearson": -0.107986
+    },
+    {
+      "feature": "volumeReturnCorrelation",
+      "spearman": 0.164267,
+      "pearson": 0.1692
+    },
+    {
+      "feature": "range24h",
+      "spearman": 0.15155,
+      "pearson": 0.041224
+    },
+    {
+      "feature": "volumeVolatility",
+      "spearman": -0.148669,
+      "pearson": -0.018397
+    },
+    {
+      "feature": "meanVolume",
+      "spearman": -0.147687,
+      "pearson": -0.018387
+    },
+    {
+      "feature": "volatility168h",
+      "spearman": 0.139481,
+      "pearson": 0.013476
+    },
+    {
+      "feature": "range72h",
+      "spearman": 0.130564,
+      "pearson": 0.029439
+    },
+    {
+      "feature": "volatility24h",
+      "spearman": 0.123604,
+      "pearson": 0.051532
+    },
+    {
+      "feature": "volatility6h",
+      "spearman": 0.118533,
+      "pearson": 0.001612
+    },
+    {
+      "feature": "maxNegativeRun",
+      "spearman": -0.116855,
+      "pearson": 0.043115
+    },
+    {
+      "feature": "autocorrelation1h",
+      "spearman": 0.106786,
+      "pearson": 0.098128
+    },
+    {
+      "feature": "maxPositiveRun",
+      "spearman": 0.101479,
+      "pearson": -0.00043
+    },
+    {
+      "feature": "volatility12h",
+      "spearman": 0.094772,
+      "pearson": 0.020396
+    },
+    {
+      "feature": "trendSlope24h",
+      "spearman": 0.09351,
+      "pearson": 0.070192
+    },
+    {
+      "feature": "negativeHourRate",
+      "spearman": 0.092266,
+      "pearson": 0.116447
+    },
+    {
+      "feature": "trendSlope72h",
+      "spearman": 0.090265,
+      "pearson": 0.131982
+    },
+    {
+      "feature": "volumeRangeCorrelation",
+      "spearman": 0.089795,
+      "pearson": 0.146647
+    },
+    {
+      "feature": "volatility72h",
+      "spearman": 0.086397,
+      "pearson": 0.030949
+    },
+    {
+      "feature": "maxHourlyGain",
+      "spearman": 0.085495,
+      "pearson": 0.014655
+    },
+    {
+      "feature": "efficiency72h",
+      "spearman": 0.084584,
+      "pearson": 0.053195
+    },
+    {
+      "feature": "range168h",
+      "spearman": 0.076857,
+      "pearson": -0.004223
+    },
+    {
+      "feature": "return24h",
+      "spearman": 0.075523,
+      "pearson": -0.008875
+    },
+    {
+      "feature": "efficiency24h",
+      "spearman": 0.051821,
+      "pearson": -0.050759
+    },
+    {
+      "feature": "medianHourlyReturn",
+      "spearman": -0.048525,
+      "pearson": 0.004437
+    },
+    {
+      "feature": "reversalRate",
+      "spearman": 0.04325,
+      "pearson": -0.06259
+    },
+    {
+      "feature": "hourlyVolatility",
+      "spearman": 0.042675,
+      "pearson": -0.026115
+    },
+    {
+      "feature": "return72h",
+      "spearman": 0.041663,
+      "pearson": 0.114284
+    },
+    {
+      "feature": "trendSlope168h",
+      "spearman": -0.034457,
+      "pearson": 0.102245
+    },
+    {
+      "feature": "maxHourlyLoss",
+      "spearman": 0.028823,
+      "pearson": 0.063997
+    },
+    {
+      "feature": "return168h",
+      "spearman": 0.027751,
+      "pearson": 0.052398
+    },
+    {
+      "feature": "positiveHourRate",
+      "spearman": 0.023782,
+      "pearson": 0.113641
+    },
+    {
+      "feature": "return12h",
+      "spearman": -0.00119,
+      "pearson": -0.015213
+    }
+  ],
+  "groupComparisons": [
+    {
+      "feature": "totalReturn",
+      "positiveMedian": 0.276398,
+      "flatMedian": 0.127962,
+      "negativeMedian": 0.165817
+    },
+    {
+      "feature": "meanHourlyReturn",
+      "positiveMedian": 0.000357,
+      "flatMedian": 0.000192,
+      "negativeMedian": 0.000229
+    },
+    {
+      "feature": "efficiency168h",
+      "positiveMedian": 0.046684,
+      "flatMedian": 0.060339,
+      "negativeMedian": 0.078893
+    },
+    {
+      "feature": "return6h",
+      "positiveMedian": -0.00068,
+      "flatMedian": -0.00001,
+      "negativeMedian": 0.003212
+    },
+    {
+      "feature": "volumeReturnCorrelation",
+      "positiveMedian": 0.106079,
+      "flatMedian": -0.02589,
+      "negativeMedian": 0.033655
+    },
+    {
+      "feature": "range24h",
+      "positiveMedian": 0.044444,
+      "flatMedian": 0.044675,
+      "negativeMedian": 0.03946
+    },
+    {
+      "feature": "volumeVolatility",
+      "positiveMedian": 42470.45263,
+      "flatMedian": 2951151.373194,
+      "negativeMedian": 5315.754956
+    },
+    {
+      "feature": "meanVolume",
+      "positiveMedian": 19719.542661,
+      "flatMedian": 1818951.713978,
+      "negativeMedian": 4244.299698
+    },
+    {
+      "feature": "volatility168h",
+      "positiveMedian": 0.008241,
+      "flatMedian": 0.007772,
+      "negativeMedian": 0.00666
+    },
+    {
+      "feature": "range72h",
+      "positiveMedian": 0.081517,
+      "flatMedian": 0.082388,
+      "negativeMedian": 0.069443
+    }
+  ],
+  "markets": [
+    {
+      "symbol": "ZECUSDT",
+      "binanceArrayPosition": 477,
+      "datasetGroup": "Sample",
+      "netProfit": 19.093585,
+      "returnPct": 0.013937
+    },
+    {
+      "symbol": "YFIUSDT",
+      "binanceArrayPosition": 912,
+      "datasetGroup": "Sample",
+      "netProfit": 10.855241,
+      "returnPct": 0.009606
+    },
+    {
+      "symbol": "COMPUSDT",
+      "binanceArrayPosition": 833,
+      "datasetGroup": "Sample",
+      "netProfit": 8.681159,
+      "returnPct": 0.00895
+    },
+    {
+      "symbol": "BTCUSDT",
+      "binanceArrayPosition": 11,
+      "datasetGroup": "Sample",
+      "netProfit": 5.414566,
+      "returnPct": 0.005157
+    },
+    {
+      "symbol": "DCRUSDT",
+      "binanceArrayPosition": 882,
+      "datasetGroup": "Sample",
+      "netProfit": 5.315004,
+      "returnPct": 0.005369
+    },
+    {
+      "symbol": "AAVEUSDT",
+      "binanceArrayPosition": 1092,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 4.23979,
+      "returnPct": 0.007851
+    },
+    {
+      "symbol": "SOLUSDT",
+      "binanceArrayPosition": 779,
+      "datasetGroup": "Sample",
+      "netProfit": 4.08776,
+      "returnPct": 0.007048
+    },
+    {
+      "symbol": "LTCUSDT",
+      "binanceArrayPosition": 190,
+      "datasetGroup": "Sample",
+      "netProfit": 3.923766,
+      "returnPct": 0.005302
+    },
+    {
+      "symbol": "ETHUSDT",
+      "binanceArrayPosition": 12,
+      "datasetGroup": "Sample",
+      "netProfit": 3.237304,
+      "returnPct": 0.004496
+    },
+    {
+      "symbol": "DASHUSDT",
+      "binanceArrayPosition": 490,
+      "datasetGroup": "Sample",
+      "netProfit": 2.744131,
+      "returnPct": 0.003977
+    },
+    {
+      "symbol": "INJUSDT",
+      "binanceArrayPosition": 1113,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 2.111645,
+      "returnPct": 0.007282
+    },
+    {
+      "symbol": "MORPHOUSDT",
+      "binanceArrayPosition": 3322,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 2.061016,
+      "returnPct": 0.014722
+    },
+    {
+      "symbol": "LINKUSDT",
+      "binanceArrayPosition": 431,
+      "datasetGroup": "Sample",
+      "netProfit": 1.672441,
+      "returnPct": 0.003279
+    },
+    {
+      "symbol": "ONGUSDT",
+      "binanceArrayPosition": 464,
+      "datasetGroup": "Sample",
+      "netProfit": 1.2586,
+      "returnPct": 0.01798
+    },
+    {
+      "symbol": "MSTRBUSDT",
+      "binanceArrayPosition": 3605,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 1.204647,
+      "returnPct": 0.00317
+    },
+    {
+      "symbol": "ZENUSDT",
+      "binanceArrayPosition": 842,
+      "datasetGroup": "Sample",
+      "netProfit": 1.076832,
+      "returnPct": 0.003589
+    },
+    {
+      "symbol": "CRCLBUSDT",
+      "binanceArrayPosition": 3592,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0.944595,
+      "returnPct": 0.001889
+    },
+    {
+      "symbol": "ATOMUSDT",
+      "binanceArrayPosition": 502,
+      "datasetGroup": "Sample",
+      "netProfit": 0.928754,
+      "returnPct": 0.011609
+    },
+    {
+      "symbol": "ZROUSDT",
+      "binanceArrayPosition": 2670,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0.3596,
+      "returnPct": 0.01798
+    },
+    {
+      "symbol": "NEOUSDT",
+      "binanceArrayPosition": 141,
+      "datasetGroup": "Sample",
+      "netProfit": 0.285404,
+      "returnPct": 0.005708
+    },
+    {
+      "symbol": "QTUMUSDT",
+      "binanceArrayPosition": 279,
+      "datasetGroup": "Sample",
+      "netProfit": 0.1798,
+      "returnPct": 0.01798
+    },
+    {
+      "symbol": "STXUSDT",
+      "binanceArrayPosition": 639,
+      "datasetGroup": "Sample",
+      "netProfit": 0.1798,
+      "returnPct": 0.01798
+    },
+    {
+      "symbol": "CRVUSDT",
+      "binanceArrayPosition": 939,
+      "datasetGroup": "Sample",
+      "netProfit": 0.1798,
+      "returnPct": 0.01798
+    },
+    {
+      "symbol": "METUSDT",
+      "binanceArrayPosition": 3391,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0.1798,
+      "returnPct": 0.01798
+    },
+    {
+      "symbol": "AVAXUSDT",
+      "binanceArrayPosition": 1052,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0.122737,
+      "returnPct": 0.001116
+    },
+    {
+      "symbol": "APTUSDT",
+      "binanceArrayPosition": 2108,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0.055213,
+      "returnPct": 0.005521
+    },
+    {
+      "symbol": "ASTERUSDT",
+      "binanceArrayPosition": 3327,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0.02602,
+      "returnPct": 0.002602
+    },
+    {
+      "symbol": "ADAUSDT",
+      "binanceArrayPosition": 296,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "IOTAUSDT",
+      "binanceArrayPosition": 333,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "XLMUSDT",
+      "binanceArrayPosition": 334,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "TRXUSDT",
+      "binanceArrayPosition": 350,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "USDCUSDT",
+      "binanceArrayPosition": 422,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "ZILUSDT",
+      "binanceArrayPosition": 467,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "ZRXUSDT",
+      "binanceArrayPosition": 469,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "FETUSDT",
+      "binanceArrayPosition": 472,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "IOSTUSDT",
+      "binanceArrayPosition": 481,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "CELRUSDT",
+      "binanceArrayPosition": 484,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "THETAUSDT",
+      "binanceArrayPosition": 494,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "ENJUSDT",
+      "binanceArrayPosition": 495,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "TFUELUSDT",
+      "binanceArrayPosition": 519,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "ONEUSDT",
+      "binanceArrayPosition": 525,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "ALGOUSDT",
+      "binanceArrayPosition": 541,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "binanceArrayPosition": 558,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "DUSKUSDT",
+      "binanceArrayPosition": 563,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "ANKRUSDT",
+      "binanceArrayPosition": 569,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "WINUSDT",
+      "binanceArrayPosition": 577,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "MTLUSDT",
+      "binanceArrayPosition": 588,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "CVCUSDT",
+      "binanceArrayPosition": 604,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "CHZUSDT",
+      "binanceArrayPosition": 609,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "BANDUSDT",
+      "binanceArrayPosition": 612,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "XTZUSDT",
+      "binanceArrayPosition": 621,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "RVNUSDT",
+      "binanceArrayPosition": 623,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "HBARUSDT",
+      "binanceArrayPosition": 627,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "KAVAUSDT",
+      "binanceArrayPosition": 642,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "ARPAUSDT",
+      "binanceArrayPosition": 648,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "IOTXUSDT",
+      "binanceArrayPosition": 651,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "RLCUSDT",
+      "binanceArrayPosition": 652,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "EURUSDT",
+      "binanceArrayPosition": 694,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "OGNUSDT",
+      "binanceArrayPosition": 697,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "LSKUSDT",
+      "binanceArrayPosition": 718,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "MBLUSDT",
+      "binanceArrayPosition": 749,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "COTIUSDT",
+      "binanceArrayPosition": 752,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "CTSIUSDT",
+      "binanceArrayPosition": 786,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "HIVEUSDT",
+      "binanceArrayPosition": 791,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "CHRUSDT",
+      "binanceArrayPosition": 794,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "KNCUSDT",
+      "binanceArrayPosition": 812,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "SCUSDT",
+      "binanceArrayPosition": 841,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "SNXUSDT",
+      "binanceArrayPosition": 849,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "VTHOUSDT",
+      "binanceArrayPosition": 858,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "MANAUSDT",
+      "binanceArrayPosition": 902,
+      "datasetGroup": "Sample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "DOTUSDT",
+      "binanceArrayPosition": 954,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "FILUSDT",
+      "binanceArrayPosition": 1105,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "ICPUSDT",
+      "binanceArrayPosition": 1424,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "MINAUSDT",
+      "binanceArrayPosition": 1563,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "RAYUSDT",
+      "binanceArrayPosition": 1566,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "ARBUSDT",
+      "binanceArrayPosition": 2167,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "SUIUSDT",
+      "binanceArrayPosition": 2202,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "PEPEUSDT",
+      "binanceArrayPosition": 2210,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "WLDUSDT",
+      "binanceArrayPosition": 2255,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "FDUSDUSDT",
+      "binanceArrayPosition": 2259,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "BLURUSDT",
+      "binanceArrayPosition": 2364,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "JUPUSDT",
+      "binanceArrayPosition": 2453,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "ETHFIUSDT",
+      "binanceArrayPosition": 2540,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "ENAUSDT",
+      "binanceArrayPosition": 2556,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "SAGAUSDT",
+      "binanceArrayPosition": 2576,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "REZUSDT",
+      "binanceArrayPosition": 2613,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "POLUSDT",
+      "binanceArrayPosition": 2733,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "THEUSDT",
+      "binanceArrayPosition": 2801,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "PENGUUSDT",
+      "binanceArrayPosition": 2860,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "TUTUSDT",
+      "binanceArrayPosition": 3020,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "ONDOUSDT",
+      "binanceArrayPosition": 3044,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "USD1USDT",
+      "binanceArrayPosition": 3110,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "SOPHUSDT",
+      "binanceArrayPosition": 3122,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "SAHARAUSDT",
+      "binanceArrayPosition": 3154,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "WLFIUSDT",
+      "binanceArrayPosition": 3226,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "HOLOUSDT",
+      "binanceArrayPosition": 3251,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "PUMPUSDT",
+      "binanceArrayPosition": 3256,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "XPLUSDT",
+      "binanceArrayPosition": 3289,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "UUSDT",
+      "binanceArrayPosition": 3470,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "RLUSDUSDT",
+      "binanceArrayPosition": 3480,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "CHIPUSDT",
+      "binanceArrayPosition": 3564,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "AEROUSDT",
+      "binanceArrayPosition": 3646,
+      "datasetGroup": "OutOfSample",
+      "netProfit": 0,
+      "returnPct": 0
+    },
+    {
+      "symbol": "BNBUSDT",
+      "binanceArrayPosition": 98,
+      "datasetGroup": "OutOfSample",
+      "netProfit": -0.01713,
+      "returnPct": -0.000032
+    },
+    {
+      "symbol": "NEARUSDT",
+      "binanceArrayPosition": 1097,
+      "datasetGroup": "OutOfSample",
+      "netProfit": -0.060666,
+      "returnPct": -0.002022
+    },
+    {
+      "symbol": "XRPUSDT",
+      "binanceArrayPosition": 306,
+      "datasetGroup": "Sample",
+      "netProfit": -0.085299,
+      "returnPct": -0.00853
+    },
+    {
+      "symbol": "TRUMPUSDT",
+      "binanceArrayPosition": 2908,
+      "datasetGroup": "OutOfSample",
+      "netProfit": -0.159245,
+      "returnPct": -0.001769
+    },
+    {
+      "symbol": "NVDABUSDT",
+      "binanceArrayPosition": 3593,
+      "datasetGroup": "OutOfSample",
+      "netProfit": -0.389735,
+      "returnPct": -0.000549
+    },
+    {
+      "symbol": "PAXGUSDT",
+      "binanceArrayPosition": 968,
+      "datasetGroup": "OutOfSample",
+      "netProfit": -0.445425,
+      "returnPct": -0.000627
+    },
+    {
+      "symbol": "UNIUSDT",
+      "binanceArrayPosition": 1042,
+      "datasetGroup": "OutOfSample",
+      "netProfit": -0.644592,
+      "returnPct": -0.004297
+    },
+    {
+      "symbol": "GRAMUSDT",
+      "binanceArrayPosition": 3623,
+      "datasetGroup": "OutOfSample",
+      "netProfit": -0.79515,
+      "returnPct": -0.015903
+    },
+    {
+      "symbol": "XAUTUSDT",
+      "binanceArrayPosition": 3544,
+      "datasetGroup": "OutOfSample",
+      "netProfit": -0.826004,
+      "returnPct": -0.00102
+    },
+    {
+      "symbol": "SPCXBUSDT",
+      "binanceArrayPosition": 3596,
+      "datasetGroup": "OutOfSample",
+      "netProfit": -1.058747,
+      "returnPct": -0.00158
+    },
+    {
+      "symbol": "TAOUSDT",
+      "binanceArrayPosition": 2587,
+      "datasetGroup": "OutOfSample",
+      "netProfit": -1.385994,
+      "returnPct": -0.002829
+    },
+    {
+      "symbol": "QQQBUSDT",
+      "binanceArrayPosition": 3617,
+      "datasetGroup": "OutOfSample",
+      "netProfit": -1.790808,
+      "returnPct": -0.002985
+    },
+    {
+      "symbol": "BCHUSDT",
+      "binanceArrayPosition": 661,
+      "datasetGroup": "Sample",
+      "netProfit": -2.119524,
+      "returnPct": -0.002078
+    },
+    {
+      "symbol": "SNDKBUSDT",
+      "binanceArrayPosition": 3594,
+      "datasetGroup": "OutOfSample",
+      "netProfit": -2.736655,
+      "returnPct": -0.003554
+    },
+    {
+      "symbol": "ETCUSDT",
+      "binanceArrayPosition": 351,
+      "datasetGroup": "Sample",
+      "netProfit": -2.914878,
+      "returnPct": -0.010051
+    },
+    {
+      "symbol": "SOXLBUSDT",
+      "binanceArrayPosition": 3632,
+      "datasetGroup": "OutOfSample",
+      "netProfit": -6.357173,
+      "returnPct": -0.010091
+    }
+  ]
+}

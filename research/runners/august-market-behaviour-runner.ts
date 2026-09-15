@@ -47,96 +47,57 @@ interface StrategyData {
     };
 }
 
-interface FeatureValues {
+interface FeatureSet {
     [feature: string]: number;
 }
 
-interface MarketAnalysis {
+interface MarketResult {
     symbol: string;
     binanceArrayPosition: number;
     datasetGroup: string;
-    marketIndex: number;
     netProfit: number;
     returnPct: number;
-    features: FeatureValues;
 }
 
-interface Correlation {
+interface CorrelationResult {
     feature: string;
     spearman: number;
+    pearson: number;
 }
 
-interface FeatureGroupSummary {
+interface GroupComparison {
     feature: string;
     positiveMedian: number;
     flatMedian: number;
     negativeMedian: number;
-    positiveMean: number;
-    flatMean: number;
-    negativeMean: number;
 }
 
 interface OutputData {
     generatedAt: string;
+
     source: {
         hourlyFile: string;
         strategyFile: string;
         interval: string;
         startTimeIso: string;
         endTimeExclusiveIso: string;
-        expectedCandleCount: number;
     };
+
     summary: {
         hourlyMarkets: number;
         marketsWithCandles: number;
         matchedMarkets: number;
         unmatchedHourlyMarkets: number;
-        positiveStrategyMarkets: number;
-        flatStrategyMarkets: number;
-        negativeStrategyMarkets: number;
+        positiveMarkets: number;
+        flatMarkets: number;
+        negativeMarkets: number;
     };
-    strongestFeatures: string[];
-    correlations: Correlation[];
-    featureGroups: FeatureGroupSummary[];
-    markets: MarketAnalysis[];
-}
 
-interface CalculatedFeatures {
-    totalReturn: number;
-    meanHourlyReturn: number;
-    medianHourlyReturn: number;
-    hourlyVolatility: number;
-    positiveHourRate: number;
-    negativeHourRate: number;
-    maxHourlyGain: number;
-    maxHourlyLoss: number;
-    maxPositiveRun: number;
-    maxNegativeRun: number;
-    reversalRate: number;
-    autocorrelation1h: number;
-    meanVolume: number;
-    volumeVolatility: number;
-    volumeReturnCorrelation: number;
-    volumeRangeCorrelation: number;
-    return6h: number;
-    return12h: number;
-    return24h: number;
-    return72h: number;
-    return168h: number;
-    volatility6h: number;
-    volatility12h: number;
-    volatility24h: number;
-    volatility72h: number;
-    volatility168h: number;
-    range24h: number;
-    efficiency24h: number;
-    trendSlope24h: number;
-    range72h: number;
-    efficiency72h: number;
-    trendSlope72h: number;
-    range168h: number;
-    efficiency168h: number;
-    trendSlope168h: number;
+    correlations: CorrelationResult[];
+
+    groupComparisons: GroupComparison[];
+
+    markets: MarketResult[];
 }
 
 const HOURLY_FILE =
@@ -148,7 +109,7 @@ const STRATEGY_FILE =
 const OUTPUT_DIR =
     "research/output";
 
-const TOP_FEATURE_COUNT = 10;
+const TOP_GROUP_FEATURES = 10;
 
 function mean(values: number[]): number {
     if (values.length === 0) {
@@ -237,9 +198,11 @@ function pearson(
         Math.sqrt(denominatorX) *
         Math.sqrt(denominatorY);
 
-    return denominator === 0
-        ? 0
-        : numerator / denominator;
+    if (denominator === 0) {
+        return 0;
+    }
+
+    return numerator / denominator;
 }
 
 function ranks(values: number[]): number[] {
@@ -296,7 +259,25 @@ function spearman(
     );
 }
 
-function returns(
+function round(
+    value: number,
+    decimals = 6,
+): number {
+    if (!Number.isFinite(value)) {
+        return 0;
+    }
+
+    const multiplier =
+        10 ** decimals;
+
+    return (
+        Math.round(
+            value * multiplier,
+        ) / multiplier
+    );
+}
+
+function getReturns(
     closes: number[],
 ): number[] {
     const result: number[] = [];
@@ -352,19 +333,16 @@ function cumulativeReturn(
 }
 
 function rollingVolatility(
-    hourlyReturns: number[],
+    values: number[],
     hours: number,
 ): number {
-    if (
-        hourlyReturns.length < hours
-    ) {
+    if (values.length < hours) {
         return 0;
     }
 
     return standardDeviation(
-        hourlyReturns.slice(
-            hourlyReturns.length -
-                hours,
+        values.slice(
+            values.length - hours,
         ),
     );
 }
@@ -405,7 +383,8 @@ function rollingRange(
 
     return start === 0
         ? 0
-        : (highest - lowest) / start;
+        : (highest - lowest) /
+              start;
 }
 
 function rollingEfficiency(
@@ -426,7 +405,7 @@ function rollingEfficiency(
     const end =
         closes[closes.length - 1];
 
-    let path = 0;
+    let pathLength = 0;
 
     for (
         let i =
@@ -434,16 +413,16 @@ function rollingEfficiency(
         i < closes.length;
         i += 1
     ) {
-        path += Math.abs(
+        pathLength += Math.abs(
             closes[i] -
                 closes[i - 1],
         );
     }
 
-    return path === 0
+    return pathLength === 0
         ? 0
         : Math.abs(end - start) /
-              path;
+              pathLength;
 }
 
 function rollingTrendSlope(
@@ -494,12 +473,15 @@ function rollingTrendSlope(
         n * sumXX -
         sumX ** 2;
 
-    return denominator === 0
-        ? 0
-        : (
-              n * sumXY -
-              sumX * sumY
-          ) / denominator;
+    if (denominator === 0) {
+        return 0;
+    }
+
+    return (
+        (n * sumXY -
+            sumX * sumY) /
+        denominator
+    );
 }
 
 function maxRun(
@@ -600,7 +582,7 @@ function correlationWith(
 
 function calculateFeatures(
     candles: Candle[],
-): CalculatedFeatures {
+): FeatureSet {
     const closes =
         candles.map(
             (candle) =>
@@ -608,7 +590,7 @@ function calculateFeatures(
         );
 
     const hourlyReturns =
-        returns(closes);
+        getReturns(closes);
 
     const volumes =
         candles.map(
@@ -628,13 +610,13 @@ function calculateFeatures(
 
     return {
         totalReturn:
-            closes.length >= 2
-                ? closes[
+            closes.length < 2
+                ? 0
+                : closes[
                       closes.length - 1
                   ] /
                       closes[0] -
-                  1
-                : 0,
+                  1,
 
         meanHourlyReturn:
             mean(hourlyReturns),
@@ -866,106 +848,76 @@ function getStrategyMarkets(
     return markets;
 }
 
-function round(
-    value: number,
-    decimals = 6,
-): number {
-    if (!Number.isFinite(value)) {
-        return 0;
-    }
-
-    const multiplier =
-        10 ** decimals;
-
-    return (
-        Math.round(
-            value * multiplier,
-        ) / multiplier
-    );
-}
-
-function getCorrelations(
-    markets: MarketAnalysis[],
-    featureNames: string[],
-): Correlation[] {
-    const result: Correlation[] =
-        [];
-
-    const profits =
-        markets.map(
-            (market) =>
-                market.netProfit,
-        );
-
-    for (const feature of featureNames) {
-        const values =
-            markets.map(
-                (market) =>
-                    market.features[
-                        feature
-                    ],
-            );
-
-        result.push({
-            feature,
-            spearman: round(
-                spearman(
-                    values,
-                    profits,
-                ),
-            ),
-        });
-    }
-
-    return result.sort(
-        (a, b) =>
-            Math.abs(b.spearman) -
-            Math.abs(a.spearman),
-    );
-}
-
-function getGroupSummary(
+function buildCorrelation(
+    markets: Array<{
+        features: FeatureSet;
+        netProfit: number;
+    }>,
     feature: string,
-    markets: MarketAnalysis[],
-): FeatureGroupSummary {
-    const positive =
-        markets
-            .filter(
-                (market) =>
-                    market.netProfit > 0,
-            )
-            .map(
-                (market) =>
-                    market.features[
-                        feature
-                    ],
-            );
+): CorrelationResult {
+    const values: number[] = [];
+    const profits: number[] = [];
 
-    const flat =
-        markets
-            .filter(
-                (market) =>
-                    market.netProfit === 0,
-            )
-            .map(
-                (market) =>
-                    market.features[
-                        feature
-                    ],
-            );
+    for (const market of markets) {
+        const value =
+            market.features[feature];
 
-    const negative =
-        markets
-            .filter(
-                (market) =>
-                    market.netProfit < 0,
-            )
-            .map(
-                (market) =>
-                    market.features[
-                        feature
-                    ],
-            );
+        if (!Number.isFinite(value)) {
+            continue;
+        }
+
+        values.push(value);
+        profits.push(
+            market.netProfit,
+        );
+    }
+
+    return {
+        feature,
+        spearman: round(
+            spearman(
+                values,
+                profits,
+            ),
+        ),
+        pearson: round(
+            pearson(
+                values,
+                profits,
+            ),
+        ),
+    };
+}
+
+function buildGroupComparison(
+    feature: string,
+    markets: Array<{
+        features: FeatureSet;
+        netProfit: number;
+    }>,
+): GroupComparison {
+    const positive: number[] = [];
+    const flat: number[] = [];
+    const negative: number[] = [];
+
+    for (const market of markets) {
+        const value =
+            market.features[feature];
+
+        if (!Number.isFinite(value)) {
+            continue;
+        }
+
+        if (market.netProfit > 0) {
+            positive.push(value);
+        } else if (
+            market.netProfit < 0
+        ) {
+            negative.push(value);
+        } else {
+            flat.push(value);
+        }
+    }
 
     return {
         feature,
@@ -980,18 +932,6 @@ function getGroupSummary(
 
         negativeMedian: round(
             median(negative),
-        ),
-
-        positiveMean: round(
-            mean(positive),
-        ),
-
-        flatMean: round(
-            mean(flat),
-        ),
-
-        negativeMean: round(
-            mean(negative),
         ),
     };
 }
@@ -1091,19 +1031,10 @@ async function main(): Promise<void> {
         );
     }
 
-    const featureNames =
-        Object.keys(
-            calculateFeatures(
-                hourlyData.markets.find(
-                    (market) =>
-                        market.candles
-                            .length > 0,
-                )?.candles ?? [],
-            ),
-        );
-
-    const markets: MarketAnalysis[] =
-        [];
+    const analysed: Array<{
+        result: MarketResult;
+        features: FeatureSet;
+    }> = [];
 
     let marketsWithCandles = 0;
     let unmatchedHourlyMarkets = 0;
@@ -1113,8 +1044,8 @@ async function main(): Promise<void> {
             hourlyData.markets
     ) {
         if (
-            hourlyMarket.candles
-                .length === 0
+            hourlyMarket.candles.length ===
+            0
         ) {
             continue;
         }
@@ -1137,72 +1068,100 @@ async function main(): Promise<void> {
                     a.time - b.time,
             );
 
-        const features =
-            calculateFeatures(
-                candles,
-            );
+        analysed.push({
+            result: {
+                symbol:
+                    strategy.symbol,
 
-        markets.push({
-            symbol:
-                strategy.symbol,
+                binanceArrayPosition:
+                    strategy.binanceArrayPosition,
 
-            binanceArrayPosition:
-                strategy.binanceArrayPosition,
+                datasetGroup:
+                    strategy.datasetGroup,
 
-            datasetGroup:
-                strategy.datasetGroup,
+                netProfit:
+                    round(
+                        strategy.netProfit,
+                    ),
 
-            marketIndex:
-                strategy.marketIndex,
-
-            netProfit:
-                strategy.netProfit,
-
-            returnPct:
-                strategy.returnPct,
+                returnPct:
+                    round(
+                        strategy.returnPct,
+                    ),
+            },
 
             features:
-                Object.fromEntries(
-                    Object.entries(
-                        features,
-                    ).map(
-                        ([
-                            feature,
-                            value,
-                        ]) => [
-                            feature,
-                            round(value),
-                        ],
-                    ),
+                calculateFeatures(
+                    candles,
                 ),
         });
     }
 
-    const correlations =
-        getCorrelations(
-            markets,
-            featureNames,
+    const correlationInput =
+        analysed.map(
+            (market) => ({
+                features:
+                    market.features,
+                netProfit:
+                    market.result.netProfit,
+            }),
         );
+
+    const featureNames =
+        Object.keys(
+            analysed[0]?.features ??
+                {},
+        );
+
+    const correlations =
+        featureNames
+            .map((feature) =>
+                buildCorrelation(
+                    correlationInput,
+                    feature,
+                ),
+            )
+            .sort(
+                (a, b) =>
+                    Math.abs(
+                        b.spearman,
+                    ) -
+                    Math.abs(
+                        a.spearman,
+                    ),
+            );
 
     const strongestFeatures =
         correlations
             .slice(
                 0,
-                TOP_FEATURE_COUNT,
+                TOP_GROUP_FEATURES,
             )
             .map(
                 (item) =>
                     item.feature,
             );
 
-    const featureGroups =
+    const groupComparisons =
         strongestFeatures.map(
             (feature) =>
-                getGroupSummary(
+                buildGroupComparison(
                     feature,
-                    markets,
+                    correlationInput,
                 ),
         );
+
+    const markets =
+        analysed
+            .map(
+                (market) =>
+                    market.result,
+            )
+            .sort(
+                (a, b) =>
+                    b.netProfit -
+                    a.netProfit,
+            );
 
     const positiveMarkets =
         markets.filter(
@@ -1221,12 +1180,6 @@ async function main(): Promise<void> {
             (market) =>
                 market.netProfit < 0,
         );
-
-    markets.sort(
-        (a, b) =>
-            b.netProfit -
-            a.netProfit,
-    );
 
     const output: OutputData = {
         generatedAt:
@@ -1247,9 +1200,6 @@ async function main(): Promise<void> {
 
             endTimeExclusiveIso:
                 hourlyData.endTimeExclusiveIso,
-
-            expectedCandleCount:
-                hourlyData.expectedCandleCount,
         },
 
         summary: {
@@ -1263,21 +1213,19 @@ async function main(): Promise<void> {
 
             unmatchedHourlyMarkets,
 
-            positiveStrategyMarkets:
+            positiveMarkets:
                 positiveMarkets.length,
 
-            flatStrategyMarkets:
+            flatMarkets:
                 flatMarkets.length,
 
-            negativeStrategyMarkets:
+            negativeMarkets:
                 negativeMarkets.length,
         },
 
-        strongestFeatures,
-
         correlations,
 
-        featureGroups,
+        groupComparisons,
 
         markets,
     };
@@ -1321,55 +1269,31 @@ async function main(): Promise<void> {
         "utf8",
     );
 
-    const csvHeaders = [
-        "symbol",
-        "binanceArrayPosition",
-        "datasetGroup",
-        "marketIndex",
-        "netProfit",
-        "returnPct",
-        ...strongestFeatures,
+    const csvLines = [
+        [
+            "symbol",
+            "binanceArrayPosition",
+            "datasetGroup",
+            "netProfit",
+            "returnPct",
+        ].join(","),
     ];
 
-    const csvRows =
-        markets.map(
-            (market) =>
-                [
-                    market.symbol,
-                    market.binanceArrayPosition,
-                    market.datasetGroup,
-                    market.marketIndex,
-                    market.netProfit,
-                    market.returnPct,
-                    ...strongestFeatures.map(
-                        (feature) =>
-                            market
-                                .features[
-                                feature
-                            ],
-                    ),
-                ]
-                    .map(
-                        (value) =>
-                            typeof value ===
-                            "string"
-                                ? `"${value.replace(
-                                      /"/g,
-                                      '""',
-                                  )}"`
-                                : String(
-                                      value,
-                                  ),
-                    )
-                    .join(","),
+    for (const market of markets) {
+        csvLines.push(
+            [
+                market.symbol,
+                market.binanceArrayPosition,
+                market.datasetGroup,
+                market.netProfit,
+                market.returnPct,
+            ].join(","),
         );
+    }
 
     await fs.writeFile(
         path.resolve(csvPath),
-        [
-            csvHeaders.join(","),
-            ...csvRows,
-        ].join("\n"),
+        csvLines.join("\n"),
         "utf8",
     );
 
@@ -1402,13 +1326,13 @@ async function main(): Promise<void> {
 
     console.log();
     console.log(
-        "Strongest hourly features:",
+        "Strongest correlations:",
     );
 
     for (
         const correlation of correlations.slice(
             0,
-            TOP_FEATURE_COUNT,
+            10,
         )
     ) {
         console.log(
