@@ -1,21 +1,7 @@
-import { readFile, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import fs from "node:fs/promises";
+import path from "node:path";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const RESEARCH_DIR = join(__dirname, "..");
-const DATA_DIR = join(RESEARCH_DIR, "data");
-const OUTPUT_DIR = join(RESEARCH_DIR, "output");
-
-const HOURLY_FILE =
-    "binance-august-2026-1h-2026-09-15T16-55-45Z.json";
-
-const STRATEGY_FILE =
-    "market-strategy-ranking-independent-1789232701426.json";
-
-interface HourlyCandle {
+interface Candle {
     time: number;
     open: number;
     high: number;
@@ -28,9 +14,9 @@ interface HourlyMarket {
     symbol: string;
     binanceArrayPosition: number;
     candleCount: number;
-    firstCandleTime: number;
-    lastCandleTime: number;
-    candles: HourlyCandle[];
+    firstCandleTime: number | null;
+    lastCandleTime: number | null;
+    candles: Candle[];
 }
 
 interface HourlyData {
@@ -45,20 +31,14 @@ interface HourlyData {
 
 interface StrategyMarket {
     symbol: string;
-    datasetGroup?: string;
-    marketIndex?: number;
-    binanceArrayPosition?: number;
-    netProfit?: number;
-    returnPct?: number;
-    accepted?: number;
-    rejectedByCapacity?: number;
-    winningPositions?: number;
-    losingPositions?: number;
-    signals?: number;
-    [key: string]: unknown;
+    datasetGroup: string;
+    marketIndex: number;
+    binanceArrayPosition: number;
+    netProfit: number;
+    returnPct: number;
 }
 
-interface StrategyRoot {
+interface StrategyData {
     sample?: {
         markets?: StrategyMarket[];
     };
@@ -67,130 +47,108 @@ interface StrategyRoot {
     };
 }
 
-interface MarketBehaviour {
+interface FeatureValues {
+    [feature: string]: number;
+}
+
+interface MarketAnalysis {
     symbol: string;
     binanceArrayPosition: number;
-    candleCount: number;
-
-    firstCandleTime: number;
-    lastCandleTime: number;
-
-    strategyDatasetGroup: string;
-    strategyNetProfit: number;
-    strategyReturnPct: number;
-
-    totalReturnPct: number;
-
-    hourlyReturnMeanPct: number;
-    hourlyReturnMedianPct: number;
-    hourlyReturnStdPct: number;
-
-    positiveHourRatePct: number;
-    negativeHourRatePct: number;
-
-    meanHourlyRangePct: number;
-    medianHourlyRangePct: number;
-    hourlyRangeStdPct: number;
-
-    maxHourlyGainPct: number;
-    maxHourlyLossPct: number;
-
-    maxPositiveRunHours: number;
-    maxNegativeRunHours: number;
-    reversalRatePct: number;
-    returnAutocorrelation1h: number;
-
-    meanVolume: number;
-    medianVolume: number;
-    volumeStd: number;
-
-    meanQuoteVolumeProxy: number;
-    medianQuoteVolumeProxy: number;
-    quoteVolumeProxyStd: number;
-
-    volumeReturnCorrelation: number;
-    volumeRangeCorrelation: number;
-
-    rolling6hReturnMeanPct: number;
-    rolling6hReturnStdPct: number;
-
-    rolling12hReturnMeanPct: number;
-    rolling12hReturnStdPct: number;
-
-    rolling24hReturnMeanPct: number;
-    rolling24hReturnStdPct: number;
-
-    rolling72hReturnMeanPct: number;
-    rolling72hReturnStdPct: number;
-
-    rolling168hReturnMeanPct: number;
-    rolling168hReturnStdPct: number;
-
-    rolling24hVolatilityPct: number;
-    rolling72hVolatilityPct: number;
-    rolling168hVolatilityPct: number;
-
-    rolling24hRangeMeanPct: number;
-    rolling72hRangeMeanPct: number;
-    rolling168hRangeMeanPct: number;
-
-    rolling24hEfficiencyMean: number;
-    rolling72hEfficiencyMean: number;
-    rolling168hEfficiencyMean: number;
-
-    rolling24hTrendSlopeMeanPct: number;
-    rolling72hTrendSlopeMeanPct: number;
-    rolling168hTrendSlopeMeanPct: number;
+    datasetGroup: string;
+    marketIndex: number;
+    netProfit: number;
+    returnPct: number;
+    features: FeatureValues;
 }
 
-interface CorrelationResult {
+interface Correlation {
     feature: string;
-    pearson: number;
     spearman: number;
-    sampleCount: number;
 }
 
-interface Output {
-    generatedAt: string;
-    experiment: string;
+interface FeatureGroupSummary {
+    feature: string;
+    positiveMedian: number;
+    flatMedian: number;
+    negativeMedian: number;
+    positiveMean: number;
+    flatMean: number;
+    negativeMean: number;
+}
 
+interface OutputData {
+    generatedAt: string;
     source: {
         hourlyFile: string;
         strategyFile: string;
         interval: string;
-        period: {
-            start: string;
-            endExclusive: string;
-        };
+        startTimeIso: string;
+        endTimeExclusiveIso: string;
         expectedCandleCount: number;
     };
-
     summary: {
         hourlyMarkets: number;
         marketsWithCandles: number;
-        marketsWithoutCandles: number;
-        partialMarkets: number;
-        fullCoverageMarkets: number;
-
         matchedMarkets: number;
         unmatchedHourlyMarkets: number;
-
         positiveStrategyMarkets: number;
         flatStrategyMarkets: number;
         negativeStrategyMarkets: number;
-
-        positiveStrategyNetProfit: number;
-        negativeStrategyNetProfit: number;
     };
-
-    correlations: CorrelationResult[];
-
-    markets: MarketBehaviour[];
+    strongestFeatures: string[];
+    correlations: Correlation[];
+    featureGroups: FeatureGroupSummary[];
+    markets: MarketAnalysis[];
 }
 
-/* -------------------------------------------------------------------------- */
-/* Statistics                                                                 */
-/* -------------------------------------------------------------------------- */
+interface CalculatedFeatures {
+    totalReturn: number;
+    meanHourlyReturn: number;
+    medianHourlyReturn: number;
+    hourlyVolatility: number;
+    positiveHourRate: number;
+    negativeHourRate: number;
+    maxHourlyGain: number;
+    maxHourlyLoss: number;
+    maxPositiveRun: number;
+    maxNegativeRun: number;
+    reversalRate: number;
+    autocorrelation1h: number;
+    meanVolume: number;
+    volumeVolatility: number;
+    volumeReturnCorrelation: number;
+    volumeRangeCorrelation: number;
+    return6h: number;
+    return12h: number;
+    return24h: number;
+    return72h: number;
+    return168h: number;
+    volatility6h: number;
+    volatility12h: number;
+    volatility24h: number;
+    volatility72h: number;
+    volatility168h: number;
+    range24h: number;
+    efficiency24h: number;
+    trendSlope24h: number;
+    range72h: number;
+    efficiency72h: number;
+    trendSlope72h: number;
+    range168h: number;
+    efficiency168h: number;
+    trendSlope168h: number;
+}
+
+const HOURLY_FILE =
+    "research/data/binance-august-2026-1h-2026-09-15T16-55-45Z.json";
+
+const STRATEGY_FILE =
+    "research/output/market-strategy-ranking-independent-1789232701426.json";
+
+const OUTPUT_DIR =
+    "research/output";
+
+const TOP_FEATURE_COUNT = 10;
 
 function mean(values: number[]): number {
     if (values.length === 0) {
@@ -214,15 +172,15 @@ function median(values: number[]): number {
         (a, b) => a - b,
     );
 
-    const middle = Math.floor(
-        sorted.length / 2,
-    );
+    const middle =
+        Math.floor(sorted.length / 2);
 
     if (sorted.length % 2 === 0) {
         return (
-            sorted[middle - 1] +
-            sorted[middle]
-        ) / 2;
+            (sorted[middle - 1] +
+                sorted[middle]) /
+            2
+        );
     }
 
     return sorted[middle];
@@ -239,45 +197,13 @@ function standardDeviation(
 
     const variance =
         values.reduce(
-            (sum, value) => {
-                const difference =
-                    value - average;
-
-                return (
-                    sum +
-                    difference *
-                        difference
-                );
-            },
+            (sum, value) =>
+                sum +
+                (value - average) ** 2,
             0,
         ) / values.length;
 
     return Math.sqrt(variance);
-}
-
-function covariance(
-    x: number[],
-    y: number[],
-): number {
-    if (
-        x.length !== y.length ||
-        x.length < 2
-    ) {
-        return 0;
-    }
-
-    const xMean = mean(x);
-    const yMean = mean(y);
-
-    let total = 0;
-
-    for (let i = 0; i < x.length; i++) {
-        total +=
-            (x[i] - xMean) *
-            (y[i] - yMean);
-    }
-
-    return total / x.length;
 }
 
 function pearson(
@@ -291,28 +217,32 @@ function pearson(
         return 0;
     }
 
-    const xStd =
-        standardDeviation(x);
+    const meanX = mean(x);
+    const meanY = mean(y);
 
-    const yStd =
-        standardDeviation(y);
+    let numerator = 0;
+    let denominatorX = 0;
+    let denominatorY = 0;
 
-    if (
-        xStd === 0 ||
-        yStd === 0
-    ) {
-        return 0;
+    for (let i = 0; i < x.length; i += 1) {
+        const dx = x[i] - meanX;
+        const dy = y[i] - meanY;
+
+        numerator += dx * dy;
+        denominatorX += dx ** 2;
+        denominatorY += dy ** 2;
     }
 
-    return (
-        covariance(x, y) /
-        (xStd * yStd)
-    );
+    const denominator =
+        Math.sqrt(denominatorX) *
+        Math.sqrt(denominatorY);
+
+    return denominator === 0
+        ? 0
+        : numerator / denominator;
 }
 
-function rank(
-    values: number[],
-): number[] {
+function ranks(values: number[]): number[] {
     const indexed = values.map(
         (value, index) => ({
             value,
@@ -324,43 +254,36 @@ function rank(
         (a, b) => a.value - b.value,
     );
 
-    const ranks =
+    const result =
         new Array<number>(
             values.length,
         );
 
-    let start = 0;
+    let i = 0;
 
-    while (
-        start < indexed.length
-    ) {
-        let end = start + 1;
+    while (i < indexed.length) {
+        let j = i + 1;
 
         while (
-            end < indexed.length &&
-            indexed[end].value ===
-                indexed[start].value
+            j < indexed.length &&
+            indexed[j].value ===
+                indexed[i].value
         ) {
-            end++;
+            j += 1;
         }
 
-        const averageRank =
-            (start + end - 1) / 2;
+        const rank =
+            (i + j - 1) / 2 + 1;
 
-        for (
-            let i = start;
-            i < end;
-            i++
-        ) {
-            ranks[
-                indexed[i].index
-            ] = averageRank;
+        for (let k = i; k < j; k += 1) {
+            result[indexed[k].index] =
+                rank;
         }
 
-        start = end;
+        i = j;
     }
 
-    return ranks;
+    return result;
 }
 
 function spearman(
@@ -368,425 +291,324 @@ function spearman(
     y: number[],
 ): number {
     return pearson(
-        rank(x),
-        rank(y),
+        ranks(x),
+        ranks(y),
     );
 }
 
-function returnPct(
-    start: number,
-    end: number,
-): number {
-    if (start === 0) {
-        return 0;
-    }
-
-    return (
-        (end / start - 1) *
-        100
-    );
-}
-
-function safeNumber(
-    value: unknown,
-): number {
-    return typeof value === "number" &&
-        Number.isFinite(value)
-        ? value
-        : 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* Rolling calculations                                                       */
-/* -------------------------------------------------------------------------- */
-
-function rollingReturns(
+function returns(
     closes: number[],
-    window: number,
 ): number[] {
-    const results: number[] = [];
+    const result: number[] = [];
 
     for (
-        let i = window;
+        let i = 1;
         i < closes.length;
-        i++
+        i += 1
     ) {
-        const start =
-            closes[i - window];
-
-        if (start === 0) {
+        if (
+            closes[i - 1] === 0 ||
+            !Number.isFinite(
+                closes[i - 1],
+            ) ||
+            !Number.isFinite(
+                closes[i],
+            )
+        ) {
             continue;
         }
 
-        results.push(
-            returnPct(
-                start,
-                closes[i],
-            ),
+        result.push(
+            closes[i] /
+                closes[i - 1] -
+                1,
         );
     }
 
-    return results;
+    return result;
+}
+
+function cumulativeReturn(
+    closes: number[],
+    hours: number,
+): number {
+    if (closes.length <= hours) {
+        return 0;
+    }
+
+    const start =
+        closes[
+            closes.length -
+                1 -
+                hours
+        ];
+
+    const end =
+        closes[closes.length - 1];
+
+    return start === 0
+        ? 0
+        : end / start - 1;
 }
 
 function rollingVolatility(
-    returns: number[],
-    window: number,
-): number[] {
-    const results: number[] = [];
-
-    for (
-        let i = window;
-        i <= returns.length;
-        i++
+    hourlyReturns: number[],
+    hours: number,
+): number {
+    if (
+        hourlyReturns.length < hours
     ) {
-        results.push(
-            standardDeviation(
-                returns.slice(
-                    i - window,
-                    i,
-                ),
-            ),
-        );
+        return 0;
     }
 
-    return results;
+    return standardDeviation(
+        hourlyReturns.slice(
+            hourlyReturns.length -
+                hours,
+        ),
+    );
 }
 
 function rollingRange(
-    candles: HourlyCandle[],
-    window: number,
-): number[] {
-    const ranges =
-        candles.map(
-            (candle) =>
-                candle.open === 0
-                    ? 0
-                    : (
-                          (candle.high -
-                              candle.low) /
-                          candle.open
-                      ) * 100,
+    candles: Candle[],
+    hours: number,
+): number {
+    if (candles.length < hours) {
+        return 0;
+    }
+
+    const recent =
+        candles.slice(
+            candles.length - hours,
         );
 
-    const results: number[] = [];
+    let highest =
+        Number.NEGATIVE_INFINITY;
 
-    for (
-        let i = window;
-        i <= ranges.length;
-        i++
-    ) {
-        results.push(
-            mean(
-                ranges.slice(
-                    i - window,
-                    i,
-                ),
-            ),
+    let lowest =
+        Number.POSITIVE_INFINITY;
+
+    for (const candle of recent) {
+        highest = Math.max(
+            highest,
+            candle.high,
+        );
+
+        lowest = Math.min(
+            lowest,
+            candle.low,
         );
     }
 
-    return results;
+    const start =
+        recent[0].close;
+
+    return start === 0
+        ? 0
+        : (highest - lowest) / start;
 }
 
 function rollingEfficiency(
     closes: number[],
-    window: number,
-): number[] {
-    const results: number[] = [];
+    hours: number,
+): number {
+    if (closes.length < hours + 1) {
+        return 0;
+    }
+
+    const start =
+        closes[
+            closes.length -
+                1 -
+                hours
+        ];
+
+    const end =
+        closes[closes.length - 1];
+
+    let path = 0;
 
     for (
-        let i = window;
+        let i =
+            closes.length - hours;
         i < closes.length;
-        i++
+        i += 1
     ) {
-        const start =
-            closes[i - window];
-
-        const end =
-            closes[i];
-
-        const netMove =
-            Math.abs(
-                end - start,
-            );
-
-        let path = 0;
-
-        for (
-            let j =
-                i - window + 1;
-            j <= i;
-            j++
-        ) {
-            path += Math.abs(
-                closes[j] -
-                    closes[j - 1],
-            );
-        }
-
-        results.push(
-            path === 0
-                ? 0
-                : netMove / path,
+        path += Math.abs(
+            closes[i] -
+                closes[i - 1],
         );
     }
 
-    return results;
+    return path === 0
+        ? 0
+        : Math.abs(end - start) /
+              path;
 }
 
 function rollingTrendSlope(
     closes: number[],
-    window: number,
-): number[] {
-    const results: number[] = [];
-
-    if (
-        closes.length <
-        window
-    ) {
-        return results;
+    hours: number,
+): number {
+    if (closes.length < hours) {
+        return 0;
     }
 
-    const xMean =
-        (window - 1) / 2;
-
-    let denominator = 0;
-
-    for (
-        let x = 0;
-        x < window;
-        x++
-    ) {
-        const difference =
-            x - xMean;
-
-        denominator +=
-            difference *
-            difference;
-    }
-
-    for (
-        let i = window;
-        i <= closes.length;
-        i++
-    ) {
-        const slice =
-            closes.slice(
-                i - window,
-                i,
-            );
-
-        const yMean =
-            mean(slice);
-
-        let numerator = 0;
-
-        for (
-            let x = 0;
-            x < window;
-            x++
-        ) {
-            numerator +=
-                (x - xMean) *
-                (slice[x] -
-                    yMean);
-        }
-
-        const slope =
-            denominator === 0
-                ? 0
-                : numerator /
-                  denominator;
-
-        const base =
-            slice[0];
-
-        results.push(
-            base === 0
-                ? 0
-                : (slope / base) *
-                  100,
+    const values =
+        closes.slice(
+            closes.length - hours,
         );
+
+    const first = values[0];
+
+    if (first === 0) {
+        return 0;
     }
 
-    return results;
+    const normalised =
+        values.map(
+            (value) =>
+                value / first,
+        );
+
+    const n = normalised.length;
+
+    let sumX = 0;
+    let sumY = 0;
+    let sumXY = 0;
+    let sumXX = 0;
+
+    for (
+        let i = 0;
+        i < n;
+        i += 1
+    ) {
+        sumX += i;
+        sumY += normalised[i];
+        sumXY +=
+            i * normalised[i];
+        sumXX += i * i;
+    }
+
+    const denominator =
+        n * sumXX -
+        sumX ** 2;
+
+    return denominator === 0
+        ? 0
+        : (
+              n * sumXY -
+              sumX * sumY
+          ) / denominator;
 }
 
-/* -------------------------------------------------------------------------- */
-/* Market analysis                                                            */
-/* -------------------------------------------------------------------------- */
+function maxRun(
+    values: number[],
+    positive: boolean,
+): number {
+    let current = 0;
+    let maximum = 0;
 
-function analyseMarket(
-    market: HourlyMarket,
-    strategy: StrategyMarket,
-): MarketBehaviour {
-    const candles =
-        market.candles
-            .filter(
-                (candle) =>
-                    Number.isFinite(
-                        candle.time,
-                    ) &&
-                    Number.isFinite(
-                        candle.open,
-                    ) &&
-                    Number.isFinite(
-                        candle.high,
-                    ) &&
-                    Number.isFinite(
-                        candle.low,
-                    ) &&
-                    Number.isFinite(
-                        candle.close,
-                    ) &&
-                    Number.isFinite(
-                        candle.volume,
-                    ),
-            )
-            .sort(
-                (a, b) =>
-                    a.time - b.time,
+    for (const value of values) {
+        const qualifies = positive
+            ? value > 0
+            : value < 0;
+
+        if (qualifies) {
+            current += 1;
+            maximum = Math.max(
+                maximum,
+                current,
             );
+        } else {
+            current = 0;
+        }
+    }
 
+    return maximum;
+}
+
+function reversalRate(
+    values: number[],
+): number {
+    if (values.length < 2) {
+        return 0;
+    }
+
+    let reversals = 0;
+    let comparisons = 0;
+
+    for (
+        let i = 1;
+        i < values.length;
+        i += 1
+    ) {
+        if (
+            values[i] === 0 ||
+            values[i - 1] === 0
+        ) {
+            continue;
+        }
+
+        comparisons += 1;
+
+        if (
+            Math.sign(values[i]) !==
+            Math.sign(values[i - 1])
+        ) {
+            reversals += 1;
+        }
+    }
+
+    return comparisons === 0
+        ? 0
+        : reversals / comparisons;
+}
+
+function autocorrelation1h(
+    values: number[],
+): number {
+    if (values.length < 3) {
+        return 0;
+    }
+
+    return pearson(
+        values.slice(0, -1),
+        values.slice(1),
+    );
+}
+
+function correlationWith(
+    x: number[],
+    y: number[],
+): number {
+    const length =
+        Math.min(
+            x.length,
+            y.length,
+        );
+
+    if (length < 2) {
+        return 0;
+    }
+
+    return pearson(
+        x.slice(0, length),
+        y.slice(0, length),
+    );
+}
+
+function calculateFeatures(
+    candles: Candle[],
+): CalculatedFeatures {
     const closes =
         candles.map(
             (candle) =>
                 candle.close,
         );
 
-    const hourlyReturns: number[] =
-        [];
-
-    const hourlyRanges: number[] =
-        [];
-
-    for (const candle of candles) {
-        if (candle.open === 0) {
-            continue;
-        }
-
-        hourlyReturns.push(
-            (
-                (candle.close -
-                    candle.open) /
-                candle.open
-            ) * 100,
-        );
-
-        hourlyRanges.push(
-            (
-                (candle.high -
-                    candle.low) /
-                candle.open
-            ) * 100,
-        );
-    }
-
-    const positiveHours =
-        hourlyReturns.filter(
-            (value) => value > 0,
-        ).length;
-
-    const negativeHours =
-        hourlyReturns.filter(
-            (value) => value < 0,
-        ).length;
-
-    let maxHourlyGainPct = 0;
-    let maxHourlyLossPct = 0;
-
-    for (
-        const value of hourlyReturns
-    ) {
-        maxHourlyGainPct =
-            Math.max(
-                maxHourlyGainPct,
-                value,
-            );
-
-        maxHourlyLossPct =
-            Math.min(
-                maxHourlyLossPct,
-                value,
-            );
-    }
-
-    let maxPositiveRunHours = 0;
-    let maxNegativeRunHours = 0;
-
-    let positiveRun = 0;
-    let negativeRun = 0;
-
-    for (
-        const value of hourlyReturns
-    ) {
-        if (value > 0) {
-            positiveRun++;
-            negativeRun = 0;
-        } else if (value < 0) {
-            negativeRun++;
-            positiveRun = 0;
-        } else {
-            positiveRun = 0;
-            negativeRun = 0;
-        }
-
-        maxPositiveRunHours =
-            Math.max(
-                maxPositiveRunHours,
-                positiveRun,
-            );
-
-        maxNegativeRunHours =
-            Math.max(
-                maxNegativeRunHours,
-                negativeRun,
-            );
-    }
-
-    let reversals = 0;
-
-    for (
-        let i = 1;
-        i < hourlyReturns.length;
-        i++
-    ) {
-        const previous =
-            hourlyReturns[i - 1];
-
-        const current =
-            hourlyReturns[i];
-
-        if (
-            (previous > 0 &&
-                current < 0) ||
-            (previous < 0 &&
-                current > 0)
-        ) {
-            reversals++;
-        }
-    }
-
-    const reversalRatePct =
-        hourlyReturns.length < 2
-            ? 0
-            : (
-                  reversals /
-                  (hourlyReturns.length -
-                      1)
-              ) * 100;
-
-    const returnAutocorrelation1h =
-        pearson(
-            hourlyReturns.slice(
-                0,
-                -1,
-            ),
-            hourlyReturns.slice(
-                1,
-            ),
-        );
+    const hourlyReturns =
+        returns(closes);
 
     const volumes =
         candles.map(
@@ -794,774 +616,403 @@ function analyseMarket(
                 candle.volume,
         );
 
-    /*
-     * The supplied Binance hourly candle records contain base-asset
-     * volume, not Binance quoteVolume. Therefore this is explicitly
-     * labelled as a proxy:
-     *
-     * close × base volume
-     */
-    const quoteVolumeProxy =
+    const ranges =
         candles.map(
             (candle) =>
-                candle.close *
-                candle.volume,
-        );
-
-    const pairCount =
-        Math.min(
-            volumes.length,
-            hourlyReturns.length,
-        );
-
-    const volumeValues =
-        volumes.slice(
-            0,
-            pairCount,
-        );
-
-    const returnValues =
-        hourlyReturns.slice(
-            0,
-            pairCount,
-        );
-
-    const rangeValues =
-        hourlyRanges.slice(
-            0,
-            pairCount,
-        );
-
-    const rolling6h =
-        rollingReturns(
-            closes,
-            6,
-        );
-
-    const rolling12h =
-        rollingReturns(
-            closes,
-            12,
-        );
-
-    const rolling24h =
-        rollingReturns(
-            closes,
-            24,
-        );
-
-    const rolling72h =
-        rollingReturns(
-            closes,
-            72,
-        );
-
-    const rolling168h =
-        rollingReturns(
-            closes,
-            168,
-        );
-
-    const closeReturns =
-        closes.length < 2
-            ? []
-            : closes
-                  .slice(1)
-                  .map(
-                      (
-                          close,
-                          index,
-                      ) =>
-                          returnPct(
-                              closes[index],
-                              close,
-                          ),
-                  );
-
-    const volatility24h =
-        rollingVolatility(
-            closeReturns,
-            24,
-        );
-
-    const volatility72h =
-        rollingVolatility(
-            closeReturns,
-            72,
-        );
-
-    const volatility168h =
-        rollingVolatility(
-            closeReturns,
-            168,
-        );
-
-    const range24h =
-        rollingRange(
-            candles,
-            24,
-        );
-
-    const range72h =
-        rollingRange(
-            candles,
-            72,
-        );
-
-    const range168h =
-        rollingRange(
-            candles,
-            168,
-        );
-
-    const efficiency24h =
-        rollingEfficiency(
-            closes,
-            24,
-        );
-
-    const efficiency72h =
-        rollingEfficiency(
-            closes,
-            72,
-        );
-
-    const efficiency168h =
-        rollingEfficiency(
-            closes,
-            168,
-        );
-
-    const slope24h =
-        rollingTrendSlope(
-            closes,
-            24,
-        );
-
-    const slope72h =
-        rollingTrendSlope(
-            closes,
-            72,
-        );
-
-    const slope168h =
-        rollingTrendSlope(
-            closes,
-            168,
+                candle.close === 0
+                    ? 0
+                    : (candle.high -
+                          candle.low) /
+                      candle.close,
         );
 
     return {
-        symbol: market.symbol,
+        totalReturn:
+            closes.length >= 2
+                ? closes[
+                      closes.length - 1
+                  ] /
+                      closes[0] -
+                  1
+                : 0,
 
-        binanceArrayPosition:
-            safeNumber(
-                market.binanceArrayPosition,
-            ),
-
-        candleCount:
-            candles.length,
-
-        firstCandleTime:
-            candles[0]?.time ??
-            market.firstCandleTime,
-
-        lastCandleTime:
-            candles[
-                candles.length - 1
-            ]?.time ??
-            market.lastCandleTime,
-
-        strategyDatasetGroup:
-            strategy.datasetGroup ??
-            "",
-
-        strategyNetProfit:
-            safeNumber(
-                strategy.netProfit,
-            ),
-
-        strategyReturnPct:
-            safeNumber(
-                strategy.returnPct,
-            ),
-
-        totalReturnPct:
-            returnPct(
-                closes[0] ?? 0,
-                closes[
-                    closes.length - 1
-                ] ?? 0,
-            ),
-
-        hourlyReturnMeanPct:
+        meanHourlyReturn:
             mean(hourlyReturns),
 
-        hourlyReturnMedianPct:
+        medianHourlyReturn:
             median(hourlyReturns),
 
-        hourlyReturnStdPct:
+        hourlyVolatility:
             standardDeviation(
                 hourlyReturns,
             ),
 
-        positiveHourRatePct:
+        positiveHourRate:
             hourlyReturns.length === 0
                 ? 0
-                : (
-                      positiveHours /
-                      hourlyReturns.length
-                  ) * 100,
+                : hourlyReturns.filter(
+                      (value) =>
+                          value > 0,
+                  ).length /
+                  hourlyReturns.length,
 
-        negativeHourRatePct:
+        negativeHourRate:
             hourlyReturns.length === 0
                 ? 0
-                : (
-                      negativeHours /
-                      hourlyReturns.length
-                  ) * 100,
+                : hourlyReturns.filter(
+                      (value) =>
+                          value < 0,
+                  ).length /
+                  hourlyReturns.length,
 
-        meanHourlyRangePct:
-            mean(hourlyRanges),
+        maxHourlyGain:
+            hourlyReturns.length === 0
+                ? 0
+                : Math.max(
+                      ...hourlyReturns,
+                  ),
 
-        medianHourlyRangePct:
-            median(hourlyRanges),
+        maxHourlyLoss:
+            hourlyReturns.length === 0
+                ? 0
+                : Math.min(
+                      ...hourlyReturns,
+                  ),
 
-        hourlyRangeStdPct:
-            standardDeviation(
-                hourlyRanges,
+        maxPositiveRun:
+            maxRun(
+                hourlyReturns,
+                true,
             ),
 
-        maxHourlyGainPct,
-        maxHourlyLossPct,
+        maxNegativeRun:
+            maxRun(
+                hourlyReturns,
+                false,
+            ),
 
-        maxPositiveRunHours,
-        maxNegativeRunHours,
+        reversalRate:
+            reversalRate(
+                hourlyReturns,
+            ),
 
-        reversalRatePct,
-        returnAutocorrelation1h,
+        autocorrelation1h:
+            autocorrelation1h(
+                hourlyReturns,
+            ),
 
         meanVolume:
             mean(volumes),
 
-        medianVolume:
-            median(volumes),
-
-        volumeStd:
+        volumeVolatility:
             standardDeviation(
                 volumes,
             ),
 
-        meanQuoteVolumeProxy:
-            mean(
-                quoteVolumeProxy,
-            ),
-
-        medianQuoteVolumeProxy:
-            median(
-                quoteVolumeProxy,
-            ),
-
-        quoteVolumeProxyStd:
-            standardDeviation(
-                quoteVolumeProxy,
-            ),
-
         volumeReturnCorrelation:
-            pearson(
-                volumeValues,
-                returnValues,
+            correlationWith(
+                volumes.slice(1),
+                hourlyReturns,
             ),
 
         volumeRangeCorrelation:
-            pearson(
-                volumeValues,
-                rangeValues,
+            correlationWith(
+                volumes,
+                ranges,
             ),
 
-        rolling6hReturnMeanPct:
-            mean(rolling6h),
-
-        rolling6hReturnStdPct:
-            standardDeviation(
-                rolling6h,
+        return6h:
+            cumulativeReturn(
+                closes,
+                6,
             ),
 
-        rolling12hReturnMeanPct:
-            mean(rolling12h),
-
-        rolling12hReturnStdPct:
-            standardDeviation(
-                rolling12h,
+        return12h:
+            cumulativeReturn(
+                closes,
+                12,
             ),
 
-        rolling24hReturnMeanPct:
-            mean(rolling24h),
-
-        rolling24hReturnStdPct:
-            standardDeviation(
-                rolling24h,
+        return24h:
+            cumulativeReturn(
+                closes,
+                24,
             ),
 
-        rolling72hReturnMeanPct:
-            mean(rolling72h),
-
-        rolling72hReturnStdPct:
-            standardDeviation(
-                rolling72h,
+        return72h:
+            cumulativeReturn(
+                closes,
+                72,
             ),
 
-        rolling168hReturnMeanPct:
-            mean(rolling168h),
-
-        rolling168hReturnStdPct:
-            standardDeviation(
-                rolling168h,
+        return168h:
+            cumulativeReturn(
+                closes,
+                168,
             ),
 
-        rolling24hVolatilityPct:
-            mean(
-                volatility24h,
+        volatility6h:
+            rollingVolatility(
+                hourlyReturns,
+                6,
             ),
 
-        rolling72hVolatilityPct:
-            mean(
-                volatility72h,
+        volatility12h:
+            rollingVolatility(
+                hourlyReturns,
+                12,
             ),
 
-        rolling168hVolatilityPct:
-            mean(
-                volatility168h,
+        volatility24h:
+            rollingVolatility(
+                hourlyReturns,
+                24,
             ),
 
-        rolling24hRangeMeanPct:
-            mean(range24h),
-
-        rolling72hRangeMeanPct:
-            mean(range72h),
-
-        rolling168hRangeMeanPct:
-            mean(range168h),
-
-        rolling24hEfficiencyMean:
-            mean(
-                efficiency24h,
+        volatility72h:
+            rollingVolatility(
+                hourlyReturns,
+                72,
             ),
 
-        rolling72hEfficiencyMean:
-            mean(
-                efficiency72h,
+        volatility168h:
+            rollingVolatility(
+                hourlyReturns,
+                168,
             ),
 
-        rolling168hEfficiencyMean:
-            mean(
-                efficiency168h,
+        range24h:
+            rollingRange(
+                candles,
+                24,
             ),
 
-        rolling24hTrendSlopeMeanPct:
-            mean(slope24h),
+        efficiency24h:
+            rollingEfficiency(
+                closes,
+                24,
+            ),
 
-        rolling72hTrendSlopeMeanPct:
-            mean(slope72h),
+        trendSlope24h:
+            rollingTrendSlope(
+                closes,
+                24,
+            ),
 
-        rolling168hTrendSlopeMeanPct:
-            mean(slope168h),
+        range72h:
+            rollingRange(
+                candles,
+                72,
+            ),
+
+        efficiency72h:
+            rollingEfficiency(
+                closes,
+                72,
+            ),
+
+        trendSlope72h:
+            rollingTrendSlope(
+                closes,
+                72,
+            ),
+
+        range168h:
+            rollingRange(
+                candles,
+                168,
+            ),
+
+        efficiency168h:
+            rollingEfficiency(
+                closes,
+                168,
+            ),
+
+        trendSlope168h:
+            rollingTrendSlope(
+                closes,
+                168,
+            ),
     };
 }
 
-/* -------------------------------------------------------------------------- */
-/* Strategy parsing                                                           */
-/* -------------------------------------------------------------------------- */
+function getStrategyMarkets(
+    data: StrategyData,
+): StrategyMarket[] {
+    const markets: StrategyMarket[] =
+        [];
 
-function loadStrategyMarkets(
-    root: StrategyRoot,
-): Map<string, StrategyMarket> {
-    const markets = [
-        ...(root.sample?.markets ?? []),
-        ...(root.outOfSample?.markets ?? []),
-    ];
-
-    const result =
-        new Map<string, StrategyMarket>();
-
-    for (
-        const market of markets
+    if (
+        Array.isArray(
+            data.sample?.markets,
+        )
     ) {
-        if (market.symbol) {
-            result.set(
-                market.symbol,
-                market,
-            );
-        }
+        markets.push(
+            ...data.sample.markets,
+        );
     }
 
-    return result;
+    if (
+        Array.isArray(
+            data.outOfSample?.markets,
+        )
+    ) {
+        markets.push(
+            ...data.outOfSample.markets,
+        );
+    }
+
+    return markets;
 }
 
-/* -------------------------------------------------------------------------- */
-/* Correlations                                                               */
-/* -------------------------------------------------------------------------- */
+function round(
+    value: number,
+    decimals = 6,
+): number {
+    if (!Number.isFinite(value)) {
+        return 0;
+    }
 
-function buildCorrelations(
-    markets: MarketBehaviour[],
-): CorrelationResult[] {
-    const profit =
+    const multiplier =
+        10 ** decimals;
+
+    return (
+        Math.round(
+            value * multiplier,
+        ) / multiplier
+    );
+}
+
+function getCorrelations(
+    markets: MarketAnalysis[],
+    featureNames: string[],
+): Correlation[] {
+    const result: Correlation[] =
+        [];
+
+    const profits =
         markets.map(
             (market) =>
-                market.strategyNetProfit,
+                market.netProfit,
         );
 
-    const features: Array<
-        [
-            string,
-            (
-                market: MarketBehaviour,
-            ) => number,
-        ]
-    > = [
-        [
-            "binanceArrayPosition",
-            (m) =>
-                m.binanceArrayPosition,
-        ],
-        [
-            "totalReturnPct",
-            (m) => m.totalReturnPct,
-        ],
-        [
-            "hourlyReturnMeanPct",
-            (m) =>
-                m.hourlyReturnMeanPct,
-        ],
-        [
-            "hourlyReturnMedianPct",
-            (m) =>
-                m.hourlyReturnMedianPct,
-        ],
-        [
-            "hourlyReturnStdPct",
-            (m) =>
-                m.hourlyReturnStdPct,
-        ],
-        [
-            "positiveHourRatePct",
-            (m) =>
-                m.positiveHourRatePct,
-        ],
-        [
-            "negativeHourRatePct",
-            (m) =>
-                m.negativeHourRatePct,
-        ],
-        [
-            "meanHourlyRangePct",
-            (m) =>
-                m.meanHourlyRangePct,
-        ],
-        [
-            "medianHourlyRangePct",
-            (m) =>
-                m.medianHourlyRangePct,
-        ],
-        [
-            "hourlyRangeStdPct",
-            (m) =>
-                m.hourlyRangeStdPct,
-        ],
-        [
-            "maxHourlyGainPct",
-            (m) =>
-                m.maxHourlyGainPct,
-        ],
-        [
-            "maxHourlyLossPct",
-            (m) =>
-                m.maxHourlyLossPct,
-        ],
-        [
-            "maxPositiveRunHours",
-            (m) =>
-                m.maxPositiveRunHours,
-        ],
-        [
-            "maxNegativeRunHours",
-            (m) =>
-                m.maxNegativeRunHours,
-        ],
-        [
-            "reversalRatePct",
-            (m) =>
-                m.reversalRatePct,
-        ],
-        [
-            "returnAutocorrelation1h",
-            (m) =>
-                m.returnAutocorrelation1h,
-        ],
-        [
-            "meanVolume",
-            (m) => m.meanVolume,
-        ],
-        [
-            "medianVolume",
-            (m) =>
-                m.medianVolume,
-        ],
-        [
-            "volumeStd",
-            (m) => m.volumeStd,
-        ],
-        [
-            "meanQuoteVolumeProxy",
-            (m) =>
-                m.meanQuoteVolumeProxy,
-        ],
-        [
-            "medianQuoteVolumeProxy",
-            (m) =>
-                m.medianQuoteVolumeProxy,
-        ],
-        [
-            "quoteVolumeProxyStd",
-            (m) =>
-                m.quoteVolumeProxyStd,
-        ],
-        [
-            "volumeReturnCorrelation",
-            (m) =>
-                m.volumeReturnCorrelation,
-        ],
-        [
-            "volumeRangeCorrelation",
-            (m) =>
-                m.volumeRangeCorrelation,
-        ],
-        [
-            "rolling6hReturnMeanPct",
-            (m) =>
-                m.rolling6hReturnMeanPct,
-        ],
-        [
-            "rolling6hReturnStdPct",
-            (m) =>
-                m.rolling6hReturnStdPct,
-        ],
-        [
-            "rolling12hReturnMeanPct",
-            (m) =>
-                m.rolling12hReturnMeanPct,
-        ],
-        [
-            "rolling12hReturnStdPct",
-            (m) =>
-                m.rolling12hReturnStdPct,
-        ],
-        [
-            "rolling24hReturnMeanPct",
-            (m) =>
-                m.rolling24hReturnMeanPct,
-        ],
-        [
-            "rolling24hReturnStdPct",
-            (m) =>
-                m.rolling24hReturnStdPct,
-        ],
-        [
-            "rolling72hReturnMeanPct",
-            (m) =>
-                m.rolling72hReturnMeanPct,
-        ],
-        [
-            "rolling72hReturnStdPct",
-            (m) =>
-                m.rolling72hReturnStdPct,
-        ],
-        [
-            "rolling168hReturnMeanPct",
-            (m) =>
-                m.rolling168hReturnMeanPct,
-        ],
-        [
-            "rolling168hReturnStdPct",
-            (m) =>
-                m.rolling168hReturnStdPct,
-        ],
-        [
-            "rolling24hVolatilityPct",
-            (m) =>
-                m.rolling24hVolatilityPct,
-        ],
-        [
-            "rolling72hVolatilityPct",
-            (m) =>
-                m.rolling72hVolatilityPct,
-        ],
-        [
-            "rolling168hVolatilityPct",
-            (m) =>
-                m.rolling168hVolatilityPct,
-        ],
-        [
-            "rolling24hRangeMeanPct",
-            (m) =>
-                m.rolling24hRangeMeanPct,
-        ],
-        [
-            "rolling72hRangeMeanPct",
-            (m) =>
-                m.rolling72hRangeMeanPct,
-        ],
-        [
-            "rolling168hRangeMeanPct",
-            (m) =>
-                m.rolling168hRangeMeanPct,
-        ],
-        [
-            "rolling24hEfficiencyMean",
-            (m) =>
-                m.rolling24hEfficiencyMean,
-        ],
-        [
-            "rolling72hEfficiencyMean",
-            (m) =>
-                m.rolling72hEfficiencyMean,
-        ],
-        [
-            "rolling168hEfficiencyMean",
-            (m) =>
-                m.rolling168hEfficiencyMean,
-        ],
-        [
-            "rolling24hTrendSlopeMeanPct",
-            (m) =>
-                m.rolling24hTrendSlopeMeanPct,
-        ],
-        [
-            "rolling72hTrendSlopeMeanPct",
-            (m) =>
-                m.rolling72hTrendSlopeMeanPct,
-        ],
-        [
-            "rolling168hTrendSlopeMeanPct",
-            (m) =>
-                m.rolling168hTrendSlopeMeanPct,
-        ],
-    ];
+    for (const feature of featureNames) {
+        const values =
+            markets.map(
+                (market) =>
+                    market.features[
+                        feature
+                    ],
+            );
 
-    return features
-        .map(
-            ([feature, getter]) => {
-                const values =
-                    markets.map(
-                        getter,
-                    );
-
-                return {
-                    feature,
-                    pearson:
-                        pearson(
-                            values,
-                            profit,
-                        ),
-                    spearman:
-                        spearman(
-                            values,
-                            profit,
-                        ),
-                    sampleCount:
-                        markets.length,
-                };
-            },
-        )
-        .sort(
-            (a, b) =>
-                Math.abs(
-                    b.spearman,
-                ) -
-                Math.abs(
-                    a.spearman,
+        result.push({
+            feature,
+            spearman: round(
+                spearman(
+                    values,
+                    profits,
                 ),
-        );
+            ),
+        });
+    }
+
+    return result.sort(
+        (a, b) =>
+            Math.abs(b.spearman) -
+            Math.abs(a.spearman),
+    );
 }
 
-/* -------------------------------------------------------------------------- */
-/* CSV                                                                        */
-/* -------------------------------------------------------------------------- */
+function getGroupSummary(
+    feature: string,
+    markets: MarketAnalysis[],
+): FeatureGroupSummary {
+    const positive =
+        markets
+            .filter(
+                (market) =>
+                    market.netProfit > 0,
+            )
+            .map(
+                (market) =>
+                    market.features[
+                        feature
+                    ],
+            );
 
-function createCsv(
-    markets: MarketBehaviour[],
-): string {
-    if (markets.length === 0) {
-        return "";
-    }
+    const flat =
+        markets
+            .filter(
+                (market) =>
+                    market.netProfit === 0,
+            )
+            .map(
+                (market) =>
+                    market.features[
+                        feature
+                    ],
+            );
 
-    const columns =
-        Object.keys(
-            markets[0],
-        ) as Array<
-            keyof MarketBehaviour
-        >;
+    const negative =
+        markets
+            .filter(
+                (market) =>
+                    market.netProfit < 0,
+            )
+            .map(
+                (market) =>
+                    market.features[
+                        feature
+                    ],
+            );
 
-    function escape(
-        value: unknown,
-    ): string {
-        const text =
-            value === null ||
-            value === undefined
-                ? ""
-                : String(value);
+    return {
+        feature,
 
-        return /[,"\n]/.test(
-            text,
-        )
-            ? `"${text.replace(
-                  /"/g,
-                  '""',
-              )}"`
-            : text;
-    }
-
-    return [
-        columns.join(","),
-        ...markets.map(
-            (market) =>
-                columns
-                    .map(
-                        (column) =>
-                            escape(
-                                market[
-                                    column
-                                ],
-                            ),
-                    )
-                    .join(","),
+        positiveMedian: round(
+            median(positive),
         ),
-    ].join("\n");
-}
 
-/* -------------------------------------------------------------------------- */
-/* Main                                                                       */
-/* -------------------------------------------------------------------------- */
+        flatMedian: round(
+            median(flat),
+        ),
+
+        negativeMedian: round(
+            median(negative),
+        ),
+
+        positiveMean: round(
+            mean(positive),
+        ),
+
+        flatMean: round(
+            mean(flat),
+        ),
+
+        negativeMean: round(
+            mean(negative),
+        ),
+    };
+}
 
 async function main(): Promise<void> {
     const startedAt =
         Date.now();
 
     console.log(
-        "=".repeat(60),
+        "============================================================",
     );
-
     console.log(
         "August 2026 hourly market behaviour runner",
     );
-
     console.log(
-        "=".repeat(60),
+        "============================================================",
     );
-
     console.log();
 
     console.log(
-        `Hourly data:  ${HOURLY_FILE}`,
+        `Hourly data:   ${HOURLY_FILE}`,
     );
 
     console.log(
@@ -1570,35 +1021,19 @@ async function main(): Promise<void> {
 
     console.log();
 
-    const hourlyPath =
-        join(
-            DATA_DIR,
-            HOURLY_FILE,
-        );
-
-    const strategyPath =
-        join(
-            OUTPUT_DIR,
-            STRATEGY_FILE,
-        );
-
-    console.log(
-        `Reading ${HOURLY_FILE}...`,
-    );
-
     const hourlyText =
-        await readFile(
-            hourlyPath,
+        await fs.readFile(
+            path.resolve(
+                HOURLY_FILE,
+            ),
             "utf8",
         );
 
-    console.log(
-        `Reading ${STRATEGY_FILE}...`,
-    );
-
     const strategyText =
-        await readFile(
-            strategyPath,
+        await fs.readFile(
+            path.resolve(
+                STRATEGY_FILE,
+            ),
             "utf8",
         );
 
@@ -1610,16 +1045,7 @@ async function main(): Promise<void> {
     const strategyData =
         JSON.parse(
             strategyText,
-        ) as StrategyRoot;
-
-    if (
-        hourlyData.interval !==
-        "1h"
-    ) {
-        throw new Error(
-            `Expected hourly data, got interval "${hourlyData.interval}".`,
-        );
-    }
+        ) as StrategyData;
 
     if (
         !Array.isArray(
@@ -1631,203 +1057,180 @@ async function main(): Promise<void> {
         );
     }
 
-    if (
-        hourlyData.markets.length ===
-        0
-    ) {
-        throw new Error(
-            "Hourly data contains zero markets.",
-        );
-    }
-
     const strategyMarkets =
-        loadStrategyMarkets(
+        getStrategyMarkets(
             strategyData,
         );
 
-    console.log();
+    if (
+        strategyMarkets.length === 0
+    ) {
+        throw new Error(
+            "Could not find strategy market results under sample.markets or outOfSample.markets.",
+        );
+    }
 
     console.log(
-        `Strategy market results: ${strategyMarkets.size}`,
+        `Strategy market results: ${strategyMarkets.length}`,
     );
 
     console.log(
         `Hourly markets: ${hourlyData.markets.length}`,
     );
 
-    let totalCandles = 0;
-    let marketsWithCandles = 0;
-    let marketsWithoutCandles = 0;
-    let partialMarkets = 0;
-    let fullCoverageMarkets = 0;
+    const strategyBySymbol =
+        new Map<
+            string,
+            StrategyMarket
+        >();
 
-    for (
-        const market of
-            hourlyData.markets
-    ) {
-        const count =
-            market.candles.length;
-
-        totalCandles += count;
-
-        if (count === 0) {
-            marketsWithoutCandles++;
-        } else {
-            marketsWithCandles++;
-        }
-
-        if (
-            count > 0 &&
-            count <
-                hourlyData.expectedCandleCount
-        ) {
-            partialMarkets++;
-        }
-
-        if (
-            count ===
-            hourlyData.expectedCandleCount
-        ) {
-            fullCoverageMarkets++;
-        }
-    }
-
-    console.log(
-        `Hourly candles: ${totalCandles.toLocaleString()}`,
-    );
-
-    console.log(
-        `Markets with candles: ${marketsWithCandles}`,
-    );
-
-    console.log(
-        `Markets without candles: ${marketsWithoutCandles}`,
-    );
-
-    console.log(
-        `Partial markets: ${partialMarkets}`,
-    );
-
-    console.log(
-        `Full-coverage markets: ${fullCoverageMarkets}`,
-    );
-
-    if (
-        totalCandles === 0
-    ) {
-        throw new Error(
-            "Zero hourly candles found.",
+    for (const market of strategyMarkets) {
+        strategyBySymbol.set(
+            market.symbol,
+            market,
         );
     }
 
-    console.log();
-    console.log(
-        "Calculating market behaviour...",
-    );
-    console.log();
-
-    const results: MarketBehaviour[] =
-        [];
-
-    let unmatchedHourlyMarkets =
-        0;
-
-    for (
-        let i = 0;
-        i <
-        hourlyData.markets.length;
-        i++
-    ) {
-        const market =
-            hourlyData.markets[i];
-
-        if (
-            market.candles.length ===
-            0
-        ) {
-            continue;
-        }
-
-        const strategy =
-            strategyMarkets.get(
-                market.symbol,
-            );
-
-        if (!strategy) {
-            unmatchedHourlyMarkets++;
-            continue;
-        }
-
-        results.push(
-            analyseMarket(
-                market,
-                strategy,
+    const featureNames =
+        Object.keys(
+            calculateFeatures(
+                hourlyData.markets.find(
+                    (market) =>
+                        market.candles
+                            .length > 0,
+                )?.candles ?? [],
             ),
         );
 
-        const processed =
-            i + 1;
+    const markets: MarketAnalysis[] =
+        [];
 
+    let marketsWithCandles = 0;
+    let unmatchedHourlyMarkets = 0;
+
+    for (
+        const hourlyMarket of
+            hourlyData.markets
+    ) {
         if (
-            processed % 25 ===
-                0 ||
-            processed ===
-                hourlyData.markets.length
+            hourlyMarket.candles
+                .length === 0
         ) {
-            console.log(
-                `  ${processed}/${hourlyData.markets.length} markets`,
-            );
+            continue;
         }
+
+        marketsWithCandles += 1;
+
+        const strategy =
+            strategyBySymbol.get(
+                hourlyMarket.symbol,
+            );
+
+        if (!strategy) {
+            unmatchedHourlyMarkets += 1;
+            continue;
+        }
+
+        const candles =
+            [...hourlyMarket.candles].sort(
+                (a, b) =>
+                    a.time - b.time,
+            );
+
+        const features =
+            calculateFeatures(
+                candles,
+            );
+
+        markets.push({
+            symbol:
+                strategy.symbol,
+
+            binanceArrayPosition:
+                strategy.binanceArrayPosition,
+
+            datasetGroup:
+                strategy.datasetGroup,
+
+            marketIndex:
+                strategy.marketIndex,
+
+            netProfit:
+                strategy.netProfit,
+
+            returnPct:
+                strategy.returnPct,
+
+            features:
+                Object.fromEntries(
+                    Object.entries(
+                        features,
+                    ).map(
+                        ([
+                            feature,
+                            value,
+                        ]) => [
+                            feature,
+                            round(value),
+                        ],
+                    ),
+                ),
+        });
     }
 
-    const positive =
-        results.filter(
-            (market) =>
-                market.strategyNetProfit >
-                0,
-        );
-
-    const flat =
-        results.filter(
-            (market) =>
-                market.strategyNetProfit ===
-                0,
-        );
-
-    const negative =
-        results.filter(
-            (market) =>
-                market.strategyNetProfit <
-                0,
-        );
-
-    const positiveNetProfit =
-        positive.reduce(
-            (sum, market) =>
-                sum +
-                market.strategyNetProfit,
-            0,
-        );
-
-    const negativeNetProfit =
-        negative.reduce(
-            (sum, market) =>
-                sum +
-                market.strategyNetProfit,
-            0,
-        );
-
     const correlations =
-        buildCorrelations(
-            results,
+        getCorrelations(
+            markets,
+            featureNames,
         );
 
-    const output: Output = {
+    const strongestFeatures =
+        correlations
+            .slice(
+                0,
+                TOP_FEATURE_COUNT,
+            )
+            .map(
+                (item) =>
+                    item.feature,
+            );
+
+    const featureGroups =
+        strongestFeatures.map(
+            (feature) =>
+                getGroupSummary(
+                    feature,
+                    markets,
+                ),
+        );
+
+    const positiveMarkets =
+        markets.filter(
+            (market) =>
+                market.netProfit > 0,
+        );
+
+    const flatMarkets =
+        markets.filter(
+            (market) =>
+                market.netProfit === 0,
+        );
+
+    const negativeMarkets =
+        markets.filter(
+            (market) =>
+                market.netProfit < 0,
+        );
+
+    markets.sort(
+        (a, b) =>
+            b.netProfit -
+            a.netProfit,
+    );
+
+    const output: OutputData = {
         generatedAt:
             new Date().toISOString(),
-
-        experiment:
-            "august_2026_hourly_market_behaviour",
 
         source: {
             hourlyFile:
@@ -1839,13 +1242,11 @@ async function main(): Promise<void> {
             interval:
                 hourlyData.interval,
 
-            period: {
-                start:
-                    hourlyData.startTimeIso,
+            startTimeIso:
+                hourlyData.startTimeIso,
 
-                endExclusive:
-                    hourlyData.endTimeExclusiveIso,
-            },
+            endTimeExclusiveIso:
+                hourlyData.endTimeExclusiveIso,
 
             expectedCandleCount:
                 hourlyData.expectedCandleCount,
@@ -1857,41 +1258,36 @@ async function main(): Promise<void> {
 
             marketsWithCandles,
 
-            marketsWithoutCandles,
-
-            partialMarkets,
-
-            fullCoverageMarkets,
-
             matchedMarkets:
-                results.length,
+                markets.length,
 
             unmatchedHourlyMarkets,
 
             positiveStrategyMarkets:
-                positive.length,
+                positiveMarkets.length,
 
             flatStrategyMarkets:
-                flat.length,
+                flatMarkets.length,
 
             negativeStrategyMarkets:
-                negative.length,
-
-            positiveStrategyNetProfit:
-                positiveNetProfit,
-
-            negativeStrategyNetProfit:
-                negativeNetProfit,
+                negativeMarkets.length,
         },
+
+        strongestFeatures,
 
         correlations,
 
-        markets: results.sort(
-            (a, b) =>
-                b.strategyNetProfit -
-                a.strategyNetProfit,
-        ),
+        featureGroups,
+
+        markets,
     };
+
+    await fs.mkdir(
+        path.resolve(OUTPUT_DIR),
+        {
+            recursive: true,
+        },
+    );
 
     const timestamp =
         new Date()
@@ -1905,26 +1301,18 @@ async function main(): Promise<void> {
                 "Z",
             );
 
-    const jsonFilename =
-        `august-market-behaviour-${timestamp}.json`;
+    const jsonPath = path.join(
+        OUTPUT_DIR,
+        `august-market-behaviour-${timestamp}.json`,
+    );
 
-    const csvFilename =
-        `august-market-behaviour-${timestamp}.csv`;
+    const csvPath = path.join(
+        OUTPUT_DIR,
+        `august-market-behaviour-${timestamp}.csv`,
+    );
 
-    const jsonPath =
-        join(
-            OUTPUT_DIR,
-            jsonFilename,
-        );
-
-    const csvPath =
-        join(
-            OUTPUT_DIR,
-            csvFilename,
-        );
-
-    await writeFile(
-        jsonPath,
+    await fs.writeFile(
+        path.resolve(jsonPath),
         JSON.stringify(
             output,
             null,
@@ -1933,111 +1321,102 @@ async function main(): Promise<void> {
         "utf8",
     );
 
-    await writeFile(
-        csvPath,
-        createCsv(
-            output.markets,
-        ),
+    const csvHeaders = [
+        "symbol",
+        "binanceArrayPosition",
+        "datasetGroup",
+        "marketIndex",
+        "netProfit",
+        "returnPct",
+        ...strongestFeatures,
+    ];
+
+    const csvRows =
+        markets.map(
+            (market) =>
+                [
+                    market.symbol,
+                    market.binanceArrayPosition,
+                    market.datasetGroup,
+                    market.marketIndex,
+                    market.netProfit,
+                    market.returnPct,
+                    ...strongestFeatures.map(
+                        (feature) =>
+                            market
+                                .features[
+                                feature
+                            ],
+                    ),
+                ]
+                    .map(
+                        (value) =>
+                            typeof value ===
+                            "string"
+                                ? `"${value.replace(
+                                      /"/g,
+                                      '""',
+                                  )}"`
+                                : String(
+                                      value,
+                                  ),
+                    )
+                    .join(","),
+        );
+
+    await fs.writeFile(
+        path.resolve(csvPath),
+        [
+            csvHeaders.join(","),
+            ...csvRows,
+        ].join("\n"),
         "utf8",
     );
 
     console.log();
     console.log(
-        "=".repeat(60),
+        "============================================================",
     );
     console.log(
         "Results",
     );
     console.log(
-        "=".repeat(60),
-    );
-    console.log();
-
-    console.log(
-        `Markets analysed: ${results.length}`,
+        "============================================================",
     );
 
     console.log(
-        `No strategy result: ${unmatchedHourlyMarkets}`,
+        `Markets analysed: ${markets.length}`,
     );
 
     console.log(
-        `Positive strategy markets: ${positive.length}`,
+        `Positive: ${positiveMarkets.length}`,
     );
 
     console.log(
-        `Flat strategy markets: ${flat.length}`,
+        `Flat:     ${flatMarkets.length}`,
     );
 
     console.log(
-        `Negative strategy markets: ${negative.length}`,
-    );
-
-    console.log();
-
-    console.log(
-        `Positive strategy net profit: ${positiveNetProfit.toFixed(4)}`,
-    );
-
-    console.log(
-        `Negative strategy net profit: ${negativeNetProfit.toFixed(4)}`,
+        `Negative: ${negativeMarkets.length}`,
     );
 
     console.log();
     console.log(
-        "Top positive strategy markets:",
+        "Strongest hourly features:",
     );
 
     for (
-        const market of
-            positive.slice(0, 10)
+        const correlation of correlations.slice(
+            0,
+            TOP_FEATURE_COUNT,
+        )
     ) {
         console.log(
-            `  ${market.symbol.padEnd(16)} ` +
-            `${market.strategyNetProfit >= 0 ? "+" : ""}` +
-            `${market.strategyNetProfit.toFixed(4)} ` +
-            `August return=${market.totalReturnPct.toFixed(2)}%`,
-        );
-    }
-
-    console.log();
-    console.log(
-        "Top negative strategy markets:",
-    );
-
-    for (
-        const market of negative
-            .slice()
-            .sort(
-                (a, b) =>
-                    a.strategyNetProfit -
-                    b.strategyNetProfit,
-            )
-            .slice(0, 10)
-    ) {
-        console.log(
-            `  ${market.symbol.padEnd(16)} ` +
-            `${market.strategyNetProfit.toFixed(4)} ` +
-            `August return=${market.totalReturnPct.toFixed(2)}%`,
-        );
-    }
-
-    console.log();
-    console.log(
-        "Strongest correlations with strategy net profit:",
-    );
-
-    for (
-        const result of
-            correlations.slice(
-                0,
-                15,
-            )
-    ) {
-        console.log(
-            `  ${result.feature.padEnd(38)} ` +
-            `Spearman=${result.spearman.toFixed(4)} ` +
-            `Pearson=${result.pearson.toFixed(4)}`,
+            `  ${correlation.feature.padEnd(
+                28,
+            )} Spearman=${correlation.spearman.toFixed(
+                4,
+            )}`,
         );
     }
 
@@ -2050,13 +1429,12 @@ async function main(): Promise<void> {
         `CSV output:  ${csvPath}`,
     );
 
-    const elapsedSeconds =
-        (Date.now() -
-            startedAt) /
-        1000;
-
     console.log(
-        `Completed in ${elapsedSeconds.toFixed(1)} seconds.`,
+        `Completed in ${(
+            (Date.now() -
+                startedAt) /
+            1000
+        ).toFixed(1)} seconds.`,
     );
 }
 
@@ -2064,21 +1442,9 @@ main().catch(
     (error: unknown) => {
         console.error();
         console.error(
-            "Runner failed.",
+            "Runner failed:",
         );
-
-        if (
-            error instanceof Error
-        ) {
-            console.error(
-                error.message,
-            );
-        } else {
-            console.error(
-                error,
-            );
-        }
-
+        console.error(error);
         process.exit(1);
     },
 );
