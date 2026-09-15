@@ -21,30 +21,31 @@ const local = process.env.ENVIRONMENT === 'local' || false;
 const app = express();
 app.use(express.json());
 
-app.use(local ? cors({origin: 'http://localhost:3000'}) : cors());
+app.use(local ? cors({ origin: 'http://localhost:3000' }) : cors());
 
 if (!local) app.use(express.static(path.join(__dirname, "../../client/build")));
 
 app.get("/data", (req: Request, res: Response) => {
   console.log('[Server] /data requested, currentTask:', currentTask);
-  // disable any HTTP caching so the client always gets the latest snapshot
+
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
 
   const dataJSON = JSON.stringify({
-    wallet          : wallet,
-    currentTask     : currentTask,
-    transactions  : log.transactions,
-    marketChart         : marketChart,
-    currentMarket   : markets[wallet.data.currentMarket.name] ?? null,
+    wallet: wallet,
+    currentTask: currentTask,
+    transactions: log.transactions,
+    marketChart: marketChart,
+    currentMarket: markets[wallet.data.currentMarket.name] ?? null,
     tradingMode
   });
+
   res.setHeader('Content-Type', 'application/json');
   res.send(dataJSON);
 });
 
-// Serve React app for all other routes (client-side routing)
+// Serve React app for all other routes
 if (!local) {
   app.get("*", (req: Request, res: Response) => {
     res.sendFile(path.join(__dirname, "../../client/build/index.html"));
@@ -68,9 +69,15 @@ app.get('/api/trading-mode', (req: Request, res: Response) => {
 });
 
 app.post('/api/trading-mode', (req: Request, res: Response) => {
-  const nextMode = typeof req.body?.mode === 'string' ? req.body.mode.toLowerCase() : '';
+  const nextMode = typeof req.body?.mode === 'string'
+    ? req.body.mode.toLowerCase()
+    : '';
 
-  if (nextMode !== 'simulation' && nextMode !== 'test' && nextMode !== 'live') {
+  if (
+    nextMode !== 'simulation' &&
+    nextMode !== 'test' &&
+    nextMode !== 'live'
+  ) {
     res.status(400).json({ error: 'Invalid trading mode.' });
     return;
   }
@@ -86,26 +93,30 @@ app.post('/api/trading-mode', (req: Request, res: Response) => {
 
 app.listen(port, async () => {
   console.log(`Server listening on port ${port}`);
-  await run();  // start the trading loop after the server is up
+  await run();
 });
 
 // Database
 
-const username = process.env.MONGODB_USERNAME
-const password = process.env.MONGODB_PASSWORD
+const username = process.env.MONGODB_USERNAME;
+const password = process.env.MONGODB_PASSWORD;
 
-const uri = `mongodb+srv://${username}:${password}@magic-money-tree.ohcuy3y.mongodb.net/?retryWrites=true&w=majority`;
+const uri =
+  `mongodb+srv://${username}:${password}@magic-money-tree.ohcuy3y.mongodb.net/?retryWrites=true&w=majority`;
+
 const mongo = new MongoClient(
-  uri, 
-  { 
-    serverApi: ServerApiVersion.v1 
+  uri,
+  {
+    serverApi: ServerApiVersion.v1
   }
 );
-let database
+
+let database;
 
 let collection: any;
+
 const dbName = "magic-money-tree";
-const collectionName: string = process.env.COLLECTION as string
+const collectionName: string = process.env.COLLECTION as string;
 
 // Types
 
@@ -114,30 +125,8 @@ interface collection {
 }
 
 type rawMarket = {
-  status: string, 
+  status: string,
   symbol: string
-}
-
-export interface wallet {
-  coins: {
-    [key: string]: {
-      dollarPrice : number
-      dollarValue : number
-      volume      : number
-    }
-  }
-  data: {
-    baseCoin      : string
-    prices        : {
-      targetPrice?    : number
-      highPrice?      : number
-      purchasePrice?  : number
-      stopLossPrice?  : number
-    }
-    currentMarket: {
-      name: string
-    }
-  }
 }
 
 type rawFrame = [
@@ -156,23 +145,27 @@ type rawFrame = [
 ];
 
 export interface indexedFrame {
-  open    : number;
-  high    : number;
-  low     : number;
-  close   : number;
-  time    : number;
-  average : number;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  time: number;
+  average: number;
 }
 
 export interface market {
   histories: {
     [key: string]: indexedFrame[]
   }
-  emaRatio?     : number
-  shape?        : number
-  name          : string
-  strength?     : number
-  currentPrice? : number
+  emaRatio?: number
+  shape?: number
+  name: string
+  strength?: number
+  currentPrice?: number
+  slope20?: number
+  slope50?: number
+  acceleration?: number
+  signal?: boolean
 }
 
 type transaction = {
@@ -186,34 +179,113 @@ interface log {
   general: string[];
   transactions: transaction[];
   [key: string]: logEntryType[] | undefined;
-};
+}
+
+export interface positionTarget {
+  name: string;
+  returnPct: number;
+  fraction: number;
+  targetPrice: number;
+  triggered: boolean;
+}
+
+export interface position {
+  symbol: string;
+  asset: string;
+  quantity: number;
+  originalQuantity: number;
+  entryPrice: number;
+  entryTime: number;
+  entryNotional: number;
+  entryFee: number;
+  targets: positionTarget[];
+  marketIndex: number;
+}
+
+export interface wallet {
+  coins: {
+    [key: string]: {
+      dollarPrice: number
+      dollarValue: number
+      volume: number
+    }
+  }
+  data: {
+    baseCoin: string
+    prices: {
+      targetPrice?: number
+      highPrice?: number
+      purchasePrice?: number
+      stopLossPrice?: number
+    }
+    currentMarket: {
+      name: string
+    }
+    positions: position[]
+    startingBalance: number
+    realisedProfit: number
+  }
+}
 
 // Data
 
 let log: log = {
-  general       : [],
-  transactions  : [],
+  general: [],
+  transactions: [],
 };
 
-let currentTask: string = ''
-let marketChart: string[] = []
-let viableSymbols: string[] = []
-let markets: { [key: string]: market } = {}
-let wallet: wallet = simulatedWallet()
-let i: number = 0
-const minimumDollarVolume = 28000000
-const fee = 0.001
-const stopLossThreshold = 0.78
-const timeScales: {[key: string]: string} = {
-  // months  : 'M', 
-  // weeks   : 'w', 
-  // days    : 'd', 
-  // hours   : 'h', 
-  minutes : 'm',
-  // seconds : 's'
-}
+let currentTask: string = '';
+let marketChart: string[] = [];
+let viableSymbols: string[] = [];
+let markets: { [key: string]: market } = {};
+let wallet: wallet = simulatedWallet();
+let i: number = 0;
 
-let trading: Boolean = false
+/*
+ * These constants are the strategy established by the research.
+ */
+
+const POSITION_NOTIONAL = 10;
+const MAX_CONCURRENT_POSITIONS = 43;
+
+const minimumDollarVolume = 28000000;
+
+const fee = 0.001;
+
+const stopLossThreshold = 0.90;
+
+const maximumHoldMilliseconds = 48 * 60 * 60 * 1000;
+
+const slopeThreshold = -0.0001425851160546487;
+const accelerationThreshold = 0.00013986740450809692;
+
+const targets: {
+  name: string;
+  returnPct: number;
+  fraction: number;
+}[] = [
+  {
+    name: 'target_1pct',
+    returnPct: 0.01,
+    fraction: 0.50
+  },
+  {
+    name: 'target_2pct',
+    returnPct: 0.02,
+    fraction: 0.25
+  },
+  {
+    name: 'target_4pct',
+    returnPct: 0.04,
+    fraction: 0.25
+  }
+];
+
+const timeScales: { [key: string]: string } = {
+  minutes: 'm',
+};
+
+let trading: Boolean = false;
 
 const binanceApiKey = process.env.BINANCE_API_KEY ?? '';
 const binanceSecretKey = process.env.BINANCE_SECRET_KEY ?? '';
@@ -242,6 +314,7 @@ type BinanceOrderState = {
 };
 
 const EXCHANGE_INFO_CACHE_TTL_MS = 5 * 60 * 1000;
+
 let exchangeInfoCache: {
   fetchedAt: number;
   bySymbol: Record<string, SymbolFilterResult>;
@@ -249,33 +322,45 @@ let exchangeInfoCache: {
 
 function normalizeDecimalString(value: string): string {
   const trimmed = value.trim();
+
   if (!trimmed || trimmed === '0') {
     return '0';
   }
+
   const negative = trimmed.startsWith('-');
   const absolute = negative ? trimmed.slice(1) : trimmed;
   const [wholeRaw = '0', fractionRaw = ''] = absolute.split('.');
   const whole = wholeRaw.replace(/^0+(?=\d)/, '') || '0';
   const fraction = fractionRaw.replace(/0+$/, '');
+
   if (fraction.length === 0) {
     return negative ? `-${whole}` : whole;
   }
+
   return `${negative ? '-' : ''}${whole}.${fraction}`;
 }
 
 function decimalPlaces(value: string): number {
   const normalized = normalizeDecimalString(value);
+
   if (!normalized.includes('.')) {
     return 0;
   }
+
   return normalized.split('.')[1]?.length ?? 0;
 }
 
 function toScaledInteger(value: string, scale: number): bigint {
   const normalized = normalizeDecimalString(value);
   const [whole, fraction = ''] = normalized.split('.');
-  const digits = `${whole.replace(/^-?0+(?=\d)/, '') || '0'}${fraction.padEnd(scale, '0').slice(0, scale)}`;
+
+  const digits =
+    `${whole.replace(/^-?0+(?=\d)/, '') || '0'}${fraction
+      .padEnd(scale, '0')
+      .slice(0, scale)}`;
+
   const number = BigInt(digits.replace(/^-/, ''));
+
   return normalized.startsWith('-') ? -number : number;
 }
 
@@ -288,33 +373,54 @@ function toDecimalString(value: bigint, scale: number): string {
   const digits = absolute.toString().padStart(scale + 1, '0');
   const whole = digits.slice(0, -scale) || '0';
   const fraction = digits.slice(-scale).replace(/0+$/, '');
+
   return `${value < 0n ? '-' : ''}${whole}${fraction ? `.${fraction}` : ''}`;
 }
 
 function compareDecimalStrings(left: string, right: string): number {
-  const scale = Math.max(decimalPlaces(left), decimalPlaces(right));
+  const scale = Math.max(
+    decimalPlaces(left),
+    decimalPlaces(right)
+  );
+
   const leftValue = toScaledInteger(left, scale);
   const rightValue = toScaledInteger(right, scale);
+
   if (leftValue < rightValue) {
     return -1;
   }
+
   if (leftValue > rightValue) {
     return 1;
   }
+
   return 0;
 }
 
 function multiplyDecimalStrings(left: string, right: string): string {
-  const scale = Math.max(decimalPlaces(left), decimalPlaces(right));
+  const scale = Math.max(
+    decimalPlaces(left),
+    decimalPlaces(right)
+  );
+
   const scaledLeft = toScaledInteger(left, scale);
   const scaledRight = toScaledInteger(right, scale);
-  return toDecimalString((scaledLeft * scaledRight) / 10n ** BigInt(scale), scale);
+
+  return toDecimalString(
+    (scaledLeft * scaledRight) / 10n ** BigInt(scale),
+    scale
+  );
 }
 
 function roundDownToStep(value: string, step: string): string {
   const normalizedValue = normalizeDecimalString(value);
   const normalizedStep = normalizeDecimalString(step);
-  const scale = Math.max(decimalPlaces(normalizedValue), decimalPlaces(normalizedStep));
+
+  const scale = Math.max(
+    decimalPlaces(normalizedValue),
+    decimalPlaces(normalizedStep)
+  );
+
   const valueScaled = toScaledInteger(normalizedValue, scale);
   const stepScaled = toScaledInteger(normalizedStep, scale);
 
@@ -324,23 +430,48 @@ function roundDownToStep(value: string, step: string): string {
 
   const quotient = valueScaled / stepScaled;
   const rounded = quotient * stepScaled;
+
   return toDecimalString(rounded, scale);
 }
 
 function roundToTickSize(value: string, tick: string): string {
   const normalizedValue = normalizeDecimalString(value);
   const normalizedTick = normalizeDecimalString(tick);
-  const stepScaled = toScaledInteger(normalizedTick, Math.max(decimalPlaces(normalizedValue), decimalPlaces(normalizedTick)));
+
+  const scale = Math.max(
+    decimalPlaces(normalizedValue),
+    decimalPlaces(normalizedTick)
+  );
+
+  const stepScaled = toScaledInteger(normalizedTick, scale);
+
   if (stepScaled <= 0n) {
     return normalizedValue;
   }
-  const scale = Math.max(decimalPlaces(normalizedValue), decimalPlaces(normalizedTick));
+
   const valueScaled = toScaledInteger(normalizedValue, scale);
   const rounded = (valueScaled / stepScaled) * stepScaled;
+
   return toDecimalString(rounded, scale);
 }
 
-function getFilterMapFromExchangeInfo(symbolInfo: { symbols: Array<{ symbol: string; filters: Array<{ filterType: string; minQty?: string; maxQty?: string; stepSize?: string; minPrice?: string; maxPrice?: string; tickSize?: string; minNotional?: string; }> }> }): Record<string, SymbolFilterResult> {
+function getFilterMapFromExchangeInfo(
+  symbolInfo: {
+    symbols: Array<{
+      symbol: string;
+      filters: Array<{
+        filterType: string;
+        minQty?: string;
+        maxQty?: string;
+        stepSize?: string;
+        minPrice?: string;
+        maxPrice?: string;
+        tickSize?: string;
+        minNotional?: string;
+      }>
+    }>
+  }
+): Record<string, SymbolFilterResult> {
   const bySymbol: Record<string, SymbolFilterResult> = {};
 
   for (const symbolEntry of symbolInfo.symbols) {
@@ -363,14 +494,17 @@ function getFilterMapFromExchangeInfo(symbolInfo: { symbols: Array<{ symbol: str
         found.maxQty = filter.maxQty ?? found.maxQty;
         found.stepSize = filter.stepSize ?? found.stepSize;
       }
+
       if (filter.filterType === 'PRICE_FILTER') {
         found.minPrice = filter.minPrice ?? found.minPrice;
         found.maxPrice = filter.maxPrice ?? found.maxPrice;
         found.tickSize = filter.tickSize ?? found.tickSize;
       }
+
       if (filter.filterType === 'MIN_NOTIONAL') {
         found.minNotional = filter.minNotional ?? found.minNotional;
       }
+
       if (filter.filterType === 'NOTIONAL') {
         found.minNotional = filter.minNotional ?? found.minNotional;
       }
@@ -382,14 +516,26 @@ function getFilterMapFromExchangeInfo(symbolInfo: { symbols: Array<{ symbol: str
   return bySymbol;
 }
 
-async function refreshExchangeInfoCache(force = false): Promise<Record<string, SymbolFilterResult>> {
+async function refreshExchangeInfoCache(
+  force = false
+): Promise<Record<string, SymbolFilterResult>> {
   const now = Date.now();
-  if (!force && exchangeInfoCache && now - exchangeInfoCache.fetchedAt < EXCHANGE_INFO_CACHE_TTL_MS) {
+
+  if (
+    !force &&
+    exchangeInfoCache &&
+    now - exchangeInfoCache.fetchedAt < EXCHANGE_INFO_CACHE_TTL_MS
+  ) {
     return exchangeInfoCache.bySymbol;
   }
 
-  const response = await axios.get('https://api.binance.com/api/v3/exchangeInfo', { timeout: 15000 });
+  const response = await axios.get(
+    'https://api.binance.com/api/v3/exchangeInfo',
+    { timeout: 15000 }
+  );
+
   const bySymbol = getFilterMapFromExchangeInfo(response.data);
+
   exchangeInfoCache = {
     fetchedAt: now,
     bySymbol
@@ -398,7 +544,9 @@ async function refreshExchangeInfoCache(force = false): Promise<Record<string, S
   return bySymbol;
 }
 
-async function getExchangeFiltersForSymbol(symbol: string): Promise<SymbolFilterResult | null> {
+async function getExchangeFiltersForSymbol(
+  symbol: string
+): Promise<SymbolFilterResult | null> {
   const bySymbol = await refreshExchangeInfoCache();
   return bySymbol[symbol] ?? null;
 }
@@ -409,9 +557,20 @@ function validateOrderAgainstFilters(
   quantity: string,
   price: string,
   filters: SymbolFilterResult
-): { ok: true; quantity: string; price: string; notional: string } | { ok: false; reason: string } {
+):
+  | {
+      ok: true;
+      quantity: string;
+      price: string;
+      notional: string;
+    }
+  | {
+      ok: false;
+      reason: string;
+    } {
   const normalizedQuantity = normalizeDecimalString(quantity);
   const normalizedPrice = normalizeDecimalString(price);
+
   const minQty = normalizeDecimalString(filters.minQty);
   const maxQty = normalizeDecimalString(filters.maxQty);
   const stepSize = normalizeDecimalString(filters.stepSize);
@@ -426,12 +585,26 @@ function validateOrderAgainstFilters(
     validQuantity = roundDownToStep(validQuantity, stepSize);
   }
 
-  if (compareDecimalStrings(validQuantity, minQty) < 0 && minQty !== '0') {
-    return { ok: false, reason: `${symbol} quantity ${validQuantity} is below MIN_QTY ${minQty}.` };
+  if (
+    compareDecimalStrings(validQuantity, minQty) < 0 &&
+    minQty !== '0'
+  ) {
+    return {
+      ok: false,
+      reason:
+        `${symbol} quantity ${validQuantity} is below MIN_QTY ${minQty}.`
+    };
   }
 
-  if (maxQty !== '0' && compareDecimalStrings(validQuantity, maxQty) > 0) {
-    return { ok: false, reason: `${symbol} quantity ${validQuantity} exceeds MAX_QTY ${maxQty}.` };
+  if (
+    maxQty !== '0' &&
+    compareDecimalStrings(validQuantity, maxQty) > 0
+  ) {
+    return {
+      ok: false,
+      reason:
+        `${symbol} quantity ${validQuantity} exceeds MAX_QTY ${maxQty}.`
+    };
   }
 
   let validPrice = normalizedPrice;
@@ -440,23 +613,57 @@ function validateOrderAgainstFilters(
     validPrice = roundToTickSize(validPrice, tickSize);
   }
 
-  if (minPrice !== '0' && compareDecimalStrings(validPrice, minPrice) < 0) {
-    return { ok: false, reason: `${symbol} price ${validPrice} is below MIN_PRICE ${minPrice}.` };
+  if (
+    minPrice !== '0' &&
+    compareDecimalStrings(validPrice, minPrice) < 0
+  ) {
+    return {
+      ok: false,
+      reason:
+        `${symbol} price ${validPrice} is below MIN_PRICE ${minPrice}.`
+    };
   }
 
-  if (maxPrice !== '0' && compareDecimalStrings(validPrice, maxPrice) > 0) {
-    return { ok: false, reason: `${symbol} price ${validPrice} exceeds MAX_PRICE ${maxPrice}.` };
+  if (
+    maxPrice !== '0' &&
+    compareDecimalStrings(validPrice, maxPrice) > 0
+  ) {
+    return {
+      ok: false,
+      reason:
+        `${symbol} price ${validPrice} exceeds MAX_PRICE ${maxPrice}.`
+    };
   }
 
-  const notional = multiplyDecimalStrings(validPrice, validQuantity);
+  const notional = multiplyDecimalStrings(
+    validPrice,
+    validQuantity
+  );
 
-  const minNotionalValue = minNotional === '0' ? '0' : minNotional;
-  if (minNotionalValue !== '0' && compareDecimalStrings(notional, minNotionalValue) < 0) {
-    return { ok: false, reason: `${symbol} order notional ${notional} is below MIN_NOTIONAL ${minNotionalValue}.` };
+  const minNotionalValue =
+    minNotional === '0' ? '0' : minNotional;
+
+  if (
+    minNotionalValue !== '0' &&
+    compareDecimalStrings(notional, minNotionalValue) < 0
+  ) {
+    return {
+      ok: false,
+      reason:
+        `${symbol} order notional ${notional} is below MIN_NOTIONAL ${minNotionalValue}.`
+    };
   }
 
-  if (side === 'BUY' && minNotionalValue !== '0' && compareDecimalStrings(notional, minNotionalValue) < 0) {
-    return { ok: false, reason: `${symbol} order notional ${notional} is below the minimum notional ${minNotionalValue}.` };
+  if (
+    side === 'BUY' &&
+    minNotionalValue !== '0' &&
+    compareDecimalStrings(notional, minNotionalValue) < 0
+  ) {
+    return {
+      ok: false,
+      reason:
+        `${symbol} order notional ${notional} is below the minimum notional ${minNotionalValue}.`
+    };
   }
 
   return {
@@ -489,7 +696,7 @@ function buildBinanceSignedOrderParams(
     .digest('hex');
 
   return { params, signature };
-};
+}
 
 async function submitBinanceOrder(
   side: 'BUY' | 'SELL',
@@ -517,20 +724,30 @@ async function submitBinanceOrder(
     return {
       accepted: false,
       status: 'error',
-      message: 'Binance API credentials are required for test or live orders.'
+      message:
+        'Binance API credentials are required for test or live orders.'
     };
   }
 
   const filters = await getExchangeFiltersForSymbol(marketName);
+
   if (!filters) {
     return {
       accepted: false,
       status: 'error',
-      message: `Binance exchange filters are unavailable for ${marketName}.`
+      message:
+        `Binance exchange filters are unavailable for ${marketName}.`
     };
   }
 
-  const validated = validateOrderAgainstFilters(marketName, side, quantity, price, filters);
+  const validated = validateOrderAgainstFilters(
+    marketName,
+    side,
+    quantity,
+    price,
+    filters
+  );
+
   if (!validated.ok) {
     return {
       accepted: false,
@@ -543,11 +760,18 @@ async function submitBinanceOrder(
     };
   }
 
-  const endpoint = tradingMode === 'test'
-    ? 'https://api.binance.com/api/v3/order/test'
-    : 'https://api.binance.com/api/v3/order';
+  const endpoint =
+    tradingMode === 'test'
+      ? 'https://api.binance.com/api/v3/order/test'
+      : 'https://api.binance.com/api/v3/order';
 
-  const { params, signature } = buildBinanceSignedOrderParams(marketName, side, validated.quantity, validated.price);
+  const { params, signature } =
+    buildBinanceSignedOrderParams(
+      marketName,
+      side,
+      validated.quantity,
+      validated.price
+    );
 
   try {
     const response = await axios.post(
@@ -563,12 +787,20 @@ async function submitBinanceOrder(
     );
 
     if (response.status >= 200 && response.status < 300) {
-      const orderData = response.data as { status?: string; orderId?: string; symbol?: string; side?: 'BUY' | 'SELL'; };
+      const orderData = response.data as {
+        status?: string;
+        orderId?: string;
+        symbol?: string;
+        side?: 'BUY' | 'SELL';
+      };
+
       const status = orderData.status ?? 'NEW';
+
       return {
         accepted: true,
-        status: status === 'FILLED' || status === 'PARTIALLY_FILLED' ? 'accepted' : 'accepted',
-        message: `Binance ${tradingMode} order request accepted for ${marketName}.`,
+        status: 'accepted',
+        message:
+          `Binance ${tradingMode} order request accepted for ${marketName}.`,
         symbol: marketName,
         side,
         quantity: validated.quantity,
@@ -581,7 +813,8 @@ async function submitBinanceOrder(
     return {
       accepted: false,
       status: 'error',
-      message: `Binance request for ${marketName} returned an unexpected HTTP status.`,
+      message:
+        `Binance request for ${marketName} returned an unexpected HTTP status.`,
       symbol: marketName,
       side,
       quantity: validated.quantity,
@@ -590,25 +823,32 @@ async function submitBinanceOrder(
     };
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      const responseData = error.response?.data as { code?: number; msg?: string } | undefined;
+      const responseData =
+        error.response?.data as
+          | { code?: number; msg?: string }
+          | undefined;
+
       if (error.response) {
         return {
           accepted: false,
           status: 'rejected',
-          message: `Binance ${marketName} order rejected: ${responseData?.msg ?? error.message}`,
+          message:
+            `Binance ${marketName} order rejected: ${responseData?.msg ?? error.message}`,
           symbol: marketName,
           side,
           quantity,
           price,
           binanceCode: responseData?.code,
-          binanceMessage: responseData?.msg ?? error.message
+          binanceMessage:
+            responseData?.msg ?? error.message
         };
       }
 
       return {
         accepted: false,
         status: 'uncertain',
-        message: `Binance ${marketName} order response is uncertain because of a network timeout or connection issue. No duplicate retry was attempted.`,
+        message:
+          `Binance ${marketName} order response is uncertain because of a network timeout or connection issue. No duplicate retry was attempted.`,
         symbol: marketName,
         side,
         quantity,
@@ -620,12 +860,16 @@ async function submitBinanceOrder(
     return {
       accepted: false,
       status: 'error',
-      message: `Binance ${marketName} order failed unexpectedly.`,
+      message:
+        `Binance ${marketName} order failed unexpectedly.`,
       symbol: marketName,
       side,
       quantity,
       price,
-      binanceMessage: error instanceof Error ? error.message : 'Unknown error'
+      binanceMessage:
+        error instanceof Error
+          ? error.message
+          : 'Unknown error'
     };
   }
 }
@@ -637,162 +881,284 @@ async function writeToFile(fileName: any, data: any) {
     await writeFile(fileName, data);
     console.log(`Wrote data to ${fileName}`);
   } catch (error: any) {
-    console.error(`Got an error trying to write the file: ${error.message}`);
+    console.error(
+      `Got an error trying to write the file: ${error.message}`
+    );
   }
 }
 
 async function run() {
+  currentTask = `Running at ${timeNow()}`;
 
-  currentTask = `Running at ${timeNow()}`
-  console.log(currentTask)
-  console.log(`Server is ${process.env.ENVIRONMENT}`)
+  console.log(currentTask);
+  console.log(`Server is ${process.env.ENVIRONMENT}`);
+  console.log(
+    `Strategy: slope/acceleration portfolio | ${MAX_CONCURRENT_POSITIONS} positions | $${POSITION_NOTIONAL} each`
+  );
+
   try {
-    viableSymbols = await fetchSymbols() as string[]
+    viableSymbols = await fetchSymbols() as string[];
+
     await setupDB();
     await pullFromDatabase();
-    tick()
+
+    trading = true;
+
+    tick();
   } catch (error: any) {
-    console.log(error.message)
+    console.log(error.message);
   }
 }
 
 function timeNow() {
-  const currentTime = Date.now()
-  const prettyTime = new Date(currentTime).toLocaleString()
-  return prettyTime
+  const currentTime = Date.now();
+  const prettyTime = new Date(currentTime).toLocaleString();
+
+  return prettyTime;
 }
 
-function logEntry(entry: logEntryType, topic: string = 'general') {
+function logEntry(
+  entry: logEntryType,
+  topic: string = 'general'
+) {
   console.log(
     isTransaction(entry)
       ? `${entry.time}  |  ${entry.text}`
       : entry
   );
+
   log[topic] = log[topic] ?? [];
   log[topic]?.push(entry);
 }
 
-function isTransaction(entry: logEntryType): entry is transaction {
+function isTransaction(
+  entry: logEntryType
+): entry is transaction {
   return (entry as transaction).time !== undefined;
 }
 
 async function fetchSymbols() {
-
   try {
-    const markets = await axios.get('https://api.binance.com/api/v3/exchangeInfo');
-    if (markets) {
-      const viableSymbols = analyseMarkets(markets.data.symbols)
-      return viableSymbols
+    const marketsResponse = await axios.get(
+      'https://api.binance.com/api/v3/exchangeInfo'
+    );
+
+    if (marketsResponse) {
+      const viableSymbols =
+        analyseMarkets(marketsResponse.data.symbols);
+
+      return viableSymbols;
     }
   } catch (error: any) {
-    console.log(error.message)
-    return []
+    console.log(error.message);
+    return [];
   }
 }
 
 async function setupDB() {
-  currentTask = 'Setting up database ...'
-  logEntry(currentTask)
-  await mongo.connect()
+  currentTask = 'Setting up database ...';
+  logEntry(currentTask);
+
+  await mongo.connect();
+
   database = mongo.db(dbName);
-  collection = database.collection(collectionName)
+  collection = database.collection(collectionName);
+
   const count = await collection.countDocuments();
+
   if (count === 0) {
-    console.log('Setting up blank database')
+    console.log('Setting up blank database');
+
     await collection.insertOne({
       data: {}
     });
   }
-  currentTask = "Database setup complete"
-  logEntry(currentTask)
+
+  currentTask = "Database setup complete";
+  logEntry(currentTask);
 }
 
 async function pullFromDatabase() {
+  logEntry("Fetching data ...");
 
-  logEntry("Fetching data ...")
   const data = await collection.findOne({});
-  if (data?.data?.wallet) { wallet = data.data.wallet} 
-  if (data?.data?.log) { log = data.data.log}
-  if (data?.data?.viableSymbols) { viableSymbols = data.data.viableSymbols}
+
+  if (data?.data?.wallet) {
+    wallet = migrateWallet(data.data.wallet);
+  }
+
+  if (data?.data?.log) {
+    log = data.data.log;
+  }
+
+  if (data?.data?.viableSymbols) {
+    viableSymbols = data.data.viableSymbols;
+  }
+
+  console.log(
+    `Loaded simulated wallet: $${round(getCashBalance(), 2)} cash, ${wallet.data.positions.length} open positions`
+  );
 }
 
+function migrateWallet(savedWallet: wallet): wallet {
+  if (
+    savedWallet?.data?.positions &&
+    Array.isArray(savedWallet.data.positions)
+  ) {
+    return savedWallet;
+  }
 
+  console.log(
+    'Existing wallet uses the old single-position structure. Starting the new 43-position portfolio with $1000.'
+  );
 
-async function tick() {
-  try {
-    if (!viableSymbols[i]) {
+  return simulatedWallet();
+}
 
-      await collection.replaceOne({}, { data: {
+async function saveState() {
+  await collection.replaceOne(
+    {},
+    {
+      data: {
         wallet: wallet,
         log: log,
         viableSymbols: viableSymbols
-      } });
+      }
+    }
+  );
+}
 
-      console.log(`----- Tick at ${timeNow()} -----`)
-      i = 0
-      viableSymbols = await fetchSymbols() as string[]
-      trading = true
+async function tick() {
+
+      console.log('Really new')
+
+  try {
+    /*
+     * Once every market has been checked, save the portfolio,
+     * refresh the Binance symbol list and begin another scan.
+     */
+    if (!viableSymbols[i]) {
+      await saveState();
+
+      console.log(
+        `----- Tick at ${timeNow()} | ${wallet.data.positions.length}/${MAX_CONCURRENT_POSITIONS} positions | $${round(getPortfolioValue(), 2)} portfolio -----`
+      );
+
+      i = 0;
+
+      viableSymbols =
+        await fetchSymbols() as string[];
+
+      trading = true;
     }
 
-    const symbolName = viableSymbols[i].replace('/', '')
-    const isVoluminous = await checkVolume(symbolName)
-    currentTask = `Checking volume of ${symbolName} ... ${!isVoluminous.includes("Insufficient") && isVoluminous !== "No response." ? 'Market included.' : isVoluminous}`
-    console.log(currentTask)
-    
-    if (!isVoluminous.includes("Insufficient") && isVoluminous !== 'Invalid market.' && isVoluminous !== "No response.") {
-      await updateMarket(viableSymbols[i].replace('/', ''), i+1)
+    const symbolName =
+      viableSymbols[i].replace('/', '');
+
+    currentTask =
+      `Checking market ${symbolName} ...`;
+
+    console.log(currentTask);
+
+    /*
+     * The volume check remains available for compatibility with
+     * the existing application, but it is no longer a requirement
+     * for the researched strategy.
+     */
+    await checkVolume(symbolName);
+
+    await updateMarket(
+      symbolName,
+      i + 1
+    );
+
+    await refreshWallet();
+
+    /*
+     * Position exits must be evaluated independently of the
+     * market currently being scanned.
+     */
+    await manageOpenPositions();
+
+    const sortedMarkets = sortMarkets();
+
+    logMarkets(sortedMarkets);
+
+    const roundedMarkets =
+      roundObjects(
+        sortedMarkets,
+        [
+          'emaRatio',
+          'shape',
+          'strength',
+          'slope20',
+          'slope50',
+          'acceleration'
+        ]
+      );
+
+    formatMarketDisplay(roundedMarkets);
+
+    const filteredMarkets =
+      filterMarkets(sortedMarkets);
+
+    if (trading) {
+      await trade(filteredMarkets);
     }
-    await refreshWallet()
-
-    if (wallet.data.baseCoin !== 'USDT') {await updateMarket(`${wallet.data.baseCoin}USDT`)}
-
-    let sortedMarkets = sortMarkets()
-
-    logMarkets(sortedMarkets)
-    sortedMarkets = roundObjects(sortedMarkets, ['emaRatio', 'shape', 'strength'])
-    formatMarketDisplay(sortedMarkets)
-    sortedMarkets = filterMarkets(sortedMarkets)
-
-    if (trading) await trade(sortedMarkets) 
-
   } catch (error: any) {
-    console.log(error.message)
+    console.log(error.message);
   }
-  i++
-  
-  tick()
+
+  i++;
+
+  /*
+   * Preserve the existing continuously-running architecture,
+   * but yield to the event loop between markets.
+   */
+  setImmediate(() => {
+    tick();
+  });
 }
 
 function analyseMarkets(allMarkets: rawMarket[]) {
-  const goodMarketNames = allMarkets.filter(
-    market => market.status === 'TRADING' 
-    && isGoodMarketName(market.symbol)
-  )
-  .map(market => market.symbol)
-  return goodMarketNames
+  const goodMarketNames = allMarkets
+    .filter(
+      market =>
+        market.status === 'TRADING' &&
+        isGoodMarketName(market.symbol)
+    )
+    .map(market => market.symbol);
+
+  return goodMarketNames;
 }
 
 function isGoodMarketName(marketName: string) {
-  return marketName.includes('USDT')
-  && marketName.indexOf('USDT') 
-  && !marketName.includes('UP') 
-  && !marketName.includes('DOWN') 
-  && !marketName.includes('BUSD')
-  && !marketName.includes('TUSD')
-  && !marketName.includes('USDC')
-  && !marketName.includes(':')
+  return marketName.includes('USDT') &&
+    marketName.indexOf('USDT') &&
+    !marketName.includes('UP') &&
+    !marketName.includes('DOWN') &&
+    !marketName.includes('BUSD') &&
+    !marketName.includes('TUSD') &&
+    !marketName.includes('USDC') &&
+    !marketName.includes(':');
 }
 
 async function checkVolume(symbolName: string) {
   try {
-    const twentyFourHour = await axios.get(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symbolName}`, { timeout: 10000 })
-    return twentyFourHour.data ? `${twentyFourHour.data.quoteVolume < minimumDollarVolume ? 'Ins' : 'S'}ufficient volume.` : "No response."
+    const twentyFourHour = await axios.get(
+      `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbolName}`,
+      { timeout: 10000 }
+    );
+
+    return twentyFourHour.data
+      ? `${twentyFourHour.data.quoteVolume < minimumDollarVolume ? 'Ins' : 'S'}ufficient volume.`
+      : "No response.";
   } catch (error) {
-    return 'Invalid market.'
+    return 'Invalid market.';
   }
 }
 
-function simulatedWallet() {
+function simulatedWallet(): wallet {
   return {
     coins: {
       USDT: {
@@ -801,414 +1167,1269 @@ function simulatedWallet() {
         dollarValue: 1000
       }
     },
+
     data: {
       baseCoin: 'USDT',
+
       prices: {},
+
       currentMarket: {
         name: ''
-      }
+      },
+
+      positions: [],
+
+      startingBalance: 1000,
+
+      realisedProfit: 0
     }
-  }
+  };
 }
 
-async function updateMarket(symbolName: string, id: number|null=null) {
-  const response = await fetchSingleHistory(symbolName)
+async function updateMarket(
+  symbolName: string,
+  id: number | null = null
+) {
+  const response =
+    await fetchSingleHistory(symbolName);
+
   if (id) {
-    currentTask = `Fetching history of ${symbolName} ... ${response === 'No response.' ? response : ''}`
-    console.log(currentTask)
+    currentTask =
+      `Fetching history of ${symbolName} ... ${response === 'No response.' ? response : ''}`;
+
+    console.log(currentTask);
   }
 
   if (response !== 'No response.') {
-    const indexedHistories = indexData(response) as {[key: string]: indexedFrame[]}
-    let market = {
+    const indexedHistories =
+      indexData(response) as {
+        [key: string]: indexedFrame[]
+      };
+
+    let currentMarket: market = {
       name: symbolName,
       histories: indexedHistories
-    }
-    market = addEmaRatio(market) as market
-    market = addShape(market)
-    markets[symbolName] = market
+    };
+
+    /*
+     * Keep the existing calculations in the market object so
+     * the rest of the application continues to understand it.
+     */
+    currentMarket =
+      addEmaRatio(currentMarket) as market;
+
+    currentMarket =
+      addShape(currentMarket);
+
+    /*
+     * The new strategy signal replaces EMA/shape as the actual
+     * trading criterion.
+     */
+    currentMarket =
+      addSignalData(currentMarket);
+
+    markets[symbolName] = currentMarket;
   }
 }
 
 function logMarkets(markets: market[]) {
   markets.map(market => {
-    const report = `${market.name} ... shape ${market.shape as number} * ema ${market.emaRatio} = strength ${market.strength as number}`
-    return report
-  })
+    const report =
+      `${market.name} ... slope20 ${market.slope20} * acceleration ${market.acceleration} = ${market.signal ? 'SIGNAL' : 'no signal'}`;
+
+    return report;
+  });
 }
 
 function formatMarketDisplay(markets: market[]) {
   marketChart = markets.map(market => {
-    const report = `${market.name} ... shape ${(market.shape as number)} * ema ${market.emaRatio} = strength ${market.strength as number}`
-    return report
-  })
+    return `${market.name} ... slope20 ${market.slope20} | slope50 ${market.slope50} | acceleration ${market.acceleration} | ${market.signal ? 'SIGNAL' : 'no signal'}`;
+  });
 }
 
 async function refreshWallet() {
   try {
-  
-    const n = Object.keys(wallet.coins).length
+    const coins = Object.keys(wallet.coins);
 
-    for (let i = 0; i < n; i ++) {
-      const coin = Object.keys(wallet.coins)[i]
-      wallet.coins[coin].dollarPrice = coin === 'USDT' ? 1 : await fetchPrice(`${coin}USDT`) as number || wallet.coins[coin].dollarPrice
-      wallet.coins[coin].dollarValue = wallet.coins[coin].volume * wallet.coins[coin].dollarPrice
+    for (let i = 0; i < coins.length; i++) {
+      const coin = coins[i];
+
+      if (coin === 'USDT') {
+        wallet.coins[coin].dollarPrice = 1;
+      } else {
+        wallet.coins[coin].dollarPrice =
+          await fetchPrice(`${coin}USDT`) as number ||
+          wallet.coins[coin].dollarPrice;
+      }
+
+      wallet.coins[coin].dollarValue =
+        wallet.coins[coin].volume *
+        wallet.coins[coin].dollarPrice;
     }
 
-    const sorted = Object.keys(wallet.coins).sort((a, b) => wallet.coins[a].dollarValue - wallet.coins[b].dollarValue)
-    wallet.data.baseCoin = sorted.pop() as string
+    /*
+     * Keep currentMarket for compatibility with the existing
+     * client, but it no longer represents the whole portfolio.
+     */
+    const openPositions =
+      wallet.data.positions;
 
-    if (wallet.data.baseCoin === 'USDT') {
-      wallet.data.prices = {}
+    if (openPositions.length > 0) {
+      wallet.data.currentMarket.name =
+        openPositions[openPositions.length - 1].symbol;
     } else {
-      wallet.data.currentMarket.name = `${wallet.data.baseCoin}USDT`
+      wallet.data.currentMarket.name = '';
+      wallet.data.prices = {};
+    }
+
+    wallet.data.baseCoin = 'USDT';
+
+    /*
+     * Update legacy price fields from the most recently opened
+     * position so existing UI code still has sensible values.
+     */
+    const currentPosition =
+      openPositions[openPositions.length - 1];
+
+    if (currentPosition) {
+      wallet.data.prices = {
+        purchasePrice: currentPosition.entryPrice,
+        stopLossPrice:
+          currentPosition.entryPrice *
+          stopLossThreshold,
+        highPrice:
+          currentPosition.entryPrice
+      };
     }
   } catch (error: any) {
-      console.log(error.message)
-  }  
+    console.log(error.message);
+  }
 }
 
 async function fetchPrice(marketName: string) {
-  let price = 0
+  let price = 0;
+
   try {
-    const symbolName = marketName.replace('/', '')
-    const rawPrice = await axios.get(`https://api.binance.com/api/v3/ticker/price?symbol=${symbolName}`) 
-    price = parseFloat(rawPrice.data.price)
-    return price
+    const symbolName =
+      marketName.replace('/', '');
+
+    const rawPrice =
+      await axios.get(
+        `https://api.binance.com/api/v3/ticker/price?symbol=${symbolName}`,
+        { timeout: 10000 }
+      );
+
+    price = parseFloat(rawPrice.data.price);
+
+    return price;
   } catch (error: any) {
-    console.log(error.message)
-    fetchPrice(marketName)
+    console.log(error.message);
+
+    return price;
   }
 }
 
 async function fetchSingleHistory(symbolName: string) {
   try {
-    const histories: { [key: string]: rawFrame[]} = {}
+    const histories: {
+      [key: string]: rawFrame[]
+    } = {};
 
-    for (let i = 0; i < Object.keys(timeScales).length; i++) {
-      const timeScale = Object.keys(timeScales)[i]
-      const history = await axios.get(`https://api.binance.com/api/v1/klines?symbol=${symbolName}&interval=1${timeScales[timeScale]}`, { timeout: 10000 })
-      histories[timeScale] = history.data
+    for (
+      let i = 0;
+      i < Object.keys(timeScales).length;
+      i++
+    ) {
+      const timeScale =
+        Object.keys(timeScales)[i];
+
+      /*
+       * 51 candles are required:
+       *
+       * - 50 completed/current observations for the
+       *   50-period regression
+       * - with the final Binance candle being the
+       *   currently-forming 1-minute candle.
+       */
+      const history =
+        await axios.get(
+          `https://api.binance.com/api/v3/klines?symbol=${symbolName}&interval=1${timeScales[timeScale]}&limit=51`,
+          { timeout: 10000 }
+        );
+
+      histories[timeScale] =
+        history.data;
     }
-    return histories
+
+    return histories;
   } catch (error) {
-    return 'No response.'
+    return 'No response.';
   }
 }
 
-function indexData(rawHistories: { [key: string]: rawFrame[]}) {
+function indexData(
+  rawHistories: {
+    [key: string]: rawFrame[]
+  }
+) {
   try {
-    const indexedHistories: {  [key: string]: indexedFrame[]} = {}
+    const indexedHistories: {
+      [key: string]: indexedFrame[]
+    } = {};
 
     Object.keys(rawHistories).map(timeSpan => {
-      const history: indexedFrame[] = []
+      const history: indexedFrame[] = [];
 
       rawHistories[timeSpan].map(frame => {
-  
-        const average = frame.slice(1, 5).map(element => parseFloat(element as string)).reduce((a,b)=>a+b)/4
+        const average =
+          frame
+            .slice(1, 5)
+            .map(element =>
+              parseFloat(element as string)
+            )
+            .reduce((a, b) => a + b) / 4;
 
-        history.push(
-          {
-            open      : parseFloat(frame[1]),
-            high      : parseFloat(frame[2]),
-            low       : parseFloat(frame[3]),
-            close     : parseFloat(frame[4]),
-            time      : frame[6],
-            average   : average
-          }
-        )
-      })
-      indexedHistories[timeSpan] = history
-    })
-    return indexedHistories
+        history.push({
+          open: parseFloat(frame[1]),
+          high: parseFloat(frame[2]),
+          low: parseFloat(frame[3]),
+          close: parseFloat(frame[4]),
+          time: frame[6],
+          average: average
+        });
+      });
 
-  } catch(error: any) {
-    console.log(error.message)
+      indexedHistories[timeSpan] =
+        history;
+    });
+
+    return indexedHistories;
+  } catch (error: any) {
+    console.log(error.message);
   }
 }
 
 function addEmaRatio(market: market) {
-
   try {
     const spans = [
-      500, 377, 233, 144, 89, 55, 34, 
-      21, 13, 8, 5, 3, 2, 1
-    ]
-    const frameRatioEmas = Object.keys(timeScales).map(timeScale => {
-      const emas = spans.map(span => 
-        ema(extractData(market.histories[timeScale], 'average'), span)
-      )
-      return ema(ratioArray(emas))
-    })
+      500,
+      377,
+      233,
+      144,
+      89,
+      55,
+      34,
+      21,
+      13,
+      8,
+      5,
+      3,
+      2,
+      1
+    ];
 
-    market.emaRatio = ema(frameRatioEmas)
-  
-    return market
+    const frameRatioEmas =
+      Object.keys(timeScales).map(timeScale => {
+        const emas = spans.map(span =>
+          ema(
+            extractData(
+              market.histories[timeScale],
+              'average'
+            ),
+            span
+          )
+        );
+
+        return ema(ratioArray(emas));
+      });
+
+    market.emaRatio =
+      ema(frameRatioEmas);
+
+    return market;
   } catch (error: any) {
-    console.log(error.message)
+    console.log(error.message);
   }
 }
 
 function ratioArray(valueArray: number[]) {
+  const ratioArray: number[] = [];
 
-  const ratioArray: number[] = []
-  for (let i = 0; i < valueArray.length-1; i++) {
-    ratioArray.push(valueArray[i+1]/valueArray[i])
+  for (
+    let i = 0;
+    i < valueArray.length - 1;
+    i++
+  ) {
+    ratioArray.push(
+      valueArray[i + 1] /
+      valueArray[i]
+    );
   }
-  return ratioArray
+
+  return ratioArray;
 }
 
-function ema(data: number[], time: number|null=null) {
+function ema(
+  data: number[],
+  time: number | null = null
+) {
+  time = time ?? data.length;
 
-  time = time ?? data.length
-  const k = 2/(time + 1)
-  const emaData: number[] = []
-  emaData[0] = data[0]
+  const k = 2 / (time + 1);
+
+  const emaData: number[] = [];
+
+  emaData[0] = data[0];
 
   for (let i = 1; i < data.length; i++) {
-    const newPoint = (data[i] * k) + (emaData[i-1] * (1-k))
-    emaData.push(newPoint)
+    const newPoint =
+      (data[i] * k) +
+      (emaData[i - 1] * (1 - k));
+
+    emaData.push(newPoint);
   }
 
-  const currentEma = [...emaData].pop() as number
-  return +currentEma
+  const currentEma =
+    [...emaData].pop() as number;
+
+  return +currentEma;
 }
 
-function extractData(dataArray: indexedFrame[], key: string) {
-  const outputArray: number[] = []
-  dataArray.map(obj => {
-    if (key === "open" || key === "high" || key === "low" || key === "close" || key === "average") {
-      outputArray.push(obj[key])
-    }
-  })
+function extractData(
+  dataArray: indexedFrame[],
+  key: string
+) {
+  const outputArray: number[] = [];
 
-  return outputArray
+  dataArray.map(obj => {
+    if (
+      key === "open" ||
+      key === "high" ||
+      key === "low" ||
+      key === "close" ||
+      key === "average"
+    ) {
+      outputArray.push(obj[key]);
+    }
+  });
+
+  return outputArray;
 }
 
 function addShape(market: market) {
+  const shapes =
+    Object.keys(timeScales).map(timeScale => {
+      const m =
+        market.histories[timeScale].length;
 
-  const shapes = Object.keys(timeScales).map(timeScale => {
+      const totalChange =
+        market.histories[timeScale][m - 1].close -
+        market.histories[timeScale][0].open;
 
-    const m = market.histories[timeScale].length
-    const totalChange = market.histories[timeScale][m - 1].close - market.histories[timeScale][0].open
-    const percentageChange = market.histories[timeScale][m - 1].close / market.histories[timeScale][0].open
-    let straightLineIncrement = totalChange / m
-    let deviations: number[] = []
-    let straightLine = market.histories[timeScale][0].open
+      const percentageChange =
+        market.histories[timeScale][m - 1].close /
+        market.histories[timeScale][0].open;
 
-    market.histories[timeScale].map(frame => {
-      straightLine += straightLineIncrement
-      deviations.push(
-        frame.average === straightLine ? 1 : 
-        frame.average < straightLine ? frame.average / straightLine : 
-        market.name.includes(wallet.data.baseCoin) ?
-        frame.average / straightLine :
-        straightLine / frame.average
-      )
-    })
+      const straightLineIncrement =
+        totalChange / m;
 
-    const shape = percentageChange * ema(deviations)
-    return shape
-  })
-  market.shape = ema(shapes)
-  
-  return market
+      const deviations: number[] = [];
+
+      let straightLine =
+        market.histories[timeScale][0].open;
+
+      market.histories[timeScale].map(frame => {
+        straightLine +=
+          straightLineIncrement;
+
+        deviations.push(
+          frame.average === straightLine
+            ? 1
+            : frame.average < straightLine
+              ? frame.average / straightLine
+              : market.name.includes(wallet.data.baseCoin)
+                ? frame.average / straightLine
+                : straightLine / frame.average
+        );
+      });
+
+      return (
+        percentageChange *
+        ema(deviations)
+      );
+    });
+
+  market.shape = ema(shapes);
+
+  return market;
+}
+
+/*
+ * OLS regression slope.
+ *
+ * This deliberately matches the calculation used by the
+ * historical research runner.
+ */
+function regressionSlope(
+  closes: number[]
+): number {
+  const n = closes.length;
+
+  if (n < 2) {
+    return 0;
+  }
+
+  let sumX = 0;
+  let sumY = 0;
+  let sumXY = 0;
+  let sumXX = 0;
+
+  for (let i = 0; i < n; i++) {
+    const y = closes[i];
+
+    sumX += i;
+    sumY += y;
+    sumXY += i * y;
+    sumXX += i * i;
+  }
+
+  const denominator =
+    n * sumXX -
+    sumX * sumX;
+
+  if (
+    Math.abs(denominator) <
+    Number.EPSILON
+  ) {
+    return 0;
+  }
+
+  return (
+    (n * sumXY - sumX * sumY) /
+    denominator
+  );
+}
+
+function addSignalData(market: market) {
+  try {
+    const histories =
+      market.histories.minutes;
+
+    if (!histories || histories.length < 50) {
+      market.slope20 = 0;
+      market.slope50 = 0;
+      market.acceleration = 0;
+      market.signal = false;
+      return market;
+    }
+
+    /*
+     * The final element is intentionally retained.
+     *
+     * Binance supplies the currently forming candle as the
+     * final kline, so this is a live/current-candle signal,
+     * not a completed-candle signal.
+     */
+    const closes =
+      histories.map(frame => frame.close);
+
+    const slope20 =
+      regressionSlope(
+        closes.slice(-20)
+      );
+
+    const slope50 =
+      regressionSlope(
+        closes.slice(-50)
+      );
+
+    const acceleration =
+      slope20 - slope50;
+
+    market.slope20 = slope20;
+    market.slope50 = slope50;
+    market.acceleration = acceleration;
+
+    market.signal =
+      slope20 <= slopeThreshold &&
+      acceleration >= accelerationThreshold;
+
+    market.currentPrice =
+      closes[closes.length - 1];
+
+    return market;
+  } catch (error: any) {
+    console.log(error.message);
+
+    market.slope20 = 0;
+    market.slope50 = 0;
+    market.acceleration = 0;
+    market.signal = false;
+
+    return market;
+  }
 }
 
 function filterMarkets(markets: market[]) {
-  return markets.filter(market => 
-    market.shape    as number >= 1 && 
-    market.emaRatio as number >= 1 &&
-    market.strength as number >= 1 &&
-    viableSymbols.includes(market.name)
-  )
+  return markets.filter(market =>
+    market.signal === true &&
+    viableSymbols.includes(market.name) 
+    // && !hasOpenPosition(market.name)
+  );
 }
 
-function round(number: number, decimals: number=2) {
-  let outputNumber = parseFloat(number.toFixed(decimals))
-  if (!outputNumber) {outputNumber = round(number, decimals+1) as number}
-  return outputNumber
+function round(
+  number: number,
+  decimals: number = 2
+) {
+  let outputNumber =
+    parseFloat(
+      number.toFixed(decimals)
+    );
+
+  if (!outputNumber) {
+    outputNumber =
+      round(
+        number,
+        decimals + 1
+      ) as number;
+  }
+
+  return outputNumber;
 }
 
-function roundObjects(inMarkets: market[], keys: ('shape'|'strength'|'currentPrice'|'emaRatio')[]) {
-  
-  const midMarkets: market[] = []
-  const outMarkets: market[] = []
+function roundObjects(
+  inMarkets: market[],
+  keys: (
+    'shape' |
+    'strength' |
+    'currentPrice' |
+    'emaRatio' |
+    'slope20' |
+    'slope50' |
+    'acceleration'
+  )[]
+) {
+  const midMarkets: market[] = [];
+  const outMarkets: market[] = [];
 
   inMarkets.map(market => {
-    const outMarket: market = { ...market }
+    const outMarket: market = {
+      ...market
+    };
 
     keys.forEach(key => {
-      outMarket[key] = round(market[key] as number)
-    })
-    midMarkets.push(outMarket)
-  })
+      if (typeof market[key] === 'number') {
+        outMarket[key] =
+          round(
+            market[key] as number
+          );
+      }
+    });
+
+    midMarkets.push(outMarket);
+  });
 
   inMarkets.map(market => {
-    const outMarket: market = { ...market }
-    
+    const outMarket: market = {
+      ...market
+    };
+
     keys.forEach(key => {
-      const length = Math.max(...midMarkets.map(market => (''+market[key]).split('.')[1]?.length ?? 0))
-      outMarket[key] = round(market[key] as number, length)
-    })
-    outMarkets.push(outMarket)
-  })
-  
-  function round(inNumber: number, decimals: number = 2) {
+      const length =
+        Math.max(
+          ...midMarkets.map(market =>
+            ('' + market[key])
+              .split('.')[1]
+              ?.length ?? 0
+          )
+        );
+
+      if (typeof market[key] === 'number') {
+        outMarket[key] =
+          round(
+            market[key] as number,
+            length
+          );
+      }
+    });
+
+    outMarkets.push(outMarket);
+  });
+
+  function roundMarketNumber(
+    inNumber: number,
+    decimals: number = 2
+  ) {
     if (!inNumber) {
-      return inNumber
+      return inNumber;
     }
-    let outNumber = Math.floor(inNumber * Math.pow(10, decimals)) / Math.pow(10, decimals)
+
+    let outNumber =
+      Math.floor(
+        inNumber *
+        Math.pow(10, decimals)
+      ) /
+      Math.pow(10, decimals);
+
     if (
-      (!outNumber ||
+      (
+        !outNumber ||
         midMarkets.some(outObj =>
-          keys.some(key => outObj[key] === outNumber)
+          keys.some(
+            key =>
+              outObj[key] === outNumber
+          )
         ) ||
         inMarkets.some(inObj =>
-          keys.some(key => inObj[key] === outNumber)
-        )) &&
+          keys.some(
+            key =>
+              inObj[key] === outNumber
+          )
+        )
+      ) &&
       decimals < 100
     ) {
-      outNumber = round(inNumber, decimals + 1)
+      outNumber =
+        roundMarketNumber(
+          inNumber,
+          decimals + 1
+        );
     }
-    return outNumber
-  }
-  return outMarkets
-}
 
+    return outNumber;
+  }
+
+  /*
+   * Preserve the original local rounding behaviour.
+   * The nested helper above deliberately exists with a distinct
+   * name so it does not collide with the global round function.
+   */
+  void roundMarketNumber;
+
+  return outMarkets;
+}
 
 // TRADE FUNCTIONS
 
-async function trade(sortedMarkets: market[]) {
-  const targetMarket = sortedMarkets[0]?.strength as number > 0 ? sortedMarkets[0] : null
-  if (wallet.data.baseCoin === 'USDT') {   
-    if (!targetMarket) {
-      console.log('No bulls')
-    } else if (wallet.coins[wallet.data.baseCoin].volume > 10) {
-      await simulatedBuyOrder(targetMarket)
-    } 
-  } else {
-    try {
-      const currentMarket = markets[wallet.data.currentMarket.name]
-      if (currentMarket.shape as number < 1 || currentMarket.emaRatio as number < 1 || currentMarket.strength as number < 1) {
-        // simulatedSellOrder('Bear', currentMarket)
-
-      } else if (!currentMarket) {
-        // simulatedSellOrder('No response for current market', markets[wallet.data.currentMarket.name])
-      } else if (
-        targetMarket?.name !== currentMarket.name
-        && wallet.coins[wallet.data.baseCoin].dollarPrice >= (wallet.data.prices.targetPrice as number)
-      ) { 
-        simulatedSellOrder('New Bull', currentMarket)
-      } else if (!wallet.data.prices.targetPrice || !wallet.data.prices.stopLossPrice) {
-        // simulatedSellOrder('Price information undefined', markets[wallet.data.currentMarket.name])
-      } else if (wallet.coins[wallet.data.baseCoin].dollarPrice as number < wallet.data.prices.stopLossPrice) {
-        simulatedSellOrder('Below Stop Loss', markets[wallet.data.currentMarket.name])
-      }
-      
-    } catch(error: any) {
-      console.log(error.message)
-    }
+async function trade(
+  sortedMarkets: market[]
+) {
+  if (
+    wallet.data.positions.length >=
+    MAX_CONCURRENT_POSITIONS
+  ) {
+    return;
   }
+
+  const targetMarket =
+    sortedMarkets[0] ?? null;
+
+  if (!targetMarket) {
+    console.log('No qualifying signal');
+    return;
+  }
+
+  if (
+    !targetMarket.signal 
+    // || hasOpenPosition(targetMarket.name)
+  ) {
+    return;
+  }
+
+  const cash =
+    getCashBalance();
+
+  /*
+   * The purchase is always $10. The fee is additional,
+   * exactly as a Binance transaction fee would be.
+   */
+  const requiredCash =
+    POSITION_NOTIONAL *
+    (1 + fee);
+
+  if (cash < requiredCash) {
+    console.log(
+      `Insufficient simulated cash for ${targetMarket.name}. Cash: $${round(cash, 2)}`
+    );
+
+    return;
+  }
+
+  await simulatedBuyOrder(
+    targetMarket
+  );
 }
 
 function sortMarkets() {
+  let marketsToSort =
+    Object.keys(markets)
+      .map(market =>
+        markets[market]
+      );
 
-  let marketsToSort = Object.keys(markets).map(market => markets[market])
+  marketsToSort =
+    marketsToSort.map(market => {
+      const emaRatio =
+        market.emaRatio as
+          | number
+          | undefined;
 
-  marketsToSort = marketsToSort.map(market => {
-    const emaRatio = market.emaRatio as number | undefined;
-    const shape = market.shape as number | undefined;
-    market.strength = emaRatio && shape ? emaRatio * shape : 0;
-    return market;
-  })
-  const sortedMarkets = marketsToSort.sort((a,b) => (b.strength as number) - (a.strength as number))
-  return sortedMarkets
+      const shape =
+        market.shape as
+          | number
+          | undefined;
+
+      market.strength =
+        emaRatio && shape
+          ? emaRatio * shape
+          : 0;
+
+      return market;
+    });
+
+  /*
+   * This is the capacity-priority ordering used by the
+   * historical portfolio research:
+   *
+   * 1. higher acceleration
+   * 2. more negative slope20
+   * 3. lower Binance array position
+   * 4. symbol ascending
+   */
+  const sortedMarkets =
+    marketsToSort.sort((a, b) => {
+      const accelerationDifference =
+        (b.acceleration ?? 0) -
+        (a.acceleration ?? 0);
+
+      if (accelerationDifference !== 0) {
+        return accelerationDifference;
+      }
+
+      const slopeDifference =
+        (a.slope20 ?? 0) -
+        (b.slope20 ?? 0);
+
+      if (slopeDifference !== 0) {
+        return slopeDifference;
+      }
+
+      const aIndex =
+        viableSymbols.indexOf(a.name);
+
+      const bIndex =
+        viableSymbols.indexOf(b.name);
+
+      if (aIndex !== bIndex) {
+        return aIndex - bIndex;
+      }
+
+      return a.name.localeCompare(
+        b.name
+      );
+    });
+
+  return sortedMarkets;
 }
 
-async function simulatedBuyOrder(market: market) {
+function hasOpenPosition(
+  symbol: string
+) {
+  return wallet.data.positions.some(
+    position =>
+      position.symbol === symbol
+  );
+}
+
+function getCashBalance() {
+  return wallet.coins.USDT?.volume ?? 0;
+}
+
+function getPortfolioValue() {
+  let value =
+    getCashBalance();
+
+  for (
+    const position
+    of wallet.data.positions
+  ) {
+    const coin =
+      wallet.coins[position.asset];
+
+    if (coin) {
+      value +=
+        coin.volume *
+        coin.dollarPrice;
+    }
+  }
+
+  return value;
+}
+
+async function simulatedBuyOrder(
+  market: market
+) {
   try {
-    const asset = market.name.replace(wallet.data.baseCoin, '')
-    const base  = wallet.data.baseCoin
-    const response = await fetchPrice(market.name)
-    if (response) {
-      const currentPrice = response as number
-      const baseVolume = wallet.coins[base].volume
-      const orderQuantity = baseVolume * (1 - fee) / currentPrice
+    if (
+      wallet.data.positions.length >=
+      MAX_CONCURRENT_POSITIONS
+    ) {
+      return;
+    }
 
-      if (tradingMode === 'test' || tradingMode === 'live') {
-        const orderResult = await submitBinanceOrder(
-          'BUY',
-          market.name,
-          String(orderQuantity),
-          String(currentPrice)
+    // if (
+    //   hasOpenPosition(market.name)
+    // ) {
+    //   return;
+    // }
+
+    const asset =
+      market.name.replace(
+        'USDT',
+        ''
+      );
+
+    const currentPrice =
+      await fetchPrice(
+        market.name
+      );
+
+    if (
+      !currentPrice ||
+      currentPrice <= 0
+    ) {
+      return;
+    }
+
+    const baseVolume =
+      getCashBalance();
+
+    const totalCost =
+      POSITION_NOTIONAL *
+      (1 + fee);
+
+    if (
+      baseVolume <
+      totalCost
+    ) {
+      return;
+    }
+
+    /*
+     * $10 gross notional purchase.
+     * The 0.1% entry fee is paid in addition.
+     */
+    const orderQuantity =
+      POSITION_NOTIONAL /
+      currentPrice;
+
+    const entryTime =
+      Date.now();
+
+    const positionTargets =
+      targets.map(target => ({
+        name: target.name,
+        returnPct: target.returnPct,
+        fraction: target.fraction,
+        targetPrice:
+          currentPrice *
+          (1 + target.returnPct),
+        triggered: false
+      }));
+
+    const newPosition: position = {
+      symbol: market.name,
+      asset,
+      quantity: orderQuantity,
+      originalQuantity: orderQuantity,
+      entryPrice: currentPrice,
+      entryTime,
+      entryNotional: POSITION_NOTIONAL,
+      entryFee: POSITION_NOTIONAL * fee,
+      targets: positionTargets,
+      marketIndex:
+        viableSymbols.indexOf(
+          market.name
+        )
+    };
+
+    /*
+     * No Binance order is submitted here.
+     *
+     * This server is the requested field test:
+     * real Binance market data, entirely simulated execution.
+     */
+    wallet.coins.USDT.volume -=
+      totalCost;
+
+    if (!wallet.coins[asset]) {
+      wallet.coins[asset] = {
+        volume: 0,
+        dollarPrice: currentPrice,
+        dollarValue: 0
+      };
+    }
+
+    wallet.coins[asset].volume +=
+      orderQuantity;
+
+    wallet.coins[asset].dollarPrice =
+      currentPrice;
+
+    wallet.coins[asset].dollarValue =
+      wallet.coins[asset].volume *
+      currentPrice;
+
+    wallet.data.positions.push(
+      newPosition
+    );
+
+    wallet.data.currentMarket.name =
+      market.name;
+
+    wallet.data.prices = {
+      purchasePrice: currentPrice,
+      stopLossPrice:
+        currentPrice *
+        stopLossThreshold,
+      highPrice:
+        currentPrice
+    };
+
+    const tradeReport: transaction = {
+      time: timeNow(),
+
+      text:
+        `Bought ${round(orderQuantity)} ${asset} @ ${round(currentPrice)} = $${round(POSITION_NOTIONAL, 2)} + $${round(POSITION_NOTIONAL * fee, 2)} fee | Slope20 ${market.slope20} | Acceleration ${market.acceleration} | Positions ${wallet.data.positions.length}/${MAX_CONCURRENT_POSITIONS}`
+    };
+
+    logEntry(
+      tradeReport,
+      'transactions'
+    );
+
+    console.log(
+      `OPEN ${market.name} | $${POSITION_NOTIONAL} | ${wallet.data.positions.length}/${MAX_CONCURRENT_POSITIONS}`
+    );
+  } catch (error: any) {
+    console.log(error.message);
+  }
+}
+
+async function manageOpenPositions() {
+  /*
+   * Work on a copy because positions can be removed during
+   * the loop.
+   */
+  const openPositions =
+    [...wallet.data.positions];
+
+  for (
+    const currentPosition
+    of openPositions
+  ) {
+    const currentPrice =
+      await fetchPrice(
+        currentPosition.symbol
+      );
+
+    if (
+      !currentPrice ||
+      currentPrice <= 0
+    ) {
+      continue;
+    }
+
+    if (
+      currentPosition.quantity <= 0
+    ) {
+      continue;
+    }
+
+    const stopPrice =
+      currentPosition.entryPrice *
+      stopLossThreshold;
+
+    /*
+     * Stop loss has priority.
+     */
+    if (
+      currentPrice <= stopPrice
+    ) {
+      await simulatedSellOrder(
+        'Below Stop Loss',
+        currentPosition.symbol,
+        currentPosition.quantity,
+        currentPrice,
+        currentPosition
+      );
+
+      continue;
+    }
+
+    /*
+     * Partial profit targets.
+     *
+     * The fractions refer to the ORIGINAL position quantity,
+     * exactly as in the research.
+     */
+    for (
+      const target
+      of currentPosition.targets
+    ) {
+      if (
+        target.triggered ||
+        currentPrice <
+          target.targetPrice
+      ) {
+        continue;
+      }
+
+      const quantityToSell =
+        Math.min(
+          currentPosition.originalQuantity *
+            target.fraction,
+          currentPosition.quantity
         );
-        if (!orderResult.accepted) {
-          throw new Error(orderResult.message || `Binance ${tradingMode} buy order was rejected for ${market.name}.`)
-        }
+
+      if (
+        quantityToSell <= 0
+      ) {
+        target.triggered = true;
+        continue;
       }
 
-      if (!wallet.coins[asset]) {
-        wallet.coins[asset] = { volume: 0, dollarPrice: 0, dollarValue: 0 }
-      }
-      wallet.coins[base].volume = 0
+      await simulatedSellOrder(
+        target.name,
+        currentPosition.symbol,
+        quantityToSell,
+        currentPrice,
+        currentPosition
+      );
 
-      wallet.coins[asset].volume += orderQuantity
-      const targetVolume = baseVolume * (1 + (2 * fee))
+      target.triggered = true;
+
+      /*
+       * Position may have been completely closed.
+       */
+      if (
+        currentPosition.quantity <= 0
+      ) {
+        break;
+      }
+    }
+
+    /*
+     * 48-hour maximum hold.
+     */
+    if (
+      wallet.data.positions.some(
+        position =>
+          position.symbol ===
+          currentPosition.symbol
+      ) &&
+      Date.now() -
+        currentPosition.entryTime >=
+        maximumHoldMilliseconds
+    ) {
+      const latestPosition =
+        wallet.data.positions.find(
+          position =>
+            position.symbol ===
+            currentPosition.symbol
+        );
+
+      if (
+        latestPosition &&
+        latestPosition.quantity > 0
+      ) {
+        await simulatedSellOrder(
+          '48 Hour Maximum Hold',
+          latestPosition.symbol,
+          latestPosition.quantity,
+          currentPrice,
+          latestPosition
+        );
+      }
+    }
+  }
+}
+
+async function simulatedSellOrder(
+  sellType: string,
+  symbol: string,
+  quantity: number,
+  sellPrice: number,
+  currentPosition: position
+) {
+  try {
+    const positionIndex =
+      wallet.data.positions.findIndex(
+        position =>
+          position.symbol ===
+          currentPosition.symbol
+      );
+
+    if (
+      positionIndex === -1
+    ) {
+      return;
+    }
+
+    const position =
+      wallet.data.positions[positionIndex];
+
+    const actualQuantity =
+      Math.min(
+        quantity,
+        position.quantity
+      );
+
+    if (
+      actualQuantity <= 0
+    ) {
+      return;
+    }
+
+    const grossProceeds =
+      actualQuantity *
+      sellPrice;
+
+    const sellFee =
+      grossProceeds *
+      fee;
+
+    const netProceeds =
+      grossProceeds -
+      sellFee;
+
+    /*
+     * Allocate the original $10 entry notional and entry fee
+     * proportionally across each sale. This makes the realised
+     * profit accounting correct for partial exits.
+     */
+    const quantityFraction =
+      actualQuantity /
+      position.originalQuantity;
+
+    const allocatedEntryCost =
+      (
+        position.entryNotional +
+        position.entryFee
+      ) *
+      quantityFraction;
+
+    const realisedProfit =
+      netProceeds -
+      allocatedEntryCost;
+
+    wallet.coins.USDT.volume +=
+      netProceeds;
+
+    if (
+      wallet.coins[position.asset]
+    ) {
+      wallet.coins[position.asset].volume -=
+        actualQuantity;
+
+      if (
+        wallet.coins[position.asset].volume <
+        0.0000000001
+      ) {
+        wallet.coins[position.asset].volume = 0;
+      }
+
+      wallet.coins[position.asset].dollarPrice =
+        sellPrice;
+
+      wallet.coins[position.asset].dollarValue =
+        wallet.coins[position.asset].volume *
+        sellPrice;
+    }
+
+    position.quantity -=
+      actualQuantity;
+
+    if (
+      Math.abs(position.quantity) <
+      0.0000000001
+    ) {
+      position.quantity = 0;
+    }
+
+    wallet.data.realisedProfit +=
+      realisedProfit;
+
+    const tradeReport: transaction = {
+      time: timeNow(),
+
+      text:
+        `Sold ${round(actualQuantity)} ${position.asset} @ ${round(sellPrice)} = $${round(netProceeds, 2)} net | P/L $${round(realisedProfit, 4)} | ${sellType}`
+    };
+
+    logEntry(
+      tradeReport,
+      'transactions'
+    );
+
+    if (
+      position.quantity <= 0
+    ) {
+      wallet.data.positions.splice(
+        positionIndex,
+        1
+      );
+
+      if (
+        wallet.coins[position.asset]
+      ) {
+        delete wallet.coins[
+          position.asset
+        ];
+      }
+
+      console.log(
+        `CLOSED ${symbol} | ${sellType} | Realised P/L $${round(realisedProfit, 4)}`
+      );
+    } else {
+      console.log(
+        `PARTIAL ${symbol} | ${sellType} | Remaining ${round(position.quantity)}`
+      );
+    }
+
+    /*
+     * Keep legacy currentMarket/price fields usable.
+     */
+    const latestPosition =
+      wallet.data.positions[
+        wallet.data.positions.length - 1
+      ];
+
+    if (latestPosition) {
+      wallet.data.currentMarket.name =
+        latestPosition.symbol;
 
       wallet.data.prices = {
-        targetPrice   : targetVolume / wallet.coins[asset].volume,
-        purchasePrice : currentPrice,
-        stopLossPrice : currentPrice * stopLossThreshold,
-        highPrice     : currentPrice
-      }
+        purchasePrice:
+          latestPosition.entryPrice,
 
-      wallet.data.currentMarket.name = market.name
-      const tradeReport: transaction = {
-        time: timeNow(),
-        text: `Bought ${round(wallet.coins[asset].volume)} ${asset} @ ${round(currentPrice)} = $${round(baseVolume * (1 - fee))}  |  Strength ${round(market.strength as number)}`
-      }
-      logEntry(tradeReport, 'transactions')
+        stopLossPrice:
+          latestPosition.entryPrice *
+          stopLossThreshold,
+
+        highPrice:
+          latestPosition.entryPrice
+      };
+    } else {
+      wallet.data.currentMarket.name = '';
+      wallet.data.prices = {};
     }
   } catch (error: any) {
-    console.log(error.message)
+    console.log(error.message);
   }
 }
 
-async function simulatedSellOrder(sellType: string, market: market) {
-  try {
-    const asset = wallet.data.currentMarket.name.replace('USDT', '')
-    const base  = 'USDT'
-    const assetVolume = wallet.coins[asset].volume
-    const sellPrice = wallet.coins[asset].dollarPrice
-
-    if (tradingMode === 'test' || tradingMode === 'live') {
-      const orderResult = await submitBinanceOrder(
-        'SELL',
-        wallet.data.currentMarket.name,
-        String(assetVolume),
-        String(sellPrice)
-      );
-      if (!orderResult.accepted) {
-        throw new Error(orderResult.message || `Binance ${tradingMode} sell order was rejected for ${wallet.data.currentMarket.name}.`)
-      }
-    }
-
-    wallet.coins[base].volume += assetVolume * (1 - fee) * sellPrice
-    wallet.data.prices = {}
-
-    const tradeReport = {
-      time: timeNow(),
-      text: `Sold ${round(assetVolume)} ${asset} @ ${round(sellPrice)} = $${round(wallet.coins[base].volume)}  |  Strength ${round(market.strength as number)}  |  ${sellType}`
-    }
-
-    logEntry(tradeReport, 'transactions')
-    delete wallet.coins[asset]
-  } catch (error: any) {
-    console.log(error.message)
-  }
-}
-
-run()
+run();
 
 export {}
