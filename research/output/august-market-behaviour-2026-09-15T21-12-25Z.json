@@ -1,0 +1,45 @@
+{
+  "generatedAt": "2026-09-15T21:12:25.574Z",
+  "experiment": "august_2026_hourly_market_behaviour",
+  "hourlyDataset": "binance-august-2026-1h-2026-09-15T16-55-45Z.json",
+  "strategyDataset": "market-strategy-ranking-independent-1789232701426.json",
+  "marketCount": 0,
+  "matchedStrategyMarkets": 0,
+  "unmatchedStrategyMarkets": 0,
+  "positiveStrategyMarkets": 0,
+  "flatStrategyMarkets": 0,
+  "negativeStrategyMarkets": 0,
+  "windows": [
+    6,
+    12,
+    24,
+    72,
+    168
+  ],
+  "methodology": {
+    "resolution": "1h",
+    "period": "2026-08-01T00:00:00.000Z -> 2026-09-01T00:00:00.000Z",
+    "features": [
+      "total return",
+      "hourly return distribution",
+      "hourly range distribution",
+      "positive/negative hour rate",
+      "maximum hourly gain/loss",
+      "positive/negative runs",
+      "reversal rate",
+      "1h autocorrelation",
+      "volume statistics",
+      "quote volume statistics",
+      "volume/return correlation",
+      "volume/range correlation",
+      "rolling return statistics",
+      "rolling volatility",
+      "rolling range statistics",
+      "rolling efficiency",
+      "rolling trend slope"
+    ],
+    "strategyTarget": "market netProfit from the existing 120-market strategy backtest",
+    "purpose": "Measure broad August market behaviour and join it to minute-level strategy profitability without re-running the trading strategy."
+  },
+  "markets": []
+}
