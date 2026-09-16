@@ -157,10 +157,7 @@ export interface market {
   histories: {
     [key: string]: indexedFrame[]
   }
-  emaRatio?: number
-  shape?: number
   name: string
-  strength?: number
   currentPrice?: number
   slope20?: number
   slope50?: number
@@ -238,6 +235,12 @@ let currentTask: string = '';
 let marketChart: string[] = [];
 let viableSymbols: string[] = [];
 let markets: { [key: string]: market } = {};
+
+// A signal may remain true for many scans, but it should only create one
+// entry until the signal becomes false and then true again.
+const signalEntryEvents = new Set<string>();
+const previousSignals: Record<string, boolean> = {};
+
 let wallet: wallet = simulatedWallet();
 let i: number = 0;
 
@@ -247,8 +250,6 @@ let i: number = 0;
 
 const POSITION_NOTIONAL = 10;
 const MAX_CONCURRENT_POSITIONS = 43;
-
-const minimumDollarVolume = 28000000;
 
 const fee = 0.001;
 
@@ -1030,6 +1031,8 @@ async function saveState() {
 
 async function tick() {
 
+      console.log('Really new')
+
   try {
     /*
      * Once every market has been checked, save the portfolio,
@@ -1058,13 +1061,6 @@ async function tick() {
 
     console.log(currentTask);
 
-    /*
-     * The volume check remains available for compatibility with
-     * the existing application, but it is no longer a requirement
-     * for the researched strategy.
-     */
-    await checkVolume(symbolName);
-
     await updateMarket(
       symbolName,
       i + 1
@@ -1086,9 +1082,7 @@ async function tick() {
       roundObjects(
         sortedMarkets,
         [
-          'emaRatio',
-          'shape',
-          'strength',
+          'currentPrice',
           'slope20',
           'slope50',
           'acceleration'
@@ -1139,21 +1133,6 @@ function isGoodMarketName(marketName: string) {
     !marketName.includes('TUSD') &&
     !marketName.includes('USDC') &&
     !marketName.includes(':');
-}
-
-async function checkVolume(symbolName: string) {
-  try {
-    const twentyFourHour = await axios.get(
-      `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbolName}`,
-      { timeout: 10000 }
-    );
-
-    return twentyFourHour.data
-      ? `${twentyFourHour.data.quoteVolume < minimumDollarVolume ? 'Ins' : 'S'}ufficient volume.`
-      : "No response.";
-  } catch (error) {
-    return 'Invalid market.';
-  }
 }
 
 function simulatedWallet(): wallet {
@@ -1209,23 +1188,22 @@ async function updateMarket(
       histories: indexedHistories
     };
 
-    /*
-     * Keep the existing calculations in the market object so
-     * the rest of the application continues to understand it.
-     */
-    currentMarket =
-      addEmaRatio(currentMarket) as market;
-
-    currentMarket =
-      addShape(currentMarket);
-
-    /*
-     * The new strategy signal replaces EMA/shape as the actual
-     * trading criterion.
-     */
     currentMarket =
       addSignalData(currentMarket);
 
+    const signalIsActive = currentMarket.signal === true;
+    const wasPreviouslyActive = previousSignals[symbolName] === true;
+
+    // Only a false -> true transition creates a new entry event.
+    if (signalIsActive && !wasPreviouslyActive) {
+      signalEntryEvents.add(symbolName);
+    }
+
+    if (!signalIsActive) {
+      signalEntryEvents.delete(symbolName);
+    }
+
+    previousSignals[symbolName] = signalIsActive;
     markets[symbolName] = currentMarket;
   }
 }
@@ -1341,14 +1319,8 @@ async function fetchSingleHistory(symbolName: string) {
       const timeScale =
         Object.keys(timeScales)[i];
 
-      /*
-       * 51 candles are required:
-       *
-       * - 50 completed/current observations for the
-       *   50-period regression
-       * - with the final Binance candle being the
-       *   currently-forming 1-minute candle.
-       */
+      // The final Binance kline is the currently-forming 1-minute candle.
+      // Keep 51 observations so the 50-period regression is available.
       const history =
         await axios.get(
           `https://api.binance.com/api/v3/klines?symbol=${symbolName}&interval=1${timeScales[timeScale]}&limit=51`,
@@ -1405,161 +1377,6 @@ function indexData(
   } catch (error: any) {
     console.log(error.message);
   }
-}
-
-function addEmaRatio(market: market) {
-  try {
-    const spans = [
-      500,
-      377,
-      233,
-      144,
-      89,
-      55,
-      34,
-      21,
-      13,
-      8,
-      5,
-      3,
-      2,
-      1
-    ];
-
-    const frameRatioEmas =
-      Object.keys(timeScales).map(timeScale => {
-        const emas = spans.map(span =>
-          ema(
-            extractData(
-              market.histories[timeScale],
-              'average'
-            ),
-            span
-          )
-        );
-
-        return ema(ratioArray(emas));
-      });
-
-    market.emaRatio =
-      ema(frameRatioEmas);
-
-    return market;
-  } catch (error: any) {
-    console.log(error.message);
-  }
-}
-
-function ratioArray(valueArray: number[]) {
-  const ratioArray: number[] = [];
-
-  for (
-    let i = 0;
-    i < valueArray.length - 1;
-    i++
-  ) {
-    ratioArray.push(
-      valueArray[i + 1] /
-      valueArray[i]
-    );
-  }
-
-  return ratioArray;
-}
-
-function ema(
-  data: number[],
-  time: number | null = null
-) {
-  time = time ?? data.length;
-
-  const k = 2 / (time + 1);
-
-  const emaData: number[] = [];
-
-  emaData[0] = data[0];
-
-  for (let i = 1; i < data.length; i++) {
-    const newPoint =
-      (data[i] * k) +
-      (emaData[i - 1] * (1 - k));
-
-    emaData.push(newPoint);
-  }
-
-  const currentEma =
-    [...emaData].pop() as number;
-
-  return +currentEma;
-}
-
-function extractData(
-  dataArray: indexedFrame[],
-  key: string
-) {
-  const outputArray: number[] = [];
-
-  dataArray.map(obj => {
-    if (
-      key === "open" ||
-      key === "high" ||
-      key === "low" ||
-      key === "close" ||
-      key === "average"
-    ) {
-      outputArray.push(obj[key]);
-    }
-  });
-
-  return outputArray;
-}
-
-function addShape(market: market) {
-  const shapes =
-    Object.keys(timeScales).map(timeScale => {
-      const m =
-        market.histories[timeScale].length;
-
-      const totalChange =
-        market.histories[timeScale][m - 1].close -
-        market.histories[timeScale][0].open;
-
-      const percentageChange =
-        market.histories[timeScale][m - 1].close /
-        market.histories[timeScale][0].open;
-
-      const straightLineIncrement =
-        totalChange / m;
-
-      const deviations: number[] = [];
-
-      let straightLine =
-        market.histories[timeScale][0].open;
-
-      market.histories[timeScale].map(frame => {
-        straightLine +=
-          straightLineIncrement;
-
-        deviations.push(
-          frame.average === straightLine
-            ? 1
-            : frame.average < straightLine
-              ? frame.average / straightLine
-              : market.name.includes(wallet.data.baseCoin)
-                ? frame.average / straightLine
-                : straightLine / frame.average
-        );
-      });
-
-      return (
-        percentageChange *
-        ema(deviations)
-      );
-    });
-
-  market.shape = ema(shapes);
-
-  return market;
 }
 
 /*
@@ -1672,7 +1489,6 @@ function filterMarkets(markets: market[]) {
   return markets.filter(market =>
     market.signal === true &&
     viableSymbols.includes(market.name) 
-    // && !hasOpenPosition(market.name)
   );
 }
 
@@ -1699,10 +1515,7 @@ function round(
 function roundObjects(
   inMarkets: market[],
   keys: (
-    'shape' |
-    'strength' |
     'currentPrice' |
-    'emaRatio' |
     'slope20' |
     'slope50' |
     'acceleration'
@@ -1821,17 +1634,14 @@ async function trade(
   }
 
   const targetMarket =
-    sortedMarkets[0] ?? null;
+    sortedMarkets.find(market => signalEntryEvents.has(market.name)) ?? null;
 
   if (!targetMarket) {
     console.log('No qualifying signal');
     return;
   }
 
-  if (
-    !targetMarket.signal 
-    // || hasOpenPosition(targetMarket.name)
-  ) {
+  if (!targetMarket.signal) {
     return;
   }
 
@@ -1865,26 +1675,6 @@ function sortMarkets() {
       .map(market =>
         markets[market]
       );
-
-  marketsToSort =
-    marketsToSort.map(market => {
-      const emaRatio =
-        market.emaRatio as
-          | number
-          | undefined;
-
-      const shape =
-        market.shape as
-          | number
-          | undefined;
-
-      market.strength =
-        emaRatio && shape
-          ? emaRatio * shape
-          : 0;
-
-      return market;
-    });
 
   /*
    * This is the capacity-priority ordering used by the
@@ -1931,15 +1721,6 @@ function sortMarkets() {
   return sortedMarkets;
 }
 
-function hasOpenPosition(
-  symbol: string
-) {
-  return wallet.data.positions.some(
-    position =>
-      position.symbol === symbol
-  );
-}
-
 function getCashBalance() {
   return wallet.coins.USDT?.volume ?? 0;
 }
@@ -1967,20 +1748,14 @@ function getPortfolioValue() {
 
 async function simulatedBuyOrder(
   market: market
-) {
+): Promise<boolean> {
   try {
     if (
       wallet.data.positions.length >=
       MAX_CONCURRENT_POSITIONS
     ) {
-      return;
+      return false;
     }
-
-    // if (
-    //   hasOpenPosition(market.name)
-    // ) {
-    //   return;
-    // }
 
     const asset =
       market.name.replace(
@@ -1997,7 +1772,7 @@ async function simulatedBuyOrder(
       !currentPrice ||
       currentPrice <= 0
     ) {
-      return;
+      return false;
     }
 
     const baseVolume =
@@ -2011,7 +1786,7 @@ async function simulatedBuyOrder(
       baseVolume <
       totalCost
     ) {
-      return;
+      return false;
     }
 
     /*
@@ -2083,6 +1858,10 @@ async function simulatedBuyOrder(
       newPosition
     );
 
+    // Consume this signal event. A persistent signal cannot open another
+    // position until it becomes false and later turns true again.
+    signalEntryEvents.delete(market.name);
+
     wallet.data.currentMarket.name =
       market.name;
 
@@ -2110,6 +1889,8 @@ async function simulatedBuyOrder(
     console.log(
       `OPEN ${market.name} | $${POSITION_NOTIONAL} | ${wallet.data.positions.length}/${MAX_CONCURRENT_POSITIONS}`
     );
+
+    return true;
   } catch (error: any) {
     console.log(error.message);
   }
