@@ -1030,8 +1030,6 @@ async function saveState() {
 
 async function tick() {
 
-      console.log('Really new')
-
   try {
     /*
      * Once every market has been checked, save the portfolio,
