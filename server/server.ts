@@ -2171,20 +2171,17 @@ async function simulatedSellOrder(
       'transactions'
     );
 
-    if (
-      position.quantity <= 0
-    ) {
-      wallet.data.positions.splice(
-        positionIndex,
-        1
-      );
+    if (position.quantity <= 0) {
+      wallet.data.positions.splice(positionIndex, 1);
 
-      if (
-        wallet.coins[position.asset]
-      ) {
-        delete wallet.coins[
-          position.asset
-        ];
+      const remainingPositionForAsset =
+        wallet.data.positions.some(
+          remainingPosition =>
+            remainingPosition.asset === position.asset
+        );
+
+      if (!remainingPositionForAsset) {
+        delete wallet.coins[position.asset];
       }
 
       console.log(
