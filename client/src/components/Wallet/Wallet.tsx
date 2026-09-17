@@ -1,6 +1,10 @@
 import { wallet } from '../../../../server/server'
 
-export default function Wallet({wallet}: {wallet: wallet}) {
+export default function Wallet({
+  wallet
+}: {
+  wallet: wallet
+}) {
 
   function n(number: number, decimals: number=2) {
     let outputNumber = parseFloat(number.toFixed(decimals))
