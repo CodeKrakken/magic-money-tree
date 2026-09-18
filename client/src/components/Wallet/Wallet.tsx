@@ -1,18 +1,18 @@
-import { wallet } from '../../../../server/server'
+import { WalletType } from '../../../../server/server'
 
 export default function Wallet({
   wallet
 }: {
-  wallet: wallet
+  wallet: WalletType
 }) {
 
-  function n(number: number, decimals: number=2) {
+  function round(number: number, decimals: number=2) {
     let outputNumber = parseFloat(number.toFixed(decimals))
-    if (!outputNumber && decimals < 100) {outputNumber = n(number, decimals+1) as number}
+    if (!outputNumber && decimals < 100) {outputNumber = round(number, decimals+1) as number}
     return outputNumber
   }
 
-  function getDollarTotal(wallet: wallet) {
+  function getDollarTotal(wallet: WalletType) {
     let total = 0
   
     Object.keys(wallet.coins).map(name => {
@@ -28,14 +28,14 @@ export default function Wallet({
       Object.keys(wallet.coins).filter(coin => wallet.coins[coin].volume).map(name => 
         <>
           {
-            `${n(wallet.coins[name].volume)} ${name} @ ${n(wallet.coins[name].dollarPrice)} = $${n(wallet.coins[name].dollarValue)}`
+            `${round(wallet.coins[name].volume)} ${name} @ ${round(wallet.coins[name].dollarPrice)} = $${round(wallet.coins[name].dollarValue)}`
           }
           <br />
         </>
       ) 
     }
     
-    <div>Total = ${n(getDollarTotal(wallet))}</div>
+    <div>Total = ${round(getDollarTotal(wallet))}</div>
   
     {/* {
       wallet.data.baseCoin !== 'USDT' && <>

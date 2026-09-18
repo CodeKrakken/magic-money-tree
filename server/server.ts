@@ -198,7 +198,7 @@ export interface position {
   marketIndex: number;
 }
 
-export interface wallet {
+export interface WalletType {
   coins: {
     [key: string]: {
       dollarPrice: number
@@ -240,7 +240,7 @@ let markets: { [key: string]: market } = {};
 const signalEntryEvents = new Set<string>();
 const previousSignals: Record<string, boolean> = {};
 
-let wallet: wallet = simulatedWallet();
+let wallet: WalletType = simulatedWallet();
 let i: number = 0;
 
 /*
@@ -1000,7 +1000,7 @@ async function pullFromDatabase() {
   );
 }
 
-function migrateWallet(savedWallet: wallet): wallet {
+function migrateWallet(savedWallet: WalletType): WalletType {
   if (
     savedWallet?.data?.positions &&
     Array.isArray(savedWallet.data.positions)
@@ -1133,7 +1133,7 @@ function isGoodMarketName(marketName: string) {
     !marketName.includes(':');
 }
 
-function simulatedWallet(): wallet {
+function simulatedWallet(): WalletType {
   return {
     coins: {
       USDT: {
@@ -1500,11 +1500,10 @@ function round(
     );
 
   if (!outputNumber) {
-    outputNumber =
-      round(
-        number,
-        decimals + 1
-      ) as number;
+    outputNumber = round(
+      number,
+      decimals + 1
+    ) as number;
   }
 
   return outputNumber;
