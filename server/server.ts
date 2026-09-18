@@ -1664,17 +1664,12 @@ function getPortfolioValue() {
     getCashBalance();
 
   for (
-    const position
-    of wallet.data.positions
+    const coin
+    of Object.values(wallet.coins)
   ) {
-    const coin =
-      wallet.coins[position.asset];
-
-    if (coin) {
-      value +=
-        coin.volume *
-        coin.dollarPrice;
-    }
+    value +=
+      coin.volume *
+      coin.dollarPrice;
   }
 
   return value;
@@ -1958,32 +1953,22 @@ async function manageOpenPositions() {
      * 48-hour maximum hold.
      */
     if (
-      wallet.data.positions.some(
-        position =>
-          position.symbol ===
-          currentPosition.symbol
+      wallet.data.positions.includes(
+        currentPosition
       ) &&
       Date.now() -
         currentPosition.entryTime >=
         maximumHoldMilliseconds
     ) {
-      const latestPosition =
-        wallet.data.positions.find(
-          position =>
-            position.symbol ===
-            currentPosition.symbol
-        );
-
       if (
-        latestPosition &&
-        latestPosition.quantity > 0
+        currentPosition.quantity > 0
       ) {
         await simulatedSellOrder(
           '48 Hour Maximum Hold',
-          latestPosition.symbol,
-          latestPosition.quantity,
+          currentPosition.symbol,
+          currentPosition.quantity,
           currentPrice,
-          latestPosition
+          currentPosition
         );
       }
     }
@@ -1999,10 +1984,8 @@ async function simulatedSellOrder(
 ) {
   try {
     const positionIndex =
-      wallet.data.positions.findIndex(
-        position =>
-          position.symbol ===
-          currentPosition.symbol
+      wallet.data.positions.indexOf(
+        currentPosition
       );
 
     if (
@@ -2116,7 +2099,12 @@ async function simulatedSellOrder(
       );
 
       if (
-        wallet.coins[position.asset]
+        wallet.coins[position.asset] &&
+        !wallet.data.positions.some(
+          openPosition =>
+            openPosition.asset ===
+            position.asset
+        )
       ) {
         delete wallet.coins[
           position.asset
