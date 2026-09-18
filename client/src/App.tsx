@@ -1,18 +1,18 @@
 import { useState, useEffect } from "react"
 import Text from "./components/Text/Text"
-import type { wallet, market } from '../../server/server'
+import type { WalletType, market } from '@magic-money-tree/shared'
 import Wallet from "./components/Wallet/Wallet"
 import CurrentTask from "./components/CurrentTask/CurrentTask"
-import Graph from "./components/Graph/Graph"
+import MarketChart from "./components/MarketChart/MarketChart"
 import './App.css'
 import StringList from "./components/StringList/StringList"
 
 export default function App() {
 
-  const [wallet, setWallet] = useState({} as wallet)
+  const [wallet, setWallet] = useState({} as WalletType)
   const [currentTask, setcurrentTask] = useState('Fetching data')
   const [transactions, setTransactions] = useState([] as string[])
-  const [marketChart, setMarketChart] = useState([] as string[])
+  const [markets, setMarketChart] = useState([] as string[])
   const [currentMarket, setCurrentMarket] = useState({} as market)
   const [tradingMode, setTradingMode] = useState<'simulation' | 'test' | 'live'>('simulation')
 
@@ -53,8 +53,8 @@ export default function App() {
         const data = await response.json();
         setWallet(data.wallet);
         setcurrentTask(data.currentTask);
-        setTransactions(data.transactions);
-        setMarketChart(data.marketChart);
+        setTransactions(data.transactions.reverse());
+        setMarketChart(data.markets);
         setCurrentMarket(data.currentMarket);
         if (data.tradingMode) {
           setTradingMode(data.tradingMode);
@@ -118,16 +118,16 @@ export default function App() {
       <div className="row flex-grow">
         <div className="col center">
           {
-            marketChart.length ? (
+            markets.length ? (
               <StringList 
-                list={marketChart} 
+                list={markets} 
               />
             ) : null
           }
         </div>
         <div className="col center">
           <CurrentTask currentTask={currentTask} />
-          <div style={{ marginTop: '12px', marginBottom: '12px' }}>
+          {/* <div style={{ marginTop: '12px', marginBottom: '12px' }}>
             <label htmlFor="live-trading-toggle" style={{ display: 'block', fontWeight: 700, marginBottom: '6px' }}>
               Live Trading
             </label>
@@ -140,7 +140,7 @@ export default function App() {
               />
               <span>{isLiveMode ? 'LIVE TRADING' : 'SIMULATION'}</span>
             </label>
-          </div>
+          </div> */}
           <Wallet wallet={wallet} />
         </div>
         <div className="col center">
@@ -157,7 +157,7 @@ export default function App() {
         <div className="full-width">
           {
             currentMarket?.histories?.minutes
-            ? <Graph title={currentMarket.name} history={currentMarket.histories.minutes} />
+            ? <MarketChart title={currentMarket.name} history={currentMarket.histories.minutes} />
             : null
           }
         </div>
