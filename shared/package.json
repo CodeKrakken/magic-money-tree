@@ -1,5 +1,10 @@
 {
   "name": "@magic-money-tree/shared",
   "version": "1.0.0",
-  "private": true
+  "private": true,
+  "main": "dist/functions.js",
+  "types": "dist/functions.d.ts",
+  "scripts": {
+    "build": "tsc"
+  }
 }

@@ -1,5 +1,5 @@
 import { WalletType } from '@magic-money-tree/shared/types'
-import { formatNumber } from '@magic-money-tree/shared/functions'
+import { formatNumber } from '@magic-money-tree/shared'
 
 export default function Wallet({
   wallet

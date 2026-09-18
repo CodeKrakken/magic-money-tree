@@ -11,7 +11,7 @@
     "node": "24.20.0"
   },
   "scripts": {
-    "build": "cd server && npm run build && cd ../client && npm run build",
+    "build": "cd shared && npm run build && cd ../server && npm run build && cd ../client && npm run build",
     "start": "concurrently \"npm run start --prefix server\" \"npm run start --prefix client\"",
     "test": "cd client && npm run test && cd ../server && npm run test",
     "eject": "cd server && npm run eject && cd ../client && npm run eject",

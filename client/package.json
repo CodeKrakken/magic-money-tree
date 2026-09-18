@@ -2,7 +2,7 @@
   "name": "magic-money-tree-client",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:5000",
+  "proxy": "http://localhost:5000",  
   "dependencies": {
     "apexcharts": "3.45.2",
     "axios": "^1.6.0",
