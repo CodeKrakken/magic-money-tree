@@ -8,8 +8,7 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { MongoClient, ServerApiVersion } from 'mongodb';
-import { formatNumber } from '@magic-money-tree/shared/functions'
-import { position, WalletType } from '@magic-money-tree/shared/types'
+import { formatNumber, position, WalletType } from '@magic-money-tree/shared'
 
 dotenv.config();
 
