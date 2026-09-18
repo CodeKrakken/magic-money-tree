@@ -2,6 +2,11 @@
   "name": "magic-money-tree",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "client",
+    "server",
+    "shared"
+  ],
   "engines": {
     "node": "24.20.0"
   },
@@ -10,7 +15,6 @@
     "start": "concurrently \"npm run start --prefix server\" \"npm run start --prefix client\"",
     "test": "cd client && npm run test && cd ../server && npm run test",
     "eject": "cd server && npm run eject && cd ../client && npm run eject",
-    "install": "cd server && npm install && cd ../client && npm install",
     "postinstall": "npm run build"
   },
   "dependencies": {

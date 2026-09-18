@@ -8,6 +8,7 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { MongoClient, ServerApiVersion } from 'mongodb';
+import { round } from '@magic-money-tree/shared/functions'
 
 dotenv.config();
 
@@ -1488,25 +1489,6 @@ function filterMarkets(markets: market[]) {
     market.signal === true &&
     viableSymbols.includes(market.name) 
   );
-}
-
-export function round(
-  number: number,
-  decimals: number = 2
-) {
-  let outputNumber =
-    parseFloat(
-      number.toFixed(decimals)
-    );
-
-  if (!outputNumber) {
-    outputNumber = round(
-      number,
-      decimals + 1
-    ) as number;
-  }
-
-  return outputNumber;
 }
 
 function roundObjects(
