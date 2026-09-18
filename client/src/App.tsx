@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import Text from "./components/Text/Text"
-import type { WalletType, market } from '../../server/server'
+import type { WalletType, market } from '@magic-money-tree/shared'
 import Wallet from "./components/Wallet/Wallet"
 import CurrentTask from "./components/CurrentTask/CurrentTask"
 import MarketChart from "./components/MarketChart/MarketChart"

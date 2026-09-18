@@ -8,7 +8,7 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { MongoClient, ServerApiVersion } from 'mongodb';
-import { formatNumber, position, WalletType } from '@magic-money-tree/shared'
+import { formatNumber, position, WalletType, market, indexedFrame } from '@magic-money-tree/shared'
 
 dotenv.config();
 
@@ -143,27 +143,6 @@ type rawFrame = [
   string,
   string
 ];
-
-export interface indexedFrame {
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-  time: number;
-  average: number;
-}
-
-export interface market {
-  histories: {
-    [key: string]: indexedFrame[]
-  }
-  name: string
-  currentPrice?: number
-  slope20?: number
-  slope50?: number
-  acceleration?: number
-  signal?: boolean
-}
 
 type transaction = {
   text: string,

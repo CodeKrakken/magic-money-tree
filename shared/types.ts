@@ -43,3 +43,24 @@ export interface WalletType {
     realisedProfit: number
   }
 }
+
+export interface indexedFrame {
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  time: number;
+  average: number;
+}
+
+export interface market {
+  histories: {
+    [key: string]: indexedFrame[]
+  }
+  name: string
+  currentPrice?: number
+  slope20?: number
+  slope50?: number
+  acceleration?: number
+  signal?: boolean
+}
