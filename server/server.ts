@@ -8,7 +8,13 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { MongoClient, ServerApiVersion } from 'mongodb';
-import { formatNumber, position, WalletType, market, indexedFrame } from '@magic-money-tree/shared'
+import {
+  formatNumber,
+  position,
+  WalletType,
+  market,
+  indexedFrame
+} from '@magic-money-tree/shared'
 
 dotenv.config();
 
@@ -37,7 +43,7 @@ app.get("/data", (req: Request, res: Response) => {
     wallet: wallet,
     currentTask: currentTask,
     transactions: log.transactions,
-    marketChart: marketChart,
+    markets: marketList,
     currentMarket: markets[wallet.data.currentMarket.name] ?? null,
     tradingMode
   });
@@ -165,7 +171,7 @@ let log: log = {
 };
 
 let currentTask: string = '';
-let marketChart: string[] = [];
+let marketList: string[] = [];
 let viableSymbols: string[] = [];
 let markets: { [key: string]: market } = {};
 
@@ -178,10 +184,22 @@ let wallet: WalletType = simulatedWallet();
 let i: number = 0;
 
 /*
- * These constants are the strategy established by the research.
+ * Strategy position sizing.
+ *
+ * Each new position uses a percentage of currently available USDT.
+ * This makes position size grow as the portfolio grows while ensuring
+ * we never commit more cash than is currently available.
+ *
+ * The $40 minimum is important because the strategy exits:
+ *
+ *   50% + 25% + 25%
+ *
+ * and Binance commonly requires approximately $10 minimum notional.
+ * A $40 position therefore gives three possible exits of at least $10.
  */
+const POSITION_PERCENTAGE = 0.05;
+const MINIMUM_POSITION_NOTIONAL = 40;
 
-const POSITION_NOTIONAL = local ? 90 : 10;
 const MAX_CONCURRENT_POSITIONS = 43;
 
 const fee = 0.001;
@@ -827,7 +845,7 @@ async function run() {
   console.log(currentTask);
   console.log(`Server is ${process.env.ENVIRONMENT}`);
   console.log(
-    `Strategy: slope/acceleration portfolio | ${MAX_CONCURRENT_POSITIONS} positions | $${POSITION_NOTIONAL} each`
+    `Strategy: slope/acceleration portfolio | ${MAX_CONCURRENT_POSITIONS} positions | ${POSITION_PERCENTAGE * 100}% available cash per position | $${MINIMUM_POSITION_NOTIONAL} minimum`
   );
 
   try {
@@ -943,7 +961,7 @@ function migrateWallet(savedWallet: WalletType): WalletType {
   }
 
   console.log(
-    'Existing wallet uses the old single-position structure. Starting the new 43-position portfolio with $1000.'
+    'Existing wallet uses the old single-position structure. Starting the new portfolio with $1000.'
   );
 
   return simulatedWallet();
@@ -963,8 +981,6 @@ async function saveState() {
 }
 
 async function tick() {
-
-
   try {
     /*
      * Once every market has been checked, save the portfolio,
@@ -1150,7 +1166,7 @@ function logMarkets(markets: market[]) {
 }
 
 function formatMarketDisplay(markets: market[]) {
-  marketChart = markets.map(market => {
+  marketList = markets.map(market => {
     return `${market.name} ... slope20 ${market.slope20} | slope50 ${market.slope50} | acceleration ${market.acceleration} | ${market.signal ? 'SIGNAL' : 'no signal'}`;
   });
 }
@@ -1420,7 +1436,7 @@ function addSignalData(market: market) {
 function filterMarkets(markets: market[]) {
   return markets.filter(market =>
     market.signal === true &&
-    viableSymbols.includes(market.name) 
+    viableSymbols.includes(market.name)
   );
 }
 
@@ -1546,7 +1562,10 @@ async function trade(
   }
 
   const targetMarket =
-    sortedMarkets.find(market => signalEntryEvents.has(market.name)) ?? null;
+    sortedMarkets.find(
+      market =>
+        signalEntryEvents.has(market.name)
+    ) ?? null;
 
   if (!targetMarket) {
     console.log('No qualifying signal');
@@ -1561,23 +1580,35 @@ async function trade(
     getCashBalance();
 
   /*
-   * The purchase is always $10. The fee is additional,
-   * exactly as a Binance transaction fee would be.
+   * Position size is calculated from currently available cash.
+   *
+   * At $1000 cash and 5%, the position is $50.
+   * As cash grows, position size grows.
+   *
+   * The $40 floor ensures that a 25% partial exit is at least
+   * $10, satisfying the practical minimum transaction size.
    */
+  const positionNotional =
+    Math.max(
+      cash * POSITION_PERCENTAGE,
+      MINIMUM_POSITION_NOTIONAL
+    );
+
   const requiredCash =
-    POSITION_NOTIONAL *
+    positionNotional *
     (1 + fee);
 
   if (cash < requiredCash) {
     console.log(
-      `Insufficient simulated cash for ${targetMarket.name}. Cash: $${formatNumber(cash, 2)}`
+      `Insufficient simulated cash for ${targetMarket.name}. Cash: $${formatNumber(cash, 2)} | Required: $${formatNumber(requiredCash, 2)}`
     );
 
     return;
   }
 
   await simulatedBuyOrder(
-    targetMarket
+    targetMarket,
+    positionNotional
   );
 }
 
@@ -1654,7 +1685,8 @@ function getPortfolioValue() {
 }
 
 async function simulatedBuyOrder(
-  market: market
+  market: market,
+  positionNotional: number
 ): Promise<boolean> {
   try {
     /*
@@ -1669,20 +1701,31 @@ async function simulatedBuyOrder(
     }
 
     /*
-     * A position requires the full $10 notional plus
-     * the 0.1% entry fee.
+     * Recalculate the available cash immediately before
+     * opening the position. This protects against the cash
+     * value becoming stale between trade() and this function.
      */
     const baseVolume =
       getCashBalance();
 
+    const actualPositionNotional =
+      Math.max(
+        baseVolume * POSITION_PERCENTAGE,
+        MINIMUM_POSITION_NOTIONAL
+      );
+
     const totalCost =
-      POSITION_NOTIONAL *
+      actualPositionNotional *
       (1 + fee);
 
     if (
       baseVolume <
       totalCost
     ) {
+      console.log(
+        `Cannot open ${market.name}: available cash $${formatNumber(baseVolume, 2)} is below required $${formatNumber(totalCost, 2)}.`
+      );
+
       return false;
     }
 
@@ -1718,11 +1761,11 @@ async function simulatedBuyOrder(
     }
 
     /*
-     * $10 gross notional purchase.
+     * Purchase the calculated dynamic notional.
      * The 0.1% entry fee is paid in addition.
      */
     const orderQuantity =
-      POSITION_NOTIONAL /
+      actualPositionNotional /
       currentPrice;
 
     const entryTime =
@@ -1746,9 +1789,9 @@ async function simulatedBuyOrder(
       originalQuantity: orderQuantity,
       entryPrice: currentPrice,
       entryTime,
-      entryNotional: POSITION_NOTIONAL,
+      entryNotional: actualPositionNotional,
       entryFee:
-        POSITION_NOTIONAL * fee,
+        actualPositionNotional * fee,
       targets: positionTargets,
       marketIndex:
         viableSymbols.indexOf(
@@ -1804,7 +1847,7 @@ async function simulatedBuyOrder(
       time: timeNow(),
 
       text:
-        `Bought ${formatNumber(orderQuantity)} ${asset} @ ${formatNumber(currentPrice)} = $${formatNumber(POSITION_NOTIONAL, 2)} + $${formatNumber(POSITION_NOTIONAL * fee, 2)} fee | Slope20 ${market.slope20} | Acceleration ${market.acceleration} | Positions ${wallet.data.positions.length}/${MAX_CONCURRENT_POSITIONS}`
+        `Bought ${formatNumber(orderQuantity)} ${asset} @ ${formatNumber(currentPrice)} = $${formatNumber(actualPositionNotional, 2)} + $${formatNumber(actualPositionNotional * fee, 2)} fee | ${formatNumber(POSITION_PERCENTAGE * 100, 1)}% available cash | Slope20 ${market.slope20} | Acceleration ${market.acceleration} | Positions ${wallet.data.positions.length}/${MAX_CONCURRENT_POSITIONS}`
     };
 
     logEntry(
@@ -1813,7 +1856,7 @@ async function simulatedBuyOrder(
     );
 
     console.log(
-      `OPEN ${market.name} | $${POSITION_NOTIONAL} | ${wallet.data.positions.length}/${MAX_CONCURRENT_POSITIONS}`
+      `OPEN ${market.name} | $${formatNumber(actualPositionNotional, 2)} | ${formatNumber(POSITION_PERCENTAGE * 100, 1)}% cash | ${wallet.data.positions.length}/${MAX_CONCURRENT_POSITIONS}`
     );
 
     return true;
@@ -1822,7 +1865,6 @@ async function simulatedBuyOrder(
     return false;
   }
 }
-
 
 async function manageOpenPositions() {
   /*
@@ -2000,9 +2042,9 @@ async function simulatedSellOrder(
       sellFee;
 
     /*
-     * Allocate the original $10 entry notional and entry fee
+     * Allocate the actual entry notional and entry fee
      * proportionally across each sale. This makes the realised
-     * profit accounting correct for partial exits.
+     * profit accounting correct for dynamic position sizes.
      */
     const quantityFraction =
       actualQuantity /
@@ -2068,8 +2110,13 @@ async function simulatedSellOrder(
       'transactions'
     );
 
-    if (position.quantity <= 0) {
-      wallet.data.positions.splice(positionIndex, 1);
+    if (
+      position.quantity <= 0
+    ) {
+      wallet.data.positions.splice(
+        positionIndex,
+        1
+      );
 
       if (
         wallet.coins[position.asset] &&
