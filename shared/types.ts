@@ -64,3 +64,9 @@ export interface market {
   acceleration?: number
   signal?: boolean
 }
+
+export type PortfolioSnapshot = {
+  timestamp: number;
+  values: Record<string, number>;
+  total: number;
+};
