@@ -8,6 +8,7 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { MongoClient, ServerApiVersion } from 'mongodb';
+import { formatNumber, position, WalletType, market, indexedFrame } from '@magic-money-tree/shared'
 
 dotenv.config();
 
@@ -143,27 +144,6 @@ type rawFrame = [
   string
 ];
 
-export interface indexedFrame {
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-  time: number;
-  average: number;
-}
-
-export interface market {
-  histories: {
-    [key: string]: indexedFrame[]
-  }
-  name: string
-  currentPrice?: number
-  slope20?: number
-  slope50?: number
-  acceleration?: number
-  signal?: boolean
-}
-
 type transaction = {
   text: string,
   time: string
@@ -175,52 +155,6 @@ interface log {
   general: string[];
   transactions: transaction[];
   [key: string]: logEntryType[] | undefined;
-}
-
-export interface positionTarget {
-  name: string;
-  returnPct: number;
-  fraction: number;
-  targetPrice: number;
-  triggered: boolean;
-}
-
-export interface position {
-  symbol: string;
-  asset: string;
-  quantity: number;
-  originalQuantity: number;
-  entryPrice: number;
-  entryTime: number;
-  entryNotional: number;
-  entryFee: number;
-  targets: positionTarget[];
-  marketIndex: number;
-}
-
-export interface wallet {
-  coins: {
-    [key: string]: {
-      dollarPrice: number
-      dollarValue: number
-      volume: number
-    }
-  }
-  data: {
-    baseCoin: string
-    prices: {
-      targetPrice?: number
-      highPrice?: number
-      purchasePrice?: number
-      stopLossPrice?: number
-    }
-    currentMarket: {
-      name: string
-    }
-    positions: position[]
-    startingBalance: number
-    realisedProfit: number
-  }
 }
 
 // Data
@@ -240,14 +174,14 @@ let markets: { [key: string]: market } = {};
 const signalEntryEvents = new Set<string>();
 const previousSignals: Record<string, boolean> = {};
 
-let wallet: wallet = simulatedWallet();
+let wallet: WalletType = simulatedWallet();
 let i: number = 0;
 
 /*
  * These constants are the strategy established by the research.
  */
 
-const POSITION_NOTIONAL = 10;
+const POSITION_NOTIONAL = 90;
 const MAX_CONCURRENT_POSITIONS = 43;
 
 const fee = 0.001;
@@ -996,11 +930,11 @@ async function pullFromDatabase() {
   }
 
   console.log(
-    `Loaded simulated wallet: $${round(getCashBalance(), 2)} cash, ${wallet.data.positions.length} open positions`
+    `Loaded simulated wallet: $${formatNumber(getCashBalance(), 2)} cash, ${wallet.data.positions.length} open positions`
   );
 }
 
-function migrateWallet(savedWallet: wallet): wallet {
+function migrateWallet(savedWallet: WalletType): WalletType {
   if (
     savedWallet?.data?.positions &&
     Array.isArray(savedWallet.data.positions)
@@ -1040,7 +974,7 @@ async function tick() {
       await saveState();
 
       console.log(
-        `----- Tick at ${timeNow()} | ${wallet.data.positions.length}/${MAX_CONCURRENT_POSITIONS} positions | $${round(getPortfolioValue(), 2)} portfolio -----`
+        `----- Tick at ${timeNow()} | ${wallet.data.positions.length}/${MAX_CONCURRENT_POSITIONS} positions | $${formatNumber(getPortfolioValue(), 2)} portfolio -----`
       );
 
       i = 0;
@@ -1133,7 +1067,7 @@ function isGoodMarketName(marketName: string) {
     !marketName.includes(':');
 }
 
-function simulatedWallet(): wallet {
+function simulatedWallet(): WalletType {
   return {
     coins: {
       USDT: {
@@ -1490,26 +1424,6 @@ function filterMarkets(markets: market[]) {
   );
 }
 
-function round(
-  number: number,
-  decimals: number = 2
-) {
-  let outputNumber =
-    parseFloat(
-      number.toFixed(decimals)
-    );
-
-  if (!outputNumber) {
-    outputNumber =
-      round(
-        number,
-        decimals + 1
-      ) as number;
-  }
-
-  return outputNumber;
-}
-
 function roundObjects(
   inMarkets: market[],
   keys: (
@@ -1530,7 +1444,7 @@ function roundObjects(
     keys.forEach(key => {
       if (typeof market[key] === 'number') {
         outMarket[key] =
-          round(
+          formatNumber(
             market[key] as number
           );
       }
@@ -1556,7 +1470,7 @@ function roundObjects(
 
       if (typeof market[key] === 'number') {
         outMarket[key] =
-          round(
+          formatNumber(
             market[key] as number,
             length
           );
@@ -1656,7 +1570,7 @@ async function trade(
 
   if (cash < requiredCash) {
     console.log(
-      `Insufficient simulated cash for ${targetMarket.name}. Cash: $${round(cash, 2)}`
+      `Insufficient simulated cash for ${targetMarket.name}. Cash: $${formatNumber(cash, 2)}`
     );
 
     return;
@@ -1728,17 +1642,12 @@ function getPortfolioValue() {
     getCashBalance();
 
   for (
-    const position
-    of wallet.data.positions
+    const coin
+    of Object.values(wallet.coins)
   ) {
-    const coin =
-      wallet.coins[position.asset];
-
-    if (coin) {
-      value +=
-        coin.volume *
-        coin.dollarPrice;
-    }
+    value +=
+      coin.volume *
+      coin.dollarPrice;
   }
 
   return value;
@@ -1895,7 +1804,7 @@ async function simulatedBuyOrder(
       time: timeNow(),
 
       text:
-        `Bought ${round(orderQuantity)} ${asset} @ ${round(currentPrice)} = $${round(POSITION_NOTIONAL, 2)} + $${round(POSITION_NOTIONAL * fee, 2)} fee | Slope20 ${market.slope20} | Acceleration ${market.acceleration} | Positions ${wallet.data.positions.length}/${MAX_CONCURRENT_POSITIONS}`
+        `Bought ${formatNumber(orderQuantity)} ${asset} @ ${formatNumber(currentPrice)} = $${formatNumber(POSITION_NOTIONAL, 2)} + $${formatNumber(POSITION_NOTIONAL * fee, 2)} fee | Slope20 ${market.slope20} | Acceleration ${market.acceleration} | Positions ${wallet.data.positions.length}/${MAX_CONCURRENT_POSITIONS}`
     };
 
     logEntry(
@@ -2022,32 +1931,22 @@ async function manageOpenPositions() {
      * 48-hour maximum hold.
      */
     if (
-      wallet.data.positions.some(
-        position =>
-          position.symbol ===
-          currentPosition.symbol
+      wallet.data.positions.includes(
+        currentPosition
       ) &&
       Date.now() -
         currentPosition.entryTime >=
         maximumHoldMilliseconds
     ) {
-      const latestPosition =
-        wallet.data.positions.find(
-          position =>
-            position.symbol ===
-            currentPosition.symbol
-        );
-
       if (
-        latestPosition &&
-        latestPosition.quantity > 0
+        currentPosition.quantity > 0
       ) {
         await simulatedSellOrder(
           '48 Hour Maximum Hold',
-          latestPosition.symbol,
-          latestPosition.quantity,
+          currentPosition.symbol,
+          currentPosition.quantity,
           currentPrice,
-          latestPosition
+          currentPosition
         );
       }
     }
@@ -2063,10 +1962,8 @@ async function simulatedSellOrder(
 ) {
   try {
     const positionIndex =
-      wallet.data.positions.findIndex(
-        position =>
-          position.symbol ===
-          currentPosition.symbol
+      wallet.data.positions.indexOf(
+        currentPosition
       );
 
     if (
@@ -2163,7 +2060,7 @@ async function simulatedSellOrder(
       time: timeNow(),
 
       text:
-        `Sold ${round(actualQuantity)} ${position.asset} @ ${round(sellPrice)} = $${round(netProceeds, 2)} net | P/L $${round(realisedProfit, 4)} | ${sellType}`
+        `Sold ${formatNumber(actualQuantity)} ${position.asset} @ ${formatNumber(sellPrice)} = $${formatNumber(netProceeds, 2)} net | P/L $${formatNumber(realisedProfit, 4)} | ${sellType}`
     };
 
     logEntry(
@@ -2174,22 +2071,25 @@ async function simulatedSellOrder(
     if (position.quantity <= 0) {
       wallet.data.positions.splice(positionIndex, 1);
 
-      const remainingPositionForAsset =
-        wallet.data.positions.some(
-          remainingPosition =>
-            remainingPosition.asset === position.asset
-        );
-
-      if (!remainingPositionForAsset) {
-        delete wallet.coins[position.asset];
+      if (
+        wallet.coins[position.asset] &&
+        !wallet.data.positions.some(
+          openPosition =>
+            openPosition.asset ===
+            position.asset
+        )
+      ) {
+        delete wallet.coins[
+          position.asset
+        ];
       }
 
       console.log(
-        `CLOSED ${symbol} | ${sellType} | Realised P/L $${round(realisedProfit, 4)}`
+        `CLOSED ${symbol} | ${sellType} | Realised P/L $${formatNumber(realisedProfit, 4)}`
       );
     } else {
       console.log(
-        `PARTIAL ${symbol} | ${sellType} | Remaining ${round(position.quantity)}`
+        `PARTIAL ${symbol} | ${sellType} | Remaining ${formatNumber(position.quantity)}`
       );
     }
 

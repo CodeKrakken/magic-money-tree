@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import Text from "./components/Text/Text"
-import type { wallet, market } from '../../server/server'
+import type { WalletType, market } from '@magic-money-tree/shared'
 import Wallet from "./components/Wallet/Wallet"
 import CurrentTask from "./components/CurrentTask/CurrentTask"
 import MarketChart from "./components/MarketChart/MarketChart"
@@ -9,7 +9,7 @@ import StringList from "./components/StringList/StringList"
 
 export default function App() {
 
-  const [wallet, setWallet] = useState({} as wallet)
+  const [wallet, setWallet] = useState({} as WalletType)
   const [currentTask, setcurrentTask] = useState('Fetching data')
   const [transactions, setTransactions] = useState([] as string[])
   const [marketChart, setMarketChart] = useState([] as string[])

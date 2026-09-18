@@ -1,14 +1,13 @@
-import { wallet } from '../../../../server/server'
+import { WalletType } from '@magic-money-tree/shared'
+import { formatNumber } from '@magic-money-tree/shared'
 
-export default function Wallet({wallet}: {wallet: wallet}) {
+export default function Wallet({
+  wallet
+}: {
+  wallet: WalletType
+}) {
 
-  function n(number: number, decimals: number=2) {
-    let outputNumber = parseFloat(number.toFixed(decimals))
-    if (!outputNumber && decimals < 100) {outputNumber = n(number, decimals+1) as number}
-    return outputNumber
-  }
-
-  function getDollarTotal(wallet: wallet) {
+  function getDollarTotal(wallet: WalletType) {
     let total = 0
   
     Object.keys(wallet.coins).map(name => {
@@ -23,23 +22,19 @@ export default function Wallet({wallet}: {wallet: wallet}) {
     {
       Object.keys(wallet.coins).filter(coin => wallet.coins[coin].volume).map(name => 
         <>
-          {
-            `${n(wallet.coins[name].volume)} ${name} @ ${n(wallet.coins[name].dollarPrice)} = $${n(wallet.coins[name].dollarValue)}`
-          }
+          {`
+            ${formatNumber(wallet.coins[name].volume)} 
+            ${name} @ ${formatNumber(wallet.coins[name].dollarPrice)} = $
+            ${formatNumber(wallet.coins[name].dollarValue)}
+          `}
           <br />
         </>
       ) 
     }
     
-    <div>Total = ${n(getDollarTotal(wallet))}</div>
+    <div>
+      Total = ${formatNumber(getDollarTotal(wallet))}
+    </div>
   
-    {/* {
-      wallet.data.baseCoin !== 'USDT' && <>
-        Target Price    - ${wallet.data.prices.targetPrice}   <br />
-        High Price      - ${wallet.data.prices.highPrice}     <br />
-        Purchase Price  - ${wallet.data.prices.purchasePrice} <br />
-        Stop Loss Price - ${wallet.data.prices.stopLossPrice}
-      </>
-    } */}
   </> : <>No wallet data</>
 }
