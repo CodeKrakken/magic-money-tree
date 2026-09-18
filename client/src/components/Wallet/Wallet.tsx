@@ -22,15 +22,19 @@ export default function Wallet({
     {
       Object.keys(wallet.coins).filter(coin => wallet.coins[coin].volume).map(name => 
         <>
-          {
-            `${formatNumber(wallet.coins[name].volume)} ${name} @ ${formatNumber(wallet.coins[name].dollarPrice)} = $${formatNumber(wallet.coins[name].dollarValue)}`
-          }
+          {`
+            ${formatNumber(wallet.coins[name].volume)} 
+            ${name} @ ${formatNumber(wallet.coins[name].dollarPrice)} = $
+            ${formatNumber(wallet.coins[name].dollarValue)}
+          `}
           <br />
         </>
       ) 
     }
     
-    <div>Total = ${formatNumber(getDollarTotal(wallet))}</div>
+    <div>
+      Total = ${formatNumber(getDollarTotal(wallet))}
+    </div>
   
   </> : <>No wallet data</>
 }
