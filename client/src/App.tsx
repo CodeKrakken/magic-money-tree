@@ -79,7 +79,6 @@ export default function App() {
         }
 
         const data = await response.json();
-        console.log(data)
 
         if (!cancelled) {
           setPortfolioHistory(data);
@@ -94,6 +93,7 @@ export default function App() {
     fetchTradingMode();
     fetchData();
     fetchPortfolioHistory();
+    console.log(portfolioHistory)
 
     return () => {
       cancelled = true;
