@@ -1,4 +1,4 @@
-export function round(
+export function formatNumber(
   number: number,
   decimals: number = 2
 ) {
@@ -8,7 +8,7 @@ export function round(
     );
 
   if (!outputNumber) {
-    outputNumber = round(
+    outputNumber = formatNumber(
       number,
       decimals + 1
     ) as number;

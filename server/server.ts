@@ -997,7 +997,7 @@ async function pullFromDatabase() {
   }
 
   console.log(
-    `Loaded simulated wallet: $${round(getCashBalance(), 2)} cash, ${wallet.data.positions.length} open positions`
+    `Loaded simulated wallet: $${formatNumber(getCashBalance(), 2)} cash, ${wallet.data.positions.length} open positions`
   );
 }
 
@@ -1041,7 +1041,7 @@ async function tick() {
       await saveState();
 
       console.log(
-        `----- Tick at ${timeNow()} | ${wallet.data.positions.length}/${MAX_CONCURRENT_POSITIONS} positions | $${round(getPortfolioValue(), 2)} portfolio -----`
+        `----- Tick at ${timeNow()} | ${wallet.data.positions.length}/${MAX_CONCURRENT_POSITIONS} positions | $${formatNumber(getPortfolioValue(), 2)} portfolio -----`
       );
 
       i = 0;
@@ -1511,7 +1511,7 @@ function roundObjects(
     keys.forEach(key => {
       if (typeof market[key] === 'number') {
         outMarket[key] =
-          round(
+          formatNumber(
             market[key] as number
           );
       }
@@ -1537,7 +1537,7 @@ function roundObjects(
 
       if (typeof market[key] === 'number') {
         outMarket[key] =
-          round(
+          formatNumber(
             market[key] as number,
             length
           );
@@ -1637,7 +1637,7 @@ async function trade(
 
   if (cash < requiredCash) {
     console.log(
-      `Insufficient simulated cash for ${targetMarket.name}. Cash: $${round(cash, 2)}`
+      `Insufficient simulated cash for ${targetMarket.name}. Cash: $${formatNumber(cash, 2)}`
     );
 
     return;
@@ -1876,7 +1876,7 @@ async function simulatedBuyOrder(
       time: timeNow(),
 
       text:
-        `Bought ${round(orderQuantity)} ${asset} @ ${round(currentPrice)} = $${round(POSITION_NOTIONAL, 2)} + $${round(POSITION_NOTIONAL * fee, 2)} fee | Slope20 ${market.slope20} | Acceleration ${market.acceleration} | Positions ${wallet.data.positions.length}/${MAX_CONCURRENT_POSITIONS}`
+        `Bought ${formatNumber(orderQuantity)} ${asset} @ ${formatNumber(currentPrice)} = $${formatNumber(POSITION_NOTIONAL, 2)} + $${formatNumber(POSITION_NOTIONAL * fee, 2)} fee | Slope20 ${market.slope20} | Acceleration ${market.acceleration} | Positions ${wallet.data.positions.length}/${MAX_CONCURRENT_POSITIONS}`
     };
 
     logEntry(
@@ -2144,7 +2144,7 @@ async function simulatedSellOrder(
       time: timeNow(),
 
       text:
-        `Sold ${round(actualQuantity)} ${position.asset} @ ${round(sellPrice)} = $${round(netProceeds, 2)} net | P/L $${round(realisedProfit, 4)} | ${sellType}`
+        `Sold ${formatNumber(actualQuantity)} ${position.asset} @ ${formatNumber(sellPrice)} = $${formatNumber(netProceeds, 2)} net | P/L $${formatNumber(realisedProfit, 4)} | ${sellType}`
     };
 
     logEntry(
@@ -2169,11 +2169,11 @@ async function simulatedSellOrder(
       }
 
       console.log(
-        `CLOSED ${symbol} | ${sellType} | Realised P/L $${round(realisedProfit, 4)}`
+        `CLOSED ${symbol} | ${sellType} | Realised P/L $${formatNumber(realisedProfit, 4)}`
       );
     } else {
       console.log(
-        `PARTIAL ${symbol} | ${sellType} | Remaining ${round(position.quantity)}`
+        `PARTIAL ${symbol} | ${sellType} | Remaining ${formatNumber(position.quantity)}`
       );
     }
 
