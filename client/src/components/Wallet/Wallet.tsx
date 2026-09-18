@@ -1,4 +1,4 @@
-import { WalletType, round } from '../../../../server/server'
+import { WalletType } from '../../../../server/server'
 
 export default function Wallet({
   wallet
@@ -6,11 +6,11 @@ export default function Wallet({
   wallet: WalletType
 }) {
 
-  // function round(number: number, decimals: number=2) {
-  //   let outputNumber = parseFloat(number.toFixed(decimals))
-  //   if (!outputNumber && decimals < 100) {outputNumber = round(number, decimals+1) as number}
-  //   return outputNumber
-  // }
+  function formatNumber(number: number, decimals: number=2) {
+    let outputNumber = parseFloat(number.toFixed(decimals))
+    if (!outputNumber && decimals < 100) {outputNumber = formatNumber(number, decimals+1) as number}
+    return outputNumber
+  }
 
   function getDollarTotal(wallet: WalletType) {
     let total = 0
@@ -28,22 +28,14 @@ export default function Wallet({
       Object.keys(wallet.coins).filter(coin => wallet.coins[coin].volume).map(name => 
         <>
           {
-            `${round(wallet.coins[name].volume)} ${name} @ ${round(wallet.coins[name].dollarPrice)} = $${round(wallet.coins[name].dollarValue)}`
+            `${formatNumber(wallet.coins[name].volume)} ${name} @ ${formatNumber(wallet.coins[name].dollarPrice)} = $${formatNumber(wallet.coins[name].dollarValue)}`
           }
           <br />
         </>
       ) 
     }
     
-    <div>Total = ${round(getDollarTotal(wallet))}</div>
+    <div>Total = ${formatNumber(getDollarTotal(wallet))}</div>
   
-    {/* {
-      wallet.data.baseCoin !== 'USDT' && <>
-        Target Price    - ${wallet.data.prices.targetPrice}   <br />
-        High Price      - ${wallet.data.prices.highPrice}     <br />
-        Purchase Price  - ${wallet.data.prices.purchasePrice} <br />
-        Stop Loss Price - ${wallet.data.prices.stopLossPrice}
-      </>
-    } */}
   </> : <>No wallet data</>
 }
