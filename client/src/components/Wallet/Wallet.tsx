@@ -1,16 +1,11 @@
 import { WalletType } from '../../../../server/server'
+import { formatNumber } from '@magic-money-tree/shared/functions'
 
 export default function Wallet({
   wallet
 }: {
   wallet: WalletType
 }) {
-
-  function formatNumber(number: number, decimals: number=2) {
-    let outputNumber = parseFloat(number.toFixed(decimals))
-    if (!outputNumber && decimals < 100) {outputNumber = formatNumber(number, decimals+1) as number}
-    return outputNumber
-  }
 
   function getDollarTotal(wallet: WalletType) {
     let total = 0

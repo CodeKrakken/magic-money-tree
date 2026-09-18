@@ -8,7 +8,7 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { MongoClient, ServerApiVersion } from 'mongodb';
-import { round } from '@magic-money-tree/shared/functions'
+import { formatNumber } from '@magic-money-tree/shared/functions'
 
 dotenv.config();
 
