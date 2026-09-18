@@ -181,7 +181,7 @@ let i: number = 0;
  * These constants are the strategy established by the research.
  */
 
-const POSITION_NOTIONAL = 90;
+const POSITION_NOTIONAL = local ? 90 : 10;
 const MAX_CONCURRENT_POSITIONS = 43;
 
 const fee = 0.001;
