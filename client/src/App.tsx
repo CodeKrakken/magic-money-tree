@@ -12,7 +12,7 @@ export default function App() {
   const [wallet, setWallet] = useState({} as WalletType)
   const [currentTask, setcurrentTask] = useState('Fetching data')
   const [transactions, setTransactions] = useState([] as string[])
-  const [marketChart, setMarketChart] = useState([] as string[])
+  const [markets, setMarketChart] = useState([] as string[])
   const [currentMarket, setCurrentMarket] = useState({} as market)
   const [tradingMode, setTradingMode] = useState<'simulation' | 'test' | 'live'>('simulation')
 
@@ -54,7 +54,7 @@ export default function App() {
         setWallet(data.wallet);
         setcurrentTask(data.currentTask);
         setTransactions(data.transactions);
-        setMarketChart(data.marketChart);
+        setMarketChart(data.markets);
         setCurrentMarket(data.currentMarket);
         if (data.tradingMode) {
           setTradingMode(data.tradingMode);
@@ -118,9 +118,9 @@ export default function App() {
       <div className="row flex-grow">
         <div className="col center">
           {
-            marketChart.length ? (
+            markets.length ? (
               <StringList 
-                list={marketChart} 
+                list={markets} 
               />
             ) : null
           }
