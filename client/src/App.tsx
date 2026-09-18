@@ -53,7 +53,7 @@ export default function App() {
         const data = await response.json();
         setWallet(data.wallet);
         setcurrentTask(data.currentTask);
-        setTransactions(data.transactions);
+        setTransactions(data.transactions.reverse());
         setMarketChart(data.markets);
         setCurrentMarket(data.currentMarket);
         if (data.tradingMode) {
@@ -127,7 +127,7 @@ export default function App() {
         </div>
         <div className="col center">
           <CurrentTask currentTask={currentTask} />
-          <div style={{ marginTop: '12px', marginBottom: '12px' }}>
+          {/* <div style={{ marginTop: '12px', marginBottom: '12px' }}>
             <label htmlFor="live-trading-toggle" style={{ display: 'block', fontWeight: 700, marginBottom: '6px' }}>
               Live Trading
             </label>
@@ -140,7 +140,7 @@ export default function App() {
               />
               <span>{isLiveMode ? 'LIVE TRADING' : 'SIMULATION'}</span>
             </label>
-          </div>
+          </div> */}
           <Wallet wallet={wallet} />
         </div>
         <div className="col center">

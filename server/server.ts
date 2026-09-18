@@ -37,7 +37,7 @@ app.get("/data", (req: Request, res: Response) => {
     wallet: wallet,
     currentTask: currentTask,
     transactions: log.transactions,
-    marketChart: marketChart,
+    markets: marketList,
     currentMarket: markets[wallet.data.currentMarket.name] ?? null,
     tradingMode
   });
@@ -165,7 +165,7 @@ let log: log = {
 };
 
 let currentTask: string = '';
-let marketChart: string[] = [];
+let marketList: string[] = [];
 let viableSymbols: string[] = [];
 let markets: { [key: string]: market } = {};
 
@@ -1150,7 +1150,7 @@ function logMarkets(markets: market[]) {
 }
 
 function formatMarketDisplay(markets: market[]) {
-  marketChart = markets.map(market => {
+  marketList = markets.map(market => {
     return `${market.name} ... slope20 ${market.slope20} | slope50 ${market.slope50} | acceleration ${market.acceleration} | ${market.signal ? 'SIGNAL' : 'no signal'}`;
   });
 }
