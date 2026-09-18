@@ -8,7 +8,7 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { MongoClient, ServerApiVersion } from 'mongodb';
-import { formatNumber, position, WalletType, market, indexedFrame } from '@magic-money-tree/shared'
+import { formatNumber, position, WalletType, market, indexedFrame, PortfolioSnapshot } from '@magic-money-tree/shared'
 
 dotenv.config();
 
@@ -999,6 +999,7 @@ async function tick() {
     );
 
     await refreshWallet();
+    recordPortfolioSnapshotIfDue();
 
     /*
      * Position exits must be evaluated independently of the
@@ -2129,6 +2130,45 @@ async function simulatedSellOrder(
     console.log(error.message);
   }
 }
+
+const portfolioHistory: PortfolioSnapshot[] = [];
+
+
+
+function recordPortfolioSnapshot() {
+  const values: Record<string, number> = {};
+
+  for (const [asset, coin] of Object.entries(wallet.coins)) {
+    values[asset] = coin.volume * coin.dollarPrice;
+  }
+
+  portfolioHistory.push({
+    timestamp: Date.now(),
+    values,
+    total: Object.values(values).reduce(
+      (total, value) => total + value,
+      0
+    )
+  });
+}
+
+const portfolioSnapshotInterval = 60 * 1000;
+let lastPortfolioSnapshot = 0;
+
+function recordPortfolioSnapshotIfDue() {
+  const now = Date.now();
+
+  if (now - lastPortfolioSnapshot < portfolioSnapshotInterval) {
+    return;
+  }
+
+  lastPortfolioSnapshot = now;
+  recordPortfolioSnapshot();
+}
+
+app.get('/api/portfolio-history', (_req, res) => {
+  res.json(portfolioHistory);
+});
 
 run();
 

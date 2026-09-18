@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import Text from "./components/Text/Text"
-import type { WalletType, market } from '@magic-money-tree/shared'
+import type { WalletType, market, PortfolioSnapshot } from '@magic-money-tree/shared'
 import Wallet from "./components/Wallet/Wallet"
 import CurrentTask from "./components/CurrentTask/CurrentTask"
 import MarketChart from "./components/MarketChart/MarketChart"
@@ -15,6 +15,8 @@ export default function App() {
   const [markets, setMarketChart] = useState([] as string[])
   const [currentMarket, setCurrentMarket] = useState({} as market)
   const [tradingMode, setTradingMode] = useState<'simulation' | 'test' | 'live'>('simulation')
+  const [portfolioHistory, setPortfolioHistory] = useState([] as PortfolioSnapshot[])
+
 
   useEffect(() => {
     let cancelled = false;
@@ -65,8 +67,31 @@ export default function App() {
       if (!cancelled) setTimeout(fetchData, 1000);
     };
 
+    const fetchPortfolioHistory = async () => {
+      try {
+        const response = await fetch('/api/portfolio-history', {
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-store' }
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const data = await response.json();
+        if (!cancelled) {
+          setPortfolioHistory(data);
+        }
+      } catch (error) {
+        console.error('[App] Error fetching trading mode:', error);
+      }
+    };
+
+
+
     fetchTradingMode();
     fetchData();
+    fetchPortfolioHistory();
 
     return () => {
       cancelled = true;
@@ -155,11 +180,7 @@ export default function App() {
       </div>
       <div className="row flex-no-grow">
         <div className="full-width">
-          {
-            currentMarket?.histories?.minutes
-            ? <MarketChart title={currentMarket.name} history={currentMarket.histories.minutes} />
-            : null
-          }
+          <MarketChart title={'Your Money, baby'} history={portfolioHistory} />
         </div>
       </div>
     </div>
