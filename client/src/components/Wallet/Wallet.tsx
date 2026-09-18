@@ -1,4 +1,4 @@
-import { WalletType } from '../../../../server/server'
+import { WalletType, round } from '../../../../server/server'
 
 export default function Wallet({
   wallet
@@ -6,11 +6,11 @@ export default function Wallet({
   wallet: WalletType
 }) {
 
-  function round(number: number, decimals: number=2) {
-    let outputNumber = parseFloat(number.toFixed(decimals))
-    if (!outputNumber && decimals < 100) {outputNumber = round(number, decimals+1) as number}
-    return outputNumber
-  }
+  // function round(number: number, decimals: number=2) {
+  //   let outputNumber = parseFloat(number.toFixed(decimals))
+  //   if (!outputNumber && decimals < 100) {outputNumber = round(number, decimals+1) as number}
+  //   return outputNumber
+  // }
 
   function getDollarTotal(wallet: WalletType) {
     let total = 0

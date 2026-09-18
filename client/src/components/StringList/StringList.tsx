@@ -1,5 +1,3 @@
-import './StringList.css'
-
 type transaction = {
   text: string,
   time: string

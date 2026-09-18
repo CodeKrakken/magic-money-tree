@@ -247,7 +247,7 @@ let i: number = 0;
  * These constants are the strategy established by the research.
  */
 
-const POSITION_NOTIONAL = 10;
+const POSITION_NOTIONAL = 90;
 const MAX_CONCURRENT_POSITIONS = 43;
 
 const fee = 0.001;
@@ -1490,7 +1490,7 @@ function filterMarkets(markets: market[]) {
   );
 }
 
-function round(
+export function round(
   number: number,
   decimals: number = 2
 ) {
