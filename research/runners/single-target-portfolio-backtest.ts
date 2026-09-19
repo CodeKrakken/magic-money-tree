@@ -127,7 +127,7 @@ const DATASET_PATH = path.join(
   process.cwd(),
   "research",
   "data",
-  "ema-data-1789061547934.json"
+  "ema-data-oos-60-1789165540440.json"
 );
 
 const OUTPUT_DIR = path.join(
@@ -1633,7 +1633,7 @@ function main(): void {
    * generating misleading portfolio results.
    */
   const EXPECTED_SIGNAL_COUNT =
-    49_769;
+    65_977;
 
   if (
     signals.length !==
