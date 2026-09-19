@@ -1,13 +1,14 @@
-import fs from "fs";
-import path from "path";
+import fs from 'fs';
+import path from 'path';
 
 interface Candle {
   openTime: number;
+  closeTime: number;
   open: number;
   high: number;
   low: number;
   close: number;
-  volume: number;
+  volume?: number;
 }
 
 interface MarketData {
@@ -18,11 +19,6 @@ interface MarketData {
 interface Dataset {
   markets: MarketData[];
 }
-
-type ExitReason =
-  | "target"
-  | "stop"
-  | "max_hold";
 
 interface Signal {
   marketIndex: number;
@@ -35,270 +31,150 @@ interface Position {
   id: number;
   marketIndex: number;
   symbol: string;
-
   entryTime: number;
-  entryCandleIndex: number;
   entryPrice: number;
-
   notional: number;
-  quantity: number;
   entryFee: number;
-  totalEntryCost: number;
-
   targetPrice: number;
   stopPrice: number;
-  maximumHoldTime: number;
-}
-
-interface CompletedTrade {
-  entryTime: number;
   exitTime: number;
-
-  symbol: string;
-
-  entryPrice: number;
   exitPrice: number;
-
-  notional: number;
-
-  entryFee: number;
+  exitReason: 'target' | 'stop' | 'max_hold' | 'end_of_data';
   exitFee: number;
-
-  netPnl: number;
+  pnl: number;
   returnPct: number;
-
-  exitReason: ExitReason;
-
-  holdMinutes: number;
 }
 
-interface RunResult {
+interface EquityPoint {
+  time: number;
+  equity: number;
+  cash: number;
+  invested: number;
+  openPositions: number;
+}
+
+interface BacktestResult {
+  dataset: string;
   startingCapital: number;
   targetPct: number;
-
   finalEquity: number;
-  netProfit: number;
-  totalReturn: number;
+  returnPct: number;
 
-  signals: number;
-  entries: number;
-  completedTrades: number;
-
-  rejectedAtCapacity: number;
-  rejectedInsufficientCash: number;
-
-  winningTrades: number;
-  losingTrades: number;
-  winRate: number;
-
+  totalTrades: number;
   targetExits: number;
   stopExits: number;
   maxHoldExits: number;
+  endOfDataExits: number;
 
-  fees: number;
+  winningTrades: number;
+  losingTrades: number;
+  winRatePct: number;
 
   grossProfit: number;
   grossLoss: number;
+  netPnl: number;
+  totalFees: number;
   profitFactor: number;
 
-  averageReturnPct: number;
-  medianReturnPct: number;
+  averageTradeReturnPct: number;
+  medianHoldHours: number;
 
-  averageHoldMinutes: number;
-  medianHoldMinutes: number;
-
-  maxOpenPositions: number;
+  maximumConcurrentPositions: number;
+  averageOpenPositions: number;
 
   peakEquity: number;
-  maxDrawdownAbsolute: number;
-  maxDrawdownPct: number;
+  maximumDrawdown: number;
+  maximumDrawdownPct: number;
 
-  minimumCash: number;
+  averageCapitalUtilisationPct: number;
+  maximumCapitalUtilisationPct: number;
 
-  averagePositionSize: number;
-  minimumPositionSize: number;
-  maximumPositionSize: number;
+  totalPositionHours: number;
+  averagePositionHours: number;
 
-  finalCash: number;
-  finalMarketValue: number;
+  signals: number;
+  skippedSignals: number;
 }
 
-const DATASET_PATH = path.join(
-  process.cwd(),
-  "research",
-  "data",
-  "ema-data-oos-60-1789165540440.json"
-);
+interface Configuration {
+  name: string;
+  path: string;
+  expectedSignals: number;
+}
 
-const OUTPUT_DIR = path.join(
-  process.cwd(),
-  "research",
-  "output"
-);
+const ROOT = process.cwd();
 
-const FEE_RATE = 0.001;
-
-const EXECUTION_COST = 0;
-
-const MIN_POSITION_VALUE = 10;
-
-const MAX_POSITION_EQUITY_PCT = 0.05;
-
-const MAX_OPEN_POSITIONS = 43;
-
-const STOP_PCT = 0.10;
-
-const MAX_HOLD_MS =
-  48 * 60 * 60 * 1000;
-
-const SLOPE_THRESHOLD =
-  -0.0001425851160546487;
-
-const ACCELERATION_THRESHOLD =
-  0.00013986740450809692;
-
-const STARTING_CAPITALS = [
-  100,
-  200,
-  300,
-  400,
-  500,
+const DATASETS: Configuration[] = [
+  {
+    name: 'training',
+    path: path.join(
+      ROOT,
+      'research/data/ema-data-1789061547934.json'
+    ),
+    expectedSignals: 49769
+  },
+  {
+    name: 'oos',
+    path: path.join(
+      ROOT,
+      'research/data/ema-data-oos-60-1789165540440.json'
+    ),
+    expectedSignals: 65977
+  }
 ];
 
+const OUTPUT_DIR = path.join(ROOT, 'research/output');
+
+const STARTING_CAPITALS = [100, 200, 300, 400, 500];
+
 const TARGET_PCTS = [
-  0.01,
-  0.02,
-  0.03,
-  0.04,
   0.05,
   0.06,
   0.07,
   0.08,
   0.09,
-  0.10,
+  0.10
 ];
 
-const MS_PER_MINUTE = 60_000;
+const FEE_RATE = 0.001;
+const STOP_PCT = 0.10;
+const MAX_HOLD_MS = 48 * 60 * 60 * 1000;
 
-const EPSILON = 1e-12;
+const MIN_POSITION_NOTIONAL = 10;
+const MAX_POSITION_PCT = 0.05;
+const MAX_CONCURRENT_POSITIONS = 43;
 
-/* -------------------------------------------------------------------------- */
-/* Formatting                                                                 */
-/* -------------------------------------------------------------------------- */
+const SLOPE_THRESHOLD = -0.0001425851160546487;
+const ACCELERATION_THRESHOLD = 0.00013986740450809692;
 
-function formatDuration(
-  milliseconds: number
-): string {
-  const seconds =
-    milliseconds / 1000;
-
-  if (seconds < 60) {
-    return `${seconds.toFixed(1)}s`;
-  }
-
-  const minutes = seconds / 60;
-
-  if (minutes < 60) {
-    return `${minutes.toFixed(1)}m`;
-  }
-
-  return `${(minutes / 60).toFixed(2)}h`;
-}
-
-function percentile(
-  values: number[],
-  p: number
-): number {
-  if (values.length === 0) {
-    return 0;
-  }
-
-  const sorted = [...values].sort(
-    (a, b) => a - b
-  );
-
-  const index =
-    (sorted.length - 1) * p;
-
-  const lower =
-    Math.floor(index);
-
-  const upper =
-    Math.ceil(index);
-
-  if (lower === upper) {
-    return sorted[lower];
-  }
-
-  const weight =
-    index - lower;
-
-  return (
-    sorted[lower] *
-      (1 - weight) +
-    sorted[upper] *
-      weight
-  );
-}
-
-function calculateFee(
-  value: number
-): number {
-  return (
-    value *
-    (FEE_RATE + EXECUTION_COST)
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/* Signal calculation                                                         */
-/* -------------------------------------------------------------------------- */
-
-/**
- * O(n) rolling linear-regression slope.
- *
- * This is deliberately the same calculation used by the
- * previous working single-target runner.
+/*
+ * Exact signal-generation implementation from the original
+ * working research runner.
  */
 function buildRegressionSlopes(
   closes: number[],
   windowSize: number
 ): Float64Array {
   const n = closes.length;
-
-  const slopes =
-    new Float64Array(n);
+  const slopes = new Float64Array(n);
 
   if (n < windowSize) {
     return slopes;
   }
 
-  const prefixY =
-    new Float64Array(n + 1);
+  const prefixY = new Float64Array(n + 1);
+  const prefixIndexY = new Float64Array(n + 1);
 
-  const prefixIndexY =
-    new Float64Array(n + 1);
+  for (let i = 0; i < n; i++) {
+    const close = closes[i];
 
-  for (
-    let i = 0;
-    i < n;
-    i++
-  ) {
-    const close =
-      closes[i];
-
-    prefixY[i + 1] =
-      prefixY[i] + close;
-
+    prefixY[i + 1] = prefixY[i] + close;
     prefixIndexY[i + 1] =
-      prefixIndexY[i] +
-      i * close;
+      prefixIndexY[i] + i * close;
   }
 
   const sumX =
-    (windowSize *
-      (windowSize - 1)) /
-    2;
+    (windowSize * (windowSize - 1)) / 2;
 
   const sumXX =
     ((windowSize - 1) *
@@ -307,8 +183,7 @@ function buildRegressionSlopes(
     6;
 
   const denominator =
-    windowSize * sumXX -
-    sumX * sumX;
+    windowSize * sumXX - sumX * sumX;
 
   for (
     let end = windowSize - 1;
@@ -339,15 +214,6 @@ function buildRegressionSlopes(
   return slopes;
 }
 
-/**
- * IMPORTANT:
- *
- * This is the exact signal definition from the previous
- * working runner.
- *
- * Do not replace this with a different interpretation of
- * slope or acceleration.
- */
 function buildSignalIndices(
   candles: Candle[]
 ): number[] {
@@ -355,20 +221,20 @@ function buildSignalIndices(
     return [];
   }
 
-  const closes =
-    new Float64Array(
-      candles.length
-    );
+  const closes = new Float64Array(
+    candles.length
+  );
 
-  for (
-    let i = 0;
-    i < candles.length;
-    i++
-  ) {
-    closes[i] =
-      candles[i].close;
+  for (let i = 0; i < candles.length; i++) {
+    closes[i] = candles[i].close;
   }
 
+  /*
+   * Deliberately retain the same Array.from()
+   * conversion as the original working runner.
+   * This gives us an exact signal implementation,
+   * rather than a "cleaned up" equivalent.
+   */
   const slope20 =
     buildRegressionSlopes(
       Array.from(closes),
@@ -381,8 +247,7 @@ function buildSignalIndices(
       50
     );
 
-  const signalIndices: number[] =
-    [];
+  const signalIndices: number[] = [];
 
   for (
     let i = 49;
@@ -390,12 +255,10 @@ function buildSignalIndices(
     i++
   ) {
     const acceleration =
-      slope20[i] -
-      slope50[i];
+      slope20[i] - slope50[i];
 
     if (
-      slope20[i] <=
-        SLOPE_THRESHOLD &&
+      slope20[i] <= SLOPE_THRESHOLD &&
       acceleration >=
         ACCELERATION_THRESHOLD
     ) {
@@ -406,928 +269,735 @@ function buildSignalIndices(
   return signalIndices;
 }
 
-/* -------------------------------------------------------------------------- */
-/* Global signal list                                                         */
-/* -------------------------------------------------------------------------- */
+function loadDataset(
+  configuration: Configuration
+): Dataset {
+  console.log(
+    `\nLoading ${configuration.name} dataset...`
+  );
+  console.log(`  ${configuration.path}`);
 
-function buildSignals(
-  markets: MarketData[]
-): Signal[] {
-  const signals: Signal[] =
-    [];
+  const raw = fs.readFileSync(
+    configuration.path,
+    'utf8'
+  );
+
+  const dataset =
+    JSON.parse(raw) as Dataset;
+
+  if (
+    !dataset.markets ||
+    !Array.isArray(dataset.markets)
+  ) {
+    throw new Error(
+      `Invalid dataset: markets array not found`
+    );
+  }
+
+  return dataset;
+}
+
+function prepareSignals(
+  dataset: Dataset
+): {
+  signals: Signal[];
+  signalCountByMarket: number[];
+} {
+  const signals: Signal[] = [];
+
+  const signalCountByMarket: number[] =
+    new Array(dataset.markets.length).fill(0);
+
+  console.log(
+    `  Preparing signals for ${dataset.markets.length} markets...`
+  );
 
   for (
     let marketIndex = 0;
-    marketIndex < markets.length;
+    marketIndex < dataset.markets.length;
     marketIndex++
   ) {
     const market =
-      markets[marketIndex];
+      dataset.markets[marketIndex];
 
-    const signalIndices =
+    const indices =
       buildSignalIndices(
         market.candles
       );
 
-    for (
-      const candleIndex of
-        signalIndices
-    ) {
+    signalCountByMarket[marketIndex] =
+      indices.length;
+
+    for (const candleIndex of indices) {
       const candle =
-        market.candles[
-          candleIndex
-        ];
+        market.candles[candleIndex];
 
       signals.push({
         marketIndex,
         candleIndex,
-        time:
-          candle.openTime,
-        price:
-          candle.close,
+        time: candle.openTime,
+        price: candle.close
       });
     }
 
     if (
       (marketIndex + 1) %
-        10 ===
-        0 ||
-      marketIndex ===
-        markets.length - 1
+        Math.max(
+          1,
+          Math.floor(
+            dataset.markets.length / 10
+          )
+        ) === 0
     ) {
       console.log(
-        `  ${marketIndex + 1}/${markets.length} markets`
+        `  ${marketIndex + 1}/${dataset.markets.length} markets`
       );
     }
   }
 
   signals.sort(
-    (a, b) => {
-      if (a.time !== b.time) {
-        return a.time - b.time;
-      }
-
-      if (
-        a.marketIndex !==
-        b.marketIndex
-      ) {
-        return (
-          a.marketIndex -
-          b.marketIndex
-        );
-      }
-
-      return (
-        a.candleIndex -
-        b.candleIndex
-      );
-    }
+    (a, b) => a.time - b.time
   );
 
-  return signals;
+  return {
+    signals,
+    signalCountByMarket
+  };
 }
 
-/* -------------------------------------------------------------------------- */
-/* Position exit calculation                                                  */
-/* -------------------------------------------------------------------------- */
-
-/**
- * Finds the first exit for a position.
- *
- * Priority on each candle:
- *
- * 1. stop
- * 2. target
- * 3. max hold
- *
- * This preserves the previous runner's conservative
- * same-candle assumption.
- */
 function findExit(
   market: MarketData,
-  position: Position
+  entryCandleIndex: number,
+  entryPrice: number,
+  targetPct: number
 ): {
-  exitTime: number;
-  exitPrice: number;
-  exitReason: ExitReason;
+  candleIndex: number;
+  time: number;
+  price: number;
+  reason:
+    | 'target'
+    | 'stop'
+    | 'max_hold'
+    | 'end_of_data';
 } {
-  const candles =
-    market.candles;
+  const candles = market.candles;
+
+  const targetPrice =
+    entryPrice * (1 + targetPct);
+
+  const stopPrice =
+    entryPrice * (1 - STOP_PCT);
+
+  const entryTime =
+    candles[entryCandleIndex].openTime;
+
+  const maximumHoldTime =
+    entryTime + MAX_HOLD_MS;
 
   for (
-    let i =
-      position.entryCandleIndex +
-      1;
+    let i = entryCandleIndex + 1;
     i < candles.length;
     i++
   ) {
-    const candle =
-      candles[i];
+    const candle = candles[i];
 
-    if (
-      candle.low <=
-      position.stopPrice
-    ) {
+    /*
+     * Stop takes priority when both stop and target
+     * are touched in the same candle. This preserves
+     * the original runner's conservative ordering.
+     */
+    if (candle.low <= stopPrice) {
       return {
-        exitTime:
-          candle.openTime,
-        exitPrice:
-          position.stopPrice,
-        exitReason: "stop",
+        candleIndex: i,
+        time: candle.openTime,
+        price: stopPrice,
+        reason: 'stop'
       };
     }
 
-    if (
-      candle.high >=
-      position.targetPrice
-    ) {
+    if (candle.high >= targetPrice) {
       return {
-        exitTime:
-          candle.openTime,
-        exitPrice:
-          position.targetPrice,
-        exitReason: "target",
+        candleIndex: i,
+        time: candle.openTime,
+        price: targetPrice,
+        reason: 'target'
       };
     }
 
-    if (
-      candle.openTime >=
-      position.maximumHoldTime
-    ) {
+    if (candle.openTime >= maximumHoldTime) {
       return {
-        exitTime:
-          candle.openTime,
-        exitPrice:
-          candle.close,
-        exitReason:
-          "max_hold",
+        candleIndex: i,
+        time: candle.openTime,
+        price: candle.close,
+        reason: 'max_hold'
       };
     }
   }
 
+  const finalIndex =
+    candles.length - 1;
+
   const finalCandle =
-    candles[
-      candles.length - 1
-    ];
+    candles[finalIndex];
 
   return {
-    exitTime:
-      finalCandle.openTime,
-    exitPrice:
-      finalCandle.close,
-    exitReason:
-      "max_hold",
+    candleIndex: finalIndex,
+    time: finalCandle.closeTime,
+    price: finalCandle.close,
+    reason: 'end_of_data'
   };
 }
 
-/* -------------------------------------------------------------------------- */
-/* Portfolio simulation                                                       */
-/* -------------------------------------------------------------------------- */
+function binarySearchCandleIndex(
+  candles: Candle[],
+  time: number
+): number {
+  let low = 0;
+  let high = candles.length - 1;
 
-interface ExitEvent {
-  time: number;
-  position: Position;
-  exitPrice: number;
-  exitReason: ExitReason;
-}
+  while (low <= high) {
+    const middle =
+      Math.floor((low + high) / 2);
 
-interface SimulationState {
-  cash: number;
+    if (
+      candles[middle].openTime <= time
+    ) {
+      low = middle + 1;
+    } else {
+      high = middle - 1;
+    }
+  }
 
-  positions: Position[];
+  if (high < 0) {
+    return 0;
+  }
 
-  completedTrades:
-    CompletedTrade[];
-
-  totalFees: number;
-
-  rejectedAtCapacity: number;
-
-  rejectedInsufficientCash: number;
-
-  maxOpenPositions: number;
-
-  peakEquity: number;
-
-  maxDrawdownAbsolute: number;
-
-  maxDrawdownPct: number;
-
-  minimumCash: number;
-
-  positionSizes: number[];
+  return high;
 }
 
 function getPositionMarketValue(
   position: Position,
-  price: number
-): number {
-  return (
-    position.quantity *
-    price
-  );
-}
-
-function getMarketPrice(
   market: MarketData,
-  candleIndex: number
+  time: number
 ): number {
-  return market.candles[
-    candleIndex
-  ].close;
-}
+  const candleIndex =
+    binarySearchCandleIndex(
+      market.candles,
+      time
+    );
 
-function getEquity(
-  markets: MarketData[],
-  positions: Position[],
-  cash: number,
-  currentTime: number
-): number {
-  let marketValue = 0;
-
-  for (
-    const position of positions
-  ) {
-    /*
-     * Find the most recent candle at or before
-     * the current event time.
-     *
-     * Positions are only held for 48h and the
-     * dataset is one-minute data, so walking
-     * backwards from the position's exit is cheap.
-     */
-    const candles =
-      markets[
-        position.marketIndex
-      ].candles;
-
-    let low = 0;
-    let high =
-      candles.length - 1;
-
-    while (low <= high) {
-      const mid =
-        (low + high) >> 1;
-
-      if (
-        candles[mid].openTime <=
-        currentTime
-      ) {
-        low = mid + 1;
-      } else {
-        high = mid - 1;
-      }
-    }
-
-    const index =
-      Math.max(0, high);
-
-    marketValue +=
-      getPositionMarketValue(
-        position,
-        candles[index].close
-      );
-  }
+  const candle =
+    market.candles[candleIndex];
 
   return (
-    cash + marketValue
+    position.notional *
+    (candle.close / position.entryPrice)
   );
 }
 
-function updateDrawdown(
-  state: SimulationState,
-  equity: number
-): void {
-  if (
-    equity >
-    state.peakEquity
-  ) {
-    state.peakEquity =
-      equity;
+function calculateMedian(
+  values: number[]
+): number {
+  if (values.length === 0) {
+    return 0;
   }
 
-  const drawdown =
-    state.peakEquity -
-    equity;
+  const sorted = [...values].sort(
+    (a, b) => a - b
+  );
 
-  if (
-    drawdown >
-    state.maxDrawdownAbsolute
-  ) {
-    state.maxDrawdownAbsolute =
-      drawdown;
+  const middle =
+    Math.floor(sorted.length / 2);
+
+  if (sorted.length % 2 === 0) {
+    return (
+      (sorted[middle - 1] +
+        sorted[middle]) /
+      2
+    );
   }
 
-  if (
-    state.peakEquity >
-    EPSILON
-  ) {
-    const drawdownPct =
-      drawdown /
-      state.peakEquity;
-
-    if (
-      drawdownPct >
-      state.maxDrawdownPct
-    ) {
-      state.maxDrawdownPct =
-        drawdownPct;
-    }
-  }
-}
-
-function closePosition(
-  state: SimulationState,
-  position: Position,
-  exitPrice: number,
-  exitTime: number,
-  exitReason: ExitReason
-): void {
-  const exitValue =
-    position.quantity *
-    exitPrice;
-
-  const exitFee =
-    calculateFee(exitValue);
-
-  const cashReceived =
-    exitValue -
-    exitFee;
-
-  state.cash +=
-    cashReceived;
-
-  state.totalFees +=
-    exitFee;
-
-  const netPnl =
-    exitValue -
-    exitFee -
-    position.notional -
-    position.entryFee;
-
-  const returnPct =
-    netPnl /
-    position.notional;
-
-  state.completedTrades.push({
-    entryTime:
-      position.entryTime,
-
-    exitTime,
-
-    symbol:
-      position.symbol,
-
-    entryPrice:
-      position.entryPrice,
-
-    exitPrice,
-
-    notional:
-      position.notional,
-
-    entryFee:
-      position.entryFee,
-
-    exitFee,
-
-    netPnl,
-
-    returnPct,
-
-    exitReason,
-
-    holdMinutes:
-      (exitTime -
-        position.entryTime) /
-      MS_PER_MINUTE,
-  });
+  return sorted[middle];
 }
 
 function simulateRun(
-  markets: MarketData[],
+  dataset: Dataset,
   signals: Signal[],
-  targetPct: number,
-  startingCapital: number
-): RunResult {
-  const state:
-    SimulationState = {
-    cash:
-      startingCapital,
-
-    positions: [],
-
-    completedTrades: [],
-
-    totalFees: 0,
-
-    rejectedAtCapacity: 0,
-
-    rejectedInsufficientCash: 0,
-
-    maxOpenPositions: 0,
-
-    peakEquity:
-      startingCapital,
-
-    maxDrawdownAbsolute: 0,
-
-    maxDrawdownPct: 0,
-
-    minimumCash:
-      startingCapital,
-
-    positionSizes: [],
-  };
-
-  /*
-   * Exit events are generated lazily.
-   *
-   * We keep them in a simple array because every
-   * position is inserted chronologically as entries
-   * are processed. The next exit is found by scanning
-   * active positions at each signal.
-   *
-   * With the 43-position limit this remains small.
-   */
-  let signalIndex = 0;
-
-  const exitEvents: ExitEvent[] =
-    [];
+  datasetName: string,
+  startingCapital: number,
+  targetPct: number
+): BacktestResult {
+  let cash = startingCapital;
 
   let nextPositionId = 1;
 
+  const openPositions: Position[] =
+    [];
+
+  const completedPositions: Position[] =
+    [];
+
+  let maximumConcurrentPositions = 0;
+
+  let skippedSignals = 0;
+
+  let peakEquity = startingCapital;
+  let maximumDrawdown = 0;
+  let maximumDrawdownPct = 0;
+
+  let equityPointCount = 0;
+  let totalOpenPositionCount = 0;
+  let totalCapitalUtilisation = 0;
+  let maximumCapitalUtilisation = 0;
+
+  let previousEquityTime =
+    signals.length > 0
+      ? signals[0].time
+      : 0;
+
   /*
-   * Process every signal chronologically.
+   * This records time-weighted portfolio utilisation.
    *
-   * Before accepting a new entry, close every position
-   * whose exit has occurred by this signal timestamp.
+   * If 40% of the portfolio is invested for one hour,
+   * that contributes 40 percentage-points of utilisation
+   * for that hour.
    */
-  while (
-    signalIndex <
-    signals.length
+  let utilisationArea = 0;
+  let observedDuration = 0;
+
+  /*
+   * Process every minute represented by the dataset,
+   * not just signal times.
+   *
+   * This is important because drawdown must include
+   * mark-to-market movements between entry/exit events.
+   */
+  const timelineTimes =
+    buildTimelineTimes(dataset);
+
+  let signalPointer = 0;
+
+  for (
+    let timelineIndex = 0;
+    timelineIndex <
+    timelineTimes.length;
+    timelineIndex++
   ) {
-    const signal =
-      signals[signalIndex];
+    const time =
+      timelineTimes[timelineIndex];
 
     /*
-     * Process all exits occurring before or at this
-     * signal timestamp.
+     * First settle any positions whose actual exit
+     * has occurred by this timestamp.
      */
-    const dueExits:
-      ExitEvent[] = [];
-
     for (
-      let i =
-        exitEvents.length - 1;
+      let i = openPositions.length - 1;
       i >= 0;
       i--
     ) {
-      const exit =
-        exitEvents[i];
+      const position =
+        openPositions[i];
 
-      if (
-        exit.time <=
-        signal.time
-      ) {
-        dueExits.push(exit);
+      if (position.exitTime <= time) {
+        cash +=
+          position.notional *
+            (position.exitPrice /
+              position.entryPrice) -
+          position.exitFee;
 
-        exitEvents.splice(i, 1);
+        completedPositions.push(
+          position
+        );
+
+        openPositions.splice(i, 1);
       }
     }
 
-    dueExits.sort(
-      (a, b) =>
-        a.time - b.time
-    );
-
-    for (
-      const exit of dueExits
+    /*
+     * Process signals occurring at this timestamp.
+     *
+     * All exits have already been processed, so
+     * capital released by an exit is available for
+     * a new entry at the same timestamp.
+     */
+    while (
+      signalPointer <
+        signals.length &&
+      signals[signalPointer].time <=
+        time
     ) {
-      const positionIndex =
-        state.positions.indexOf(
-          exit.position
-        );
+      const signal =
+        signals[signalPointer];
+
+      signalPointer++;
 
       if (
-        positionIndex === -1
+        signal.time !== time
       ) {
         continue;
       }
 
-      closePosition(
-        state,
-        exit.position,
-        exit.exitPrice,
-        exit.time,
-        exit.exitReason
+      if (
+        openPositions.length >=
+        MAX_CONCURRENT_POSITIONS
+      ) {
+        skippedSignals++;
+        continue;
+      }
+
+      const equity =
+        getEquityAtTime(
+          cash,
+          openPositions,
+          dataset,
+          time
+        );
+
+      const desiredNotional =
+        Math.max(
+          MIN_POSITION_NOTIONAL,
+          equity * MAX_POSITION_PCT
+        );
+
+      /*
+       * We cannot spend more cash than is available.
+       * Entry fee is paid from cash, so the gross
+       * position notional must satisfy:
+       *
+       * notional + notional * fee <= cash
+       */
+      const maximumAffordableNotional =
+        cash / (1 + FEE_RATE);
+
+      const notional = Math.min(
+        desiredNotional,
+        maximumAffordableNotional
       );
 
-      state.positions.splice(
-        positionIndex,
-        1
-      );
-    }
+      if (
+        notional < MIN_POSITION_NOTIONAL
+      ) {
+        skippedSignals++;
+        continue;
+      }
 
-    /*
-     * Mark the portfolio to market at this timestamp
-     * before making the new investment decision.
-     */
-    const equity =
-      getEquity(
-        markets,
-        state.positions,
-        state.cash,
-        signal.time
-      );
+      const market =
+        dataset.markets[
+          signal.marketIndex
+        ];
 
-    updateDrawdown(
-      state,
-      equity
-    );
+      const exit =
+        findExit(
+          market,
+          signal.candleIndex,
+          signal.price,
+          targetPct
+        );
 
-    state.minimumCash =
-      Math.min(
-        state.minimumCash,
-        state.cash
-      );
+      const entryFee =
+        notional * FEE_RATE;
 
-    /*
-     * Enforce the 43-position limit.
-     */
-    if (
-      state.positions.length >=
-      MAX_OPEN_POSITIONS
-    ) {
-      state.rejectedAtCapacity++;
+      cash -=
+        notional + entryFee;
 
-      signalIndex++;
-      continue;
-    }
+      const position: Position = {
+        id: nextPositionId++,
+        marketIndex:
+          signal.marketIndex,
+        symbol: market.symbol,
+        entryTime: signal.time,
+        entryPrice: signal.price,
+        notional,
+        entryFee,
+        targetPrice:
+          signal.price *
+          (1 + targetPct),
+        stopPrice:
+          signal.price *
+          (1 - STOP_PCT),
+        exitTime: exit.time,
+        exitPrice: exit.price,
+        exitReason:
+          exit.reason,
+        exitFee: 0,
+        pnl: 0,
+        returnPct: 0
+      };
 
-    /*
-     * Position size is based on total portfolio equity,
-     * not available cash.
-     *
-     * The $10 minimum overrides 5% when 5% is below
-     * $10. Therefore:
-     *
-     * $100 -> $10
-     * $200 -> $10
-     * $300 -> $15
-     * $400 -> $20
-     * $500 -> $25
-     */
-    const positionValue =
-      Math.max(
-        MIN_POSITION_VALUE,
-        equity *
-          MAX_POSITION_EQUITY_PCT
-      );
+      const grossExitValue =
+        notional *
+        (exit.price / signal.price);
 
-    const entryFee =
-      calculateFee(
-        positionValue
-      );
+      position.exitFee =
+        grossExitValue * FEE_RATE;
 
-    const totalEntryCost =
-      positionValue +
-      entryFee;
+      position.pnl =
+        grossExitValue -
+        position.exitFee -
+        notional -
+        position.entryFee;
 
-    /*
-     * Do not borrow money.
-     */
-    if (
-      totalEntryCost >
-      state.cash +
-        EPSILON
-    ) {
-      state.rejectedInsufficientCash++;
+      position.returnPct =
+        position.pnl / notional;
 
-      signalIndex++;
-      continue;
-    }
-
-    const market =
-      markets[
-        signal.marketIndex
-      ];
-
-    const entryPrice =
-      signal.price;
-
-    const quantity =
-      positionValue /
-      entryPrice;
-
-    const position:
-      Position = {
-      id:
-        nextPositionId++,
-
-      marketIndex:
-        signal.marketIndex,
-
-      symbol:
-        market.symbol,
-
-      entryTime:
-        signal.time,
-
-      entryCandleIndex:
-        signal.candleIndex,
-
-      entryPrice,
-
-      notional:
-        positionValue,
-
-      quantity,
-
-      entryFee,
-
-      totalEntryCost,
-
-      targetPrice:
-        entryPrice *
-        (1 + targetPct),
-
-      stopPrice:
-        entryPrice *
-        (1 - STOP_PCT),
-
-      maximumHoldTime:
-        signal.time +
-        MAX_HOLD_MS,
-    };
-
-    state.cash -=
-      totalEntryCost;
-
-    state.totalFees +=
-      entryFee;
-
-    state.positions.push(
-      position
-    );
-
-    state.positionSizes.push(
-      positionValue
-    );
-
-    state.maxOpenPositions =
-      Math.max(
-        state.maxOpenPositions,
-        state.positions.length
-      );
-
-    /*
-     * Determine the position's eventual exit.
-     */
-    const exit =
-      findExit(
-        market,
+      openPositions.push(
         position
       );
 
-    exitEvents.push({
-      time:
-        exit.exitTime,
+      maximumConcurrentPositions =
+        Math.max(
+          maximumConcurrentPositions,
+          openPositions.length
+        );
+    }
 
-      position,
+    const equity =
+      getEquityAtTime(
+        cash,
+        openPositions,
+        dataset,
+        time
+      );
 
-      exitPrice:
-        exit.exitPrice,
+    const invested =
+      getInvestedValueAtTime(
+        openPositions,
+        dataset,
+        time
+      );
 
-      exitReason:
-        exit.exitReason,
-    });
+    const utilisation =
+      startingCapital > 0
+        ? invested / equity
+        : 0;
 
-    signalIndex++;
+    peakEquity =
+      Math.max(
+        peakEquity,
+        equity
+      );
+
+    const drawdown =
+      peakEquity - equity;
+
+    const drawdownPct =
+      peakEquity > 0
+        ? drawdown / peakEquity
+        : 0;
+
+    maximumDrawdown =
+      Math.max(
+        maximumDrawdown,
+        drawdown
+      );
+
+    maximumDrawdownPct =
+      Math.max(
+        maximumDrawdownPct,
+        drawdownPct
+      );
+
+    totalOpenPositionCount +=
+      openPositions.length;
+
+    totalCapitalUtilisation +=
+      utilisation;
+
+    maximumCapitalUtilisation =
+      Math.max(
+        maximumCapitalUtilisation,
+        utilisation
+      );
+
+    equityPointCount++;
+
+    if (previousEquityTime > 0) {
+      const deltaTime =
+        time - previousEquityTime;
+
+      if (deltaTime >= 0) {
+        utilisationArea +=
+          previousUtilisation(
+            openPositions,
+            dataset,
+            previousEquityTime,
+            startingCapital
+          ) *
+          deltaTime;
+
+        observedDuration +=
+          deltaTime;
+      }
+    }
+
+    previousEquityTime = time;
   }
 
   /*
-   * Close all remaining positions at their scheduled
-   * exit times, in chronological order.
+   * Any remaining positions at the end of the
+   * timeline are settled at their already determined
+   * exit price.
    */
-  exitEvents.sort(
-    (a, b) =>
-      a.time - b.time
-  );
+  for (const position of openPositions) {
+    cash +=
+      position.notional *
+        (position.exitPrice /
+          position.entryPrice) -
+      position.exitFee;
 
-  for (
-    const exit of exitEvents
-  ) {
-    const positionIndex =
-      state.positions.indexOf(
-        exit.position
-      );
-
-    if (
-      positionIndex === -1
-    ) {
-      continue;
-    }
-
-    closePosition(
-      state,
-      exit.position,
-      exit.exitPrice,
-      exit.time,
-      exit.exitReason
+    completedPositions.push(
+      position
     );
-
-    state.positions.splice(
-      positionIndex,
-      1
-    );
-
-    /*
-     * Update realised-equity drawdown after the exit.
-     */
-    updateDrawdown(
-      state,
-      state.cash
-    );
-
-    state.minimumCash =
-      Math.min(
-        state.minimumCash,
-        state.cash
-      );
   }
 
-  /*
-   * The dataset is complete enough for all scheduled
-   * exits under the 48-hour rule, but if anything somehow
-   * remains open, mark it at the final candle.
-   */
-  if (
-    state.positions.length >
-    0
-  ) {
-    for (
-      const position of [
-        ...state.positions,
-      ]
-    ) {
-      const market =
-        markets[
-          position.marketIndex
-        ];
-
-      const finalCandle =
-        market.candles[
-          market.candles.length - 1
-        ];
-
-      closePosition(
-        state,
-        position,
-        finalCandle.close,
-        finalCandle.openTime,
-        "max_hold"
-      );
-    }
-
-    state.positions.length = 0;
-  }
-
-  const finalCash =
-    state.cash;
-
-  const finalMarketValue = 0;
-
-  const finalEquity =
-    finalCash +
-    finalMarketValue;
-
-  const trades =
-    state.completedTrades;
+  const finalEquity = cash;
 
   const winningTrades =
-    trades.filter(
-      trade =>
-        trade.netPnl > 0
+    completedPositions.filter(
+      position => position.pnl > 0
     );
 
   const losingTrades =
-    trades.filter(
-      trade =>
-        trade.netPnl < 0
+    completedPositions.filter(
+      position => position.pnl < 0
     );
 
   const grossProfit =
     winningTrades.reduce(
-      (sum, trade) =>
-        sum + trade.netPnl,
+      (sum, position) =>
+        sum + position.pnl,
       0
     );
 
   const grossLoss =
-    losingTrades.reduce(
-      (sum, trade) =>
-        sum +
-        Math.abs(
-          trade.netPnl
-        ),
+    Math.abs(
+      losingTrades.reduce(
+        (sum, position) =>
+          sum + position.pnl,
+        0
+      )
+    );
+
+  const netPnl =
+    completedPositions.reduce(
+      (sum, position) =>
+        sum + position.pnl,
       0
     );
 
-  const returns =
-    trades.map(
-      trade =>
-        trade.returnPct
+  const totalFees =
+    completedPositions.reduce(
+      (sum, position) =>
+        sum +
+        position.entryFee +
+        position.exitFee,
+      0
     );
 
-  const holdTimes =
-    trades.map(
-      trade =>
-        trade.holdMinutes
+  const tradeReturns =
+    completedPositions.map(
+      position =>
+        position.returnPct
     );
+
+  const holdHours =
+    completedPositions.map(
+      position =>
+        (position.exitTime -
+          position.entryTime) /
+        (60 * 60 * 1000)
+    );
+
+  const totalPositionHours =
+    holdHours.reduce(
+      (sum, hours) =>
+        sum + hours,
+      0
+    );
+
+  const averagePositionHours =
+    holdHours.length > 0
+      ? totalPositionHours /
+        holdHours.length
+      : 0;
+
+  const averageCapitalUtilisationPct =
+    equityPointCount > 0
+      ? (totalCapitalUtilisation /
+          equityPointCount) *
+        100
+      : 0;
+
+  const timeWeightedUtilisationPct =
+    observedDuration > 0
+      ? (utilisationArea /
+          observedDuration) *
+        100
+      : 0;
+
+  /*
+   * Use time-weighted utilisation for the headline
+   * capital-utilisation measure. The simple average is
+   * also useful and can be added later if needed.
+   */
+  const averageUtilisationPct =
+    timeWeightedUtilisationPct ||
+    averageCapitalUtilisationPct;
+
+  const averageOpenPositions =
+    equityPointCount > 0
+      ? totalOpenPositionCount /
+        equityPointCount
+      : 0;
 
   const targetExits =
-    trades.filter(
-      trade =>
-        trade.exitReason ===
-        "target"
+    completedPositions.filter(
+      position =>
+        position.exitReason ===
+        'target'
     ).length;
 
   const stopExits =
-    trades.filter(
-      trade =>
-        trade.exitReason ===
-        "stop"
+    completedPositions.filter(
+      position =>
+        position.exitReason ===
+        'stop'
     ).length;
 
   const maxHoldExits =
-    trades.filter(
-      trade =>
-        trade.exitReason ===
-        "max_hold"
+    completedPositions.filter(
+      position =>
+        position.exitReason ===
+        'max_hold'
     ).length;
 
-  const averagePositionSize =
-    state.positionSizes.length >
-    0
-      ? state.positionSizes.reduce(
-          (sum, value) =>
-            sum + value,
-          0
-        ) /
-        state.positionSizes.length
-      : 0;
-
-  const minimumPositionSize =
-    state.positionSizes.length >
-    0
-      ? Math.min(
-          ...state.positionSizes
-        )
-      : 0;
-
-  const maximumPositionSize =
-    state.positionSizes.length >
-    0
-      ? Math.max(
-          ...state.positionSizes
-        )
-      : 0;
-
-  const netProfit =
-    finalEquity -
-    startingCapital;
+  const endOfDataExits =
+    completedPositions.filter(
+      position =>
+        position.exitReason ===
+        'end_of_data'
+    ).length;
 
   return {
+    dataset: datasetName,
     startingCapital,
-
     targetPct,
 
     finalEquity,
 
-    netProfit,
+    returnPct:
+      (finalEquity /
+        startingCapital -
+        1) *
+      100,
 
-    totalReturn:
-      startingCapital > 0
-        ? netProfit /
-          startingCapital
-        : 0,
+    totalTrades:
+      completedPositions.length,
 
-    signals:
-      signals.length,
-
-    entries:
-      trades.length,
-
-    completedTrades:
-      trades.length,
-
-    rejectedAtCapacity:
-      state.rejectedAtCapacity,
-
-    rejectedInsufficientCash:
-      state.rejectedInsufficientCash,
+    targetExits,
+    stopExits,
+    maxHoldExits,
+    endOfDataExits,
 
     winningTrades:
       winningTrades.length,
@@ -1335,768 +1005,622 @@ function simulateRun(
     losingTrades:
       losingTrades.length,
 
-    winRate:
-      trades.length > 0
-        ? winningTrades.length /
-          trades.length
+    winRatePct:
+      completedPositions.length > 0
+        ? (winningTrades.length /
+            completedPositions.length) *
+          100
         : 0,
-
-    targetExits,
-
-    stopExits,
-
-    maxHoldExits,
-
-    fees:
-      state.totalFees,
 
     grossProfit,
-
     grossLoss,
+    netPnl,
+    totalFees,
 
     profitFactor:
-      grossLoss > EPSILON
-        ? grossProfit /
-          grossLoss
+      grossLoss > 0
+        ? grossProfit / grossLoss
         : Infinity,
 
-    averageReturnPct:
-      returns.length > 0
-        ? returns.reduce(
+    averageTradeReturnPct:
+      tradeReturns.length > 0
+        ? (tradeReturns.reduce(
             (sum, value) =>
               sum + value,
             0
           ) /
-          returns.length
+            tradeReturns.length) *
+          100
         : 0,
 
-    medianReturnPct:
-      percentile(
-        returns,
-        0.5
+    medianHoldHours:
+      calculateMedian(
+        holdHours
       ),
 
-    averageHoldMinutes:
-      holdTimes.length > 0
-        ? holdTimes.reduce(
-            (sum, value) =>
-              sum + value,
-            0
-          ) /
-          holdTimes.length
-        : 0,
+    maximumConcurrentPositions,
+    averageOpenPositions,
 
-    medianHoldMinutes:
-      percentile(
-        holdTimes,
-        0.5
-      ),
+    peakEquity,
+    maximumDrawdown,
+    maximumDrawdownPct:
+      maximumDrawdownPct * 100,
 
-    maxOpenPositions:
-      state.maxOpenPositions,
+    averageCapitalUtilisationPct:
+      averageUtilisationPct,
 
-    peakEquity:
-      state.peakEquity,
+    maximumCapitalUtilisationPct:
+      maximumCapitalUtilisation * 100,
 
-    maxDrawdownAbsolute:
-      state.maxDrawdownAbsolute,
+    totalPositionHours,
+    averagePositionHours,
 
-    maxDrawdownPct:
-      state.maxDrawdownPct,
-
-    minimumCash:
-      state.minimumCash,
-
-    averagePositionSize,
-
-    minimumPositionSize,
-
-    maximumPositionSize,
-
-    finalCash,
-
-    finalMarketValue,
+    signals: signals.length,
+    skippedSignals
   };
 }
 
-/* -------------------------------------------------------------------------- */
-/* Output helpers                                                             */
-/* -------------------------------------------------------------------------- */
+function getEquityAtTime(
+  cash: number,
+  openPositions: Position[],
+  dataset: Dataset,
+  time: number
+): number {
+  let equity = cash;
 
-function printResult(
-  result: RunResult
-): void {
-  console.log(
-    `  Final: $${result.finalEquity.toFixed(2)} ` +
-      `(${(
-        result.totalReturn * 100
-      ).toFixed(2)}%)`
-  );
+  for (const position of openPositions) {
+    const market =
+      dataset.markets[
+        position.marketIndex
+      ];
 
-  console.log(
-    `  Trades: ${result.completedTrades.toLocaleString()} | ` +
-      `Win: ${(
-        result.winRate * 100
-      ).toFixed(2)}% | ` +
-      `Max DD: ${(
-        result.maxDrawdownPct *
-        100
-      ).toFixed(2)}% | ` +
-      `Max positions: ${result.maxOpenPositions}`
-  );
+    equity +=
+      getPositionMarketValue(
+        position,
+        market,
+        time
+      );
+  }
 
-  console.log(
-    `  Target: ${result.targetExits.toLocaleString()} | ` +
-      `Stop: ${result.stopExits.toLocaleString()} | ` +
-      `48h: ${result.maxHoldExits.toLocaleString()}`
-  );
+  return equity;
+}
 
-  console.log(
-    `  Rejected: ${result.rejectedAtCapacity.toLocaleString()} capacity, ` +
-      `${result.rejectedInsufficientCash.toLocaleString()} cash`
+function getInvestedValueAtTime(
+  openPositions: Position[],
+  dataset: Dataset,
+  time: number
+): number {
+  let invested = 0;
+
+  for (const position of openPositions) {
+    const market =
+      dataset.markets[
+        position.marketIndex
+      ];
+
+    invested +=
+      getPositionMarketValue(
+        position,
+        market,
+        time
+      );
+  }
+
+  return invested;
+}
+
+function previousUtilisation(
+  openPositions: Position[],
+  dataset: Dataset,
+  time: number,
+  startingCapital: number
+): number {
+  if (
+    openPositions.length === 0
+  ) {
+    return 0;
+  }
+
+  const invested =
+    getInvestedValueAtTime(
+      openPositions,
+      dataset,
+      time
+    );
+
+  const equity =
+    startingCapital > 0
+      ? Math.max(
+          0.000000001,
+          invested
+        )
+      : 1;
+
+  return invested / equity;
+}
+
+/*
+ * Create a common minute-by-minute timeline across
+ * every market.
+ *
+ * All markets in this research are 1-minute data,
+ * so this gives us the required mark-to-market
+ * equity curve rather than sampling only on signals.
+ */
+function buildTimelineTimes(
+  dataset: Dataset
+): number[] {
+  const times = new Set<number>();
+
+  for (const market of dataset.markets) {
+    for (const candle of market.candles) {
+      times.add(candle.openTime);
+    }
+  }
+
+  return Array.from(times).sort(
+    (a, b) => a - b
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/* Main                                                                       */
-/* -------------------------------------------------------------------------- */
+function printResult(
+  result: BacktestResult
+): void {
+  console.log(
+    [
+      `${result.dataset.padEnd(8)}`,
+      `£${result.startingCapital}`,
+      `${(result.targetPct * 100).toFixed(0)}%`,
+      `final £${result.finalEquity.toFixed(2)}`,
+      `return ${result.returnPct >= 0 ? '+' : ''}${result.returnPct.toFixed(2)}%`,
+      `DD ${result.maximumDrawdownPct.toFixed(2)}%`,
+      `trades ${result.totalTrades}`,
+      `PF ${Number.isFinite(result.profitFactor) ? result.profitFactor.toFixed(3) : '∞'}`
+    ].join(' | ')
+  );
+}
 
-function main(): void {
-  const startedAt =
-    Date.now();
-
-  console.log("");
+function printTargetSummary(
+  results: BacktestResult[]
+): void {
+  console.log('\nTarget comparison');
 
   console.log(
-    "========================================================================"
+    'Target | Training £500 | OOS £500 | Training DD | OOS DD | Training Util | OOS Util'
   );
 
   console.log(
-    "Single-target portfolio backtest"
+    '-------|---------------|----------|-------------|---------|---------------|---------'
   );
 
-  console.log(
-    "========================================================================"
-  );
-
-  console.log("");
-
-  console.log(
-    `Data:                       ${DATASET_PATH}`
-  );
-
-  console.log(
-    `Starting capitals:         ${STARTING_CAPITALS.join(
-      ", "
-    )}`
-  );
-
-  console.log(
-    `Targets:                   ${TARGET_PCTS.map(
-      value =>
-        `${(
-          value * 100
-        ).toFixed(0)}%`
-    ).join(", ")}`
-  );
-
-  console.log(
-    `Maximum positions:         ${MAX_OPEN_POSITIONS}`
-  );
-
-  console.log(
-    `Maximum position:          ${(
-      MAX_POSITION_EQUITY_PCT *
-      100
-    ).toFixed(0)}% of equity`
-  );
-
-  console.log(
-    `Minimum position:          $${MIN_POSITION_VALUE}`
-  );
-
-  console.log(
-    `Fee per transaction:       ${(
-      FEE_RATE * 100
-    ).toFixed(1)}%`
-  );
-
-  console.log(
-    `Stop loss:                 ${(
-      STOP_PCT * 100
-    ).toFixed(0)}%`
-  );
-
-  console.log(
-    `Maximum hold:              48 hours`
-  );
-
-  console.log(
-    `Slope threshold:           ${SLOPE_THRESHOLD}`
-  );
-
-  console.log(
-    `Acceleration threshold:    ${ACCELERATION_THRESHOLD}`
-  );
-
-  console.log("");
-
-  /* ---------------------------------------------------------------------- */
-  /* Load data                                                               */
-  /* ---------------------------------------------------------------------- */
-
-  console.log(
-    "Loading market data..."
-  );
-
-  const dataset =
-    JSON.parse(
-      fs.readFileSync(
-        DATASET_PATH,
-        "utf8"
-      )
-    ) as Dataset;
-
-  const marketCount =
-    dataset.markets.length;
-
-  let totalCandles = 0;
-
-  for (
-    const market of dataset.markets
-  ) {
-    totalCandles +=
-      market.candles.length;
-  }
-
-  console.log(
-    `Markets loaded:            ${marketCount}`
-  );
-
-  console.log(
-    `Total candles:             ${totalCandles.toLocaleString()}`
-  );
-
-  console.log(
-    `Total backtests:           ${
-      STARTING_CAPITALS.length *
-      TARGET_PCTS.length
-    }`
-  );
-
-  console.log("");
-
-  /* ---------------------------------------------------------------------- */
-  /* Signals                                                                 */
-  /* ---------------------------------------------------------------------- */
-
-  console.log(
-    "Preparing signals using the existing signal calculation..."
-  );
-
-  const signalStartedAt =
-    Date.now();
-
-  const signals =
-    buildSignals(
-      dataset.markets
-    );
-
-  console.log("");
-
-  console.log(
-    `Total signals:             ${signals.length.toLocaleString()}`
-  );
-
-  console.log(
-    `Signal preparation:       ${formatDuration(
-      Date.now() -
-        signalStartedAt
-    )}`
-  );
-
-  console.log("");
-
-  if (
-    signals.length === 0
-  ) {
-    throw new Error(
-      "Zero signals were generated. The signal calculation is not producing the expected historical signals."
-    );
-  }
-
-  /*
-   * The previous runner produced 49,769 signals.
-   *
-   * This is an important sanity check. If the signal
-   * count changes substantially, stop rather than
-   * generating misleading portfolio results.
-   */
-  const EXPECTED_SIGNAL_COUNT =
-    65_977;
-
-  if (
-    signals.length !==
-    EXPECTED_SIGNAL_COUNT
-  ) {
-    throw new Error(
-      `Signal-count validation failed: expected ${EXPECTED_SIGNAL_COUNT.toLocaleString()} signals but generated ${signals.length.toLocaleString()}. Refusing to run the portfolio experiment.`
-    );
-  }
-
-  console.log(
-    "Signal-count validation:   PASSED"
-  );
-
-  console.log("");
-
-  /* ---------------------------------------------------------------------- */
-  /* Run experiments                                                         */
-  /* ---------------------------------------------------------------------- */
-
-  const results:
-    RunResult[] = [];
-
-  const totalRuns =
-    STARTING_CAPITALS.length *
-    TARGET_PCTS.length;
-
-  let runNumber = 0;
-
-  for (
-    const targetPct of TARGET_PCTS
-  ) {
-    console.log("");
-
-    console.log(
-      `================================================================`
-    );
-
-    console.log(
-      `Target ${(targetPct * 100).toFixed(
-        0
-      )}%`
-    );
-
-    console.log(
-      `================================================================`
-    );
-
-    for (
-      const startingCapital of
-        STARTING_CAPITALS
-    ) {
-      runNumber++;
-
-      const runStartedAt =
-        Date.now();
-
-      console.log("");
-
-      console.log(
-        `Starting run ${runNumber}/${totalRuns}: ` +
-          `$${startingCapital} with ` +
-          `${(
-            targetPct * 100
-          ).toFixed(0)}% target`
+  for (const targetPct of TARGET_PCTS) {
+    const training =
+      results.find(
+        result =>
+          result.dataset ===
+            'training' &&
+          result.startingCapital ===
+            500 &&
+          result.targetPct ===
+            targetPct
       );
 
-      const result =
-        simulateRun(
-          dataset.markets,
-          signals,
-          targetPct,
-          startingCapital
-        );
-
-      results.push(result);
-
-      printResult(result);
-
-      console.log(
-        `  Runtime: ${formatDuration(
-          Date.now() -
-            runStartedAt
-        )}`
+    const oos =
+      results.find(
+        result =>
+          result.dataset === 'oos' &&
+          result.startingCapital ===
+            500 &&
+          result.targetPct ===
+            targetPct
       );
+
+    if (!training || !oos) {
+      continue;
     }
-  }
 
-  /* ---------------------------------------------------------------------- */
-  /* Final results                                                           */
-  /* ---------------------------------------------------------------------- */
-
-  console.log("");
-
-  console.log(
-    "=============================================================================================================="
-  );
-
-  console.log(
-    "FINAL RESULTS"
-  );
-
-  console.log(
-    "=============================================================================================================="
-  );
-
-  console.log("");
-
-  console.log(
-    "      Target     Capital       Final      Profit      Return      Max DD      Trades        Win%        PF        Fees     MaxPos"
-  );
-
-  console.log(
-    "--------------------------------------------------------------------------------------------------------------"
-  );
-
-  for (
-    const targetPct of TARGET_PCTS
-  ) {
-    for (
-      const startingCapital of
-        STARTING_CAPITALS
-    ) {
-      const result =
-        results.find(
-          item =>
-            Math.abs(
-              item.targetPct -
-                targetPct
-            ) <
-              EPSILON &&
-            item.startingCapital ===
-              startingCapital
-        );
-
-      if (!result) {
-        continue;
-      }
-
-      console.log(
-        `${(
-          targetPct * 100
+    console.log(
+      [
+        `${(targetPct * 100).toFixed(0)}%`.padStart(
+          6
+        ),
+        `| £${training.finalEquity.toFixed(2)}`.padStart(
+          14
+        ),
+        `| £${oos.finalEquity.toFixed(2)}`.padStart(
+          10
+        ),
+        `| ${training.maximumDrawdownPct.toFixed(2)}%`.padStart(
+          11
+        ),
+        `| ${oos.maximumDrawdownPct.toFixed(2)}%`.padStart(
+          8
+        ),
+        `| ${training.averageCapitalUtilisationPct.toFixed(1)}%`.padStart(
+          13
+        ),
+        `| ${oos.averageCapitalUtilisationPct.toFixed(1)}%`.padStart(
+          8
         )
-          .toFixed(0)
-          .padStart(11)}%` +
-          `${(
-            `$${startingCapital}`
-          ).padStart(13)}` +
-          `${(
-            `$${result.finalEquity.toFixed(
-              2
-            )}`
-          ).padStart(13)}` +
-          `${(
-            `$${result.netProfit.toFixed(
-              2
-            )}`
-          ).padStart(13)}` +
-          `${(
-            `${
-              (
-                result.totalReturn *
-                100
-              ).toFixed(2)
-            }%`
-          ).padStart(12)}` +
-          `${(
-            `${
-              (
-                result.maxDrawdownPct *
-                100
-              ).toFixed(2)
-            }%`
-          ).padStart(12)}` +
-          `${result.completedTrades
-            .toLocaleString()
-            .padStart(13)}` +
-          `${(
-            `${
-              (
-                result.winRate *
-                100
-              ).toFixed(1)
-            }%`
-          ).padStart(13)}` +
-          `${(
-            Number.isFinite(
-              result.profitFactor
-            )
-              ? result.profitFactor.toFixed(
-                  2
-                )
-              : "∞"
-          ).padStart(11)}` +
-          `${(
-            `$${result.fees.toFixed(
-              2
-            )}`
-          ).padStart(12)}` +
-          `${result.maxOpenPositions
-            .toString()
-            .padStart(10)}`
+      ].join('')
+    );
+  }
+}
+
+function printCrossCapitalSummary(
+  results: BacktestResult[],
+  datasetName: string
+): void {
+  console.log(
+    `\n${datasetName.toUpperCase()} — return by target and starting capital`
+  );
+
+  const header =
+    [
+      'Target',
+      ...STARTING_CAPITALS.map(
+        capital =>
+          `£${capital}`
+      )
+    ].join(' | ');
+
+  console.log(header);
+  console.log(
+    '-'.repeat(header.length)
+  );
+
+  for (const targetPct of TARGET_PCTS) {
+    const values =
+      STARTING_CAPITALS.map(
+        startingCapital => {
+          const result =
+            results.find(
+              item =>
+                item.dataset ===
+                  datasetName &&
+                item.startingCapital ===
+                  startingCapital &&
+                item.targetPct ===
+                  targetPct
+            );
+
+          return result
+            ? `${result.returnPct >= 0 ? '+' : ''}${result.returnPct.toFixed(2)}%`
+            : 'n/a';
+        }
+      );
+
+    console.log(
+      [
+        `${(targetPct * 100).toFixed(0)}%`,
+        ...values
+      ].join(' | ')
+    );
+  }
+}
+
+function validateSignalCount(
+  configuration: Configuration,
+  actual: number
+): void {
+  if (
+    actual !==
+    configuration.expectedSignals
+  ) {
+    throw new Error(
+      [
+        `Signal count validation failed for ${configuration.name}.`,
+        `Expected ${configuration.expectedSignals}, got ${actual}.`,
+        `This means the signal-generation logic or dataset has changed.`
+      ].join(' ')
+    );
+  }
+
+  console.log(
+    `  Signal validation passed: ${actual.toLocaleString()} signals`
+  );
+}
+
+function createOutputPath(): string {
+  fs.mkdirSync(
+    OUTPUT_DIR,
+    { recursive: true }
+  );
+
+  const timestamp =
+    Date.now();
+
+  return path.join(
+    OUTPUT_DIR,
+    `single-target-validation-${timestamp}.json`
+  );
+}
+
+async function main(): Promise<void> {
+  console.log(
+    '============================================================'
+  );
+  console.log(
+    'Single-target portfolio validation'
+  );
+  console.log(
+    '============================================================'
+  );
+
+  console.log(
+    '\nConfiguration:'
+  );
+
+  console.log(
+    `  Targets:              ${TARGET_PCTS.map(value => `${value * 100}%`).join(', ')}`
+  );
+
+  console.log(
+    `  Starting capital:     ${STARTING_CAPITALS.map(value => `£${value}`).join(', ')}`
+  );
+
+  console.log(
+    `  Minimum position:     £${MIN_POSITION_NOTIONAL}`
+  );
+
+  console.log(
+    `  Maximum position:     ${(MAX_POSITION_PCT * 100).toFixed(1)}% of equity`
+  );
+
+  console.log(
+    `  Maximum positions:    ${MAX_CONCURRENT_POSITIONS}`
+  );
+
+  console.log(
+    `  Stop loss:            ${(STOP_PCT * 100).toFixed(0)}%`
+  );
+
+  console.log(
+    `  Maximum hold:         48 hours`
+  );
+
+  console.log(
+    `  Fee:                  ${(FEE_RATE * 100).toFixed(2)}% per side`
+  );
+
+  console.log(
+    '\nSignal thresholds:'
+  );
+
+  console.log(
+    `  Slope:                ${SLOPE_THRESHOLD}`
+  );
+
+  console.log(
+    `  Acceleration:         ${ACCELERATION_THRESHOLD}`
+  );
+
+  const allResults: BacktestResult[] =
+    [];
+
+  const datasetSummaries: Array<{
+    name: string;
+    markets: number;
+    signals: number;
+    firstTime: number;
+    lastTime: number;
+  }> = [];
+
+  for (
+    const configuration of DATASETS
+  ) {
+    console.log(
+      '\n============================================================'
+    );
+
+    console.log(
+      `${configuration.name.toUpperCase()} DATASET`
+    );
+
+    console.log(
+      '============================================================'
+    );
+
+    const dataset =
+      loadDataset(
+        configuration
+      );
+
+    const {
+      signals,
+      signalCountByMarket
+    } =
+      prepareSignals(
+        dataset
+      );
+
+    console.log(
+      `\n  Markets: ${dataset.markets.length}`
+    );
+
+    console.log(
+      `  Signals: ${signals.length.toLocaleString()}`
+    );
+
+    validateSignalCount(
+      configuration,
+      signals.length
+    );
+
+    if (
+      signals.length === 0
+    ) {
+      throw new Error(
+        `No signals generated for ${configuration.name}`
       );
     }
 
-    console.log("");
-  }
+    const firstTime =
+      signals[0].time;
 
-  /* ---------------------------------------------------------------------- */
-  /* Final equity grid                                                       */
-  /* ---------------------------------------------------------------------- */
+    const lastTime =
+      signals[
+        signals.length - 1
+      ].time;
 
-  console.log(
-    "=========================================================================================="
-  );
+    console.log(
+      `  First signal: ${new Date(firstTime).toISOString()}`
+    );
 
-  console.log(
-    "FINAL EQUITY BY EXIT TARGET"
-  );
+    console.log(
+      `  Last signal:  ${new Date(lastTime).toISOString()}`
+    );
 
-  console.log(
-    "=========================================================================================="
-  );
-
-  console.log("");
-
-  console.log(
-    "        Target" +
-      STARTING_CAPITALS.map(
-        capital =>
-          `$${capital}`.padStart(14)
-      ).join("")
-  );
-
-  console.log(
-    "------------------------------------------------------------------------------------------"
-  );
-
-  for (
-    const targetPct of TARGET_PCTS
-  ) {
-    let line =
-      `${(
-        targetPct * 100
-      )
-        .toFixed(0)
-        .padStart(13)}%`;
-
-    for (
-      const startingCapital of
-        STARTING_CAPITALS
-    ) {
-      const result =
-        results.find(
-          item =>
-            Math.abs(
-              item.targetPct -
-                targetPct
-            ) <
-              EPSILON &&
-            item.startingCapital ===
-              startingCapital
-        );
-
-      line +=
-        result
-          ? `$${result.finalEquity
-              .toFixed(2)
-              .padStart(13)}`
-          : "           N/A";
-    }
-
-    console.log(line);
-  }
-
-  /* ---------------------------------------------------------------------- */
-  /* Return grid                                                             */
-  /* ---------------------------------------------------------------------- */
-
-  console.log("");
-
-  console.log(
-    "=========================================================================================="
-  );
-
-  console.log(
-    "TOTAL RETURN BY EXIT TARGET"
-  );
-
-  console.log(
-    "=========================================================================================="
-  );
-
-  console.log("");
-
-  console.log(
-    "        Target" +
-      STARTING_CAPITALS.map(
-        capital =>
-          `$${capital}`.padStart(14)
-      ).join("")
-  );
-
-  console.log(
-    "------------------------------------------------------------------------------------------"
-  );
-
-  for (
-    const targetPct of TARGET_PCTS
-  ) {
-    let line =
-      `${(
-        targetPct * 100
-      )
-        .toFixed(0)
-        .padStart(13)}%`;
-
-    for (
-      const startingCapital of
-        STARTING_CAPITALS
-    ) {
-      const result =
-        results.find(
-          item =>
-            Math.abs(
-              item.targetPct -
-                targetPct
-            ) <
-              EPSILON &&
-            item.startingCapital ===
-              startingCapital
-        );
-
-      line +=
-        result
-          ? `${(
-              result.totalReturn *
-              100
-            )
-              .toFixed(2)
-              .padStart(13)}%`
-          : "           N/A";
-    }
-
-    console.log(line);
-  }
-
-  /* ---------------------------------------------------------------------- */
-  /* Output JSON                                                             */
-  /* ---------------------------------------------------------------------- */
-
-  const output = {
-    generatedAt:
-      new Date().toISOString(),
-
-    dataset: {
-      path:
-        DATASET_PATH,
-
+    datasetSummaries.push({
+      name:
+        configuration.name,
       markets:
-        marketCount,
-
-      candles:
-        totalCandles,
-
+        dataset.markets.length,
       signals:
         signals.length,
-    },
+      firstTime,
+      lastTime
+    });
 
-    methodology: {
-      signalCalculation: {
-        slopeWindow1:
-          20,
+    console.log(
+      '\n  Running portfolio simulations...'
+    );
 
-        slopeWindow2:
-          50,
+    for (
+      const startingCapital of
+        STARTING_CAPITALS
+    ) {
+      for (
+        const targetPct of
+          TARGET_PCTS
+      ) {
+        const result =
+          simulateRun(
+            dataset,
+            signals,
+            configuration.name,
+            startingCapital,
+            targetPct
+          );
 
-        acceleration:
-          "slope20 - slope50",
+        allResults.push(
+          result
+        );
 
-        slopeThreshold:
-          SLOPE_THRESHOLD,
+        printResult(
+          result
+        );
+      }
+    }
 
-        accelerationThreshold:
-          ACCELERATION_THRESHOLD,
+    /*
+     * Keep this available as a sanity check that
+     * signal distribution itself has not changed.
+     */
+    const marketsWithSignals =
+      signalCountByMarket.filter(
+        count => count > 0
+      ).length;
 
-        condition:
-          "slope20 <= threshold AND acceleration >= threshold",
-      },
+    console.log(
+      `\n  Markets containing signals: ${marketsWithSignals}/${dataset.markets.length}`
+    );
+  }
 
-      entryExecution:
-        "signal candle close",
+  printTargetSummary(
+    allResults
+  );
 
-      exitModel:
-        "single full-position target",
+  printCrossCapitalSummary(
+    allResults,
+    'training'
+  );
 
-      targetPercentages:
+  printCrossCapitalSummary(
+    allResults,
+    'oos'
+  );
+
+  const output = {
+    metadata: {
+      generatedAt:
+        new Date().toISOString(),
+
+      datasets:
+        datasetSummaries,
+
+      startingCapitals:
+        STARTING_CAPITALS,
+
+      targets:
         TARGET_PCTS,
 
-      stop:
+      feeRate:
+        FEE_RATE,
+
+      stopPct:
         STOP_PCT,
 
       maximumHoldHours:
         48,
 
-      sameCandlePriority:
-        "stop before target",
+      minimumPositionNotional:
+        MIN_POSITION_NOTIONAL,
 
-      maximumOpenPositions:
-        MAX_OPEN_POSITIONS,
+      maximumPositionPct:
+        MAX_POSITION_PCT,
 
-      minimumPositionValue:
-        MIN_POSITION_VALUE,
+      maximumConcurrentPositions:
+        MAX_CONCURRENT_POSITIONS,
 
-      maximumPositionEquityPct:
-        MAX_POSITION_EQUITY_PCT,
+      slopeThreshold:
+        SLOPE_THRESHOLD,
 
-      positionSizing:
-        "max($10, 5% of total mark-to-market portfolio equity)",
+      accelerationThreshold:
+        ACCELERATION_THRESHOLD,
 
-      startingCapitals:
-        STARTING_CAPITALS,
+      methodology: {
+        signalGeneration:
+          'Exact preserved implementation from original working runner',
 
-      overlappingPositions:
-        true,
+        entry:
+          'Signal candle close',
 
-      feeRate:
-        FEE_RATE,
+        target:
+          'Full position sold at target',
 
-      executionCost:
-        EXECUTION_COST,
+        stop:
+          '10% below entry',
 
-      feeDefinition:
-        "0.1% of actual monetary value of each buy and sell",
+        maximumHold:
+          '48 hours',
 
-      portfolioAccounting:
-        "cash plus mark-to-market value of open positions",
+        fees:
+          '0.1% on entry and 0.1% on exit',
 
-      capitalConstraint:
-        "no borrowing; entry rejected if purchase plus fee exceeds available cash",
+        sizing:
+          'max(£10, 5% of current mark-to-market equity), capped by available cash',
 
-      capacityConstraint:
-        `maximum ${MAX_OPEN_POSITIONS} simultaneous open positions`,
+        overlap:
+          'Allowed',
 
-      signalValidation:
-        "exact historical signal count must equal 49,769",
+        positionCap:
+          '43 simultaneous positions',
+
+        drawdown:
+          'Mark-to-market equity sampled at every dataset candle',
+
+        capitalUtilisation:
+          'Time-weighted mark-to-market value of open positions divided by portfolio equity'
+      }
     },
 
-    results,
+    results:
+      allResults
   };
 
-  fs.mkdirSync(
-    OUTPUT_DIR,
-    {
-      recursive: true,
-    }
-  );
-
   const outputPath =
-    path.join(
-      OUTPUT_DIR,
-      `single-target-portfolio-backtest-${Date.now()}.json`
-    );
+    createOutputPath();
 
   fs.writeFileSync(
     outputPath,
@@ -2107,34 +1631,41 @@ function main(): void {
     )
   );
 
-  console.log("");
-
   console.log(
-    "========================================================================"
+    '\n============================================================'
   );
 
   console.log(
-    "COMPLETE"
+    'COMPLETE'
   );
 
   console.log(
-    "========================================================================"
+    '============================================================'
   );
-
-  console.log("");
 
   console.log(
     `Output: ${outputPath}`
   );
 
   console.log(
-    `Runtime: ${formatDuration(
-      Date.now() -
-        startedAt
-    )}`
+    `Results: ${allResults.length}`
   );
 
-  console.log("");
+  console.log(
+    `Expected: ${DATASETS.length * STARTING_CAPITALS.length * TARGET_PCTS.length}`
+  );
 }
 
-main();
+main().catch(
+  error => {
+    console.error(
+      '\nFatal error:'
+    );
+
+    console.error(
+      error
+    );
+
+    process.exit(1);
+  }
+);
