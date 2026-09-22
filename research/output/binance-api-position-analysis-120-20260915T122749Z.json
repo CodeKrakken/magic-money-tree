@@ -1,0 +1,1682 @@
+{
+  "generatedAt": "2026-09-15T12:27:50.878Z",
+  "exchangeInfoSnapshot": {
+    "fetchedAt": "2026-09-15T12:27:49.947Z",
+    "endpoint": "https://api.binance.com/api/v3/exchangeInfo",
+    "symbolCount": 3699,
+    "rawSnapshot": "research/output/binance-exchange-info-20260915T122749Z.json"
+  },
+  "source": {
+    "strategyFile": "research/output/market-strategy-ranking-independent-1789232701426.json",
+    "matchedMarketCount": 120
+  },
+  "definition": {
+    "apiPosition": "1-based position in the exact Binance exchangeInfo.symbols[] response saved in exchangeInfoSnapshot.rawSnapshot.",
+    "profitability": "Strategy market netProfit from the frozen independent 60 + 60 market analysis.",
+    "spearman": "Monotonic relationship between API array position and a numeric Binance field.",
+    "pearson": "Linear relationship between API array position and a numeric Binance field.",
+    "adjacentMonotonicity": "Fraction of non-equal adjacent values moving consistently in the dominant direction."
+  },
+  "positionVsProfitability": {
+    "pearson": -0.23660482442575118,
+    "spearman": -0.2221754351032109
+  },
+  "numericFields": [
+    {
+      "field": "filters.LOT_SIZE.maxQty",
+      "count": 120,
+      "uniqueValues": 13,
+      "pearsonWithApiPosition": 0.07365269564694803,
+      "spearmanWithApiPosition": 0.5259712835626675,
+      "adjacentMonotonicity": 0.5180722891566265,
+      "direction": "increasing",
+      "rankBands": [
+        {
+          "band": "1-20",
+          "count": 2,
+          "mean": 9000,
+          "median": 9000
+        },
+        {
+          "band": "21-40",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "41-60",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "61-80",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "81-100",
+          "count": 1,
+          "mean": 900000,
+          "median": 900000
+        },
+        {
+          "band": "101-120",
+          "count": 0,
+          "mean": null,
+          "median": null
+        }
+      ]
+    },
+    {
+      "field": "filters.PERCENT_PRICE_BY_SIDE.askMultiplierDown",
+      "count": 120,
+      "uniqueValues": 2,
+      "pearsonWithApiPosition": 0.4084845075615692,
+      "spearmanWithApiPosition": 0.36916474942556626,
+      "adjacentMonotonicity": 0.5,
+      "direction": "increasing",
+      "rankBands": [
+        {
+          "band": "1-20",
+          "count": 2,
+          "mean": 0.8,
+          "median": 0.8
+        },
+        {
+          "band": "21-40",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "41-60",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "61-80",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "81-100",
+          "count": 1,
+          "mean": 0.8,
+          "median": 0.8
+        },
+        {
+          "band": "101-120",
+          "count": 0,
+          "mean": null,
+          "median": null
+        }
+      ]
+    },
+    {
+      "field": "filters.PERCENT_PRICE_BY_SIDE.bidMultiplierUp",
+      "count": 120,
+      "uniqueValues": 2,
+      "pearsonWithApiPosition": -0.40848450756156945,
+      "spearmanWithApiPosition": -0.36916474942556626,
+      "adjacentMonotonicity": 0.5,
+      "direction": "decreasing",
+      "rankBands": [
+        {
+          "band": "1-20",
+          "count": 2,
+          "mean": 1.2,
+          "median": 1.2
+        },
+        {
+          "band": "21-40",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "41-60",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "61-80",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "81-100",
+          "count": 1,
+          "mean": 1.2,
+          "median": 1.2
+        },
+        {
+          "band": "101-120",
+          "count": 0,
+          "mean": null,
+          "median": null
+        }
+      ]
+    },
+    {
+      "field": "filters.PERCENT_PRICE_BY_SIDE.askMultiplierUp",
+      "count": 120,
+      "uniqueValues": 3,
+      "pearsonWithApiPosition": -0.4036702215276771,
+      "spearmanWithApiPosition": -0.36220313086023537,
+      "adjacentMonotonicity": 0.47058823529411764,
+      "direction": "decreasing",
+      "rankBands": [
+        {
+          "band": "1-20",
+          "count": 2,
+          "mean": 2,
+          "median": 2
+        },
+        {
+          "band": "21-40",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "41-60",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "61-80",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "81-100",
+          "count": 1,
+          "mean": 2,
+          "median": 2
+        },
+        {
+          "band": "101-120",
+          "count": 0,
+          "mean": null,
+          "median": null
+        }
+      ]
+    },
+    {
+      "field": "filters.PERCENT_PRICE_BY_SIDE.bidMultiplierDown",
+      "count": 120,
+      "uniqueValues": 3,
+      "pearsonWithApiPosition": 0.39381711975370626,
+      "spearmanWithApiPosition": 0.36220313086023537,
+      "adjacentMonotonicity": 0.47058823529411764,
+      "direction": "increasing",
+      "rankBands": [
+        {
+          "band": "1-20",
+          "count": 2,
+          "mean": 0.5,
+          "median": 0.5
+        },
+        {
+          "band": "21-40",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "41-60",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "61-80",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "81-100",
+          "count": 1,
+          "mean": 0.5,
+          "median": 0.5
+        },
+        {
+          "band": "101-120",
+          "count": 0,
+          "mean": null,
+          "median": null
+        }
+      ]
+    },
+    {
+      "field": "filters.PRICE_FILTER.maxPrice",
+      "count": 120,
+      "uniqueValues": 10,
+      "pearsonWithApiPosition": -0.00791353360037448,
+      "spearmanWithApiPosition": -0.2095521359682205,
+      "adjacentMonotonicity": 0.5,
+      "direction": "decreasing",
+      "rankBands": [
+        {
+          "band": "1-20",
+          "count": 2,
+          "mean": 1000000,
+          "median": 1000000
+        },
+        {
+          "band": "21-40",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "41-60",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "61-80",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "81-100",
+          "count": 1,
+          "mean": 100000,
+          "median": 100000
+        },
+        {
+          "band": "101-120",
+          "count": 0,
+          "mean": null,
+          "median": null
+        }
+      ]
+    },
+    {
+      "field": "baseAssetPrecision",
+      "count": 120,
+      "uniqueValues": 2,
+      "pearsonWithApiPosition": -0.17553412184297107,
+      "spearmanWithApiPosition": -0.1502365197807268,
+      "adjacentMonotonicity": 0.5,
+      "direction": "decreasing",
+      "rankBands": [
+        {
+          "band": "1-20",
+          "count": 2,
+          "mean": 8,
+          "median": 8
+        },
+        {
+          "band": "21-40",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "41-60",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "61-80",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "81-100",
+          "count": 1,
+          "mean": 8,
+          "median": 8
+        },
+        {
+          "band": "101-120",
+          "count": 0,
+          "mean": null,
+          "median": null
+        }
+      ]
+    },
+    {
+      "field": "baseCommissionPrecision",
+      "count": 120,
+      "uniqueValues": 2,
+      "pearsonWithApiPosition": -0.17553412184297107,
+      "spearmanWithApiPosition": -0.1502365197807268,
+      "adjacentMonotonicity": 0.5,
+      "direction": "decreasing",
+      "rankBands": [
+        {
+          "band": "1-20",
+          "count": 2,
+          "mean": 8,
+          "median": 8
+        },
+        {
+          "band": "21-40",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "41-60",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "61-80",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "81-100",
+          "count": 1,
+          "mean": 8,
+          "median": 8
+        },
+        {
+          "band": "101-120",
+          "count": 0,
+          "mean": null,
+          "median": null
+        }
+      ]
+    },
+    {
+      "field": "filters.NOTIONAL.minNotional",
+      "count": 120,
+      "uniqueValues": 2,
+      "pearsonWithApiPosition": -0.15171605191360185,
+      "spearmanWithApiPosition": -0.14729503789557416,
+      "adjacentMonotonicity": 0.5555555555555556,
+      "direction": "decreasing",
+      "rankBands": [
+        {
+          "band": "1-20",
+          "count": 2,
+          "mean": 5,
+          "median": 5
+        },
+        {
+          "band": "21-40",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "41-60",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "61-80",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "81-100",
+          "count": 1,
+          "mean": 5,
+          "median": 5
+        },
+        {
+          "band": "101-120",
+          "count": 0,
+          "mean": null,
+          "median": null
+        }
+      ]
+    },
+    {
+      "field": "filters.PRICE_FILTER.minPrice",
+      "count": 120,
+      "uniqueValues": 10,
+      "pearsonWithApiPosition": 0.08963610784907694,
+      "spearmanWithApiPosition": 0.10820162092603207,
+      "adjacentMonotonicity": 0.5164835164835165,
+      "direction": "decreasing",
+      "rankBands": [
+        {
+          "band": "1-20",
+          "count": 2,
+          "mean": 0.01,
+          "median": 0.01
+        },
+        {
+          "band": "21-40",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "41-60",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "61-80",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "81-100",
+          "count": 1,
+          "mean": 0.01,
+          "median": 0.01
+        },
+        {
+          "band": "101-120",
+          "count": 0,
+          "mean": null,
+          "median": null
+        }
+      ]
+    },
+    {
+      "field": "filters.LOT_SIZE.minQty",
+      "count": 120,
+      "uniqueValues": 6,
+      "pearsonWithApiPosition": -0.06335596924004565,
+      "spearmanWithApiPosition": -0.10126650550141582,
+      "adjacentMonotonicity": 0.5056179775280899,
+      "direction": "increasing",
+      "rankBands": [
+        {
+          "band": "1-20",
+          "count": 2,
+          "mean": 0.000055,
+          "median": 0.000055
+        },
+        {
+          "band": "21-40",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "41-60",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "61-80",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "81-100",
+          "count": 1,
+          "mean": 0.001,
+          "median": 0.001
+        },
+        {
+          "band": "101-120",
+          "count": 0,
+          "mean": null,
+          "median": null
+        }
+      ]
+    },
+    {
+      "field": "filters.LOT_SIZE.stepSize",
+      "count": 120,
+      "uniqueValues": 6,
+      "pearsonWithApiPosition": -0.06335596924004565,
+      "spearmanWithApiPosition": -0.10126650550141582,
+      "adjacentMonotonicity": 0.5056179775280899,
+      "direction": "increasing",
+      "rankBands": [
+        {
+          "band": "1-20",
+          "count": 2,
+          "mean": 0.000055,
+          "median": 0.000055
+        },
+        {
+          "band": "21-40",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "41-60",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "61-80",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "81-100",
+          "count": 1,
+          "mean": 0.001,
+          "median": 0.001
+        },
+        {
+          "band": "101-120",
+          "count": 0,
+          "mean": null,
+          "median": null
+        }
+      ]
+    },
+    {
+      "field": "filters.PRICE_FILTER.tickSize",
+      "count": 120,
+      "uniqueValues": 8,
+      "pearsonWithApiPosition": -0.04395460155517378,
+      "spearmanWithApiPosition": 0.07968589076064975,
+      "adjacentMonotonicity": 0.5340909090909091,
+      "direction": "decreasing",
+      "rankBands": [
+        {
+          "band": "1-20",
+          "count": 2,
+          "mean": 0.01,
+          "median": 0.01
+        },
+        {
+          "band": "21-40",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "41-60",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "61-80",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "81-100",
+          "count": 1,
+          "mean": 0.01,
+          "median": 0.01
+        },
+        {
+          "band": "101-120",
+          "count": 0,
+          "mean": null,
+          "median": null
+        }
+      ]
+    },
+    {
+      "field": "filters.MARKET_LOT_SIZE.maxQty",
+      "count": 120,
+      "uniqueValues": 120,
+      "pearsonWithApiPosition": 0.0488552536400552,
+      "spearmanWithApiPosition": 0.0002500173623168276,
+      "adjacentMonotonicity": 0.5210084033613446,
+      "direction": "increasing",
+      "rankBands": [
+        {
+          "band": "1-20",
+          "count": 2,
+          "mean": 1108.32910854,
+          "median": 1108.32910854
+        },
+        {
+          "band": "21-40",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "41-60",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "61-80",
+          "count": 0,
+          "mean": null,
+          "median": null
+        },
+        {
+          "band": "81-100",
+          "count": 1,
+          "mean": 5896.4756125,
+          "median": 5896.4756125
+        },
+        {
+          "band": "101-120",
+          "count": 0,
+          "mean": null,
+          "median": null
+        }
+      ]
+    }
+  ],
+  "categoricalFields": [
+    {
+      "field": "allowTrailingStop",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "true",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "allowedSelfTradePreventionModes",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "[\"EXPIRE_TAKER\",\"EXPIRE_MAKER\",\"EXPIRE_BOTH\",\"DECREMENT\",\"TRANSFER\"]",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "amendAllowed",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "true",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "baseAssetPrecision",
+      "count": 120,
+      "uniqueValues": 2,
+      "values": [
+        {
+          "value": "8",
+          "count": 117,
+          "meanApiPosition": 1521.5811965811965
+        },
+        {
+          "value": "2",
+          "count": 3,
+          "meanApiPosition": 2898.3333333333335
+        }
+      ]
+    },
+    {
+      "field": "baseCommissionPrecision",
+      "count": 120,
+      "uniqueValues": 2,
+      "values": [
+        {
+          "value": "8",
+          "count": 117,
+          "meanApiPosition": 1521.5811965811965
+        },
+        {
+          "value": "2",
+          "count": 3,
+          "meanApiPosition": 2898.3333333333335
+        }
+      ]
+    },
+    {
+      "field": "cancelReplaceAllowed",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "true",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "defaultSelfTradePreventionMode",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "EXPIRE_MAKER",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "filters.ICEBERG_PARTS.limit",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "100",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "filters.LOT_SIZE.maxQty",
+      "count": 120,
+      "uniqueValues": 14,
+      "values": [
+        {
+          "value": "92141578.00000000",
+          "count": 22,
+          "meanApiPosition": 2349.181818181818
+        },
+        {
+          "value": "900000.00000000",
+          "count": 19,
+          "meanApiPosition": 649.3157894736842
+        },
+        {
+          "value": "90000.00000000",
+          "count": 18,
+          "meanApiPosition": 626
+        },
+        {
+          "value": "9000000.00000000",
+          "count": 17,
+          "meanApiPosition": 572.6470588235294
+        },
+        {
+          "value": "913205152.00000000",
+          "count": 10,
+          "meanApiPosition": 3104.3
+        },
+        {
+          "value": "9222449.00000000",
+          "count": 9,
+          "meanApiPosition": 1434.2222222222222
+        },
+        {
+          "value": "922327.00000000",
+          "count": 9,
+          "meanApiPosition": 2615.8888888888887
+        },
+        {
+          "value": "9000.00000000",
+          "count": 5,
+          "meanApiPosition": 1090.4
+        },
+        {
+          "value": "10000000.00000000",
+          "count": 5,
+          "meanApiPosition": 2549.2
+        },
+        {
+          "value": "913205152.00",
+          "count": 2,
+          "meanApiPosition": 3242
+        },
+        {
+          "value": "6000000.00000000",
+          "count": 1,
+          "meanApiPosition": 695
+        },
+        {
+          "value": "92233720368.00",
+          "count": 1,
+          "meanApiPosition": 2211
+        },
+        {
+          "value": "8080000000.00000000",
+          "count": 1,
+          "meanApiPosition": 3021
+        },
+        {
+          "value": "92233.00000000",
+          "count": 1,
+          "meanApiPosition": 3595
+        }
+      ]
+    },
+    {
+      "field": "filters.LOT_SIZE.minQty",
+      "count": 120,
+      "uniqueValues": 8,
+      "values": [
+        {
+          "value": "0.10000000",
+          "count": 43,
+          "meanApiPosition": 1466.4651162790697
+        },
+        {
+          "value": "1.00000000",
+          "count": 34,
+          "meanApiPosition": 1373.264705882353
+        },
+        {
+          "value": "0.01000000",
+          "count": 18,
+          "meanApiPosition": 1676.2777777777778
+        },
+        {
+          "value": "0.00100000",
+          "count": 15,
+          "meanApiPosition": 1764.5333333333333
+        },
+        {
+          "value": "0.00010000",
+          "count": 5,
+          "meanApiPosition": 2142
+        },
+        {
+          "value": "0.00001000",
+          "count": 2,
+          "meanApiPosition": 462.5
+        },
+        {
+          "value": "1.00",
+          "count": 2,
+          "meanApiPosition": 2734
+        },
+        {
+          "value": "0.10",
+          "count": 1,
+          "meanApiPosition": 3227
+        }
+      ]
+    },
+    {
+      "field": "filters.LOT_SIZE.stepSize",
+      "count": 120,
+      "uniqueValues": 8,
+      "values": [
+        {
+          "value": "0.10000000",
+          "count": 43,
+          "meanApiPosition": 1466.4651162790697
+        },
+        {
+          "value": "1.00000000",
+          "count": 34,
+          "meanApiPosition": 1373.264705882353
+        },
+        {
+          "value": "0.01000000",
+          "count": 18,
+          "meanApiPosition": 1676.2777777777778
+        },
+        {
+          "value": "0.00100000",
+          "count": 15,
+          "meanApiPosition": 1764.5333333333333
+        },
+        {
+          "value": "0.00010000",
+          "count": 5,
+          "meanApiPosition": 2142
+        },
+        {
+          "value": "0.00001000",
+          "count": 2,
+          "meanApiPosition": 462.5
+        },
+        {
+          "value": "1.00",
+          "count": 2,
+          "meanApiPosition": 2734
+        },
+        {
+          "value": "0.10",
+          "count": 1,
+          "meanApiPosition": 3227
+        }
+      ]
+    },
+    {
+      "field": "filters.MARKET_LOT_SIZE.minQty",
+      "count": 120,
+      "uniqueValues": 2,
+      "values": [
+        {
+          "value": "0.00000000",
+          "count": 117,
+          "meanApiPosition": 1521.5811965811965
+        },
+        {
+          "value": "0.00",
+          "count": 3,
+          "meanApiPosition": 2898.3333333333335
+        }
+      ]
+    },
+    {
+      "field": "filters.MARKET_LOT_SIZE.stepSize",
+      "count": 120,
+      "uniqueValues": 2,
+      "values": [
+        {
+          "value": "0.00000000",
+          "count": 117,
+          "meanApiPosition": 1521.5811965811965
+        },
+        {
+          "value": "0.00",
+          "count": 3,
+          "meanApiPosition": 2898.3333333333335
+        }
+      ]
+    },
+    {
+      "field": "filters.MAX_NUM_ALGO_ORDERS.maxNumAlgoOrders",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "5",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "filters.MAX_NUM_ORDERS.maxNumOrders",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "200",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "filters.MAX_NUM_ORDER_AMENDS.maxNumOrderAmends",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "10",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "filters.MAX_NUM_ORDER_LISTS.maxNumOrderLists",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "20",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "filters.NOTIONAL.applyMaxToMarket",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "false",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "filters.NOTIONAL.applyMinToMarket",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "true",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "filters.NOTIONAL.avgPriceMins",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "5",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "filters.NOTIONAL.maxNotional",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "9000000.00000000",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "filters.NOTIONAL.minNotional",
+      "count": 120,
+      "uniqueValues": 2,
+      "values": [
+        {
+          "value": "5.00000000",
+          "count": 113,
+          "meanApiPosition": 1509.7610619469026
+        },
+        {
+          "value": "1.00000000",
+          "count": 7,
+          "meanApiPosition": 2302.4285714285716
+        }
+      ]
+    },
+    {
+      "field": "filters.PERCENT_PRICE_BY_SIDE.askMultiplierDown",
+      "count": 120,
+      "uniqueValues": 2,
+      "values": [
+        {
+          "value": "0.8",
+          "count": 105,
+          "meanApiPosition": 1366.942857142857
+        },
+        {
+          "value": "0.9",
+          "count": 15,
+          "meanApiPosition": 2879.4
+        }
+      ]
+    },
+    {
+      "field": "filters.PERCENT_PRICE_BY_SIDE.askMultiplierUp",
+      "count": 120,
+      "uniqueValues": 3,
+      "values": [
+        {
+          "value": "2",
+          "count": 105,
+          "meanApiPosition": 1366.942857142857
+        },
+        {
+          "value": "1.2",
+          "count": 10,
+          "meanApiPosition": 3044.5
+        },
+        {
+          "value": "1.1",
+          "count": 5,
+          "meanApiPosition": 2549.2
+        }
+      ]
+    },
+    {
+      "field": "filters.PERCENT_PRICE_BY_SIDE.avgPriceMins",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "5",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "filters.PERCENT_PRICE_BY_SIDE.bidMultiplierDown",
+      "count": 120,
+      "uniqueValues": 3,
+      "values": [
+        {
+          "value": "0.5",
+          "count": 105,
+          "meanApiPosition": 1366.942857142857
+        },
+        {
+          "value": "0.8",
+          "count": 10,
+          "meanApiPosition": 3044.5
+        },
+        {
+          "value": "0.9",
+          "count": 5,
+          "meanApiPosition": 2549.2
+        }
+      ]
+    },
+    {
+      "field": "filters.PERCENT_PRICE_BY_SIDE.bidMultiplierUp",
+      "count": 120,
+      "uniqueValues": 2,
+      "values": [
+        {
+          "value": "1.2",
+          "count": 105,
+          "meanApiPosition": 1366.942857142857
+        },
+        {
+          "value": "1.1",
+          "count": 15,
+          "meanApiPosition": 2879.4
+        }
+      ]
+    },
+    {
+      "field": "filters.PRICE_FILTER.maxPrice",
+      "count": 120,
+      "uniqueValues": 10,
+      "values": [
+        {
+          "value": "1000.00000000",
+          "count": 55,
+          "meanApiPosition": 1298.1818181818182
+        },
+        {
+          "value": "10000.00000000",
+          "count": 22,
+          "meanApiPosition": 995.2727272727273
+        },
+        {
+          "value": "100000.00000000",
+          "count": 17,
+          "meanApiPosition": 1657.4705882352941
+        },
+        {
+          "value": "100.00000000",
+          "count": 12,
+          "meanApiPosition": 3127.25
+        },
+        {
+          "value": "1000000.00000000",
+          "count": 5,
+          "meanApiPosition": 1090.4
+        },
+        {
+          "value": "1.20000000",
+          "count": 5,
+          "meanApiPosition": 2549.2
+        },
+        {
+          "value": "1.40000000",
+          "count": 1,
+          "meanApiPosition": 695
+        },
+        {
+          "value": "0.10000000",
+          "count": 1,
+          "meanApiPosition": 2211
+        },
+        {
+          "value": "10.00000000",
+          "count": 1,
+          "meanApiPosition": 3021
+        },
+        {
+          "value": "999996.00000000",
+          "count": 1,
+          "meanApiPosition": 3595
+        }
+      ]
+    },
+    {
+      "field": "filters.PRICE_FILTER.minPrice",
+      "count": 120,
+      "uniqueValues": 10,
+      "values": [
+        {
+          "value": "0.00010000",
+          "count": 36,
+          "meanApiPosition": 1477.361111111111
+        },
+        {
+          "value": "0.00001000",
+          "count": 24,
+          "meanApiPosition": 1538.7083333333333
+        },
+        {
+          "value": "0.01000000",
+          "count": 20,
+          "meanApiPosition": 1748.8
+        },
+        {
+          "value": "0.00100000",
+          "count": 18,
+          "meanApiPosition": 1524.5
+        },
+        {
+          "value": "0.00000100",
+          "count": 11,
+          "meanApiPosition": 1254.1818181818182
+        },
+        {
+          "value": "0.80000000",
+          "count": 5,
+          "meanApiPosition": 2549.2
+        },
+        {
+          "value": "0.00000001",
+          "count": 2,
+          "meanApiPosition": 1394.5
+        },
+        {
+          "value": "0.10000000",
+          "count": 2,
+          "meanApiPosition": 1625
+        },
+        {
+          "value": "0.90000000",
+          "count": 1,
+          "meanApiPosition": 695
+        },
+        {
+          "value": "1.00000000",
+          "count": 1,
+          "meanApiPosition": 913
+        }
+      ]
+    },
+    {
+      "field": "filters.PRICE_FILTER.tickSize",
+      "count": 120,
+      "uniqueValues": 8,
+      "values": [
+        {
+          "value": "0.00010000",
+          "count": 40,
+          "meanApiPosition": 1577.3
+        },
+        {
+          "value": "0.00001000",
+          "count": 26,
+          "meanApiPosition": 1556.2692307692307
+        },
+        {
+          "value": "0.01000000",
+          "count": 20,
+          "meanApiPosition": 1748.8
+        },
+        {
+          "value": "0.00100000",
+          "count": 18,
+          "meanApiPosition": 1524.5
+        },
+        {
+          "value": "0.00000100",
+          "count": 11,
+          "meanApiPosition": 1254.1818181818182
+        },
+        {
+          "value": "0.00000001",
+          "count": 2,
+          "meanApiPosition": 1394.5
+        },
+        {
+          "value": "0.10000000",
+          "count": 2,
+          "meanApiPosition": 1625
+        },
+        {
+          "value": "1.00000000",
+          "count": 1,
+          "meanApiPosition": 913
+        }
+      ]
+    },
+    {
+      "field": "filters.TRAILING_DELTA.maxTrailingAboveDelta",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "2000",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "filters.TRAILING_DELTA.maxTrailingBelowDelta",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "2000",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "filters.TRAILING_DELTA.minTrailingAboveDelta",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "10",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "filters.TRAILING_DELTA.minTrailingBelowDelta",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "10",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "icebergAllowed",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "true",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "isMarginTradingAllowed",
+      "count": 120,
+      "uniqueValues": 2,
+      "values": [
+        {
+          "value": "true",
+          "count": 117,
+          "meanApiPosition": 1560.4358974358975
+        },
+        {
+          "value": "false",
+          "count": 3,
+          "meanApiPosition": 1383
+        }
+      ]
+    },
+    {
+      "field": "isSpotTradingAllowed",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "true",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "ocoAllowed",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "true",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "opoAllowed",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "true",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "orderTypes",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "[\"LIMIT\",\"LIMIT_MAKER\",\"MARKET\",\"STOP_LOSS\",\"STOP_LOSS_LIMIT\",\"TAKE_PROFIT\",\"TAKE_PROFIT_LIMIT\"]",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "otoAllowed",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "true",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "pegInstructionsAllowed",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "true",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "permissionSets",
+      "count": 120,
+      "uniqueValues": 16,
+      "values": [
+        {
+          "value": "[[\"SPOT\",\"MARGIN\",\"TRD_GRP_004\",\"TRD_GRP_005\",\"TRD_GRP_006\",\"TRD_GRP_015\",\"TRD_GRP_016\",\"TRD_GRP_017\",\"TRD_GRP_018\",\"TRD_GRP_019\",\"TRD_GRP_020\",\"TRD_GRP_021\",\"TRD_GRP_022\",\"TRD_GRP_023\",\"TRD_GRP_024\",\"TRD_GRP_025\",\"TRD_GRP_049\",\"TRD_GRP_050\",\"TRD_GRP_051\",\"TRD_GRP_052\",\"TRD_GRP_053\",\"TRD_GRP_054\",\"TRD_GRP_055\",\"TRD_GRP_056\",\"TRD_GRP_057\",\"TRD_GRP_058\",\"TRD_GRP_059\",\"TRD_GRP_060\",\"TRD_GRP_061\",\"TRD_GRP_062\",\"TRD_GRP_063\",\"TRD_GRP_064\",\"TRD_GRP_065\",\"TRD_GRP_066\",\"TRD_GRP_067\",\"TRD_GRP_068\",\"TRD_GRP_069\",\"TRD_GRP_070\",\"TRD_GRP_071\",\"TRD_GRP_072\",\"TRD_GRP_073\",\"TRD_GRP_074\",\"TRD_GRP_075\",\"TRD_GRP_076\",\"TRD_GRP_077\",\"TRD_GRP_078\",\"TRD_GRP_079\",\"TRD_GRP_080\",\"TRD_GRP_081\",\"TRD_GRP_082\",\"TRD_GRP_083\",\"TRD_GRP_084\",\"TRD_GRP_085\",\"TRD_GRP_086\",\"TRD_GRP_087\",\"TRD_GRP_088\",\"TRD_GRP_089\",\"TRD_GRP_090\",\"TRD_GRP_091\",\"TRD_GRP_092\",\"TRD_GRP_093\",\"TRD_GRP_094\",\"TRD_GRP_095\",\"TRD_GRP_096\",\"TRD_GRP_097\",\"TRD_GRP_098\",\"TRD_GRP_099\",\"TRD_GRP_100\",\"TRD_GRP_101\",\"TRD_GRP_102\",\"TRD_GRP_103\",\"TRD_GRP_104\",\"TRD_GRP_105\",\"TRD_GRP_106\",\"TRD_GRP_107\",\"TRD_GRP_108\",\"TRD_GRP_109\",\"TRD_GRP_110\",\"TRD_GRP_111\",\"TRD_GRP_112\",\"TRD_GRP_113\",\"TRD_GRP_114\",\"TRD_GRP_115\",\"TRD_GRP_116\",\"TRD_GRP_117\",\"TRD_GRP_118\",\"TRD_GRP_119\",\"TRD_GRP_120\",\"TRD_GRP_121\",\"TRD_GRP_122\",\"TRD_GRP_123\",\"TRD_GRP_124\",\"TRD_GRP_125\",\"TRD_GRP_126\",\"TRD_GRP_127\",\"TRD_GRP_128\",\"TRD_GRP_129\",\"TRD_GRP_130\",\"TRD_GRP_131\",\"TRD_GRP_132\",\"TRD_GRP_133\",\"TRD_GRP_134\",\"TRD_GRP_135\",\"TRD_GRP_136\",\"TRD_GRP_137\",\"TRD_GRP_138\",\"TRD_GRP_139\",\"TRD_GRP_140\",\"TRD_GRP_141\",\"TRD_GRP_142\",\"TRD_GRP_143\",\"TRD_GRP_144\",\"TRD_GRP_145\",\"TRD_GRP_146\",\"TRD_GRP_147\",\"TRD_GRP_148\",\"TRD_GRP_149\",\"TRD_GRP_150\",\"TRD_GRP_151\",\"TRD_GRP_152\",\"TRD_GRP_153\",\"TRD_GRP_154\",\"TRD_GRP_155\",\"TRD_GRP_156\",\"TRD_GRP_157\",\"TRD_GRP_158\",\"TRD_GRP_159\",\"TRD_GRP_160\",\"TRD_GRP_161\",\"TRD_GRP_162\",\"TRD_GRP_163\",\"TRD_GRP_164\",\"TRD_GRP_165\",\"TRD_GRP_166\",\"TRD_GRP_167\",\"TRD_GRP_168\",\"TRD_GRP_169\",\"TRD_GRP_170\",\"TRD_GRP_171\",\"TRD_GRP_172\",\"TRD_GRP_173\",\"TRD_GRP_174\",\"TRD_GRP_175\",\"TRD_GRP_176\",\"TRD_GRP_177\",\"TRD_GRP_178\",\"TRD_GRP_179\",\"TRD_GRP_180\",\"TRD_GRP_181\",\"TRD_GRP_182\",\"TRD_GRP_183\",\"TRD_GRP_184\",\"TRD_GRP_185\",\"TRD_GRP_186\",\"TRD_GRP_187\",\"TRD_GRP_188\",\"TRD_GRP_189\",\"TRD_GRP_190\",\"TRD_GRP_191\",\"TRD_GRP_192\",\"TRD_GRP_193\",\"TRD_GRP_194\",\"TRD_GRP_195\",\"TRD_GRP_196\",\"TRD_GRP_197\",\"TRD_GRP_198\",\"TRD_GRP_199\",\"TRD_GRP_200\",\"TRD_GRP_201\",\"TRD_GRP_202\",\"TRD_GRP_203\",\"TRD_GRP_204\",\"TRD_GRP_205\",\"TRD_GRP_206\",\"TRD_GRP_207\",\"TRD_GRP_208\",\"TRD_GRP_209\",\"TRD_GRP_210\",\"TRD_GRP_211\",\"TRD_GRP_212\",\"TRD_GRP_213\",\"TRD_GRP_214\",\"TRD_GRP_215\",\"TRD_GRP_216\",\"TRD_GRP_217\",\"TRD_GRP_218\",\"TRD_GRP_219\",\"TRD_GRP_220\",\"TRD_GRP_221\",\"TRD_GRP_222\",\"TRD_GRP_223\",\"TRD_GRP_224\",\"TRD_GRP_225\",\"TRD_GRP_226\",\"TRD_GRP_227\",\"TRD_GRP_228\",\"TRD_GRP_229\",\"TRD_GRP_230\",\"TRD_GRP_231\",\"TRD_GRP_232\",\"TRD_GRP_233\",\"TRD_GRP_234\",\"TRD_GRP_235\",\"TRD_GRP_236\",\"TRD_GRP_237\",\"TRD_GRP_238\",\"TRD_GRP_239\",\"TRD_GRP_240\",\"TRD_GRP_242\",\"TRD_GRP_243\",\"TRD_GRP_244\",\"TRD_GRP_245\",\"TRD_GRP_246\",\"TRD_GRP_247\",\"TRD_GRP_248\",\"TRD_GRP_249\",\"TRD_GRP_250\",\"TRD_GRP_251\",\"TRD_GRP_252\",\"TRD_GRP_253\",\"TRD_GRP_256\",\"TRD_GRP_258\"]]",
+          "count": 59,
+          "meanApiPosition": 863.0169491525423
+        },
+        {
+          "value": "[[\"SPOT\",\"MARGIN\",\"TRD_GRP_004\",\"TRD_GRP_005\",\"TRD_GRP_006\",\"TRD_GRP_016\",\"TRD_GRP_017\",\"TRD_GRP_018\",\"TRD_GRP_019\",\"TRD_GRP_020\",\"TRD_GRP_021\",\"TRD_GRP_022\",\"TRD_GRP_023\",\"TRD_GRP_024\",\"TRD_GRP_025\",\"TRD_GRP_049\",\"TRD_GRP_050\",\"TRD_GRP_051\",\"TRD_GRP_052\",\"TRD_GRP_053\",\"TRD_GRP_054\",\"TRD_GRP_055\",\"TRD_GRP_056\",\"TRD_GRP_057\",\"TRD_GRP_058\",\"TRD_GRP_059\",\"TRD_GRP_060\",\"TRD_GRP_061\",\"TRD_GRP_062\",\"TRD_GRP_063\",\"TRD_GRP_064\",\"TRD_GRP_065\",\"TRD_GRP_066\",\"TRD_GRP_067\",\"TRD_GRP_068\",\"TRD_GRP_069\",\"TRD_GRP_070\",\"TRD_GRP_071\",\"TRD_GRP_072\",\"TRD_GRP_073\",\"TRD_GRP_074\",\"TRD_GRP_075\",\"TRD_GRP_076\",\"TRD_GRP_077\",\"TRD_GRP_078\",\"TRD_GRP_079\",\"TRD_GRP_080\",\"TRD_GRP_081\",\"TRD_GRP_082\",\"TRD_GRP_083\",\"TRD_GRP_084\",\"TRD_GRP_085\",\"TRD_GRP_086\",\"TRD_GRP_087\",\"TRD_GRP_088\",\"TRD_GRP_089\",\"TRD_GRP_090\",\"TRD_GRP_091\",\"TRD_GRP_092\",\"TRD_GRP_093\",\"TRD_GRP_094\",\"TRD_GRP_095\",\"TRD_GRP_096\",\"TRD_GRP_097\",\"TRD_GRP_098\",\"TRD_GRP_099\",\"TRD_GRP_100\",\"TRD_GRP_101\",\"TRD_GRP_102\",\"TRD_GRP_103\",\"TRD_GRP_104\",\"TRD_GRP_105\",\"TRD_GRP_106\",\"TRD_GRP_107\",\"TRD_GRP_108\",\"TRD_GRP_109\",\"TRD_GRP_110\",\"TRD_GRP_111\",\"TRD_GRP_112\",\"TRD_GRP_113\",\"TRD_GRP_114\",\"TRD_GRP_115\",\"TRD_GRP_116\",\"TRD_GRP_117\",\"TRD_GRP_118\",\"TRD_GRP_119\",\"TRD_GRP_120\",\"TRD_GRP_121\",\"TRD_GRP_122\",\"TRD_GRP_123\",\"TRD_GRP_124\",\"TRD_GRP_125\",\"TRD_GRP_126\",\"TRD_GRP_127\",\"TRD_GRP_128\",\"TRD_GRP_129\",\"TRD_GRP_130\",\"TRD_GRP_131\",\"TRD_GRP_132\",\"TRD_GRP_133\",\"TRD_GRP_134\",\"TRD_GRP_135\",\"TRD_GRP_136\",\"TRD_GRP_137\",\"TRD_GRP_138\",\"TRD_GRP_139\",\"TRD_GRP_140\",\"TRD_GRP_141\",\"TRD_GRP_142\",\"TRD_GRP_143\",\"TRD_GRP_144\",\"TRD_GRP_145\",\"TRD_GRP_146\",\"TRD_GRP_147\",\"TRD_GRP_148\",\"TRD_GRP_149\",\"TRD_GRP_150\",\"TRD_GRP_151\",\"TRD_GRP_152\",\"TRD_GRP_153\",\"TRD_GRP_154\",\"TRD_GRP_155\",\"TRD_GRP_156\",\"TRD_GRP_157\",\"TRD_GRP_158\",\"TRD_GRP_159\",\"TRD_GRP_160\",\"TRD_GRP_161\",\"TRD_GRP_162\",\"TRD_GRP_163\",\"TRD_GRP_164\",\"TRD_GRP_165\",\"TRD_GRP_166\",\"TRD_GRP_167\",\"TRD_GRP_168\",\"TRD_GRP_169\",\"TRD_GRP_170\",\"TRD_GRP_171\",\"TRD_GRP_172\",\"TRD_GRP_173\",\"TRD_GRP_174\",\"TRD_GRP_175\",\"TRD_GRP_176\",\"TRD_GRP_177\",\"TRD_GRP_178\",\"TRD_GRP_179\",\"TRD_GRP_180\",\"TRD_GRP_181\",\"TRD_GRP_182\",\"TRD_GRP_183\",\"TRD_GRP_184\",\"TRD_GRP_185\",\"TRD_GRP_186\",\"TRD_GRP_187\",\"TRD_GRP_188\",\"TRD_GRP_189\",\"TRD_GRP_190\",\"TRD_GRP_191\",\"TRD_GRP_192\",\"TRD_GRP_193\",\"TRD_GRP_194\",\"TRD_GRP_195\",\"TRD_GRP_196\",\"TRD_GRP_197\",\"TRD_GRP_198\",\"TRD_GRP_199\",\"TRD_GRP_200\",\"TRD_GRP_201\",\"TRD_GRP_202\",\"TRD_GRP_203\",\"TRD_GRP_204\",\"TRD_GRP_205\",\"TRD_GRP_206\",\"TRD_GRP_207\",\"TRD_GRP_208\",\"TRD_GRP_209\",\"TRD_GRP_210\",\"TRD_GRP_211\",\"TRD_GRP_212\",\"TRD_GRP_213\",\"TRD_GRP_214\",\"TRD_GRP_215\",\"TRD_GRP_216\",\"TRD_GRP_217\",\"TRD_GRP_218\",\"TRD_GRP_219\",\"TRD_GRP_220\",\"TRD_GRP_221\",\"TRD_GRP_222\",\"TRD_GRP_223\",\"TRD_GRP_224\",\"TRD_GRP_225\",\"TRD_GRP_226\",\"TRD_GRP_227\",\"TRD_GRP_228\",\"TRD_GRP_229\",\"TRD_GRP_230\",\"TRD_GRP_231\",\"TRD_GRP_232\",\"TRD_GRP_233\",\"TRD_GRP_234\",\"TRD_GRP_235\",\"TRD_GRP_236\",\"TRD_GRP_237\",\"TRD_GRP_238\",\"TRD_GRP_239\",\"TRD_GRP_240\",\"TRD_GRP_242\",\"TRD_GRP_243\",\"TRD_GRP_244\",\"TRD_GRP_245\",\"TRD_GRP_246\",\"TRD_GRP_247\",\"TRD_GRP_248\",\"TRD_GRP_249\",\"TRD_GRP_250\",\"TRD_GRP_251\",\"TRD_GRP_252\",\"TRD_GRP_253\",\"TRD_GRP_256\",\"TRD_GRP_258\"]]",
+          "count": 19,
+          "meanApiPosition": 2901.9473684210525
+        },
+        {
+          "value": "[[\"SPOT\",\"MARGIN\",\"TRD_GRP_004\",\"TRD_GRP_006\",\"TRD_GRP_015\",\"TRD_GRP_016\",\"TRD_GRP_017\",\"TRD_GRP_018\",\"TRD_GRP_019\",\"TRD_GRP_020\",\"TRD_GRP_021\",\"TRD_GRP_022\",\"TRD_GRP_023\",\"TRD_GRP_024\",\"TRD_GRP_025\",\"TRD_GRP_049\",\"TRD_GRP_050\",\"TRD_GRP_051\",\"TRD_GRP_052\",\"TRD_GRP_053\",\"TRD_GRP_054\",\"TRD_GRP_055\",\"TRD_GRP_056\",\"TRD_GRP_057\",\"TRD_GRP_058\",\"TRD_GRP_059\",\"TRD_GRP_060\",\"TRD_GRP_061\",\"TRD_GRP_062\",\"TRD_GRP_063\",\"TRD_GRP_064\",\"TRD_GRP_065\",\"TRD_GRP_066\",\"TRD_GRP_067\",\"TRD_GRP_068\",\"TRD_GRP_069\",\"TRD_GRP_070\",\"TRD_GRP_071\",\"TRD_GRP_072\",\"TRD_GRP_073\",\"TRD_GRP_074\",\"TRD_GRP_075\",\"TRD_GRP_076\",\"TRD_GRP_077\",\"TRD_GRP_078\",\"TRD_GRP_079\",\"TRD_GRP_080\",\"TRD_GRP_081\",\"TRD_GRP_082\",\"TRD_GRP_083\",\"TRD_GRP_084\",\"TRD_GRP_085\",\"TRD_GRP_086\",\"TRD_GRP_087\",\"TRD_GRP_088\",\"TRD_GRP_089\",\"TRD_GRP_090\",\"TRD_GRP_091\",\"TRD_GRP_092\",\"TRD_GRP_093\",\"TRD_GRP_094\",\"TRD_GRP_095\",\"TRD_GRP_096\",\"TRD_GRP_097\",\"TRD_GRP_098\",\"TRD_GRP_099\",\"TRD_GRP_100\",\"TRD_GRP_101\",\"TRD_GRP_102\",\"TRD_GRP_103\",\"TRD_GRP_104\",\"TRD_GRP_105\",\"TRD_GRP_106\",\"TRD_GRP_107\",\"TRD_GRP_108\",\"TRD_GRP_109\",\"TRD_GRP_110\",\"TRD_GRP_111\",\"TRD_GRP_112\",\"TRD_GRP_113\",\"TRD_GRP_114\",\"TRD_GRP_115\",\"TRD_GRP_116\",\"TRD_GRP_117\",\"TRD_GRP_118\",\"TRD_GRP_119\",\"TRD_GRP_120\",\"TRD_GRP_121\",\"TRD_GRP_122\",\"TRD_GRP_123\",\"TRD_GRP_124\",\"TRD_GRP_125\",\"TRD_GRP_126\",\"TRD_GRP_127\",\"TRD_GRP_128\",\"TRD_GRP_129\",\"TRD_GRP_130\",\"TRD_GRP_131\",\"TRD_GRP_132\",\"TRD_GRP_133\",\"TRD_GRP_134\",\"TRD_GRP_135\",\"TRD_GRP_136\",\"TRD_GRP_137\",\"TRD_GRP_138\",\"TRD_GRP_139\",\"TRD_GRP_140\",\"TRD_GRP_141\",\"TRD_GRP_142\",\"TRD_GRP_143\",\"TRD_GRP_144\",\"TRD_GRP_145\",\"TRD_GRP_146\",\"TRD_GRP_147\",\"TRD_GRP_148\",\"TRD_GRP_149\",\"TRD_GRP_150\",\"TRD_GRP_151\",\"TRD_GRP_152\",\"TRD_GRP_153\",\"TRD_GRP_154\",\"TRD_GRP_155\",\"TRD_GRP_156\",\"TRD_GRP_157\",\"TRD_GRP_158\",\"TRD_GRP_159\",\"TRD_GRP_160\",\"TRD_GRP_161\",\"TRD_GRP_162\",\"TRD_GRP_163\",\"TRD_GRP_164\",\"TRD_GRP_165\",\"TRD_GRP_166\",\"TRD_GRP_167\",\"TRD_GRP_168\",\"TRD_GRP_169\",\"TRD_GRP_170\",\"TRD_GRP_171\",\"TRD_GRP_172\",\"TRD_GRP_173\",\"TRD_GRP_174\",\"TRD_GRP_175\",\"TRD_GRP_176\",\"TRD_GRP_177\",\"TRD_GRP_178\",\"TRD_GRP_179\",\"TRD_GRP_180\",\"TRD_GRP_181\",\"TRD_GRP_182\",\"TRD_GRP_183\",\"TRD_GRP_184\",\"TRD_GRP_185\",\"TRD_GRP_186\",\"TRD_GRP_187\",\"TRD_GRP_188\",\"TRD_GRP_189\",\"TRD_GRP_190\",\"TRD_GRP_191\",\"TRD_GRP_192\",\"TRD_GRP_193\",\"TRD_GRP_194\",\"TRD_GRP_195\",\"TRD_GRP_196\",\"TRD_GRP_197\",\"TRD_GRP_198\",\"TRD_GRP_199\",\"TRD_GRP_200\",\"TRD_GRP_201\",\"TRD_GRP_202\",\"TRD_GRP_203\",\"TRD_GRP_204\",\"TRD_GRP_205\",\"TRD_GRP_206\",\"TRD_GRP_207\",\"TRD_GRP_208\",\"TRD_GRP_209\",\"TRD_GRP_210\",\"TRD_GRP_211\",\"TRD_GRP_212\",\"TRD_GRP_213\",\"TRD_GRP_214\",\"TRD_GRP_215\",\"TRD_GRP_216\",\"TRD_GRP_217\",\"TRD_GRP_218\",\"TRD_GRP_219\",\"TRD_GRP_220\",\"TRD_GRP_221\",\"TRD_GRP_222\",\"TRD_GRP_223\",\"TRD_GRP_224\",\"TRD_GRP_225\",\"TRD_GRP_226\",\"TRD_GRP_227\",\"TRD_GRP_228\",\"TRD_GRP_229\",\"TRD_GRP_230\",\"TRD_GRP_231\",\"TRD_GRP_232\",\"TRD_GRP_233\",\"TRD_GRP_234\",\"TRD_GRP_235\",\"TRD_GRP_236\",\"TRD_GRP_237\",\"TRD_GRP_238\",\"TRD_GRP_239\",\"TRD_GRP_240\",\"TRD_GRP_242\",\"TRD_GRP_243\",\"TRD_GRP_244\",\"TRD_GRP_245\",\"TRD_GRP_246\",\"TRD_GRP_247\",\"TRD_GRP_248\",\"TRD_GRP_249\",\"TRD_GRP_250\",\"TRD_GRP_251\",\"TRD_GRP_252\",\"TRD_GRP_253\",\"TRD_GRP_256\",\"TRD_GRP_258\"]]",
+          "count": 14,
+          "meanApiPosition": 650.7857142857143
+        },
+        {
+          "value": "[[\"SPOT\",\"MARGIN\",\"TRD_GRP_004\",\"TRD_GRP_005\",\"TRD_GRP_006\",\"TRD_GRP_017\",\"TRD_GRP_018\",\"TRD_GRP_019\",\"TRD_GRP_020\",\"TRD_GRP_021\",\"TRD_GRP_022\",\"TRD_GRP_023\",\"TRD_GRP_049\",\"TRD_GRP_050\",\"TRD_GRP_051\",\"TRD_GRP_052\",\"TRD_GRP_053\",\"TRD_GRP_054\",\"TRD_GRP_055\",\"TRD_GRP_056\",\"TRD_GRP_057\",\"TRD_GRP_058\",\"TRD_GRP_059\",\"TRD_GRP_060\",\"TRD_GRP_061\",\"TRD_GRP_062\",\"TRD_GRP_063\",\"TRD_GRP_064\",\"TRD_GRP_065\",\"TRD_GRP_066\",\"TRD_GRP_067\",\"TRD_GRP_068\",\"TRD_GRP_070\",\"TRD_GRP_071\",\"TRD_GRP_072\",\"TRD_GRP_073\",\"TRD_GRP_074\",\"TRD_GRP_075\",\"TRD_GRP_076\",\"TRD_GRP_077\",\"TRD_GRP_078\",\"TRD_GRP_079\",\"TRD_GRP_081\",\"TRD_GRP_082\",\"TRD_GRP_083\",\"TRD_GRP_084\",\"TRD_GRP_085\",\"TRD_GRP_086\",\"TRD_GRP_087\",\"TRD_GRP_088\",\"TRD_GRP_089\",\"TRD_GRP_090\",\"TRD_GRP_091\",\"TRD_GRP_092\",\"TRD_GRP_093\",\"TRD_GRP_094\",\"TRD_GRP_095\",\"TRD_GRP_096\",\"TRD_GRP_097\",\"TRD_GRP_098\",\"TRD_GRP_099\",\"TRD_GRP_100\",\"TRD_GRP_101\",\"TRD_GRP_102\",\"TRD_GRP_103\",\"TRD_GRP_104\",\"TRD_GRP_105\",\"TRD_GRP_106\",\"TRD_GRP_107\",\"TRD_GRP_108\",\"TRD_GRP_109\",\"TRD_GRP_110\",\"TRD_GRP_111\",\"TRD_GRP_112\",\"TRD_GRP_113\",\"TRD_GRP_114\",\"TRD_GRP_115\",\"TRD_GRP_116\",\"TRD_GRP_117\",\"TRD_GRP_118\",\"TRD_GRP_119\",\"TRD_GRP_120\",\"TRD_GRP_121\",\"TRD_GRP_122\",\"TRD_GRP_123\",\"TRD_GRP_124\",\"TRD_GRP_125\",\"TRD_GRP_126\",\"TRD_GRP_127\",\"TRD_GRP_128\",\"TRD_GRP_129\",\"TRD_GRP_130\",\"TRD_GRP_131\",\"TRD_GRP_132\",\"TRD_GRP_133\",\"TRD_GRP_134\",\"TRD_GRP_135\",\"TRD_GRP_136\",\"TRD_GRP_137\",\"TRD_GRP_138\",\"TRD_GRP_139\",\"TRD_GRP_140\",\"TRD_GRP_141\",\"TRD_GRP_142\",\"TRD_GRP_143\",\"TRD_GRP_144\",\"TRD_GRP_145\",\"TRD_GRP_146\",\"TRD_GRP_147\",\"TRD_GRP_148\",\"TRD_GRP_149\",\"TRD_GRP_150\",\"TRD_GRP_151\",\"TRD_GRP_152\",\"TRD_GRP_153\",\"TRD_GRP_154\",\"TRD_GRP_155\",\"TRD_GRP_156\",\"TRD_GRP_157\",\"TRD_GRP_158\",\"TRD_GRP_159\",\"TRD_GRP_160\",\"TRD_GRP_161\",\"TRD_GRP_162\",\"TRD_GRP_163\",\"TRD_GRP_164\",\"TRD_GRP_165\",\"TRD_GRP_166\",\"TRD_GRP_167\",\"TRD_GRP_168\",\"TRD_GRP_169\",\"TRD_GRP_170\",\"TRD_GRP_171\",\"TRD_GRP_173\",\"TRD_GRP_175\",\"TRD_GRP_176\",\"TRD_GRP_177\",\"TRD_GRP_178\",\"TRD_GRP_179\",\"TRD_GRP_181\",\"TRD_GRP_182\",\"TRD_GRP_183\",\"TRD_GRP_184\",\"TRD_GRP_185\",\"TRD_GRP_186\",\"TRD_GRP_187\",\"TRD_GRP_189\",\"TRD_GRP_190\",\"TRD_GRP_191\",\"TRD_GRP_192\",\"TRD_GRP_193\",\"TRD_GRP_194\",\"TRD_GRP_195\",\"TRD_GRP_196\",\"TRD_GRP_197\",\"TRD_GRP_198\",\"TRD_GRP_199\",\"TRD_GRP_200\",\"TRD_GRP_201\",\"TRD_GRP_202\",\"TRD_GRP_203\",\"TRD_GRP_204\",\"TRD_GRP_205\",\"TRD_GRP_206\",\"TRD_GRP_208\",\"TRD_GRP_209\",\"TRD_GRP_210\",\"TRD_GRP_211\",\"TRD_GRP_212\",\"TRD_GRP_213\",\"TRD_GRP_214\",\"TRD_GRP_215\",\"TRD_GRP_216\",\"TRD_GRP_217\",\"TRD_GRP_218\",\"TRD_GRP_219\",\"TRD_GRP_220\",\"TRD_GRP_221\",\"TRD_GRP_222\",\"TRD_GRP_223\",\"TRD_GRP_224\",\"TRD_GRP_225\",\"TRD_GRP_226\",\"TRD_GRP_227\",\"TRD_GRP_228\",\"TRD_GRP_229\",\"TRD_GRP_230\",\"TRD_GRP_231\",\"TRD_GRP_232\",\"TRD_GRP_233\",\"TRD_GRP_234\",\"TRD_GRP_235\",\"TRD_GRP_236\",\"TRD_GRP_237\",\"TRD_GRP_240\",\"TRD_GRP_242\",\"TRD_GRP_245\",\"TRD_GRP_246\",\"TRD_GRP_247\",\"TRD_GRP_248\",\"TRD_GRP_249\",\"TRD_GRP_250\",\"TRD_GRP_251\",\"TRD_GRP_252\",\"TRD_GRP_253\",\"TRD_GRP_256\",\"TRD_GRP_261\"]]",
+          "count": 7,
+          "meanApiPosition": 3605.1428571428573
+        },
+        {
+          "value": "[[\"SPOT\",\"MARGIN\",\"TRD_GRP_004\",\"TRD_GRP_005\",\"TRD_GRP_006\",\"TRD_GRP_016\",\"TRD_GRP_017\",\"TRD_GRP_018\",\"TRD_GRP_019\",\"TRD_GRP_020\",\"TRD_GRP_021\",\"TRD_GRP_022\",\"TRD_GRP_023\",\"TRD_GRP_024\",\"TRD_GRP_025\",\"TRD_GRP_049\",\"TRD_GRP_050\",\"TRD_GRP_051\",\"TRD_GRP_052\",\"TRD_GRP_053\",\"TRD_GRP_054\",\"TRD_GRP_055\",\"TRD_GRP_056\",\"TRD_GRP_057\",\"TRD_GRP_058\",\"TRD_GRP_059\",\"TRD_GRP_060\",\"TRD_GRP_061\",\"TRD_GRP_062\",\"TRD_GRP_063\",\"TRD_GRP_064\",\"TRD_GRP_065\",\"TRD_GRP_066\",\"TRD_GRP_067\",\"TRD_GRP_068\",\"TRD_GRP_069\",\"TRD_GRP_070\",\"TRD_GRP_071\",\"TRD_GRP_072\",\"TRD_GRP_073\",\"TRD_GRP_074\",\"TRD_GRP_075\",\"TRD_GRP_076\",\"TRD_GRP_077\",\"TRD_GRP_078\",\"TRD_GRP_079\",\"TRD_GRP_080\",\"TRD_GRP_081\",\"TRD_GRP_082\",\"TRD_GRP_083\",\"TRD_GRP_084\",\"TRD_GRP_085\",\"TRD_GRP_086\",\"TRD_GRP_087\",\"TRD_GRP_088\",\"TRD_GRP_089\",\"TRD_GRP_090\",\"TRD_GRP_091\",\"TRD_GRP_092\",\"TRD_GRP_093\",\"TRD_GRP_094\",\"TRD_GRP_095\",\"TRD_GRP_096\",\"TRD_GRP_097\",\"TRD_GRP_098\",\"TRD_GRP_099\",\"TRD_GRP_100\",\"TRD_GRP_101\",\"TRD_GRP_102\",\"TRD_GRP_103\",\"TRD_GRP_104\",\"TRD_GRP_105\",\"TRD_GRP_106\",\"TRD_GRP_107\",\"TRD_GRP_108\",\"TRD_GRP_109\",\"TRD_GRP_110\",\"TRD_GRP_111\",\"TRD_GRP_112\",\"TRD_GRP_113\",\"TRD_GRP_114\",\"TRD_GRP_115\",\"TRD_GRP_116\",\"TRD_GRP_117\",\"TRD_GRP_118\",\"TRD_GRP_119\",\"TRD_GRP_120\",\"TRD_GRP_121\",\"TRD_GRP_122\",\"TRD_GRP_123\",\"TRD_GRP_124\",\"TRD_GRP_125\",\"TRD_GRP_126\",\"TRD_GRP_127\",\"TRD_GRP_128\",\"TRD_GRP_129\",\"TRD_GRP_130\",\"TRD_GRP_131\",\"TRD_GRP_132\",\"TRD_GRP_133\",\"TRD_GRP_134\",\"TRD_GRP_135\",\"TRD_GRP_136\",\"TRD_GRP_137\",\"TRD_GRP_138\",\"TRD_GRP_139\",\"TRD_GRP_140\",\"TRD_GRP_141\",\"TRD_GRP_142\",\"TRD_GRP_143\",\"TRD_GRP_144\",\"TRD_GRP_145\",\"TRD_GRP_146\",\"TRD_GRP_147\",\"TRD_GRP_148\",\"TRD_GRP_149\",\"TRD_GRP_150\",\"TRD_GRP_151\",\"TRD_GRP_152\",\"TRD_GRP_153\",\"TRD_GRP_154\",\"TRD_GRP_155\",\"TRD_GRP_156\",\"TRD_GRP_157\",\"TRD_GRP_158\",\"TRD_GRP_159\",\"TRD_GRP_160\",\"TRD_GRP_161\",\"TRD_GRP_162\",\"TRD_GRP_163\",\"TRD_GRP_164\",\"TRD_GRP_165\",\"TRD_GRP_166\",\"TRD_GRP_167\",\"TRD_GRP_168\",\"TRD_GRP_169\",\"TRD_GRP_170\",\"TRD_GRP_171\",\"TRD_GRP_172\",\"TRD_GRP_173\",\"TRD_GRP_174\",\"TRD_GRP_175\",\"TRD_GRP_176\",\"TRD_GRP_177\",\"TRD_GRP_178\",\"TRD_GRP_179\",\"TRD_GRP_180\",\"TRD_GRP_181\",\"TRD_GRP_182\",\"TRD_GRP_183\",\"TRD_GRP_184\",\"TRD_GRP_185\",\"TRD_GRP_186\",\"TRD_GRP_187\",\"TRD_GRP_188\",\"TRD_GRP_189\",\"TRD_GRP_190\",\"TRD_GRP_191\",\"TRD_GRP_192\",\"TRD_GRP_193\",\"TRD_GRP_194\",\"TRD_GRP_195\",\"TRD_GRP_196\",\"TRD_GRP_197\",\"TRD_GRP_198\",\"TRD_GRP_199\",\"TRD_GRP_200\",\"TRD_GRP_201\",\"TRD_GRP_202\",\"TRD_GRP_203\",\"TRD_GRP_204\",\"TRD_GRP_205\",\"TRD_GRP_206\",\"TRD_GRP_207\",\"TRD_GRP_208\",\"TRD_GRP_209\",\"TRD_GRP_210\",\"TRD_GRP_211\",\"TRD_GRP_212\",\"TRD_GRP_213\",\"TRD_GRP_214\",\"TRD_GRP_215\",\"TRD_GRP_216\",\"TRD_GRP_217\",\"TRD_GRP_218\",\"TRD_GRP_219\",\"TRD_GRP_220\",\"TRD_GRP_221\",\"TRD_GRP_222\",\"TRD_GRP_223\",\"TRD_GRP_224\",\"TRD_GRP_225\",\"TRD_GRP_226\",\"TRD_GRP_227\",\"TRD_GRP_228\",\"TRD_GRP_229\",\"TRD_GRP_230\",\"TRD_GRP_231\",\"TRD_GRP_232\",\"TRD_GRP_233\",\"TRD_GRP_234\",\"TRD_GRP_235\",\"TRD_GRP_236\",\"TRD_GRP_237\",\"TRD_GRP_238\",\"TRD_GRP_239\",\"TRD_GRP_240\",\"TRD_GRP_242\",\"TRD_GRP_245\",\"TRD_GRP_246\",\"TRD_GRP_247\",\"TRD_GRP_248\",\"TRD_GRP_249\",\"TRD_GRP_250\",\"TRD_GRP_251\",\"TRD_GRP_252\",\"TRD_GRP_253\",\"TRD_GRP_256\",\"TRD_GRP_258\"]]",
+          "count": 6,
+          "meanApiPosition": 3530
+        },
+        {
+          "value": "[[\"SPOT\",\"MARGIN\",\"TRD_GRP_015\",\"TRD_GRP_016\",\"TRD_GRP_017\",\"TRD_GRP_018\",\"TRD_GRP_019\",\"TRD_GRP_020\",\"TRD_GRP_021\",\"TRD_GRP_022\",\"TRD_GRP_023\",\"TRD_GRP_024\",\"TRD_GRP_025\",\"TRD_GRP_049\",\"TRD_GRP_050\",\"TRD_GRP_051\",\"TRD_GRP_052\",\"TRD_GRP_053\",\"TRD_GRP_054\",\"TRD_GRP_055\",\"TRD_GRP_056\",\"TRD_GRP_057\",\"TRD_GRP_058\",\"TRD_GRP_059\",\"TRD_GRP_060\",\"TRD_GRP_061\",\"TRD_GRP_062\",\"TRD_GRP_063\",\"TRD_GRP_064\",\"TRD_GRP_065\",\"TRD_GRP_066\",\"TRD_GRP_067\",\"TRD_GRP_068\",\"TRD_GRP_069\",\"TRD_GRP_070\",\"TRD_GRP_071\",\"TRD_GRP_072\",\"TRD_GRP_073\",\"TRD_GRP_074\",\"TRD_GRP_075\",\"TRD_GRP_076\",\"TRD_GRP_077\",\"TRD_GRP_078\",\"TRD_GRP_079\",\"TRD_GRP_080\",\"TRD_GRP_081\",\"TRD_GRP_082\",\"TRD_GRP_083\",\"TRD_GRP_084\",\"TRD_GRP_085\",\"TRD_GRP_086\",\"TRD_GRP_087\",\"TRD_GRP_088\",\"TRD_GRP_089\",\"TRD_GRP_090\",\"TRD_GRP_091\",\"TRD_GRP_092\",\"TRD_GRP_093\",\"TRD_GRP_094\",\"TRD_GRP_095\",\"TRD_GRP_096\",\"TRD_GRP_097\",\"TRD_GRP_098\",\"TRD_GRP_099\",\"TRD_GRP_100\",\"TRD_GRP_101\",\"TRD_GRP_102\",\"TRD_GRP_103\",\"TRD_GRP_104\",\"TRD_GRP_105\",\"TRD_GRP_106\",\"TRD_GRP_107\",\"TRD_GRP_108\",\"TRD_GRP_109\",\"TRD_GRP_110\",\"TRD_GRP_111\",\"TRD_GRP_112\",\"TRD_GRP_113\",\"TRD_GRP_114\",\"TRD_GRP_115\",\"TRD_GRP_116\",\"TRD_GRP_117\",\"TRD_GRP_118\",\"TRD_GRP_119\",\"TRD_GRP_120\",\"TRD_GRP_121\",\"TRD_GRP_122\",\"TRD_GRP_123\",\"TRD_GRP_124\",\"TRD_GRP_125\",\"TRD_GRP_126\",\"TRD_GRP_127\",\"TRD_GRP_128\",\"TRD_GRP_129\",\"TRD_GRP_130\",\"TRD_GRP_131\",\"TRD_GRP_132\",\"TRD_GRP_133\",\"TRD_GRP_134\",\"TRD_GRP_135\",\"TRD_GRP_136\",\"TRD_GRP_137\",\"TRD_GRP_138\",\"TRD_GRP_139\",\"TRD_GRP_140\",\"TRD_GRP_141\",\"TRD_GRP_142\",\"TRD_GRP_143\",\"TRD_GRP_144\",\"TRD_GRP_145\",\"TRD_GRP_146\",\"TRD_GRP_147\",\"TRD_GRP_148\",\"TRD_GRP_149\",\"TRD_GRP_150\",\"TRD_GRP_151\",\"TRD_GRP_152\",\"TRD_GRP_153\",\"TRD_GRP_154\",\"TRD_GRP_155\",\"TRD_GRP_156\",\"TRD_GRP_157\",\"TRD_GRP_158\",\"TRD_GRP_159\",\"TRD_GRP_160\",\"TRD_GRP_161\",\"TRD_GRP_162\",\"TRD_GRP_163\",\"TRD_GRP_164\",\"TRD_GRP_165\",\"TRD_GRP_166\",\"TRD_GRP_167\",\"TRD_GRP_168\",\"TRD_GRP_169\",\"TRD_GRP_170\",\"TRD_GRP_171\",\"TRD_GRP_172\",\"TRD_GRP_173\",\"TRD_GRP_174\",\"TRD_GRP_175\",\"TRD_GRP_176\",\"TRD_GRP_177\",\"TRD_GRP_178\",\"TRD_GRP_179\",\"TRD_GRP_180\",\"TRD_GRP_181\",\"TRD_GRP_182\",\"TRD_GRP_183\",\"TRD_GRP_184\",\"TRD_GRP_185\",\"TRD_GRP_186\",\"TRD_GRP_187\",\"TRD_GRP_188\",\"TRD_GRP_189\",\"TRD_GRP_190\",\"TRD_GRP_191\",\"TRD_GRP_192\",\"TRD_GRP_193\",\"TRD_GRP_194\",\"TRD_GRP_195\",\"TRD_GRP_196\",\"TRD_GRP_197\",\"TRD_GRP_198\",\"TRD_GRP_199\",\"TRD_GRP_200\",\"TRD_GRP_201\",\"TRD_GRP_202\",\"TRD_GRP_203\",\"TRD_GRP_204\",\"TRD_GRP_205\",\"TRD_GRP_206\",\"TRD_GRP_207\",\"TRD_GRP_208\",\"TRD_GRP_209\",\"TRD_GRP_210\",\"TRD_GRP_211\",\"TRD_GRP_212\",\"TRD_GRP_213\",\"TRD_GRP_214\",\"TRD_GRP_215\",\"TRD_GRP_216\",\"TRD_GRP_217\",\"TRD_GRP_218\",\"TRD_GRP_219\",\"TRD_GRP_220\",\"TRD_GRP_221\",\"TRD_GRP_222\",\"TRD_GRP_223\",\"TRD_GRP_224\",\"TRD_GRP_225\",\"TRD_GRP_226\",\"TRD_GRP_227\",\"TRD_GRP_228\",\"TRD_GRP_229\",\"TRD_GRP_230\",\"TRD_GRP_231\",\"TRD_GRP_232\",\"TRD_GRP_233\",\"TRD_GRP_234\",\"TRD_GRP_235\",\"TRD_GRP_236\",\"TRD_GRP_237\",\"TRD_GRP_238\",\"TRD_GRP_239\",\"TRD_GRP_240\",\"TRD_GRP_242\",\"TRD_GRP_244\",\"TRD_GRP_245\",\"TRD_GRP_246\",\"TRD_GRP_247\",\"TRD_GRP_248\",\"TRD_GRP_249\",\"TRD_GRP_250\",\"TRD_GRP_251\",\"TRD_GRP_252\",\"TRD_GRP_253\",\"TRD_GRP_256\",\"TRD_GRP_258\"]]",
+          "count": 2,
+          "meanApiPosition": 687
+        },
+        {
+          "value": "[[\"SPOT\",\"MARGIN\",\"TRD_GRP_004\",\"TRD_GRP_005\",\"TRD_GRP_015\",\"TRD_GRP_016\",\"TRD_GRP_017\",\"TRD_GRP_018\",\"TRD_GRP_019\",\"TRD_GRP_020\",\"TRD_GRP_021\",\"TRD_GRP_022\",\"TRD_GRP_023\",\"TRD_GRP_024\",\"TRD_GRP_025\",\"TRD_GRP_049\",\"TRD_GRP_050\",\"TRD_GRP_051\",\"TRD_GRP_052\",\"TRD_GRP_053\",\"TRD_GRP_054\",\"TRD_GRP_055\",\"TRD_GRP_056\",\"TRD_GRP_057\",\"TRD_GRP_058\",\"TRD_GRP_059\",\"TRD_GRP_060\",\"TRD_GRP_061\",\"TRD_GRP_062\",\"TRD_GRP_063\",\"TRD_GRP_064\",\"TRD_GRP_065\",\"TRD_GRP_066\",\"TRD_GRP_067\",\"TRD_GRP_068\",\"TRD_GRP_069\",\"TRD_GRP_070\",\"TRD_GRP_071\",\"TRD_GRP_072\",\"TRD_GRP_073\",\"TRD_GRP_074\",\"TRD_GRP_075\",\"TRD_GRP_076\",\"TRD_GRP_077\",\"TRD_GRP_078\",\"TRD_GRP_079\",\"TRD_GRP_080\",\"TRD_GRP_081\",\"TRD_GRP_082\",\"TRD_GRP_083\",\"TRD_GRP_084\",\"TRD_GRP_085\",\"TRD_GRP_086\",\"TRD_GRP_087\",\"TRD_GRP_088\",\"TRD_GRP_089\",\"TRD_GRP_090\",\"TRD_GRP_091\",\"TRD_GRP_092\",\"TRD_GRP_093\",\"TRD_GRP_094\",\"TRD_GRP_095\",\"TRD_GRP_096\",\"TRD_GRP_097\",\"TRD_GRP_098\",\"TRD_GRP_099\",\"TRD_GRP_100\",\"TRD_GRP_101\",\"TRD_GRP_102\",\"TRD_GRP_103\",\"TRD_GRP_104\",\"TRD_GRP_105\",\"TRD_GRP_106\",\"TRD_GRP_107\",\"TRD_GRP_108\",\"TRD_GRP_109\",\"TRD_GRP_110\",\"TRD_GRP_111\",\"TRD_GRP_112\",\"TRD_GRP_113\",\"TRD_GRP_114\",\"TRD_GRP_115\",\"TRD_GRP_116\",\"TRD_GRP_117\",\"TRD_GRP_118\",\"TRD_GRP_119\",\"TRD_GRP_120\",\"TRD_GRP_121\",\"TRD_GRP_122\",\"TRD_GRP_123\",\"TRD_GRP_124\",\"TRD_GRP_125\",\"TRD_GRP_126\",\"TRD_GRP_127\",\"TRD_GRP_128\",\"TRD_GRP_129\",\"TRD_GRP_130\",\"TRD_GRP_131\",\"TRD_GRP_132\",\"TRD_GRP_133\",\"TRD_GRP_134\",\"TRD_GRP_135\",\"TRD_GRP_136\",\"TRD_GRP_137\",\"TRD_GRP_138\",\"TRD_GRP_139\",\"TRD_GRP_140\",\"TRD_GRP_141\",\"TRD_GRP_142\",\"TRD_GRP_143\",\"TRD_GRP_144\",\"TRD_GRP_145\",\"TRD_GRP_146\",\"TRD_GRP_147\",\"TRD_GRP_148\",\"TRD_GRP_149\",\"TRD_GRP_150\",\"TRD_GRP_151\",\"TRD_GRP_152\",\"TRD_GRP_153\",\"TRD_GRP_154\",\"TRD_GRP_155\",\"TRD_GRP_156\",\"TRD_GRP_157\",\"TRD_GRP_158\",\"TRD_GRP_159\",\"TRD_GRP_160\",\"TRD_GRP_161\",\"TRD_GRP_162\",\"TRD_GRP_163\",\"TRD_GRP_164\",\"TRD_GRP_165\",\"TRD_GRP_166\",\"TRD_GRP_167\",\"TRD_GRP_168\",\"TRD_GRP_169\",\"TRD_GRP_170\",\"TRD_GRP_171\",\"TRD_GRP_172\",\"TRD_GRP_173\",\"TRD_GRP_174\",\"TRD_GRP_175\",\"TRD_GRP_176\",\"TRD_GRP_177\",\"TRD_GRP_178\",\"TRD_GRP_179\",\"TRD_GRP_180\",\"TRD_GRP_181\",\"TRD_GRP_182\",\"TRD_GRP_183\",\"TRD_GRP_184\",\"TRD_GRP_185\",\"TRD_GRP_186\",\"TRD_GRP_187\",\"TRD_GRP_188\",\"TRD_GRP_189\",\"TRD_GRP_190\",\"TRD_GRP_191\",\"TRD_GRP_192\",\"TRD_GRP_193\",\"TRD_GRP_194\",\"TRD_GRP_195\",\"TRD_GRP_196\",\"TRD_GRP_197\",\"TRD_GRP_198\",\"TRD_GRP_199\",\"TRD_GRP_200\",\"TRD_GRP_201\",\"TRD_GRP_202\",\"TRD_GRP_203\",\"TRD_GRP_204\",\"TRD_GRP_205\",\"TRD_GRP_206\",\"TRD_GRP_207\",\"TRD_GRP_208\",\"TRD_GRP_209\",\"TRD_GRP_210\",\"TRD_GRP_211\",\"TRD_GRP_212\",\"TRD_GRP_213\",\"TRD_GRP_214\",\"TRD_GRP_215\",\"TRD_GRP_216\",\"TRD_GRP_217\",\"TRD_GRP_218\",\"TRD_GRP_219\",\"TRD_GRP_220\",\"TRD_GRP_221\",\"TRD_GRP_222\",\"TRD_GRP_223\",\"TRD_GRP_224\",\"TRD_GRP_225\",\"TRD_GRP_226\",\"TRD_GRP_227\",\"TRD_GRP_228\",\"TRD_GRP_229\",\"TRD_GRP_230\",\"TRD_GRP_231\",\"TRD_GRP_232\",\"TRD_GRP_233\",\"TRD_GRP_234\",\"TRD_GRP_235\",\"TRD_GRP_236\",\"TRD_GRP_237\",\"TRD_GRP_238\",\"TRD_GRP_239\",\"TRD_GRP_240\",\"TRD_GRP_242\",\"TRD_GRP_243\",\"TRD_GRP_244\",\"TRD_GRP_245\",\"TRD_GRP_246\",\"TRD_GRP_247\",\"TRD_GRP_248\",\"TRD_GRP_249\",\"TRD_GRP_250\",\"TRD_GRP_251\",\"TRD_GRP_252\",\"TRD_GRP_253\",\"TRD_GRP_256\",\"TRD_GRP_258\"]]",
+          "count": 2,
+          "meanApiPosition": 608.5
+        },
+        {
+          "value": "[[\"SPOT\",\"MARGIN\",\"TRD_GRP_004\",\"TRD_GRP_006\",\"TRD_GRP_016\",\"TRD_GRP_017\",\"TRD_GRP_018\",\"TRD_GRP_019\",\"TRD_GRP_020\",\"TRD_GRP_021\",\"TRD_GRP_022\",\"TRD_GRP_023\",\"TRD_GRP_024\",\"TRD_GRP_025\",\"TRD_GRP_049\",\"TRD_GRP_050\",\"TRD_GRP_051\",\"TRD_GRP_052\",\"TRD_GRP_053\",\"TRD_GRP_054\",\"TRD_GRP_055\",\"TRD_GRP_056\",\"TRD_GRP_057\",\"TRD_GRP_058\",\"TRD_GRP_059\",\"TRD_GRP_060\",\"TRD_GRP_061\",\"TRD_GRP_062\",\"TRD_GRP_063\",\"TRD_GRP_064\",\"TRD_GRP_065\",\"TRD_GRP_066\",\"TRD_GRP_067\",\"TRD_GRP_068\",\"TRD_GRP_069\",\"TRD_GRP_070\",\"TRD_GRP_071\",\"TRD_GRP_072\",\"TRD_GRP_073\",\"TRD_GRP_074\",\"TRD_GRP_075\",\"TRD_GRP_076\",\"TRD_GRP_077\",\"TRD_GRP_078\",\"TRD_GRP_079\",\"TRD_GRP_080\",\"TRD_GRP_081\",\"TRD_GRP_082\",\"TRD_GRP_083\",\"TRD_GRP_084\",\"TRD_GRP_085\",\"TRD_GRP_086\",\"TRD_GRP_087\",\"TRD_GRP_088\",\"TRD_GRP_089\",\"TRD_GRP_090\",\"TRD_GRP_091\",\"TRD_GRP_092\",\"TRD_GRP_093\",\"TRD_GRP_094\",\"TRD_GRP_095\",\"TRD_GRP_096\",\"TRD_GRP_097\",\"TRD_GRP_098\",\"TRD_GRP_099\",\"TRD_GRP_100\",\"TRD_GRP_101\",\"TRD_GRP_102\",\"TRD_GRP_103\",\"TRD_GRP_104\",\"TRD_GRP_105\",\"TRD_GRP_106\",\"TRD_GRP_107\",\"TRD_GRP_108\",\"TRD_GRP_109\",\"TRD_GRP_110\",\"TRD_GRP_111\",\"TRD_GRP_112\",\"TRD_GRP_113\",\"TRD_GRP_114\",\"TRD_GRP_115\",\"TRD_GRP_116\",\"TRD_GRP_117\",\"TRD_GRP_118\",\"TRD_GRP_119\",\"TRD_GRP_120\",\"TRD_GRP_121\",\"TRD_GRP_122\",\"TRD_GRP_123\",\"TRD_GRP_124\",\"TRD_GRP_125\",\"TRD_GRP_126\",\"TRD_GRP_127\",\"TRD_GRP_128\",\"TRD_GRP_129\",\"TRD_GRP_130\",\"TRD_GRP_131\",\"TRD_GRP_132\",\"TRD_GRP_133\",\"TRD_GRP_134\",\"TRD_GRP_135\",\"TRD_GRP_136\",\"TRD_GRP_137\",\"TRD_GRP_138\",\"TRD_GRP_139\",\"TRD_GRP_140\",\"TRD_GRP_141\",\"TRD_GRP_142\",\"TRD_GRP_143\",\"TRD_GRP_144\",\"TRD_GRP_145\",\"TRD_GRP_146\",\"TRD_GRP_147\",\"TRD_GRP_148\",\"TRD_GRP_149\",\"TRD_GRP_150\",\"TRD_GRP_151\",\"TRD_GRP_152\",\"TRD_GRP_153\",\"TRD_GRP_154\",\"TRD_GRP_155\",\"TRD_GRP_156\",\"TRD_GRP_157\",\"TRD_GRP_158\",\"TRD_GRP_159\",\"TRD_GRP_160\",\"TRD_GRP_161\",\"TRD_GRP_162\",\"TRD_GRP_163\",\"TRD_GRP_164\",\"TRD_GRP_165\",\"TRD_GRP_166\",\"TRD_GRP_167\",\"TRD_GRP_168\",\"TRD_GRP_169\",\"TRD_GRP_170\",\"TRD_GRP_171\",\"TRD_GRP_172\",\"TRD_GRP_173\",\"TRD_GRP_174\",\"TRD_GRP_175\",\"TRD_GRP_176\",\"TRD_GRP_177\",\"TRD_GRP_178\",\"TRD_GRP_179\",\"TRD_GRP_180\",\"TRD_GRP_181\",\"TRD_GRP_182\",\"TRD_GRP_183\",\"TRD_GRP_184\",\"TRD_GRP_185\",\"TRD_GRP_186\",\"TRD_GRP_187\",\"TRD_GRP_188\",\"TRD_GRP_189\",\"TRD_GRP_190\",\"TRD_GRP_191\",\"TRD_GRP_192\",\"TRD_GRP_193\",\"TRD_GRP_194\",\"TRD_GRP_195\",\"TRD_GRP_196\",\"TRD_GRP_197\",\"TRD_GRP_198\",\"TRD_GRP_199\",\"TRD_GRP_200\",\"TRD_GRP_201\",\"TRD_GRP_202\",\"TRD_GRP_203\",\"TRD_GRP_204\",\"TRD_GRP_205\",\"TRD_GRP_206\",\"TRD_GRP_207\",\"TRD_GRP_208\",\"TRD_GRP_209\",\"TRD_GRP_210\",\"TRD_GRP_211\",\"TRD_GRP_212\",\"TRD_GRP_213\",\"TRD_GRP_214\",\"TRD_GRP_215\",\"TRD_GRP_216\",\"TRD_GRP_217\",\"TRD_GRP_218\",\"TRD_GRP_219\",\"TRD_GRP_220\",\"TRD_GRP_221\",\"TRD_GRP_222\",\"TRD_GRP_223\",\"TRD_GRP_224\",\"TRD_GRP_225\",\"TRD_GRP_226\",\"TRD_GRP_227\",\"TRD_GRP_228\",\"TRD_GRP_229\",\"TRD_GRP_230\",\"TRD_GRP_231\",\"TRD_GRP_232\",\"TRD_GRP_233\",\"TRD_GRP_234\",\"TRD_GRP_235\",\"TRD_GRP_236\",\"TRD_GRP_237\",\"TRD_GRP_238\",\"TRD_GRP_239\",\"TRD_GRP_240\",\"TRD_GRP_242\",\"TRD_GRP_243\",\"TRD_GRP_244\",\"TRD_GRP_245\",\"TRD_GRP_246\",\"TRD_GRP_247\",\"TRD_GRP_248\",\"TRD_GRP_249\",\"TRD_GRP_250\",\"TRD_GRP_251\",\"TRD_GRP_252\",\"TRD_GRP_253\",\"TRD_GRP_256\",\"TRD_GRP_258\"]]",
+          "count": 2,
+          "meanApiPosition": 3066
+        },
+        {
+          "value": "[[\"SPOT\",\"MARGIN\",\"TRD_GRP_004\",\"TRD_GRP_006\",\"TRD_GRP_016\",\"TRD_GRP_017\",\"TRD_GRP_018\",\"TRD_GRP_019\",\"TRD_GRP_020\",\"TRD_GRP_021\",\"TRD_GRP_022\",\"TRD_GRP_023\",\"TRD_GRP_024\",\"TRD_GRP_025\",\"TRD_GRP_049\",\"TRD_GRP_050\",\"TRD_GRP_051\",\"TRD_GRP_052\",\"TRD_GRP_053\",\"TRD_GRP_054\",\"TRD_GRP_055\",\"TRD_GRP_056\",\"TRD_GRP_057\",\"TRD_GRP_058\",\"TRD_GRP_059\",\"TRD_GRP_060\",\"TRD_GRP_061\",\"TRD_GRP_062\",\"TRD_GRP_063\",\"TRD_GRP_064\",\"TRD_GRP_065\",\"TRD_GRP_066\",\"TRD_GRP_067\",\"TRD_GRP_068\",\"TRD_GRP_069\",\"TRD_GRP_070\",\"TRD_GRP_071\",\"TRD_GRP_072\",\"TRD_GRP_073\",\"TRD_GRP_074\",\"TRD_GRP_075\",\"TRD_GRP_076\",\"TRD_GRP_077\",\"TRD_GRP_078\",\"TRD_GRP_079\",\"TRD_GRP_080\",\"TRD_GRP_081\",\"TRD_GRP_082\",\"TRD_GRP_083\",\"TRD_GRP_084\",\"TRD_GRP_085\",\"TRD_GRP_086\",\"TRD_GRP_087\",\"TRD_GRP_088\",\"TRD_GRP_089\",\"TRD_GRP_090\",\"TRD_GRP_091\",\"TRD_GRP_092\",\"TRD_GRP_093\",\"TRD_GRP_094\",\"TRD_GRP_095\",\"TRD_GRP_096\",\"TRD_GRP_097\",\"TRD_GRP_098\",\"TRD_GRP_099\",\"TRD_GRP_100\",\"TRD_GRP_101\",\"TRD_GRP_102\",\"TRD_GRP_103\",\"TRD_GRP_104\",\"TRD_GRP_105\",\"TRD_GRP_106\",\"TRD_GRP_107\",\"TRD_GRP_108\",\"TRD_GRP_109\",\"TRD_GRP_110\",\"TRD_GRP_111\",\"TRD_GRP_112\",\"TRD_GRP_113\",\"TRD_GRP_114\",\"TRD_GRP_115\",\"TRD_GRP_116\",\"TRD_GRP_117\",\"TRD_GRP_118\",\"TRD_GRP_119\",\"TRD_GRP_120\",\"TRD_GRP_121\",\"TRD_GRP_122\",\"TRD_GRP_123\",\"TRD_GRP_124\",\"TRD_GRP_125\",\"TRD_GRP_126\",\"TRD_GRP_127\",\"TRD_GRP_128\",\"TRD_GRP_129\",\"TRD_GRP_130\",\"TRD_GRP_131\",\"TRD_GRP_132\",\"TRD_GRP_133\",\"TRD_GRP_134\",\"TRD_GRP_135\",\"TRD_GRP_136\",\"TRD_GRP_137\",\"TRD_GRP_138\",\"TRD_GRP_139\",\"TRD_GRP_140\",\"TRD_GRP_141\",\"TRD_GRP_142\",\"TRD_GRP_143\",\"TRD_GRP_144\",\"TRD_GRP_145\",\"TRD_GRP_146\",\"TRD_GRP_147\",\"TRD_GRP_148\",\"TRD_GRP_149\",\"TRD_GRP_150\",\"TRD_GRP_151\",\"TRD_GRP_152\",\"TRD_GRP_153\",\"TRD_GRP_154\",\"TRD_GRP_155\",\"TRD_GRP_156\",\"TRD_GRP_157\",\"TRD_GRP_158\",\"TRD_GRP_159\",\"TRD_GRP_160\",\"TRD_GRP_161\",\"TRD_GRP_162\",\"TRD_GRP_163\",\"TRD_GRP_164\",\"TRD_GRP_165\",\"TRD_GRP_166\",\"TRD_GRP_167\",\"TRD_GRP_168\",\"TRD_GRP_169\",\"TRD_GRP_170\",\"TRD_GRP_171\",\"TRD_GRP_172\",\"TRD_GRP_173\",\"TRD_GRP_174\",\"TRD_GRP_175\",\"TRD_GRP_176\",\"TRD_GRP_177\",\"TRD_GRP_178\",\"TRD_GRP_179\",\"TRD_GRP_180\",\"TRD_GRP_181\",\"TRD_GRP_182\",\"TRD_GRP_183\",\"TRD_GRP_184\",\"TRD_GRP_185\",\"TRD_GRP_186\",\"TRD_GRP_187\",\"TRD_GRP_188\",\"TRD_GRP_189\",\"TRD_GRP_190\",\"TRD_GRP_191\",\"TRD_GRP_192\",\"TRD_GRP_193\",\"TRD_GRP_194\",\"TRD_GRP_195\",\"TRD_GRP_196\",\"TRD_GRP_197\",\"TRD_GRP_198\",\"TRD_GRP_199\",\"TRD_GRP_200\",\"TRD_GRP_201\",\"TRD_GRP_202\",\"TRD_GRP_203\",\"TRD_GRP_204\",\"TRD_GRP_205\",\"TRD_GRP_206\",\"TRD_GRP_207\",\"TRD_GRP_208\",\"TRD_GRP_209\",\"TRD_GRP_210\",\"TRD_GRP_211\",\"TRD_GRP_212\",\"TRD_GRP_213\",\"TRD_GRP_214\",\"TRD_GRP_215\",\"TRD_GRP_216\",\"TRD_GRP_217\",\"TRD_GRP_218\",\"TRD_GRP_219\",\"TRD_GRP_220\",\"TRD_GRP_221\",\"TRD_GRP_222\",\"TRD_GRP_223\",\"TRD_GRP_224\",\"TRD_GRP_225\",\"TRD_GRP_226\",\"TRD_GRP_227\",\"TRD_GRP_228\",\"TRD_GRP_229\",\"TRD_GRP_230\",\"TRD_GRP_231\",\"TRD_GRP_232\",\"TRD_GRP_233\",\"TRD_GRP_234\",\"TRD_GRP_235\",\"TRD_GRP_236\",\"TRD_GRP_237\",\"TRD_GRP_238\",\"TRD_GRP_239\",\"TRD_GRP_240\",\"TRD_GRP_242\",\"TRD_GRP_245\",\"TRD_GRP_246\",\"TRD_GRP_247\",\"TRD_GRP_248\",\"TRD_GRP_249\",\"TRD_GRP_250\",\"TRD_GRP_251\",\"TRD_GRP_252\",\"TRD_GRP_253\",\"TRD_GRP_256\",\"TRD_GRP_258\"]]",
+          "count": 2,
+          "meanApiPosition": 3618
+        },
+        {
+          "value": "[[\"SPOT\",\"MARGIN\",\"TRD_GRP_004\",\"TRD_GRP_005\",\"TRD_GRP_006\",\"TRD_GRP_015\",\"TRD_GRP_016\",\"TRD_GRP_017\",\"TRD_GRP_018\",\"TRD_GRP_019\",\"TRD_GRP_020\",\"TRD_GRP_021\",\"TRD_GRP_022\",\"TRD_GRP_023\",\"TRD_GRP_024\",\"TRD_GRP_025\",\"TRD_GRP_049\",\"TRD_GRP_050\",\"TRD_GRP_051\",\"TRD_GRP_052\",\"TRD_GRP_053\",\"TRD_GRP_054\",\"TRD_GRP_055\",\"TRD_GRP_056\",\"TRD_GRP_057\",\"TRD_GRP_058\",\"TRD_GRP_059\",\"TRD_GRP_060\",\"TRD_GRP_061\",\"TRD_GRP_062\",\"TRD_GRP_063\",\"TRD_GRP_064\",\"TRD_GRP_065\",\"TRD_GRP_066\",\"TRD_GRP_067\",\"TRD_GRP_068\",\"TRD_GRP_069\",\"TRD_GRP_070\",\"TRD_GRP_071\",\"TRD_GRP_072\",\"TRD_GRP_073\",\"TRD_GRP_074\",\"TRD_GRP_075\",\"TRD_GRP_076\",\"TRD_GRP_077\",\"TRD_GRP_078\",\"TRD_GRP_079\",\"TRD_GRP_080\",\"TRD_GRP_081\",\"TRD_GRP_082\",\"TRD_GRP_083\",\"TRD_GRP_084\",\"TRD_GRP_085\",\"TRD_GRP_086\",\"TRD_GRP_087\",\"TRD_GRP_088\",\"TRD_GRP_089\",\"TRD_GRP_090\",\"TRD_GRP_091\",\"TRD_GRP_092\",\"TRD_GRP_093\",\"TRD_GRP_094\",\"TRD_GRP_095\",\"TRD_GRP_096\",\"TRD_GRP_097\",\"TRD_GRP_098\",\"TRD_GRP_099\",\"TRD_GRP_100\",\"TRD_GRP_101\",\"TRD_GRP_102\",\"TRD_GRP_103\",\"TRD_GRP_104\",\"TRD_GRP_105\",\"TRD_GRP_106\",\"TRD_GRP_107\",\"TRD_GRP_108\",\"TRD_GRP_109\",\"TRD_GRP_110\",\"TRD_GRP_111\",\"TRD_GRP_112\",\"TRD_GRP_113\",\"TRD_GRP_114\",\"TRD_GRP_115\",\"TRD_GRP_116\",\"TRD_GRP_117\",\"TRD_GRP_118\",\"TRD_GRP_119\",\"TRD_GRP_120\",\"TRD_GRP_121\",\"TRD_GRP_122\",\"TRD_GRP_123\",\"TRD_GRP_124\",\"TRD_GRP_125\",\"TRD_GRP_126\",\"TRD_GRP_127\",\"TRD_GRP_128\",\"TRD_GRP_129\",\"TRD_GRP_130\",\"TRD_GRP_131\",\"TRD_GRP_132\",\"TRD_GRP_133\",\"TRD_GRP_134\",\"TRD_GRP_135\",\"TRD_GRP_136\",\"TRD_GRP_137\",\"TRD_GRP_138\",\"TRD_GRP_139\",\"TRD_GRP_140\",\"TRD_GRP_141\",\"TRD_GRP_142\",\"TRD_GRP_143\",\"TRD_GRP_144\",\"TRD_GRP_145\",\"TRD_GRP_146\",\"TRD_GRP_147\",\"TRD_GRP_148\",\"TRD_GRP_149\",\"TRD_GRP_150\",\"TRD_GRP_151\",\"TRD_GRP_152\",\"TRD_GRP_153\",\"TRD_GRP_154\",\"TRD_GRP_155\",\"TRD_GRP_156\",\"TRD_GRP_157\",\"TRD_GRP_158\",\"TRD_GRP_159\",\"TRD_GRP_160\",\"TRD_GRP_161\",\"TRD_GRP_162\",\"TRD_GRP_163\",\"TRD_GRP_164\",\"TRD_GRP_165\",\"TRD_GRP_166\",\"TRD_GRP_167\",\"TRD_GRP_168\",\"TRD_GRP_169\",\"TRD_GRP_170\",\"TRD_GRP_171\",\"TRD_GRP_172\",\"TRD_GRP_173\",\"TRD_GRP_174\",\"TRD_GRP_175\",\"TRD_GRP_176\",\"TRD_GRP_177\",\"TRD_GRP_178\",\"TRD_GRP_179\",\"TRD_GRP_180\",\"TRD_GRP_181\",\"TRD_GRP_182\",\"TRD_GRP_183\",\"TRD_GRP_184\",\"TRD_GRP_185\",\"TRD_GRP_186\",\"TRD_GRP_187\",\"TRD_GRP_188\",\"TRD_GRP_189\",\"TRD_GRP_190\",\"TRD_GRP_191\",\"TRD_GRP_192\",\"TRD_GRP_193\",\"TRD_GRP_194\",\"TRD_GRP_195\",\"TRD_GRP_196\",\"TRD_GRP_197\",\"TRD_GRP_198\",\"TRD_GRP_199\",\"TRD_GRP_200\",\"TRD_GRP_201\",\"TRD_GRP_202\",\"TRD_GRP_203\",\"TRD_GRP_204\",\"TRD_GRP_205\",\"TRD_GRP_206\",\"TRD_GRP_207\",\"TRD_GRP_208\",\"TRD_GRP_209\",\"TRD_GRP_210\",\"TRD_GRP_211\",\"TRD_GRP_212\",\"TRD_GRP_213\",\"TRD_GRP_214\",\"TRD_GRP_215\",\"TRD_GRP_216\",\"TRD_GRP_217\",\"TRD_GRP_218\",\"TRD_GRP_219\",\"TRD_GRP_220\",\"TRD_GRP_221\",\"TRD_GRP_222\",\"TRD_GRP_223\",\"TRD_GRP_224\",\"TRD_GRP_225\",\"TRD_GRP_226\",\"TRD_GRP_227\",\"TRD_GRP_228\",\"TRD_GRP_229\",\"TRD_GRP_230\",\"TRD_GRP_231\",\"TRD_GRP_232\",\"TRD_GRP_233\",\"TRD_GRP_234\",\"TRD_GRP_235\",\"TRD_GRP_236\",\"TRD_GRP_237\",\"TRD_GRP_238\",\"TRD_GRP_239\",\"TRD_GRP_240\",\"TRD_GRP_242\",\"TRD_GRP_243\",\"TRD_GRP_244\",\"TRD_GRP_245\",\"TRD_GRP_246\",\"TRD_GRP_247\",\"TRD_GRP_248\",\"TRD_GRP_249\",\"TRD_GRP_250\",\"TRD_GRP_251\",\"TRD_GRP_252\",\"TRD_GRP_253\",\"TRD_GRP_256\",\"TRD_GRP_258\",\"TRD_GRP_259\"]]",
+          "count": 1,
+          "meanApiPosition": 12
+        },
+        {
+          "value": "[[\"SPOT\",\"MARGIN\",\"TRD_GRP_015\",\"TRD_GRP_016\",\"TRD_GRP_017\",\"TRD_GRP_018\",\"TRD_GRP_019\",\"TRD_GRP_021\",\"TRD_GRP_022\",\"TRD_GRP_023\",\"TRD_GRP_024\",\"TRD_GRP_025\",\"TRD_GRP_049\",\"TRD_GRP_050\",\"TRD_GRP_051\",\"TRD_GRP_052\",\"TRD_GRP_053\",\"TRD_GRP_054\",\"TRD_GRP_055\",\"TRD_GRP_056\",\"TRD_GRP_057\",\"TRD_GRP_058\",\"TRD_GRP_059\",\"TRD_GRP_060\",\"TRD_GRP_061\",\"TRD_GRP_062\",\"TRD_GRP_063\",\"TRD_GRP_064\",\"TRD_GRP_065\",\"TRD_GRP_066\",\"TRD_GRP_067\",\"TRD_GRP_068\",\"TRD_GRP_069\",\"TRD_GRP_070\",\"TRD_GRP_071\",\"TRD_GRP_072\",\"TRD_GRP_073\",\"TRD_GRP_074\",\"TRD_GRP_075\",\"TRD_GRP_076\",\"TRD_GRP_077\",\"TRD_GRP_078\",\"TRD_GRP_079\",\"TRD_GRP_080\",\"TRD_GRP_081\",\"TRD_GRP_082\",\"TRD_GRP_083\",\"TRD_GRP_084\",\"TRD_GRP_085\",\"TRD_GRP_086\",\"TRD_GRP_087\",\"TRD_GRP_088\",\"TRD_GRP_089\",\"TRD_GRP_090\",\"TRD_GRP_091\",\"TRD_GRP_092\",\"TRD_GRP_093\",\"TRD_GRP_094\",\"TRD_GRP_095\",\"TRD_GRP_096\",\"TRD_GRP_097\",\"TRD_GRP_098\",\"TRD_GRP_099\",\"TRD_GRP_100\",\"TRD_GRP_101\",\"TRD_GRP_102\",\"TRD_GRP_103\",\"TRD_GRP_104\",\"TRD_GRP_105\",\"TRD_GRP_106\",\"TRD_GRP_107\",\"TRD_GRP_108\",\"TRD_GRP_109\",\"TRD_GRP_110\",\"TRD_GRP_111\",\"TRD_GRP_112\",\"TRD_GRP_113\",\"TRD_GRP_114\",\"TRD_GRP_115\",\"TRD_GRP_116\",\"TRD_GRP_117\",\"TRD_GRP_118\",\"TRD_GRP_119\",\"TRD_GRP_120\",\"TRD_GRP_121\",\"TRD_GRP_122\",\"TRD_GRP_123\",\"TRD_GRP_124\",\"TRD_GRP_125\",\"TRD_GRP_126\",\"TRD_GRP_127\",\"TRD_GRP_128\",\"TRD_GRP_129\",\"TRD_GRP_130\",\"TRD_GRP_131\",\"TRD_GRP_132\",\"TRD_GRP_133\",\"TRD_GRP_134\",\"TRD_GRP_135\",\"TRD_GRP_136\",\"TRD_GRP_137\",\"TRD_GRP_138\",\"TRD_GRP_139\",\"TRD_GRP_140\",\"TRD_GRP_141\",\"TRD_GRP_142\",\"TRD_GRP_143\",\"TRD_GRP_144\",\"TRD_GRP_145\",\"TRD_GRP_146\",\"TRD_GRP_147\",\"TRD_GRP_148\",\"TRD_GRP_149\",\"TRD_GRP_150\",\"TRD_GRP_151\",\"TRD_GRP_152\",\"TRD_GRP_153\",\"TRD_GRP_154\",\"TRD_GRP_155\",\"TRD_GRP_156\",\"TRD_GRP_157\",\"TRD_GRP_158\",\"TRD_GRP_159\",\"TRD_GRP_160\",\"TRD_GRP_161\",\"TRD_GRP_162\",\"TRD_GRP_163\",\"TRD_GRP_164\",\"TRD_GRP_165\",\"TRD_GRP_166\",\"TRD_GRP_167\",\"TRD_GRP_168\",\"TRD_GRP_169\",\"TRD_GRP_170\",\"TRD_GRP_171\",\"TRD_GRP_172\",\"TRD_GRP_173\",\"TRD_GRP_174\",\"TRD_GRP_175\",\"TRD_GRP_176\",\"TRD_GRP_177\",\"TRD_GRP_178\",\"TRD_GRP_179\",\"TRD_GRP_180\",\"TRD_GRP_181\",\"TRD_GRP_182\",\"TRD_GRP_183\",\"TRD_GRP_184\",\"TRD_GRP_185\",\"TRD_GRP_186\",\"TRD_GRP_187\",\"TRD_GRP_188\",\"TRD_GRP_189\",\"TRD_GRP_190\",\"TRD_GRP_191\",\"TRD_GRP_192\",\"TRD_GRP_193\",\"TRD_GRP_194\",\"TRD_GRP_195\",\"TRD_GRP_196\",\"TRD_GRP_197\",\"TRD_GRP_198\",\"TRD_GRP_199\",\"TRD_GRP_200\",\"TRD_GRP_201\",\"TRD_GRP_202\",\"TRD_GRP_203\",\"TRD_GRP_204\",\"TRD_GRP_205\",\"TRD_GRP_206\",\"TRD_GRP_207\",\"TRD_GRP_208\",\"TRD_GRP_209\",\"TRD_GRP_210\",\"TRD_GRP_211\",\"TRD_GRP_212\",\"TRD_GRP_213\",\"TRD_GRP_214\",\"TRD_GRP_215\",\"TRD_GRP_216\",\"TRD_GRP_217\",\"TRD_GRP_218\",\"TRD_GRP_219\",\"TRD_GRP_220\",\"TRD_GRP_221\",\"TRD_GRP_222\",\"TRD_GRP_223\",\"TRD_GRP_224\",\"TRD_GRP_225\",\"TRD_GRP_226\",\"TRD_GRP_227\",\"TRD_GRP_228\",\"TRD_GRP_229\",\"TRD_GRP_230\",\"TRD_GRP_231\",\"TRD_GRP_232\",\"TRD_GRP_233\",\"TRD_GRP_234\",\"TRD_GRP_235\",\"TRD_GRP_236\",\"TRD_GRP_237\",\"TRD_GRP_238\",\"TRD_GRP_239\",\"TRD_GRP_240\",\"TRD_GRP_242\",\"TRD_GRP_244\",\"TRD_GRP_245\",\"TRD_GRP_246\",\"TRD_GRP_247\",\"TRD_GRP_248\",\"TRD_GRP_249\",\"TRD_GRP_250\",\"TRD_GRP_251\",\"TRD_GRP_252\",\"TRD_GRP_253\",\"TRD_GRP_256\",\"TRD_GRP_258\"]]",
+          "count": 1,
+          "meanApiPosition": 478
+        },
+        {
+          "value": "[[\"SPOT\",\"TRD_GRP_004\",\"TRD_GRP_005\",\"TRD_GRP_006\",\"TRD_GRP_015\",\"TRD_GRP_016\",\"TRD_GRP_017\",\"TRD_GRP_018\",\"TRD_GRP_019\",\"TRD_GRP_020\",\"TRD_GRP_021\",\"TRD_GRP_022\",\"TRD_GRP_023\",\"TRD_GRP_024\",\"TRD_GRP_025\",\"TRD_GRP_049\",\"TRD_GRP_050\",\"TRD_GRP_051\",\"TRD_GRP_052\",\"TRD_GRP_053\",\"TRD_GRP_054\",\"TRD_GRP_055\",\"TRD_GRP_056\",\"TRD_GRP_057\",\"TRD_GRP_058\",\"TRD_GRP_059\",\"TRD_GRP_060\",\"TRD_GRP_061\",\"TRD_GRP_062\",\"TRD_GRP_063\",\"TRD_GRP_064\",\"TRD_GRP_065\",\"TRD_GRP_066\",\"TRD_GRP_067\",\"TRD_GRP_068\",\"TRD_GRP_069\",\"TRD_GRP_070\",\"TRD_GRP_071\",\"TRD_GRP_072\",\"TRD_GRP_073\",\"TRD_GRP_074\",\"TRD_GRP_075\",\"TRD_GRP_076\",\"TRD_GRP_077\",\"TRD_GRP_078\",\"TRD_GRP_079\",\"TRD_GRP_080\",\"TRD_GRP_081\",\"TRD_GRP_082\",\"TRD_GRP_083\",\"TRD_GRP_084\",\"TRD_GRP_085\",\"TRD_GRP_086\",\"TRD_GRP_087\",\"TRD_GRP_088\",\"TRD_GRP_089\",\"TRD_GRP_090\",\"TRD_GRP_091\",\"TRD_GRP_092\",\"TRD_GRP_093\",\"TRD_GRP_094\",\"TRD_GRP_095\",\"TRD_GRP_096\",\"TRD_GRP_097\",\"TRD_GRP_098\",\"TRD_GRP_099\",\"TRD_GRP_100\",\"TRD_GRP_101\",\"TRD_GRP_102\",\"TRD_GRP_103\",\"TRD_GRP_104\",\"TRD_GRP_105\",\"TRD_GRP_106\",\"TRD_GRP_107\",\"TRD_GRP_108\",\"TRD_GRP_109\",\"TRD_GRP_110\",\"TRD_GRP_111\",\"TRD_GRP_112\",\"TRD_GRP_113\",\"TRD_GRP_114\",\"TRD_GRP_115\",\"TRD_GRP_116\",\"TRD_GRP_117\",\"TRD_GRP_118\",\"TRD_GRP_119\",\"TRD_GRP_120\",\"TRD_GRP_121\",\"TRD_GRP_122\",\"TRD_GRP_123\",\"TRD_GRP_124\",\"TRD_GRP_125\",\"TRD_GRP_126\",\"TRD_GRP_127\",\"TRD_GRP_128\",\"TRD_GRP_129\",\"TRD_GRP_130\",\"TRD_GRP_131\",\"TRD_GRP_132\",\"TRD_GRP_133\",\"TRD_GRP_134\",\"TRD_GRP_135\",\"TRD_GRP_136\",\"TRD_GRP_137\",\"TRD_GRP_138\",\"TRD_GRP_139\",\"TRD_GRP_140\",\"TRD_GRP_141\",\"TRD_GRP_142\",\"TRD_GRP_143\",\"TRD_GRP_144\",\"TRD_GRP_145\",\"TRD_GRP_146\",\"TRD_GRP_147\",\"TRD_GRP_148\",\"TRD_GRP_149\",\"TRD_GRP_150\",\"TRD_GRP_151\",\"TRD_GRP_152\",\"TRD_GRP_153\",\"TRD_GRP_154\",\"TRD_GRP_155\",\"TRD_GRP_156\",\"TRD_GRP_157\",\"TRD_GRP_158\",\"TRD_GRP_159\",\"TRD_GRP_160\",\"TRD_GRP_161\",\"TRD_GRP_162\",\"TRD_GRP_163\",\"TRD_GRP_164\",\"TRD_GRP_165\",\"TRD_GRP_166\",\"TRD_GRP_167\",\"TRD_GRP_168\",\"TRD_GRP_169\",\"TRD_GRP_170\",\"TRD_GRP_171\",\"TRD_GRP_172\",\"TRD_GRP_173\",\"TRD_GRP_174\",\"TRD_GRP_175\",\"TRD_GRP_176\",\"TRD_GRP_177\",\"TRD_GRP_178\",\"TRD_GRP_179\",\"TRD_GRP_180\",\"TRD_GRP_181\",\"TRD_GRP_182\",\"TRD_GRP_183\",\"TRD_GRP_184\",\"TRD_GRP_185\",\"TRD_GRP_186\",\"TRD_GRP_187\",\"TRD_GRP_188\",\"TRD_GRP_189\",\"TRD_GRP_190\",\"TRD_GRP_191\",\"TRD_GRP_192\",\"TRD_GRP_193\",\"TRD_GRP_194\",\"TRD_GRP_195\",\"TRD_GRP_196\",\"TRD_GRP_197\",\"TRD_GRP_198\",\"TRD_GRP_199\",\"TRD_GRP_200\",\"TRD_GRP_201\",\"TRD_GRP_202\",\"TRD_GRP_203\",\"TRD_GRP_204\",\"TRD_GRP_205\",\"TRD_GRP_206\",\"TRD_GRP_207\",\"TRD_GRP_208\",\"TRD_GRP_209\",\"TRD_GRP_210\",\"TRD_GRP_211\",\"TRD_GRP_212\",\"TRD_GRP_213\",\"TRD_GRP_214\",\"TRD_GRP_215\",\"TRD_GRP_216\",\"TRD_GRP_217\",\"TRD_GRP_218\",\"TRD_GRP_219\",\"TRD_GRP_220\",\"TRD_GRP_221\",\"TRD_GRP_222\",\"TRD_GRP_223\",\"TRD_GRP_224\",\"TRD_GRP_225\",\"TRD_GRP_226\",\"TRD_GRP_227\",\"TRD_GRP_228\",\"TRD_GRP_229\",\"TRD_GRP_230\",\"TRD_GRP_231\",\"TRD_GRP_232\",\"TRD_GRP_233\",\"TRD_GRP_234\",\"TRD_GRP_235\",\"TRD_GRP_236\",\"TRD_GRP_237\",\"TRD_GRP_238\",\"TRD_GRP_239\",\"TRD_GRP_240\",\"TRD_GRP_242\",\"TRD_GRP_243\",\"TRD_GRP_244\",\"TRD_GRP_245\",\"TRD_GRP_246\",\"TRD_GRP_247\",\"TRD_GRP_248\",\"TRD_GRP_249\",\"TRD_GRP_250\",\"TRD_GRP_251\",\"TRD_GRP_252\",\"TRD_GRP_253\",\"TRD_GRP_256\",\"TRD_GRP_258\"]]",
+          "count": 1,
+          "meanApiPosition": 652
+        },
+        {
+          "value": "[[\"SPOT\",\"TRD_GRP_015\",\"TRD_GRP_016\",\"TRD_GRP_017\",\"TRD_GRP_018\",\"TRD_GRP_019\",\"TRD_GRP_020\",\"TRD_GRP_021\",\"TRD_GRP_022\",\"TRD_GRP_023\",\"TRD_GRP_024\",\"TRD_GRP_025\",\"TRD_GRP_049\",\"TRD_GRP_050\",\"TRD_GRP_051\",\"TRD_GRP_052\",\"TRD_GRP_053\",\"TRD_GRP_054\",\"TRD_GRP_055\",\"TRD_GRP_056\",\"TRD_GRP_057\",\"TRD_GRP_058\",\"TRD_GRP_059\",\"TRD_GRP_060\",\"TRD_GRP_061\",\"TRD_GRP_062\",\"TRD_GRP_063\",\"TRD_GRP_064\",\"TRD_GRP_065\",\"TRD_GRP_066\",\"TRD_GRP_067\",\"TRD_GRP_068\",\"TRD_GRP_069\",\"TRD_GRP_070\",\"TRD_GRP_071\",\"TRD_GRP_072\",\"TRD_GRP_073\",\"TRD_GRP_074\",\"TRD_GRP_075\",\"TRD_GRP_076\",\"TRD_GRP_077\",\"TRD_GRP_078\",\"TRD_GRP_079\",\"TRD_GRP_080\",\"TRD_GRP_081\",\"TRD_GRP_082\",\"TRD_GRP_083\",\"TRD_GRP_084\",\"TRD_GRP_085\",\"TRD_GRP_086\",\"TRD_GRP_087\",\"TRD_GRP_088\",\"TRD_GRP_089\",\"TRD_GRP_090\",\"TRD_GRP_091\",\"TRD_GRP_092\",\"TRD_GRP_093\",\"TRD_GRP_094\",\"TRD_GRP_095\",\"TRD_GRP_096\",\"TRD_GRP_097\",\"TRD_GRP_098\",\"TRD_GRP_099\",\"TRD_GRP_100\",\"TRD_GRP_101\",\"TRD_GRP_102\",\"TRD_GRP_103\",\"TRD_GRP_104\",\"TRD_GRP_105\",\"TRD_GRP_106\",\"TRD_GRP_107\",\"TRD_GRP_108\",\"TRD_GRP_109\",\"TRD_GRP_110\",\"TRD_GRP_111\",\"TRD_GRP_112\",\"TRD_GRP_113\",\"TRD_GRP_114\",\"TRD_GRP_115\",\"TRD_GRP_116\",\"TRD_GRP_117\",\"TRD_GRP_118\",\"TRD_GRP_119\",\"TRD_GRP_120\",\"TRD_GRP_121\",\"TRD_GRP_122\",\"TRD_GRP_123\",\"TRD_GRP_124\",\"TRD_GRP_125\",\"TRD_GRP_126\",\"TRD_GRP_127\",\"TRD_GRP_128\",\"TRD_GRP_129\",\"TRD_GRP_130\",\"TRD_GRP_131\",\"TRD_GRP_132\",\"TRD_GRP_133\",\"TRD_GRP_134\",\"TRD_GRP_135\",\"TRD_GRP_136\",\"TRD_GRP_137\",\"TRD_GRP_138\",\"TRD_GRP_139\",\"TRD_GRP_140\",\"TRD_GRP_141\",\"TRD_GRP_142\",\"TRD_GRP_143\",\"TRD_GRP_144\",\"TRD_GRP_145\",\"TRD_GRP_146\",\"TRD_GRP_147\",\"TRD_GRP_148\",\"TRD_GRP_149\",\"TRD_GRP_150\",\"TRD_GRP_151\",\"TRD_GRP_152\",\"TRD_GRP_153\",\"TRD_GRP_154\",\"TRD_GRP_155\",\"TRD_GRP_156\",\"TRD_GRP_157\",\"TRD_GRP_158\",\"TRD_GRP_159\",\"TRD_GRP_160\",\"TRD_GRP_161\",\"TRD_GRP_162\",\"TRD_GRP_163\",\"TRD_GRP_164\",\"TRD_GRP_165\",\"TRD_GRP_166\",\"TRD_GRP_167\",\"TRD_GRP_168\",\"TRD_GRP_169\",\"TRD_GRP_170\",\"TRD_GRP_171\",\"TRD_GRP_172\",\"TRD_GRP_173\",\"TRD_GRP_174\",\"TRD_GRP_175\",\"TRD_GRP_176\",\"TRD_GRP_177\",\"TRD_GRP_178\",\"TRD_GRP_179\",\"TRD_GRP_180\",\"TRD_GRP_181\",\"TRD_GRP_182\",\"TRD_GRP_183\",\"TRD_GRP_184\",\"TRD_GRP_185\",\"TRD_GRP_186\",\"TRD_GRP_187\",\"TRD_GRP_188\",\"TRD_GRP_189\",\"TRD_GRP_190\",\"TRD_GRP_191\",\"TRD_GRP_192\",\"TRD_GRP_193\",\"TRD_GRP_194\",\"TRD_GRP_195\",\"TRD_GRP_196\",\"TRD_GRP_197\",\"TRD_GRP_198\",\"TRD_GRP_199\",\"TRD_GRP_200\",\"TRD_GRP_201\",\"TRD_GRP_202\",\"TRD_GRP_203\",\"TRD_GRP_204\",\"TRD_GRP_205\",\"TRD_GRP_206\",\"TRD_GRP_207\",\"TRD_GRP_208\",\"TRD_GRP_209\",\"TRD_GRP_210\",\"TRD_GRP_211\",\"TRD_GRP_212\",\"TRD_GRP_213\",\"TRD_GRP_214\",\"TRD_GRP_215\",\"TRD_GRP_216\",\"TRD_GRP_217\",\"TRD_GRP_218\",\"TRD_GRP_219\",\"TRD_GRP_220\",\"TRD_GRP_221\",\"TRD_GRP_222\",\"TRD_GRP_223\",\"TRD_GRP_224\",\"TRD_GRP_225\",\"TRD_GRP_226\",\"TRD_GRP_227\",\"TRD_GRP_228\",\"TRD_GRP_229\",\"TRD_GRP_230\",\"TRD_GRP_231\",\"TRD_GRP_232\",\"TRD_GRP_233\",\"TRD_GRP_234\",\"TRD_GRP_235\",\"TRD_GRP_236\",\"TRD_GRP_237\",\"TRD_GRP_238\",\"TRD_GRP_239\",\"TRD_GRP_240\",\"TRD_GRP_242\",\"TRD_GRP_245\",\"TRD_GRP_246\",\"TRD_GRP_247\",\"TRD_GRP_248\",\"TRD_GRP_249\",\"TRD_GRP_250\",\"TRD_GRP_251\",\"TRD_GRP_252\",\"TRD_GRP_253\",\"TRD_GRP_256\",\"TRD_GRP_258\",\"MARGIN_001\"]]",
+          "count": 1,
+          "meanApiPosition": 695
+        },
+        {
+          "value": "[[\"SPOT\",\"MARGIN\",\"TRD_GRP_004\",\"TRD_GRP_015\",\"TRD_GRP_016\",\"TRD_GRP_017\",\"TRD_GRP_018\",\"TRD_GRP_019\",\"TRD_GRP_020\",\"TRD_GRP_021\",\"TRD_GRP_022\",\"TRD_GRP_023\",\"TRD_GRP_024\",\"TRD_GRP_025\",\"TRD_GRP_049\",\"TRD_GRP_050\",\"TRD_GRP_051\",\"TRD_GRP_052\",\"TRD_GRP_053\",\"TRD_GRP_054\",\"TRD_GRP_055\",\"TRD_GRP_056\",\"TRD_GRP_057\",\"TRD_GRP_058\",\"TRD_GRP_059\",\"TRD_GRP_060\",\"TRD_GRP_061\",\"TRD_GRP_062\",\"TRD_GRP_063\",\"TRD_GRP_064\",\"TRD_GRP_065\",\"TRD_GRP_066\",\"TRD_GRP_067\",\"TRD_GRP_068\",\"TRD_GRP_069\",\"TRD_GRP_070\",\"TRD_GRP_071\",\"TRD_GRP_072\",\"TRD_GRP_073\",\"TRD_GRP_074\",\"TRD_GRP_075\",\"TRD_GRP_076\",\"TRD_GRP_077\",\"TRD_GRP_078\",\"TRD_GRP_079\",\"TRD_GRP_080\",\"TRD_GRP_081\",\"TRD_GRP_082\",\"TRD_GRP_083\",\"TRD_GRP_084\",\"TRD_GRP_085\",\"TRD_GRP_086\",\"TRD_GRP_087\",\"TRD_GRP_088\",\"TRD_GRP_089\",\"TRD_GRP_090\",\"TRD_GRP_091\",\"TRD_GRP_092\",\"TRD_GRP_093\",\"TRD_GRP_094\",\"TRD_GRP_095\",\"TRD_GRP_096\",\"TRD_GRP_097\",\"TRD_GRP_098\",\"TRD_GRP_099\",\"TRD_GRP_100\",\"TRD_GRP_101\",\"TRD_GRP_102\",\"TRD_GRP_103\",\"TRD_GRP_104\",\"TRD_GRP_105\",\"TRD_GRP_106\",\"TRD_GRP_107\",\"TRD_GRP_108\",\"TRD_GRP_109\",\"TRD_GRP_110\",\"TRD_GRP_111\",\"TRD_GRP_112\",\"TRD_GRP_113\",\"TRD_GRP_114\",\"TRD_GRP_115\",\"TRD_GRP_116\",\"TRD_GRP_117\",\"TRD_GRP_118\",\"TRD_GRP_119\",\"TRD_GRP_120\",\"TRD_GRP_121\",\"TRD_GRP_122\",\"TRD_GRP_123\",\"TRD_GRP_124\",\"TRD_GRP_125\",\"TRD_GRP_126\",\"TRD_GRP_127\",\"TRD_GRP_128\",\"TRD_GRP_129\",\"TRD_GRP_130\",\"TRD_GRP_131\",\"TRD_GRP_132\",\"TRD_GRP_133\",\"TRD_GRP_134\",\"TRD_GRP_135\",\"TRD_GRP_136\",\"TRD_GRP_137\",\"TRD_GRP_138\",\"TRD_GRP_139\",\"TRD_GRP_140\",\"TRD_GRP_141\",\"TRD_GRP_142\",\"TRD_GRP_143\",\"TRD_GRP_144\",\"TRD_GRP_145\",\"TRD_GRP_146\",\"TRD_GRP_147\",\"TRD_GRP_148\",\"TRD_GRP_149\",\"TRD_GRP_150\",\"TRD_GRP_151\",\"TRD_GRP_152\",\"TRD_GRP_153\",\"TRD_GRP_154\",\"TRD_GRP_155\",\"TRD_GRP_156\",\"TRD_GRP_157\",\"TRD_GRP_158\",\"TRD_GRP_159\",\"TRD_GRP_160\",\"TRD_GRP_161\",\"TRD_GRP_162\",\"TRD_GRP_163\",\"TRD_GRP_164\",\"TRD_GRP_165\",\"TRD_GRP_166\",\"TRD_GRP_167\",\"TRD_GRP_168\",\"TRD_GRP_169\",\"TRD_GRP_170\",\"TRD_GRP_171\",\"TRD_GRP_172\",\"TRD_GRP_173\",\"TRD_GRP_174\",\"TRD_GRP_175\",\"TRD_GRP_176\",\"TRD_GRP_177\",\"TRD_GRP_178\",\"TRD_GRP_179\",\"TRD_GRP_180\",\"TRD_GRP_181\",\"TRD_GRP_182\",\"TRD_GRP_183\",\"TRD_GRP_184\",\"TRD_GRP_185\",\"TRD_GRP_186\",\"TRD_GRP_187\",\"TRD_GRP_188\",\"TRD_GRP_189\",\"TRD_GRP_190\",\"TRD_GRP_191\",\"TRD_GRP_192\",\"TRD_GRP_193\",\"TRD_GRP_194\",\"TRD_GRP_195\",\"TRD_GRP_196\",\"TRD_GRP_197\",\"TRD_GRP_198\",\"TRD_GRP_199\",\"TRD_GRP_200\",\"TRD_GRP_201\",\"TRD_GRP_202\",\"TRD_GRP_203\",\"TRD_GRP_204\",\"TRD_GRP_205\",\"TRD_GRP_206\",\"TRD_GRP_207\",\"TRD_GRP_208\",\"TRD_GRP_209\",\"TRD_GRP_210\",\"TRD_GRP_211\",\"TRD_GRP_212\",\"TRD_GRP_213\",\"TRD_GRP_214\",\"TRD_GRP_215\",\"TRD_GRP_216\",\"TRD_GRP_217\",\"TRD_GRP_218\",\"TRD_GRP_219\",\"TRD_GRP_220\",\"TRD_GRP_221\",\"TRD_GRP_222\",\"TRD_GRP_223\",\"TRD_GRP_224\",\"TRD_GRP_225\",\"TRD_GRP_226\",\"TRD_GRP_227\",\"TRD_GRP_228\",\"TRD_GRP_229\",\"TRD_GRP_230\",\"TRD_GRP_231\",\"TRD_GRP_232\",\"TRD_GRP_233\",\"TRD_GRP_234\",\"TRD_GRP_235\",\"TRD_GRP_236\",\"TRD_GRP_237\",\"TRD_GRP_238\",\"TRD_GRP_239\",\"TRD_GRP_240\",\"TRD_GRP_242\",\"TRD_GRP_243\",\"TRD_GRP_244\",\"TRD_GRP_245\",\"TRD_GRP_246\",\"TRD_GRP_247\",\"TRD_GRP_248\",\"TRD_GRP_249\",\"TRD_GRP_250\",\"TRD_GRP_251\",\"TRD_GRP_252\",\"TRD_GRP_253\",\"TRD_GRP_256\",\"TRD_GRP_258\"]]",
+          "count": 1,
+          "meanApiPosition": 843
+        },
+        {
+          "value": "[[\"SPOT\",\"TRD_GRP_004\",\"TRD_GRP_005\",\"TRD_GRP_006\",\"TRD_GRP_016\",\"TRD_GRP_017\",\"TRD_GRP_018\",\"TRD_GRP_019\",\"TRD_GRP_020\",\"TRD_GRP_021\",\"TRD_GRP_022\",\"TRD_GRP_023\",\"TRD_GRP_024\",\"TRD_GRP_025\",\"TRD_GRP_049\",\"TRD_GRP_050\",\"TRD_GRP_051\",\"TRD_GRP_052\",\"TRD_GRP_053\",\"TRD_GRP_054\",\"TRD_GRP_055\",\"TRD_GRP_056\",\"TRD_GRP_057\",\"TRD_GRP_058\",\"TRD_GRP_059\",\"TRD_GRP_060\",\"TRD_GRP_061\",\"TRD_GRP_062\",\"TRD_GRP_063\",\"TRD_GRP_064\",\"TRD_GRP_065\",\"TRD_GRP_066\",\"TRD_GRP_067\",\"TRD_GRP_068\",\"TRD_GRP_069\",\"TRD_GRP_070\",\"TRD_GRP_071\",\"TRD_GRP_072\",\"TRD_GRP_073\",\"TRD_GRP_074\",\"TRD_GRP_075\",\"TRD_GRP_076\",\"TRD_GRP_077\",\"TRD_GRP_078\",\"TRD_GRP_079\",\"TRD_GRP_080\",\"TRD_GRP_081\",\"TRD_GRP_082\",\"TRD_GRP_083\",\"TRD_GRP_084\",\"TRD_GRP_085\",\"TRD_GRP_086\",\"TRD_GRP_087\",\"TRD_GRP_088\",\"TRD_GRP_089\",\"TRD_GRP_090\",\"TRD_GRP_091\",\"TRD_GRP_092\",\"TRD_GRP_093\",\"TRD_GRP_094\",\"TRD_GRP_095\",\"TRD_GRP_096\",\"TRD_GRP_097\",\"TRD_GRP_098\",\"TRD_GRP_099\",\"TRD_GRP_100\",\"TRD_GRP_101\",\"TRD_GRP_102\",\"TRD_GRP_103\",\"TRD_GRP_104\",\"TRD_GRP_105\",\"TRD_GRP_106\",\"TRD_GRP_107\",\"TRD_GRP_108\",\"TRD_GRP_109\",\"TRD_GRP_110\",\"TRD_GRP_111\",\"TRD_GRP_112\",\"TRD_GRP_113\",\"TRD_GRP_114\",\"TRD_GRP_115\",\"TRD_GRP_116\",\"TRD_GRP_117\",\"TRD_GRP_118\",\"TRD_GRP_119\",\"TRD_GRP_120\",\"TRD_GRP_121\",\"TRD_GRP_122\",\"TRD_GRP_123\",\"TRD_GRP_124\",\"TRD_GRP_125\",\"TRD_GRP_126\",\"TRD_GRP_127\",\"TRD_GRP_128\",\"TRD_GRP_129\",\"TRD_GRP_130\",\"TRD_GRP_131\",\"TRD_GRP_132\",\"TRD_GRP_133\",\"TRD_GRP_134\",\"TRD_GRP_135\",\"TRD_GRP_136\",\"TRD_GRP_137\",\"TRD_GRP_138\",\"TRD_GRP_139\",\"TRD_GRP_140\",\"TRD_GRP_141\",\"TRD_GRP_142\",\"TRD_GRP_143\",\"TRD_GRP_144\",\"TRD_GRP_145\",\"TRD_GRP_146\",\"TRD_GRP_147\",\"TRD_GRP_148\",\"TRD_GRP_149\",\"TRD_GRP_150\",\"TRD_GRP_151\",\"TRD_GRP_152\",\"TRD_GRP_153\",\"TRD_GRP_154\",\"TRD_GRP_155\",\"TRD_GRP_156\",\"TRD_GRP_157\",\"TRD_GRP_158\",\"TRD_GRP_159\",\"TRD_GRP_160\",\"TRD_GRP_161\",\"TRD_GRP_162\",\"TRD_GRP_163\",\"TRD_GRP_164\",\"TRD_GRP_165\",\"TRD_GRP_166\",\"TRD_GRP_167\",\"TRD_GRP_168\",\"TRD_GRP_169\",\"TRD_GRP_170\",\"TRD_GRP_171\",\"TRD_GRP_172\",\"TRD_GRP_173\",\"TRD_GRP_174\",\"TRD_GRP_175\",\"TRD_GRP_176\",\"TRD_GRP_177\",\"TRD_GRP_178\",\"TRD_GRP_179\",\"TRD_GRP_180\",\"TRD_GRP_181\",\"TRD_GRP_182\",\"TRD_GRP_183\",\"TRD_GRP_184\",\"TRD_GRP_185\",\"TRD_GRP_186\",\"TRD_GRP_187\",\"TRD_GRP_188\",\"TRD_GRP_189\",\"TRD_GRP_190\",\"TRD_GRP_191\",\"TRD_GRP_192\",\"TRD_GRP_193\",\"TRD_GRP_194\",\"TRD_GRP_195\",\"TRD_GRP_196\",\"TRD_GRP_197\",\"TRD_GRP_198\",\"TRD_GRP_199\",\"TRD_GRP_200\",\"TRD_GRP_201\",\"TRD_GRP_202\",\"TRD_GRP_203\",\"TRD_GRP_204\",\"TRD_GRP_205\",\"TRD_GRP_206\",\"TRD_GRP_207\",\"TRD_GRP_208\",\"TRD_GRP_209\",\"TRD_GRP_210\",\"TRD_GRP_211\",\"TRD_GRP_212\",\"TRD_GRP_213\",\"TRD_GRP_214\",\"TRD_GRP_215\",\"TRD_GRP_216\",\"TRD_GRP_217\",\"TRD_GRP_218\",\"TRD_GRP_219\",\"TRD_GRP_220\",\"TRD_GRP_221\",\"TRD_GRP_222\",\"TRD_GRP_223\",\"TRD_GRP_224\",\"TRD_GRP_225\",\"TRD_GRP_226\",\"TRD_GRP_227\",\"TRD_GRP_228\",\"TRD_GRP_229\",\"TRD_GRP_230\",\"TRD_GRP_231\",\"TRD_GRP_232\",\"TRD_GRP_233\",\"TRD_GRP_234\",\"TRD_GRP_235\",\"TRD_GRP_236\",\"TRD_GRP_237\",\"TRD_GRP_238\",\"TRD_GRP_239\",\"TRD_GRP_240\",\"TRD_GRP_242\",\"TRD_GRP_243\",\"TRD_GRP_244\",\"TRD_GRP_245\",\"TRD_GRP_246\",\"TRD_GRP_247\",\"TRD_GRP_248\",\"TRD_GRP_249\",\"TRD_GRP_250\",\"TRD_GRP_251\",\"TRD_GRP_252\",\"TRD_GRP_253\",\"TRD_GRP_256\",\"TRD_GRP_258\"]]",
+          "count": 1,
+          "meanApiPosition": 2802
+        },
+        {
+          "value": "[[\"SPOT\",\"MARGIN\",\"TRD_GRP_006\",\"TRD_GRP_016\",\"TRD_GRP_017\",\"TRD_GRP_018\",\"TRD_GRP_019\",\"TRD_GRP_020\",\"TRD_GRP_021\",\"TRD_GRP_022\",\"TRD_GRP_023\",\"TRD_GRP_024\",\"TRD_GRP_025\",\"TRD_GRP_049\",\"TRD_GRP_050\",\"TRD_GRP_051\",\"TRD_GRP_052\",\"TRD_GRP_053\",\"TRD_GRP_054\",\"TRD_GRP_055\",\"TRD_GRP_056\",\"TRD_GRP_057\",\"TRD_GRP_058\",\"TRD_GRP_059\",\"TRD_GRP_060\",\"TRD_GRP_061\",\"TRD_GRP_062\",\"TRD_GRP_063\",\"TRD_GRP_064\",\"TRD_GRP_065\",\"TRD_GRP_066\",\"TRD_GRP_067\",\"TRD_GRP_068\",\"TRD_GRP_069\",\"TRD_GRP_070\",\"TRD_GRP_071\",\"TRD_GRP_072\",\"TRD_GRP_073\",\"TRD_GRP_074\",\"TRD_GRP_075\",\"TRD_GRP_076\",\"TRD_GRP_077\",\"TRD_GRP_078\",\"TRD_GRP_079\",\"TRD_GRP_080\",\"TRD_GRP_081\",\"TRD_GRP_082\",\"TRD_GRP_083\",\"TRD_GRP_084\",\"TRD_GRP_085\",\"TRD_GRP_086\",\"TRD_GRP_087\",\"TRD_GRP_088\",\"TRD_GRP_089\",\"TRD_GRP_090\",\"TRD_GRP_091\",\"TRD_GRP_092\",\"TRD_GRP_093\",\"TRD_GRP_094\",\"TRD_GRP_095\",\"TRD_GRP_096\",\"TRD_GRP_097\",\"TRD_GRP_098\",\"TRD_GRP_099\",\"TRD_GRP_100\",\"TRD_GRP_101\",\"TRD_GRP_102\",\"TRD_GRP_103\",\"TRD_GRP_104\",\"TRD_GRP_105\",\"TRD_GRP_106\",\"TRD_GRP_107\",\"TRD_GRP_108\",\"TRD_GRP_109\",\"TRD_GRP_110\",\"TRD_GRP_111\",\"TRD_GRP_112\",\"TRD_GRP_113\",\"TRD_GRP_114\",\"TRD_GRP_115\",\"TRD_GRP_116\",\"TRD_GRP_117\",\"TRD_GRP_118\",\"TRD_GRP_119\",\"TRD_GRP_120\",\"TRD_GRP_121\",\"TRD_GRP_122\",\"TRD_GRP_123\",\"TRD_GRP_124\",\"TRD_GRP_125\",\"TRD_GRP_126\",\"TRD_GRP_127\",\"TRD_GRP_128\",\"TRD_GRP_129\",\"TRD_GRP_130\",\"TRD_GRP_131\",\"TRD_GRP_132\",\"TRD_GRP_133\",\"TRD_GRP_134\",\"TRD_GRP_135\",\"TRD_GRP_136\",\"TRD_GRP_137\",\"TRD_GRP_138\",\"TRD_GRP_139\",\"TRD_GRP_140\",\"TRD_GRP_141\",\"TRD_GRP_142\",\"TRD_GRP_143\",\"TRD_GRP_144\",\"TRD_GRP_145\",\"TRD_GRP_146\",\"TRD_GRP_147\",\"TRD_GRP_148\",\"TRD_GRP_149\",\"TRD_GRP_150\",\"TRD_GRP_151\",\"TRD_GRP_152\",\"TRD_GRP_153\",\"TRD_GRP_154\",\"TRD_GRP_155\",\"TRD_GRP_156\",\"TRD_GRP_157\",\"TRD_GRP_158\",\"TRD_GRP_159\",\"TRD_GRP_160\",\"TRD_GRP_161\",\"TRD_GRP_162\",\"TRD_GRP_163\",\"TRD_GRP_164\",\"TRD_GRP_165\",\"TRD_GRP_166\",\"TRD_GRP_167\",\"TRD_GRP_168\",\"TRD_GRP_169\",\"TRD_GRP_170\",\"TRD_GRP_171\",\"TRD_GRP_172\",\"TRD_GRP_173\",\"TRD_GRP_174\",\"TRD_GRP_175\",\"TRD_GRP_176\",\"TRD_GRP_177\",\"TRD_GRP_178\",\"TRD_GRP_179\",\"TRD_GRP_180\",\"TRD_GRP_181\",\"TRD_GRP_182\",\"TRD_GRP_183\",\"TRD_GRP_184\",\"TRD_GRP_185\",\"TRD_GRP_186\",\"TRD_GRP_187\",\"TRD_GRP_188\",\"TRD_GRP_189\",\"TRD_GRP_190\",\"TRD_GRP_191\",\"TRD_GRP_192\",\"TRD_GRP_193\",\"TRD_GRP_194\",\"TRD_GRP_195\",\"TRD_GRP_196\",\"TRD_GRP_197\",\"TRD_GRP_198\",\"TRD_GRP_199\",\"TRD_GRP_200\",\"TRD_GRP_201\",\"TRD_GRP_202\",\"TRD_GRP_203\",\"TRD_GRP_204\",\"TRD_GRP_205\",\"TRD_GRP_206\",\"TRD_GRP_207\",\"TRD_GRP_208\",\"TRD_GRP_209\",\"TRD_GRP_210\",\"TRD_GRP_211\",\"TRD_GRP_212\",\"TRD_GRP_213\",\"TRD_GRP_214\",\"TRD_GRP_215\",\"TRD_GRP_216\",\"TRD_GRP_217\",\"TRD_GRP_218\",\"TRD_GRP_219\",\"TRD_GRP_220\",\"TRD_GRP_221\",\"TRD_GRP_222\",\"TRD_GRP_223\",\"TRD_GRP_224\",\"TRD_GRP_225\",\"TRD_GRP_226\",\"TRD_GRP_227\",\"TRD_GRP_228\",\"TRD_GRP_229\",\"TRD_GRP_230\",\"TRD_GRP_231\",\"TRD_GRP_232\",\"TRD_GRP_233\",\"TRD_GRP_234\",\"TRD_GRP_235\",\"TRD_GRP_236\",\"TRD_GRP_237\",\"TRD_GRP_238\",\"TRD_GRP_239\",\"TRD_GRP_240\",\"TRD_GRP_242\",\"TRD_GRP_245\",\"TRD_GRP_246\",\"TRD_GRP_247\",\"TRD_GRP_248\",\"TRD_GRP_249\",\"TRD_GRP_250\",\"TRD_GRP_251\",\"TRD_GRP_252\",\"TRD_GRP_253\",\"TRD_GRP_256\",\"TRD_GRP_258\"]]",
+          "count": 1,
+          "meanApiPosition": 3697
+        }
+      ]
+    },
+    {
+      "field": "permissions",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "[]",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "quoteAsset",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "USDT",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "quoteAssetPrecision",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "8",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "quoteCommissionPrecision",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "8",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "quoteOrderQtyMarketAllowed",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "true",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "quotePrecision",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "8",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    },
+    {
+      "field": "status",
+      "count": 120,
+      "uniqueValues": 1,
+      "values": [
+        {
+          "value": "TRADING",
+          "count": 120,
+          "meanApiPosition": 1556
+        }
+      ]
+    }
+  ],
+  "csv": "research/output/binance-api-position-analysis-120-20260915T122749Z.csv"
+}

@@ -1,0 +1,155 @@
+RANKING TEST gross
+{
+  "strength": {
+    "5": {
+      "topRankedMean": -0.000038077108841130236,
+      "avgEligibleMean": 0.000037041390877918445,
+      "medianEligibleMean": -0.00001932632716691158,
+      "randomSelectionMean": 0.00004369585227944805,
+      "excessVsMeanMean": -0.00007511849971904844,
+      "excessVsMedianMean": -0.000018750781674218515,
+      "excessVsRandomMean": -0.00008177296112057851
+    },
+    "10": {
+      "topRankedMean": -0.00009844509864683579,
+      "avgEligibleMean": 0.00007393731287808032,
+      "medianEligibleMean": -0.00002291436237438998,
+      "randomSelectionMean": 0.0000564050018359887,
+      "excessVsMeanMean": -0.00017238241152491658,
+      "excessVsMedianMean": -0.00007553073627244636,
+      "excessVsRandomMean": -0.00015485010048282453
+    },
+    "20": {
+      "topRankedMean": -0.000265524448717474,
+      "avgEligibleMean": 0.00014901169291423467,
+      "medianEligibleMean": -0.00002580382577159237,
+      "randomSelectionMean": 0.00010911861319533578,
+      "excessVsMeanMean": -0.0004145361416317086,
+      "excessVsMedianMean": -0.00023972062294588353,
+      "excessVsRandomMean": -0.00037464306191281176
+    },
+    "50": {
+      "topRankedMean": -0.0008071869317194395,
+      "avgEligibleMean": 0.0003600410993812531,
+      "medianEligibleMean": -0.000018485051920840914,
+      "randomSelectionMean": 0.0003643623218391413,
+      "excessVsMeanMean": -0.001167228031100685,
+      "excessVsMedianMean": -0.0007887018797985937,
+      "excessVsRandomMean": -0.0011715492535585776
+    }
+  },
+  "trendStrength": {
+    "5": {
+      "topRankedMean": -0.00040468065321070973,
+      "avgEligibleMean": 0.000037041390877918445,
+      "medianEligibleMean": -0.00001932632716691158,
+      "randomSelectionMean": 0.00003118406175188819,
+      "excessVsMeanMean": -0.000441722044088628,
+      "excessVsMedianMean": -0.0003853543260437988,
+      "excessVsRandomMean": -0.0004358647149625976
+    },
+    "10": {
+      "topRankedMean": -0.0005452559236654591,
+      "avgEligibleMean": 0.00007393731287808032,
+      "medianEligibleMean": -0.00002291436237438998,
+      "randomSelectionMean": 0.000018969485333315695,
+      "excessVsMeanMean": -0.0006191932365435358,
+      "excessVsMedianMean": -0.0005223415612910715,
+      "excessVsRandomMean": -0.0005642254089987726
+    },
+    "20": {
+      "topRankedMean": -0.00039603399426827395,
+      "avgEligibleMean": 0.00014901169291423467,
+      "medianEligibleMean": -0.00002580382577159237,
+      "randomSelectionMean": 0.00009997017479723481,
+      "excessVsMeanMean": -0.0005450456871825096,
+      "excessVsMedianMean": -0.00037023016849668263,
+      "excessVsRandomMean": -0.0004960041690655102
+    },
+    "50": {
+      "topRankedMean": -0.0006229950907655212,
+      "avgEligibleMean": 0.0003600410993812531,
+      "medianEligibleMean": -0.000018485051920840914,
+      "randomSelectionMean": 0.000372468644963213,
+      "excessVsMeanMean": -0.000983036190146773,
+      "excessVsMedianMean": -0.0006045100388446827,
+      "excessVsRandomMean": -0.0009954637357287347
+    }
+  },
+  "shape": {
+    "5": {
+      "topRankedMean": -0.00004094120140302115,
+      "avgEligibleMean": 0.000037041390877918445,
+      "medianEligibleMean": -0.00001932632716691158,
+      "randomSelectionMean": -0.000025155100226459336,
+      "excessVsMeanMean": -0.00007798259228093927,
+      "excessVsMedianMean": -0.000021614874236109222,
+      "excessVsRandomMean": -0.000015786101176561366
+    },
+    "10": {
+      "topRankedMean": -0.00010276910262247395,
+      "avgEligibleMean": 0.00007393731287808032,
+      "medianEligibleMean": -0.00002291436237438998,
+      "randomSelectionMean": 0.00007234695242706159,
+      "excessVsMeanMean": -0.00017670641550055497,
+      "excessVsMedianMean": -0.000079854740248085,
+      "excessVsRandomMean": -0.00017511605504953552
+    },
+    "20": {
+      "topRankedMean": -0.00026378036958107974,
+      "avgEligibleMean": 0.00014901169291423467,
+      "medianEligibleMean": -0.00002580382577159237,
+      "randomSelectionMean": 0.00010192309145279462,
+      "excessVsMeanMean": -0.00041279206249531317,
+      "excessVsMedianMean": -0.00023797654380948902,
+      "excessVsRandomMean": -0.0003657034610338749
+    },
+    "50": {
+      "topRankedMean": -0.0007777757180131326,
+      "avgEligibleMean": 0.0003600410993812531,
+      "medianEligibleMean": -0.000018485051920840914,
+      "randomSelectionMean": 0.0004201371650434469,
+      "excessVsMeanMean": -0.0011378168173943794,
+      "excessVsMedianMean": -0.0007592906660922873,
+      "excessVsRandomMean": -0.0011979128830565805
+    }
+  },
+  "emaRatio": {
+    "5": {
+      "topRankedMean": -0.00014302218804295385,
+      "avgEligibleMean": 0.000037041390877918445,
+      "medianEligibleMean": -0.00001932632716691158,
+      "randomSelectionMean": 0.000029508901485513072,
+      "excessVsMeanMean": -0.00018006357892087212,
+      "excessVsMedianMean": -0.00012369586087604187,
+      "excessVsRandomMean": -0.00017253108952846647
+    },
+    "10": {
+      "topRankedMean": -0.00036039115938469836,
+      "avgEligibleMean": 0.00007393731287808032,
+      "medianEligibleMean": -0.00002291436237438998,
+      "randomSelectionMean": 0.00015273995816325391,
+      "excessVsMeanMean": -0.0004343284722627787,
+      "excessVsMedianMean": -0.00033747679701030874,
+      "excessVsRandomMean": -0.0005131311175479543
+    },
+    "20": {
+      "topRankedMean": -0.0007015749357260846,
+      "avgEligibleMean": 0.00014901169291423467,
+      "medianEligibleMean": -0.00002580382577159237,
+      "randomSelectionMean": 0.00006362135254524341,
+      "excessVsMeanMean": -0.0008505866286403223,
+      "excessVsMedianMean": -0.0006757711099544934,
+      "excessVsRandomMean": -0.0007651962882713306
+    },
+    "50": {
+      "topRankedMean": -0.0012338869902319195,
+      "avgEligibleMean": 0.0003600410993812531,
+      "medianEligibleMean": -0.000018485051920840914,
+      "randomSelectionMean": 0.00030242936511053924,
+      "excessVsMeanMean": -0.0015939280896131668,
+      "excessVsMedianMean": -0.00121540193831108,
+      "excessVsRandomMean": -0.0015363163553424508
+    }
+  }
+}

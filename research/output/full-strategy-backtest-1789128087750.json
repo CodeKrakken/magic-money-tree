@@ -1,0 +1,1167 @@
+{
+  "generatedAt": "2026-09-11T12:01:27.672Z",
+  "source": {
+    "file": "server/research-output/ema-data-1789061547934.json",
+    "markets": 60,
+    "observationsExamined": 2586000,
+    "signals": 49747
+  },
+  "strategy": {
+    "type": "fixed whole-dataset backtest",
+    "entry": {
+      "rule": "slope20 <= fixed threshold AND acceleration >= fixed threshold",
+      "slope20Threshold": -0.0001425851160546487,
+      "accelerationThreshold": 0.00013986740450809692
+    },
+    "exit": {
+      "takeProfit": 0.01,
+      "stopLoss": 0.01,
+      "maxHoldMinutes": 50
+    },
+    "thresholdsWereNotRecalculated": true,
+    "parametersWereNotOptimised": true
+  },
+  "assumptions": {
+    "feeRate": 0.002,
+    "executionCost": 0,
+    "totalRoundTripCost": 0.002
+  },
+  "overall": {
+    "trades": 49747,
+    "winningTrades": 19176,
+    "losingTrades": 30571,
+    "winRate": 0.3854704806319979,
+    "averageNetReturn": -0.0013521852685366587,
+    "medianNetReturn": -0.0013757802746565666,
+    "totalNetReturn": -67.26716055389316,
+    "compoundedReturn": -1,
+    "profitFactor": 0.5708817225662617,
+    "maxDrawdown": 1,
+    "averageHoldMinutes": 42.52381048103403,
+    "exits": {
+      "takeProfit": 7732,
+      "stopLoss": 6583,
+      "timeout": 35432
+    }
+  },
+  "byMarket": {
+    "BTCUSDT": {
+      "trades": 4393,
+      "winningTrades": 974,
+      "losingTrades": 3419,
+      "winRate": 0.22171636694741634,
+      "averageNetReturn": -0.001720050437488336,
+      "medianNetReturn": -0.0017232371104645133,
+      "totalNetReturn": -7.55618157188626,
+      "compoundedReturn": -0.9994916018975623,
+      "profitFactor": 0.22466892241593706,
+      "maxDrawdown": 0.9995106657697425,
+      "averageHoldMinutes": 49.19189619849761,
+      "exits": {
+        "takeProfit": 54,
+        "stopLoss": 96,
+        "timeout": 4243
+      }
+    },
+    "ETHUSDT": {
+      "trades": 4155,
+      "winningTrades": 1296,
+      "losingTrades": 2859,
+      "winRate": 0.311913357400722,
+      "averageNetReturn": -0.0014588535986395936,
+      "medianNetReturn": -0.0014717802605883606,
+      "totalNetReturn": -6.061536702347511,
+      "compoundedReturn": -0.9977607887298099,
+      "profitFactor": 0.3858904955915567,
+      "maxDrawdown": 0.9981319554158212,
+      "averageHoldMinutes": 48.019494584837545,
+      "exits": {
+        "takeProfit": 186,
+        "stopLoss": 195,
+        "timeout": 3774
+      }
+    },
+    "NEOUSDT": {
+      "trades": 745,
+      "winningTrades": 315,
+      "losingTrades": 430,
+      "winRate": 0.4228187919463087,
+      "averageNetReturn": -0.0018800816223329588,
+      "medianNetReturn": -0.0015419147961519535,
+      "totalNetReturn": -1.4006608086380543,
+      "compoundedReturn": -0.7590486175574357,
+      "profitFactor": 0.558462294184644,
+      "maxDrawdown": 0.7748799639082549,
+      "averageHoldMinutes": 38.17181208053691,
+      "exits": {
+        "takeProfit": 160,
+        "stopLoss": 193,
+        "timeout": 392
+      }
+    },
+    "LTCUSDT": {
+      "trades": 3622,
+      "winningTrades": 1305,
+      "losingTrades": 2317,
+      "winRate": 0.36029817780231915,
+      "averageNetReturn": -0.0013181127238888546,
+      "medianNetReturn": -0.0015493465525011612,
+      "totalNetReturn": -4.774204285925432,
+      "compoundedReturn": -0.9919508540886973,
+      "profitFactor": 0.5024063407644442,
+      "maxDrawdown": 0.9928360269590871,
+      "averageHoldMinutes": 46.601601325234675,
+      "exits": {
+        "takeProfit": 285,
+        "stopLoss": 251,
+        "timeout": 3086
+      }
+    },
+    "QTUMUSDT": {
+      "trades": 96,
+      "winningTrades": 59,
+      "losingTrades": 37,
+      "winRate": 0.6145833333333334,
+      "averageNetReturn": 0.000618303055363826,
+      "medianNetReturn": 0.006972011621709908,
+      "totalNetReturn": 0.05935709331492729,
+      "compoundedReturn": 0.05707988227095284,
+      "profitFactor": 1.15879824531913,
+      "maxDrawdown": 0.09206333033127075,
+      "averageHoldMinutes": 26.666666666666668,
+      "exits": {
+        "takeProfit": 45,
+        "stopLoss": 30,
+        "timeout": 21
+      }
+    },
+    "ADAUSDT": {
+      "trades": 1,
+      "winningTrades": 0,
+      "losingTrades": 1,
+      "winRate": 0,
+      "averageNetReturn": -0.012000000000000009,
+      "medianNetReturn": -0.012000000000000009,
+      "totalNetReturn": -0.012000000000000009,
+      "compoundedReturn": -0.01200000000000001,
+      "profitFactor": 0,
+      "maxDrawdown": 0.01200000000000001,
+      "averageHoldMinutes": 5,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 1,
+        "timeout": 0
+      }
+    },
+    "XRPUSDT": {
+      "trades": 359,
+      "winningTrades": 190,
+      "losingTrades": 169,
+      "winRate": 0.5292479108635098,
+      "averageNetReturn": -0.0009044963941612222,
+      "medianNetReturn": 0.00127940533449933,
+      "totalNetReturn": -0.32471420550387875,
+      "compoundedReturn": -0.2870509051086496,
+      "profitFactor": 0.7933592001483274,
+      "maxDrawdown": 0.4324440079031664,
+      "averageHoldMinutes": 27.908077994428968,
+      "exits": {
+        "takeProfit": 133,
+        "stopLoss": 121,
+        "timeout": 105
+      }
+    },
+    "IOTAUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "XLMUSDT": {
+      "trades": 1,
+      "winningTrades": 0,
+      "losingTrades": 1,
+      "winRate": 0,
+      "averageNetReturn": -0.012000000000000009,
+      "medianNetReturn": -0.012000000000000009,
+      "totalNetReturn": -0.012000000000000009,
+      "compoundedReturn": -0.01200000000000001,
+      "profitFactor": 0,
+      "maxDrawdown": 0.01200000000000001,
+      "averageHoldMinutes": 4,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 1,
+        "timeout": 0
+      }
+    },
+    "TRXUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "ETCUSDT": {
+      "trades": 2501,
+      "winningTrades": 1070,
+      "losingTrades": 1431,
+      "winRate": 0.42782886845261897,
+      "averageNetReturn": -0.0009941857317446248,
+      "medianNetReturn": -0.0007046632124352286,
+      "totalNetReturn": -2.4864585150933065,
+      "compoundedReturn": -0.9212351413709108,
+      "profitFactor": 0.6898054000391116,
+      "maxDrawdown": 0.9317215051088482,
+      "averageHoldMinutes": 41.48620551779288,
+      "exits": {
+        "takeProfit": 508,
+        "stopLoss": 356,
+        "timeout": 1637
+      }
+    },
+    "LINKUSDT": {
+      "trades": 3040,
+      "winningTrades": 1357,
+      "losingTrades": 1683,
+      "winRate": 0.4463815789473684,
+      "averageNetReturn": -0.0009026875772009257,
+      "medianNetReturn": -0.0006284734553916298,
+      "totalNetReturn": -2.7441702346908143,
+      "compoundedReturn": -0.9390636589335711,
+      "profitFactor": 0.676653870526068,
+      "maxDrawdown": 0.9478058550122692,
+      "averageHoldMinutes": 44.4703947368421,
+      "exits": {
+        "takeProfit": 424,
+        "stopLoss": 329,
+        "timeout": 2287
+      }
+    },
+    "ONGUSDT": {
+      "trades": 63,
+      "winningTrades": 25,
+      "losingTrades": 38,
+      "winRate": 0.3968253968253968,
+      "averageNetReturn": -0.004063492063492064,
+      "medianNetReturn": -0.011999999999999898,
+      "totalNetReturn": -0.25600000000000006,
+      "compoundedReturn": -0.22860432944319686,
+      "profitFactor": 0.4385964912280704,
+      "maxDrawdown": 0.22860432944319686,
+      "averageHoldMinutes": 1.3015873015873016,
+      "exits": {
+        "takeProfit": 25,
+        "stopLoss": 38,
+        "timeout": 0
+      }
+    },
+    "ZILUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "ZRXUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "ZECUSDT": {
+      "trades": 4212,
+      "winningTrades": 1746,
+      "losingTrades": 2466,
+      "winRate": 0.41452991452991456,
+      "averageNetReturn": -0.0015978596410033432,
+      "medianNetReturn": -0.001474042427284104,
+      "totalNetReturn": -6.730184807906081,
+      "compoundedReturn": -0.9989412279564988,
+      "profitFactor": 0.60038073286097,
+      "maxDrawdown": 0.9990035029890056,
+      "averageHoldMinutes": 37.35731244064577,
+      "exits": {
+        "takeProfit": 1077,
+        "stopLoss": 947,
+        "timeout": 2188
+      }
+    },
+    "CELRUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "DASHUSDT": {
+      "trades": 3983,
+      "winningTrades": 1836,
+      "losingTrades": 2147,
+      "winRate": 0.46095907607331155,
+      "averageNetReturn": -0.0011033189382363303,
+      "medianNetReturn": -0.000812069375148548,
+      "totalNetReturn": -4.394519330995303,
+      "compoundedReturn": -0.989067707450241,
+      "profitFactor": 0.7190355831536259,
+      "maxDrawdown": 0.9893409050354126,
+      "averageHoldMinutes": 34.07632437860909,
+      "exits": {
+        "takeProfit": 1227,
+        "stopLoss": 931,
+        "timeout": 1825
+      }
+    },
+    "THETAUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "ENJUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "ATOMUSDT": {
+      "trades": 449,
+      "winningTrades": 229,
+      "losingTrades": 220,
+      "winRate": 0.5100222717149221,
+      "averageNetReturn": -0.0005340598340573303,
+      "medianNetReturn": 0.00018102508178841244,
+      "totalNetReturn": -0.23979286549174128,
+      "compoundedReturn": -0.22300201188470448,
+      "profitFactor": 0.8489802769229324,
+      "maxDrawdown": 0.37410201917762365,
+      "averageHoldMinutes": 38.02227171492205,
+      "exits": {
+        "takeProfit": 137,
+        "stopLoss": 75,
+        "timeout": 237
+      }
+    },
+    "TFUELUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "ONEUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "ALGOUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "DOGEUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "DUSKUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "ANKRUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "WINUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "MTLUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "CVCUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "CHZUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "BANDUSDT": {
+      "trades": 6,
+      "winningTrades": 4,
+      "losingTrades": 2,
+      "winRate": 0.6666666666666666,
+      "averageNetReturn": 0.0013333333333333181,
+      "medianNetReturn": 0.008000000000000009,
+      "totalNetReturn": 0.007999999999999908,
+      "compoundedReturn": 0.007757450437197777,
+      "profitFactor": 1.3333333333333277,
+      "maxDrawdown": 0.0238560000000001,
+      "averageHoldMinutes": 8.333333333333334,
+      "exits": {
+        "takeProfit": 4,
+        "stopLoss": 2,
+        "timeout": 0
+      }
+    },
+    "XTZUSDT": {
+      "trades": 1,
+      "winningTrades": 1,
+      "losingTrades": 0,
+      "winRate": 1,
+      "averageNetReturn": 0.008000000000000009,
+      "medianNetReturn": 0.008000000000000009,
+      "totalNetReturn": 0.008000000000000009,
+      "compoundedReturn": 0.008000000000000007,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 5,
+      "exits": {
+        "takeProfit": 1,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "RVNUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "HBARUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "STXUSDT": {
+      "trades": 7,
+      "winningTrades": 6,
+      "losingTrades": 1,
+      "winRate": 0.8571428571428571,
+      "averageNetReturn": 0.005142857142857132,
+      "medianNetReturn": 0.008000000000000009,
+      "totalNetReturn": 0.03599999999999993,
+      "compoundedReturn": 0.03638265801722773,
+      "profitFactor": 3.999999999999964,
+      "maxDrawdown": 0.0120000000000001,
+      "averageHoldMinutes": 2.857142857142857,
+      "exits": {
+        "takeProfit": 6,
+        "stopLoss": 1,
+        "timeout": 0
+      }
+    },
+    "KAVAUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "ARPAUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "IOTXUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "RLCUSDT": {
+      "trades": 8,
+      "winningTrades": 0,
+      "losingTrades": 8,
+      "winRate": 0,
+      "averageNetReturn": -0.012000000000000009,
+      "medianNetReturn": -0.012000000000000009,
+      "totalNetReturn": -0.09600000000000007,
+      "compoundedReturn": -0.09206333033127079,
+      "profitFactor": 0,
+      "maxDrawdown": 0.09206333033127079,
+      "averageHoldMinutes": 4.25,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 8,
+        "timeout": 0
+      }
+    },
+    "BCHUSDT": {
+      "trades": 4214,
+      "winningTrades": 1614,
+      "losingTrades": 2600,
+      "winRate": 0.3830090175605126,
+      "averageNetReturn": -0.0014094749333248902,
+      "medianNetReturn": -0.0015073891625616547,
+      "totalNetReturn": -5.9395273690310875,
+      "compoundedReturn": -0.9975590959406676,
+      "profitFactor": 0.5408701233833766,
+      "maxDrawdown": 0.9977300481876338,
+      "averageHoldMinutes": 44.01922164214523,
+      "exits": {
+        "takeProfit": 525,
+        "stopLoss": 511,
+        "timeout": 3178
+      }
+    },
+    "EURUSDT": {
+      "trades": 4,
+      "winningTrades": 0,
+      "losingTrades": 4,
+      "winRate": 0,
+      "averageNetReturn": -0.002405170042633851,
+      "medianNetReturn": -0.0022986238941238284,
+      "totalNetReturn": -0.009620680170535405,
+      "compoundedReturn": -0.009586246577194424,
+      "profitFactor": 0,
+      "maxDrawdown": 0.009586246577194424,
+      "averageHoldMinutes": 50,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 4
+      }
+    },
+    "OGNUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "LSKUSDT": {
+      "trades": 15,
+      "winningTrades": 1,
+      "losingTrades": 14,
+      "winRate": 0.06666666666666667,
+      "averageNetReturn": -0.010666666666666666,
+      "medianNetReturn": -0.012000000000000009,
+      "totalNetReturn": -0.16,
+      "compoundedReturn": -0.14874876237709145,
+      "profitFactor": 0.04761904761904767,
+      "maxDrawdown": 0.14874876237709145,
+      "averageHoldMinutes": 5.666666666666667,
+      "exits": {
+        "takeProfit": 1,
+        "stopLoss": 14,
+        "timeout": 0
+      }
+    },
+    "MBLUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "COTIUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "SOLUSDT": {
+      "trades": 4104,
+      "winningTrades": 1376,
+      "losingTrades": 2728,
+      "winRate": 0.33528265107212474,
+      "averageNetReturn": -0.0015918418861550628,
+      "medianNetReturn": -0.0014124557933443676,
+      "totalNetReturn": -6.5329191007803775,
+      "compoundedReturn": -0.9986288261544761,
+      "profitFactor": 0.43644546218991254,
+      "maxDrawdown": 0.9987596781759268,
+      "averageHoldMinutes": 46.187134502923975,
+      "exits": {
+        "takeProfit": 351,
+        "stopLoss": 365,
+        "timeout": 3388
+      }
+    },
+    "CTSIUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "HIVEUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "CHRUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "KNCUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "COMPUSDT": {
+      "trades": 3451,
+      "winningTrades": 1394,
+      "losingTrades": 2057,
+      "winRate": 0.4039408866995074,
+      "averageNetReturn": -0.0013282107788062602,
+      "medianNetReturn": -0.0014672349493871622,
+      "totalNetReturn": -4.5836553976604035,
+      "compoundedReturn": -0.9904353245422814,
+      "profitFactor": 0.5796387778574714,
+      "maxDrawdown": 0.9920823749511787,
+      "averageHoldMinutes": 44.18951028687337,
+      "exits": {
+        "takeProfit": 511,
+        "stopLoss": 380,
+        "timeout": 2560
+      }
+    },
+    "SCUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "ZENUSDT": {
+      "trades": 2734,
+      "winningTrades": 1409,
+      "losingTrades": 1325,
+      "winRate": 0.5153621068032187,
+      "averageNetReturn": -0.0008550735821463887,
+      "medianNetReturn": 0.00044743121800317094,
+      "totalNetReturn": -2.337771173588227,
+      "compoundedReturn": -0.912091715027639,
+      "profitFactor": 0.7913421440444183,
+      "maxDrawdown": 0.916909518479715,
+      "averageHoldMinutes": 31.87893196781273,
+      "exits": {
+        "takeProfit": 947,
+        "stopLoss": 755,
+        "timeout": 1032
+      }
+    },
+    "SNXUSDT": {
+      "trades": 4,
+      "winningTrades": 3,
+      "losingTrades": 1,
+      "winRate": 0.75,
+      "averageNetReturn": 0.0030000000000000044,
+      "medianNetReturn": 0.008000000000000009,
+      "totalNetReturn": 0.012000000000000018,
+      "compoundedReturn": 0.011902201855999994,
+      "profitFactor": 2.000000000000001,
+      "maxDrawdown": 0.01200000000000001,
+      "averageHoldMinutes": 6.5,
+      "exits": {
+        "takeProfit": 3,
+        "stopLoss": 1,
+        "timeout": 0
+      }
+    },
+    "VTHOUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "DCRUSDT": {
+      "trades": 3475,
+      "winningTrades": 1419,
+      "losingTrades": 2056,
+      "winRate": 0.4083453237410072,
+      "averageNetReturn": -0.0013784398109718099,
+      "medianNetReturn": -0.0012774566473987541,
+      "totalNetReturn": -4.790078343127039,
+      "compoundedReturn": -0.9923102644167651,
+      "profitFactor": 0.5961886581512635,
+      "maxDrawdown": 0.9924076901123117,
+      "averageHoldMinutes": 40.362877697841725,
+      "exits": {
+        "takeProfit": 639,
+        "stopLoss": 553,
+        "timeout": 2283
+      }
+    },
+    "MANAUSDT": {
+      "trades": 0,
+      "winningTrades": 0,
+      "losingTrades": 0,
+      "winRate": 0,
+      "averageNetReturn": 0,
+      "medianNetReturn": 0,
+      "totalNetReturn": 0,
+      "compoundedReturn": 0,
+      "profitFactor": null,
+      "maxDrawdown": 0,
+      "averageHoldMinutes": 0,
+      "exits": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "timeout": 0
+      }
+    },
+    "YFIUSDT": {
+      "trades": 4090,
+      "winningTrades": 1535,
+      "losingTrades": 2555,
+      "winRate": 0.3753056234718826,
+      "averageNetReturn": -0.0014720103311434442,
+      "medianNetReturn": -0.001558108705258519,
+      "totalNetReturn": -6.0205222543766865,
+      "compoundedReturn": -0.9977369693391474,
+      "profitFactor": 0.5195568167036216,
+      "maxDrawdown": 0.9980712063059716,
+      "averageHoldMinutes": 45.25550122249389,
+      "exits": {
+        "takeProfit": 471,
+        "stopLoss": 427,
+        "timeout": 3192
+      }
+    },
+    "CRVUSDT": {
+      "trades": 14,
+      "winningTrades": 12,
+      "losingTrades": 2,
+      "winRate": 0.8571428571428571,
+      "averageNetReturn": 0.005142857142857149,
+      "medianNetReturn": 0.008000000000000009,
+      "totalNetReturn": 0.07200000000000008,
+      "compoundedReturn": 0.07408901383885436,
+      "profitFactor": 4.000000000000001,
+      "maxDrawdown": 0.02385599999999999,
+      "averageHoldMinutes": 24.142857142857142,
+      "exits": {
+        "takeProfit": 12,
+        "stopLoss": 2,
+        "timeout": 0
+      }
+    }
+  },
+  "byMonth": {
+    "2026-08": {
+      "trades": 32363,
+      "winningTrades": 12369,
+      "losingTrades": 19994,
+      "winRate": 0.3821957173315206,
+      "averageNetReturn": -0.0012705525683470178,
+      "medianNetReturn": -0.0013440041983732148,
+      "totalNetReturn": -41.118892769414536,
+      "compoundedReturn": -1,
+      "profitFactor": 0.5803056698954859,
+      "maxDrawdown": 1,
+      "averageHoldMinutes": 42.91932144733183,
+      "exits": {
+        "takeProfit": 4903,
+        "stopLoss": 3975,
+        "timeout": 23485
+      }
+    },
+    "2026-09": {
+      "trades": 17384,
+      "winningTrades": 6807,
+      "losingTrades": 10577,
+      "winRate": 0.39156695812241143,
+      "averageNetReturn": -0.0015041571436081311,
+      "medianNetReturn": -0.001418238164445083,
+      "totalNetReturn": -26.148267784483753,
+      "compoundedReturn": -0.9999999999969593,
+      "profitFactor": 0.555174930624672,
+      "maxDrawdown": 0.9999999999974982,
+      "averageHoldMinutes": 41.78750575241602,
+      "exits": {
+        "takeProfit": 2829,
+        "stopLoss": 2608,
+        "timeout": 11947
+      }
+    }
+  }
+}

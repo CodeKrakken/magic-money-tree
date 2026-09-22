@@ -1,0 +1,639 @@
+{
+  "generatedAt": "2026-09-11T08:45:39.121Z",
+  "sourceFile": "ema-data-1789061547934.json",
+  "signal": {
+    "conditions": [
+      {
+        "feature": "slope20",
+        "operator": "<=",
+        "percentile": 20,
+        "threshold": -0.00014247403014451264
+      },
+      {
+        "feature": "acceleration",
+        "operator": ">=",
+        "percentile": 80,
+        "threshold": 0.0001391412049997598
+      }
+    ]
+  },
+  "discovery": {
+    "start": "2026-08-11T17:33:00.000Z",
+    "end": "2026-09-01T17:32:00.000Z",
+    "observations": 305442,
+    "parameterTests": 150,
+    "rankedResults": [
+      {
+        "parameters": {
+          "target": 0.01,
+          "stop": 0.01,
+          "maxHoldMinutes": 50
+        },
+        "trades": 1957,
+        "wins": 973,
+        "losses": 984,
+        "timeouts": 660,
+        "winRate": 0.4971895758814512,
+        "averageGrossReturn": 0.0008112406696015253,
+        "averageNetReturn": -0.001188759330398462,
+        "medianNetReturn": -0.00011463046757165078,
+        "totalNetReturn": -2.32640200958979,
+        "compoundedReturn": -0.9091263423250987,
+        "maximumDrawdown": -0.9268495900309761,
+        "averageHoldingMinutes": 28.760347470618292,
+        "targetRate": 0.3582013285641288,
+        "stopRate": 0.3045477772100153,
+        "timeoutRate": 0.3372508942258559
+      },
+      {
+        "parameters": {
+          "target": 0.01,
+          "stop": 0.01,
+          "maxHoldMinutes": 30
+        },
+        "trades": 1990,
+        "wins": 966,
+        "losses": 1024,
+        "timeouts": 928,
+        "winRate": 0.48542713567839196,
+        "averageGrossReturn": 0.0008077459879116165,
+        "averageNetReturn": -0.0011922540120883679,
+        "medianNetReturn": -0.0004614073625208697,
+        "totalNetReturn": -2.3725854840558522,
+        "compoundedReturn": -0.9123657697833766,
+        "maximumDrawdown": -0.915909483701355,
+        "averageHoldingMinutes": 20.76281407035176,
+        "targetRate": 0.28241206030150756,
+        "stopRate": 0.25125628140703515,
+        "timeoutRate": 0.4663316582914573
+      },
+      {
+        "parameters": {
+          "target": 0.01,
+          "stop": 0.005,
+          "maxHoldMinutes": 120
+        },
+        "trades": 1991,
+        "wins": 771,
+        "losses": 1220,
+        "timeouts": 112,
+        "winRate": 0.38724259166248115,
+        "averageGrossReturn": 0.0007681623057566608,
+        "averageNetReturn": -0.00123183769424334,
+        "medianNetReturn": -0.0070000000000000045,
+        "totalNetReturn": -2.45258884923849,
+        "compoundedReturn": -0.9182935021294486,
+        "maximumDrawdown": -0.9322769277353585,
+        "averageHoldingMinutes": 28.496233048719237,
+        "targetRate": 0.3571069814163737,
+        "stopRate": 0.586639879457559,
+        "timeoutRate": 0.0562531391260673
+      },
+      {
+        "parameters": {
+          "target": 0.01,
+          "stop": 0.0075,
+          "maxHoldMinutes": 120
+        },
+        "trades": 1965,
+        "wins": 919,
+        "losses": 1046,
+        "timeouts": 200,
+        "winRate": 0.4676844783715013,
+        "averageGrossReturn": 0.0007546490128391,
+        "averageNetReturn": -0.0012453509871608937,
+        "medianNetReturn": -0.0042421524663677195,
+        "totalNetReturn": -2.447114689771156,
+        "compoundedReturn": -0.9193586750032624,
+        "maximumDrawdown": -0.942285497302728,
+        "averageHoldingMinutes": 36.89312977099237,
+        "targetRate": 0.4208651399491094,
+        "stopRate": 0.47735368956743,
+        "timeoutRate": 0.10178117048346055
+      },
+      {
+        "parameters": {
+          "target": 0.01,
+          "stop": 0.01,
+          "maxHoldMinutes": 120
+        },
+        "trades": 1940,
+        "wins": 1007,
+        "losses": 933,
+        "timeouts": 286,
+        "winRate": 0.5190721649484537,
+        "averageGrossReturn": 0.0007496584986891303,
+        "averageNetReturn": -0.0012503415013108618,
+        "medianNetReturn": 0.0010975743929585464,
+        "totalNetReturn": -2.425662512543072,
+        "compoundedReturn": -0.9189199287355859,
+        "maximumDrawdown": -0.9466002856511129,
+        "averageHoldingMinutes": 44.19072164948454,
+        "targetRate": 0.45979381443298967,
+        "stopRate": 0.39278350515463917,
+        "timeoutRate": 0.14742268041237114
+      },
+      {
+        "parameters": {
+          "target": 0.01,
+          "stop": 0.0075,
+          "maxHoldMinutes": 50
+        },
+        "trades": 1975,
+        "wins": 899,
+        "losses": 1076,
+        "timeouts": 526,
+        "winRate": 0.45518987341772155,
+        "averageGrossReturn": 0.0007307870289593628,
+        "averageNetReturn": -0.0012692129710406236,
+        "medianNetReturn": -0.002,
+        "totalNetReturn": -2.5066956178052315,
+        "compoundedReturn": -0.9232510634903759,
+        "maximumDrawdown": -0.9357125311713211,
+        "averageHoldingMinutes": 25.40151898734177,
+        "targetRate": 0.3311392405063291,
+        "stopRate": 0.40253164556962023,
+        "timeoutRate": 0.2663291139240506
+      },
+      {
+        "parameters": {
+          "target": 0.01,
+          "stop": 0.005,
+          "maxHoldMinutes": 75
+        },
+        "trades": 1992,
+        "wins": 772,
+        "losses": 1220,
+        "timeouts": 240,
+        "winRate": 0.38755020080321284,
+        "averageGrossReturn": 0.0007274624386342662,
+        "averageNetReturn": -0.0012725375613657295,
+        "medianNetReturn": -0.0069999999999998935,
+        "totalNetReturn": -2.5348948222405334,
+        "compoundedReturn": -0.9245279044543898,
+        "maximumDrawdown": -0.9313867123544224,
+        "averageHoldingMinutes": 24.455823293172692,
+        "targetRate": 0.3253012048192771,
+        "stopRate": 0.5542168674698795,
+        "timeoutRate": 0.12048192771084337
+      },
+      {
+        "parameters": {
+          "target": 0.01,
+          "stop": 0.0075,
+          "maxHoldMinutes": 30
+        },
+        "trades": 1997,
+        "wins": 900,
+        "losses": 1097,
+        "timeouts": 775,
+        "winRate": 0.4506760140210315,
+        "averageGrossReturn": 0.0007250691138270914,
+        "averageNetReturn": -0.0012749308861728932,
+        "medianNetReturn": -0.0012614475627770166,
+        "totalNetReturn": -2.5460369796872677,
+        "compoundedReturn": -0.9256694314433279,
+        "maximumDrawdown": -0.9270675909277454,
+        "averageHoldingMinutes": 18.928392588883327,
+        "targetRate": 0.2669003505257887,
+        "stopRate": 0.34501752628943416,
+        "timeoutRate": 0.38808212318477714
+      },
+      {
+        "parameters": {
+          "target": 0.01,
+          "stop": 0.005,
+          "maxHoldMinutes": 30
+        },
+        "trades": 2017,
+        "wins": 800,
+        "losses": 1217,
+        "timeouts": 593,
+        "winRate": 0.3966286564204264,
+        "averageGrossReturn": 0.0007177406316181256,
+        "averageNetReturn": -0.001282259368381863,
+        "medianNetReturn": -0.0037304780445598356,
+        "totalNetReturn": -2.5863171460262175,
+        "compoundedReturn": -0.9277603523633396,
+        "maximumDrawdown": -0.9283336829001386,
+        "averageHoldingMinutes": 16.05552801189886,
+        "targetRate": 0.23549826474962815,
+        "stopRate": 0.4705007436787308,
+        "timeoutRate": 0.29400099157164106
+      },
+      {
+        "parameters": {
+          "target": 0.01,
+          "stop": 0.005,
+          "maxHoldMinutes": 50
+        },
+        "trades": 2000,
+        "wins": 779,
+        "losses": 1221,
+        "timeouts": 372,
+        "winRate": 0.3895,
+        "averageGrossReturn": 0.0007125256696912385,
+        "averageNetReturn": -0.0012874743303087491,
+        "medianNetReturn": -0.0069999999999998935,
+        "totalNetReturn": -2.5749486606174985,
+        "compoundedReturn": -0.9272918082938554,
+        "maximumDrawdown": -0.934235543046355,
+        "averageHoldingMinutes": 20.787,
+        "targetRate": 0.2895,
+        "stopRate": 0.5245,
+        "timeoutRate": 0.186
+      },
+      {
+        "parameters": {
+          "target": 0.01,
+          "stop": 0.01,
+          "maxHoldMinutes": 75
+        },
+        "trades": 1945,
+        "wins": 973,
+        "losses": 972,
+        "timeouts": 460,
+        "winRate": 0.5002570694087404,
+        "averageGrossReturn": 0.0006947598234483603,
+        "averageNetReturn": -0.0013052401765516306,
+        "medianNetReturn": 0.00006185567010308542,
+        "totalNetReturn": -2.5386921433929213,
+        "compoundedReturn": -0.9270647647791632,
+        "maximumDrawdown": -0.9409704017962938,
+        "averageHoldingMinutes": 35.71259640102828,
+        "targetRate": 0.41131105398457585,
+        "stopRate": 0.35218508997429304,
+        "timeoutRate": 0.2365038560411311
+      },
+      {
+        "parameters": {
+          "target": 0.01,
+          "stop": 0.0075,
+          "maxHoldMinutes": 75
+        },
+        "trades": 1966,
+        "wins": 897,
+        "losses": 1069,
+        "timeouts": 346,
+        "winRate": 0.45625635808748727,
+        "averageGrossReturn": 0.0006942846728898541,
+        "averageNetReturn": -0.0013057153271101363,
+        "medianNetReturn": -0.0025073334617591297,
+        "totalNetReturn": -2.567036333098528,
+        "compoundedReturn": -0.9281161109973641,
+        "maximumDrawdown": -0.9394410480767331,
+        "averageHoldingMinutes": 30.820956256358087,
+        "targetRate": 0.378942014242116,
+        "stopRate": 0.44506612410986773,
+        "timeoutRate": 0.17599186164801628
+      },
+      {
+        "parameters": {
+          "target": 0.01,
+          "stop": 0.002,
+          "maxHoldMinutes": 75
+        },
+        "trades": 2041,
+        "wins": 469,
+        "losses": 1572,
+        "timeouts": 79,
+        "winRate": 0.22978931896129348,
+        "averageGrossReturn": 0.0006451153092586203,
+        "averageNetReturn": -0.0013548846907413738,
+        "medianNetReturn": -0.004000000000000002,
+        "totalNetReturn": -2.765319653803144,
+        "compoundedReturn": -0.9386539272720611,
+        "maximumDrawdown": -0.9396746359588366,
+        "averageHoldingMinutes": 12.835864772170504,
+        "targetRate": 0.20284174424301812,
+        "stopRate": 0.7584517393434591,
+        "timeoutRate": 0.03870651641352278
+      },
+      {
+        "parameters": {
+          "target": 0.01,
+          "stop": 0.003,
+          "maxHoldMinutes": 75
+        },
+        "trades": 2023,
+        "wins": 588,
+        "losses": 1435,
+        "timeouts": 128,
+        "winRate": 0.2906574394463668,
+        "averageGrossReturn": 0.0006391574090276357,
+        "averageNetReturn": -0.001360842590972319,
+        "medianNetReturn": -0.005000000000000003,
+        "totalNetReturn": -2.7529845615370014,
+        "compoundedReturn": -0.9383996593268226,
+        "maximumDrawdown": -0.9401841869525072,
+        "averageHoldingMinutes": 17.106277805239742,
+        "targetRate": 0.25111220958971825,
+        "stopRate": 0.6856154226396441,
+        "timeoutRate": 0.06327236777063766
+      },
+      {
+        "parameters": {
+          "target": 0.01,
+          "stop": 0.002,
+          "maxHoldMinutes": 120
+        },
+        "trades": 2041,
+        "wins": 456,
+        "losses": 1585,
+        "timeouts": 32,
+        "winRate": 0.22341989220970113,
+        "averageGrossReturn": 0.0006353350718696707,
+        "averageNetReturn": -0.0013646649281303244,
+        "medianNetReturn": -0.004000000000000002,
+        "totalNetReturn": -2.785281118313992,
+        "compoundedReturn": -0.9399079195326168,
+        "maximumDrawdown": -0.9406204588255477,
+        "averageHoldingMinutes": 14.011268985791279,
+        "targetRate": 0.2116609505144537,
+        "stopRate": 0.7726604605585498,
+        "timeoutRate": 0.01567858892699657
+      },
+      {
+        "parameters": {
+          "target": 0.01,
+          "stop": 0.002,
+          "maxHoldMinutes": 50
+        },
+        "trades": 2043,
+        "wins": 482,
+        "losses": 1561,
+        "timeouts": 148,
+        "winRate": 0.2359275575134606,
+        "averageGrossReturn": 0.0006350296287914961,
+        "averageNetReturn": -0.0013649703712084965,
+        "medianNetReturn": -0.004000000000000002,
+        "totalNetReturn": -2.7886344683789583,
+        "compoundedReturn": -0.9400126364149116,
+        "maximumDrawdown": -0.9411692222821476,
+        "averageHoldingMinutes": 11.461576113558493,
+        "targetRate": 0.18697993147332354,
+        "stopRate": 0.7405775819872736,
+        "timeoutRate": 0.07244248653940284
+      },
+      {
+        "parameters": {
+          "target": 0.01,
+          "stop": 0.003,
+          "maxHoldMinutes": 50
+        },
+        "trades": 2027,
+        "wins": 602,
+        "losses": 1425,
+        "timeouts": 216,
+        "winRate": 0.29699062654168723,
+        "averageGrossReturn": 0.0006324343734793573,
+        "averageNetReturn": -0.0013675656265205996,
+        "medianNetReturn": -0.005000000000000003,
+        "totalNetReturn": -2.7720555249572554,
+        "compoundedReturn": -0.9394778282526154,
+        "maximumDrawdown": -0.9422483767417273,
+        "averageHoldingMinutes": 15.019733596447953,
+        "targetRate": 0.22940305870744943,
+        "stopRate": 0.6640355204736064,
+        "timeoutRate": 0.10656142081894425
+      },
+      {
+        "parameters": {
+          "target": 0.01,
+          "stop": 0.003,
+          "maxHoldMinutes": 120
+        },
+        "trades": 2023,
+        "wins": 571,
+        "losses": 1452,
+        "timeouts": 52,
+        "winRate": 0.28225407810182895,
+        "averageGrossReturn": 0.0006262783882476829,
+        "averageNetReturn": -0.0013737216117522715,
+        "medianNetReturn": -0.005000000000000003,
+        "totalNetReturn": -2.7790388205748453,
+        "compoundedReturn": -0.9400614324209964,
+        "maximumDrawdown": -0.9437680474898197,
+        "averageHoldingMinutes": 19.12555610479486,
+        "targetRate": 0.2669303015323777,
+        "stopRate": 0.7073652990608008,
+        "timeoutRate": 0.02570439940682155
+      },
+      {
+        "parameters": {
+          "target": 0.01,
+          "stop": 0.002,
+          "maxHoldMinutes": 30
+        },
+        "trades": 2050,
+        "wins": 512,
+        "losses": 1538,
+        "timeouts": 253,
+        "winRate": 0.2497560975609756,
+        "averageGrossReturn": 0.0006262173718199462,
+        "averageNetReturn": -0.0013737826281800436,
+        "medianNetReturn": -0.004000000000000002,
+        "totalNetReturn": -2.8162543877690895,
+        "compoundedReturn": -0.9415550595974358,
+        "maximumDrawdown": -0.9420189083307895,
+        "averageHoldingMinutes": 9.480975609756097,
+        "targetRate": 0.16195121951219513,
+        "stopRate": 0.7146341463414634,
+        "timeoutRate": 0.12341463414634146
+      },
+      {
+        "parameters": {
+          "target": 0.01,
+          "stop": 0.003,
+          "maxHoldMinutes": 30
+        },
+        "trades": 2038,
+        "wins": 630,
+        "losses": 1408,
+        "timeouts": 376,
+        "winRate": 0.30912659470068693,
+        "averageGrossReturn": 0.0005978080803442378,
+        "averageNetReturn": -0.0014021919196557148,
+        "medianNetReturn": -0.005000000000000003,
+        "totalNetReturn": -2.8576671322583467,
+        "compoundedReturn": -0.9442903926588615,
+        "maximumDrawdown": -0.9447325323996643,
+        "averageHoldingMinutes": 12.103042198233563,
+        "targetRate": 0.18940137389597644,
+        "stopRate": 0.6261040235525025,
+        "timeoutRate": 0.1844946025515211
+      },
+      {
+        "parameters": {
+          "target": 0.0075,
+          "stop": 0.01,
+          "maxHoldMinutes": 30
+        },
+        "trades": 2004,
+        "wins": 1039,
+        "losses": 965,
+        "timeouts": 751,
+        "winRate": 0.5184630738522954,
+        "averageGrossReturn": 0.0005720222269664912,
+        "averageNetReturn": -0.0014279777730334942,
+        "medianNetReturn": 0.0004813895781639061,
+        "totalNetReturn": -2.8616674571591223,
+        "compoundedReturn": -0.9457679009998193,
+        "maximumDrawdown": -0.9463299147516757,
+        "averageHoldingMinutes": 18.59431137724551,
+        "targetRate": 0.3852295409181637,
+        "stopRate": 0.24001996007984033,
+        "timeoutRate": 0.37475049900199603
+      },
+      {
+        "parameters": {
+          "target": 0.0075,
+          "stop": 0.01,
+          "maxHoldMinutes": 50
+        },
+        "trades": 1977,
+        "wins": 1068,
+        "losses": 909,
+        "timeouts": 500,
+        "winRate": 0.5402124430955993,
+        "averageGrossReturn": 0.0005512268185254485,
+        "averageNetReturn": -0.0014487731814745366,
+        "medianNetReturn": 0.0015896467031928391,
+        "totalNetReturn": -2.8642245797751587,
+        "compoundedReturn": -0.9462686758322234,
+        "maximumDrawdown": -0.9492913968725508,
+        "averageHoldingMinutes": 24.88265048052605,
+        "targetRate": 0.4613050075872534,
+        "stopRate": 0.28578654527061204,
+        "timeoutRate": 0.25290844714213456
+      },
+      {
+        "parameters": {
+          "target": 0.0075,
+          "stop": 0.005,
+          "maxHoldMinutes": 120
+        },
+        "trades": 2009,
+        "wins": 887,
+        "losses": 1122,
+        "timeouts": 63,
+        "winRate": 0.4415131906421105,
+        "averageGrossReturn": 0.0005405096174706135,
+        "averageNetReturn": -0.0014594903825293822,
+        "medianNetReturn": -0.0069999999999998935,
+        "totalNetReturn": -2.932116178501529,
+        "compoundedReturn": -0.9488063567508453,
+        "maximumDrawdown": -0.9499661872433103,
+        "averageHoldingMinutes": 22.62867098058736,
+        "targetRate": 0.42707814833250374,
+        "stopRate": 0.5415629666500746,
+        "timeoutRate": 0.0313588850174216
+      },
+      {
+        "parameters": {
+          "target": 0.0075,
+          "stop": 0.005,
+          "maxHoldMinutes": 75
+        },
+        "trades": 2009,
+        "wins": 875,
+        "losses": 1134,
+        "timeouts": 159,
+        "winRate": 0.4355400696864111,
+        "averageGrossReturn": 0.00051754120211682,
+        "averageNetReturn": -0.001482458797883173,
+        "medianNetReturn": -0.0069999999999998935,
+        "totalNetReturn": -2.9782597249472946,
+        "compoundedReturn": -0.9510413483339584,
+        "maximumDrawdown": -0.9513091480198491,
+        "averageHoldingMinutes": 20.159283225485318,
+        "targetRate": 0.4021901443504231,
+        "stopRate": 0.5186660029865605,
+        "timeoutRate": 0.07914385266301642
+      },
+      {
+        "parameters": {
+          "target": 0.0075,
+          "stop": 0.005,
+          "maxHoldMinutes": 30
+        },
+        "trades": 2025,
+        "wins": 864,
+        "losses": 1161,
+        "timeouts": 454,
+        "winRate": 0.4266666666666667,
+        "averageGrossReturn": 0.0005135428455631072,
+        "averageNetReturn": -0.001486457154436877,
+        "medianNetReturn": -0.002315357931252036,
+        "totalNetReturn": -3.010075737734676,
+        "compoundedReturn": -0.9523683692996234,
+        "maximumDrawdown": -0.9526289102930119,
+        "averageHoldingMinutes": 14.253333333333334,
+        "targetRate": 0.3214814814814815,
+        "stopRate": 0.454320987654321,
+        "timeoutRate": 0.22419753086419753
+      }
+    ],
+    "selectedParameters": {
+      "target": 0.01,
+      "stop": 0.01,
+      "maxHoldMinutes": 50
+    },
+    "selectedDiscoveryResult": {
+      "parameters": {
+        "target": 0.01,
+        "stop": 0.01,
+        "maxHoldMinutes": 50
+      },
+      "trades": 1957,
+      "wins": 973,
+      "losses": 984,
+      "timeouts": 660,
+      "winRate": 0.4971895758814512,
+      "averageGrossReturn": 0.0008112406696015253,
+      "averageNetReturn": -0.001188759330398462,
+      "medianNetReturn": -0.00011463046757165078,
+      "totalNetReturn": -2.32640200958979,
+      "compoundedReturn": -0.9091263423250987,
+      "maximumDrawdown": -0.9268495900309761,
+      "averageHoldingMinutes": 28.760347470618292,
+      "targetRate": 0.3582013285641288,
+      "stopRate": 0.3045477772100153,
+      "timeoutRate": 0.3372508942258559
+    }
+  },
+  "outOfSample": {
+    "start": "2026-09-01T17:32:00.000Z",
+    "end": "2026-09-10T17:32:00.000Z",
+    "observations": 842,
+    "result": {
+      "parameters": {
+        "target": 0.01,
+        "stop": 0.01,
+        "maxHoldMinutes": 50
+      },
+      "trades": 842,
+      "wins": 462,
+      "losses": 380,
+      "timeouts": 350,
+      "winRate": 0.5486935866983373,
+      "averageGrossReturn": 0.0017841511736385249,
+      "averageNetReturn": -0.00021584882636147714,
+      "medianNetReturn": 0.001271779841811373,
+      "totalNetReturn": -0.18174471179636376,
+      "compoundedReturn": -0.18822826128819214,
+      "maximumDrawdown": -0.32758382964371224,
+      "averageHoldingMinutes": 32.26009501187649,
+      "targetRate": 0.35629453681710216,
+      "stopRate": 0.22802850356294538,
+      "timeoutRate": 0.4156769596199525
+    }
+  },
+  "assumptions": {
+    "totalCost": 0.002,
+    "cooldownMinutes": 60,
+    "ambiguousCandle": "If target and stop are both touched in the same candle, stop is assumed to occur first.",
+    "entryPrice": "Close of the signal candle.",
+    "timeoutExit": "Close of the candle at maxHoldMinutes."
+  }
+}

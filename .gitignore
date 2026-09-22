@@ -1,6 +1,6 @@
 node_modules
 .env
 package-lock.json
+research/data
 client/build
 server/dist/
-research
