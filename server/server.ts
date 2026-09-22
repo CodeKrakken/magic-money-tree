@@ -27,19 +27,20 @@ if (!local) app.use(express.static(path.join(__dirname, "../../client/build")));
 
 app.get("/data", (req: Request, res: Response) => {
   console.log('[Server] /data requested, currentTask:', currentTask);
-  // disable any HTTP caching so the client always gets the latest snapshot
+
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
 
   const dataJSON = JSON.stringify({
-    wallet          : wallet,
-    currentTask     : currentTask,
-    transactions  : log.transactions,
-    marketChart         : marketChart,
-    currentMarket   : markets[wallet.data.currentMarket.name] ?? null,
+    wallet: wallet,
+    currentTask: currentTask,
+    transactions: log.transactions,
+    markets: marketList,
+    currentMarket: markets[wallet.data.currentMarket.name] ?? null,
     tradingMode
   });
+
   res.setHeader('Content-Type', 'application/json');
   res.send(dataJSON);
 });
@@ -196,7 +197,7 @@ let log: log = {
 };
 
 let currentTask: string = ''
-let marketChart: string[] = []
+let marketList: string[] = []
 let viableSymbols: string[] = []
 let markets: { [key: string]: market } = {}
 let wallet: wallet = simulatedWallet()
@@ -838,7 +839,7 @@ function logMarkets(markets: market[]) {
 }
 
 function formatMarketDisplay(markets: market[]) {
-  marketChart = markets.map(market => {
+  marketList = markets.map(market => {
     const report = `${market.name} ... shape ${(market.shape as number)} * ema ${market.emaRatio} = strength ${market.strength as number}`
     return report
   })

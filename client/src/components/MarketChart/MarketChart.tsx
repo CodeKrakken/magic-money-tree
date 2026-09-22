@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 type Point = { x: Date, y: number[] }  
 type Line = { data: Point[] }[]  
 
-const Graph = ({
+const MarketChart = ({
 
   history, 
   title
@@ -51,8 +51,13 @@ const Graph = ({
 
   
   return <>
-    <Chart options={options} series={line} type="candlestick" height={350} />
+    <Chart 
+      options = {options} 
+      series  = {line} 
+      type    = "candlestick" 
+      height  = {350} 
+    />
   </>;
 };
 
-export default Graph;
+export default MarketChart;
