@@ -102,8 +102,6 @@ export default function App() {
     }
   };
 
-  console.log(markets)
-
   return <>
     <div className="container">
       <div className="row flex-no-grow">

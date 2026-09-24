@@ -17,8 +17,13 @@ export default function Wallet({
     return total
   }
 
+  const walletTotal = formatNumber(getDollarTotal(wallet))
+
   return wallet?.coins ? <>
     <h1>Wallet</h1>
+    <div>
+      ${walletTotal}
+    </div>
     {
       Object.keys(wallet.coins).filter(coin => wallet.coins[coin].volume).map(name => 
         <>
@@ -32,9 +37,7 @@ export default function Wallet({
       ) 
     }
     
-    <div>
-      Total = ${formatNumber(getDollarTotal(wallet))}
-    </div>
+    
   
   </> : <>No wallet data</>
 }
