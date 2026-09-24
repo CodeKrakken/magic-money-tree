@@ -24,6 +24,7 @@
   overflow: hidden; /* hide overflow content */
   margin: 0; /* remove the margin */
   padding: 0; /* remove the padding */
+  justify-content:space-around
 }
 
 /* create columns with flexbox and set their width to auto */
@@ -78,4 +79,8 @@
   display: flex;
   align-items: center;
   justify-content: center
+}
+
+.cell {
+  width: 100px
 }

@@ -1,5 +1,6 @@
 import { WalletType } from '@magic-money-tree/shared'
 import { formatNumber } from '@magic-money-tree/shared'
+import '../../App.css'
 
 export default function Wallet({
   wallet
@@ -17,27 +18,29 @@ export default function Wallet({
     return total
   }
 
-  const walletTotal = formatNumber(getDollarTotal(wallet))
+  return wallet?.coins ? (
+    <div id="wallet">
+      <h1>
+        Wallet    
+      </h1>
 
-  return wallet?.coins ? <>
-    <h1>Wallet</h1>
-    <div>
-      ${walletTotal}
+      <div>
+        ${formatNumber(getDollarTotal(wallet))}
+      </div>
+      
+      {
+        Object.keys(wallet.coins).filter(coin => wallet.coins[coin].volume).map(name => 
+          <div className="centred row">
+            <div className="cell">{formatNumber(wallet.coins[name].volume)}</div>
+            <div className="cell">{name}</div>
+            <div className="cell">{formatNumber(wallet.coins[name].dollarPrice)}</div>
+            <div className="cell">{formatNumber(wallet.coins[name].dollarValue)}</div>
+          </div>
+        ) 
+      }
+      
+      
+    
     </div>
-    {
-      Object.keys(wallet.coins).filter(coin => wallet.coins[coin].volume).map(name => 
-        <>
-          {`
-            ${formatNumber(wallet.coins[name].volume)} 
-            ${name} @ ${formatNumber(wallet.coins[name].dollarPrice)} = $
-            ${formatNumber(wallet.coins[name].dollarValue)}
-          `}
-          <br />
-        </>
-      ) 
-    }
-    
-    
-  
-  </> : <>No wallet data</>
+  ) : <>No wallet data</>
 }
