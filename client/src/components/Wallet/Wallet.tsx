@@ -10,7 +10,7 @@ export default function Wallet({
   function getDollarTotal(wallet: WalletType) {
     let total = 0
   
-    Object.keys(wallet.coins).map(name => {
+    Object.keys(wallet.coins).forEach(name => {
       total += wallet.coins[name].dollarValue
     })
   
