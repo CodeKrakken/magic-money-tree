@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react"
-import Text from "./components/Text/Text"
+import Text from "./components/ColumnHeader/ColumnHeader"
 import type { WalletType, market } from '@magic-money-tree/shared'
 import Wallet from "./components/Wallet/Wallet"
 import CurrentTask from "./components/CurrentTask/CurrentTask"
 import MarketChart from "./components/MarketChart/MarketChart"
 import './App.css'
 import StringList from "./components/StringList/StringList"
+import ColumnHeader from "./components/ColumnHeader/ColumnHeader"
 
 export default function App() {
 
@@ -103,17 +104,11 @@ export default function App() {
   };
 
   return <>
-    <div className="container">
+    <div id="app-container">
       <div className="row flex-no-grow">
-        <div className="col center">
-          <Text text='Markets' tag='h1' />
-        </div>
-        <div className="col center">
-          <Text text='Magic Money Tree' tag='h1' attrs={{className: 'title'}} />
-        </div>
-        <div className="col center">
-          <Text text='Transactions' tag='h1' />
-        </div>
+        <ColumnHeader text='Markets' />
+        <ColumnHeader text='Magic Money Tree' attrs={{className: 'title'}} />
+        <ColumnHeader text='Transactions' />
       </div>
       <div className="row flex-grow">
         <div className="col center">

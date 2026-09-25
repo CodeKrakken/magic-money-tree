@@ -797,9 +797,9 @@ function simulatedWallet() {
   return {
     coins: {
       USDT: {
-        volume: 1000,
+        volume: 100,
         dollarPrice: 1,
-        dollarValue: 1000
+        dollarValue: 100
       }
     },
     data: {
