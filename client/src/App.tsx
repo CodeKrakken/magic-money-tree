@@ -106,12 +106,8 @@ export default function App() {
   return <>
     <div id="app-container">
       <div className="row flex-no-grow">
-        <ColumnHeader text='Markets' />
-        <ColumnHeader text='Magic Money Tree' attrs={{className: 'title'}} />
-        <ColumnHeader text='Transactions' />
-      </div>
-      <div className="row flex-grow">
         <div className="col center">
+          <ColumnHeader text='Markets' />
           {
             markets.length ? (
               <StringList 
@@ -120,25 +116,15 @@ export default function App() {
             ) : null
           }
         </div>
+
         <div className="col center">
-          <CurrentTask currentTask={currentTask} />
-          {/* <div style={{ marginTop: '12px', marginBottom: '12px' }}>
-            <label htmlFor="live-trading-toggle" style={{ display: 'block', fontWeight: 700, marginBottom: '6px' }}>
-              Live Trading
-            </label>
-            <label htmlFor="live-trading-toggle" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
-              <input
-                id="live-trading-toggle"
-                type="checkbox"
-                checked={isLiveMode}
-                onChange={handleModeChange}
-              />
-              <span>{isLiveMode ? 'LIVE TRADING' : 'SIMULATION'}</span>
-            </label>
-          </div> */}
+          <ColumnHeader text='Magic Money Tree' attrs={{className: 'title'}} />
+          <CurrentTask currentTask={currentTask} />      
           <Wallet wallet={wallet} />
         </div>
+        
         <div className="col center">
+          <ColumnHeader text='Transactions' />
           {
             transactions.length ? (
               <StringList 
@@ -147,14 +133,15 @@ export default function App() {
             ) : null
           }
         </div>
-      </div>
-      <div className="row flex-no-grow">
-        <div className="full-width">
-          {
-            currentMarket?.histories?.minutes
-            ? <MarketChart title={currentMarket.name} history={currentMarket.histories.minutes} />
-            : null
-          }
+      
+        <div className="row flex-no-grow">
+          <div className="full-width">
+            {
+              currentMarket?.histories?.minutes
+              ? <MarketChart title={currentMarket.name} history={currentMarket.histories.minutes} />
+              : null
+            }
+          </div>
         </div>
       </div>
     </div>
