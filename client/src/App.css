@@ -81,6 +81,17 @@
   justify-content: center
 }
 
-.cell {
-  width: 100px
+#wallet {
+  display: flex;
+  flex-direction: column;
+  align-items: center
 }
+
+#coin-list {
+  width: 400px;
+}
+
+.cell {
+  width: 50px;
+}
+

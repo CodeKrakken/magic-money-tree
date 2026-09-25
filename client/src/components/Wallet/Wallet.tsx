@@ -28,16 +28,18 @@ export default function Wallet({
         ${formatNumber(getDollarTotal(wallet))}
       </div>
       
-      {
-        Object.keys(wallet.coins).filter(coin => wallet.coins[coin].volume).map(name => 
-          <div className="centred row">
-            <div className="cell">{formatNumber(wallet.coins[name].volume)}</div>
-            <div className="cell">{name}</div>
-            <div className="cell">{formatNumber(wallet.coins[name].dollarPrice)}</div>
-            <div className="cell">{formatNumber(wallet.coins[name].dollarValue)}</div>
-          </div>
-        ) 
-      }
+      <div id="coin-list">
+        {
+          Object.keys(wallet.coins).filter(coin => wallet.coins[coin].volume).map(name => 
+            <div className="centred row">
+              <div className="cell">{formatNumber(wallet.coins[name].volume)}</div>
+              <div className="cell">{name}</div>
+              <div className="cell">{formatNumber(wallet.coins[name].dollarPrice)}</div>
+              <div className="cell">{formatNumber(wallet.coins[name].dollarValue)}</div>
+            </div>
+          ) 
+        }
+      </div>
       
       
     
