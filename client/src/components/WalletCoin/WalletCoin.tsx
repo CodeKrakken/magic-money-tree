@@ -9,10 +9,11 @@ export default function WalletCoin({
 }) {
 
   return <>
-
-    <div>{formatNumber(wallet.coins[name].volume)}</div>
-    <div>{name}</div>
-    <div>{formatNumber(wallet.coins[name].dollarPrice)}</div>
-    <div>${formatNumber(wallet.coins[name].dollarValue)}</div>
+    <div className="row">
+      <div className="cell">{formatNumber(wallet.coins[name].volume)}</div>
+      <div className="cell">{name}</div>
+      <div className="cell">{formatNumber(wallet.coins[name].dollarPrice)}</div>
+      <div className="cell">{formatNumber(wallet.coins[name].dollarValue)}</div>
+    </div>
   </>
 }
