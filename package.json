@@ -14,8 +14,7 @@
     "build": "cd shared && npm run build && cd ../server && npm run build && cd ../client && npm run build",
     "start": "concurrently \"npm run start --prefix server\" \"npm run start --prefix client\"",
     "test": "cd client && npm run test && cd ../server && npm run test",
-    "eject": "cd server && npm run eject && cd ../client && npm run eject",
-    "postinstall": "npm run build"
+    "eject": "cd server && npm run eject && cd ../client && npm run eject"
   },
   "dependencies": {
     "adm-zip": "^0.6.1",
