@@ -56,7 +56,6 @@ export default function App() {
         setcurrentTask(data.currentTask);
         setTransactions(data.transactions.reverse());
         setMarketChart(data.markets);
-        setCurrentMarket(data.currentMarket);
         if (data.tradingMode) {
           setTradingMode(data.tradingMode);
         }
