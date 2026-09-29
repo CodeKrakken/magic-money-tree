@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import ColumnHeader from "./components/ColumnHeader/ColumnHeader"
-import type { WalletType, market, PortfolioSnapshot } from '@magic-money-tree/shared'
+import type { WalletType, PortfolioSnapshot } from '@magic-money-tree/shared'
 import Wallet from "./components/Wallet/Wallet"
 import CurrentTask from "./components/CurrentTask/CurrentTask"
 import MarketChart from "./components/MarketChart/MarketChart"
