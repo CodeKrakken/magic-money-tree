@@ -18,10 +18,12 @@ export default function App() {
 
 
   useEffect(() => {
-    let cancelled = false;
+    
+    let cancelled = false; // stop async fetch updating state after component unmounts
 
     const fetchTradingMode = async () => {
       try {
+
         const response = await fetch('/api/trading-mode', {
           cache: 'no-store',
           headers: { 'Cache-Control': 'no-store' }
@@ -32,9 +34,11 @@ export default function App() {
         }
 
         const data = await response.json();
+
         if (!cancelled && data?.tradingMode) {
           setTradingMode(data.tradingMode);
         }
+
       } catch (error) {
         console.error('[App] Error fetching trading mode:', error);
       }
@@ -42,15 +46,16 @@ export default function App() {
 
     const fetchData = async () => {
       try {
+
         const url = `/data?t=${Date.now()}`;
+
         const response = await fetch(url, {
           cache: 'no-store',
           headers: { 'Cache-Control': 'no-store' }
         });
-        if (!response.ok) {
-          return;
-        }
-        if (cancelled) return;
+
+        if (!response.ok || cancelled) return;
+        
         const data = await response.json();
         setWallet(data.wallet);
         setcurrentTask(data.currentTask);
