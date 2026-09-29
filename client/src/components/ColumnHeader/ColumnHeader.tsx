@@ -14,5 +14,9 @@ export default function ColumnHeader({
   attrs?  : { [key: string]: string }
   
 }) {
-  return React.createElement(tag as string, attrs, text)
+  return (
+    <div className="col center">
+      {React.createElement(tag as string, attrs, text)}
+    </div>
+  )
 }

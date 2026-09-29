@@ -135,19 +135,9 @@ export default function App() {
     <div className="container">
 
       <div className="row flex-no-grow">
-
-        <div className="col center">
-          <ColumnHeader text='Markets' tag='h1' />
-        </div>
-
-        <div className="col center">
-          <ColumnHeader text='Magic Money Tree' tag='h1' attrs={{className: 'title'}} />
-        </div>
-
-        <div className="col center">
-          <ColumnHeader text='Transactions' tag='h1' />
-        </div>
-
+        <ColumnHeader text='Markets' tag='h1' />
+        <ColumnHeader text='Magic Money Tree' tag='h1' attrs={{className: 'title'}} />
+        <ColumnHeader text='Transactions' tag='h1' />
       </div>
 
       <div className="row flex-grow">
