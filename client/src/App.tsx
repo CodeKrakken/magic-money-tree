@@ -57,13 +57,14 @@ export default function App() {
         if (!response.ok || cancelled) return;
         
         const data = await response.json();
+
         setWallet(data.wallet);
         setcurrentTask(data.currentTask);
         setTransactions(data.transactions.reverse());
         setMarketChart(data.markets);
-        if (data.tradingMode) {
-          setTradingMode(data.tradingMode);
-        }
+
+        if (data.tradingMode) setTradingMode(data.tradingMode);
+
       } catch (error) {
         console.error('[App] Error fetching data:', error);
       }
