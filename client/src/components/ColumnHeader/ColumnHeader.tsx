@@ -1,7 +1,7 @@
 import React from 'react'
-import './Text.css'
+import './ColumnHeader.css'
 
-export default function Text({ 
+export default function ColumnHeader({ 
 
   text, 
   attrs,

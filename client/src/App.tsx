@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import Text from "./components/Text/Text"
+import ColumnHeader from "./components/ColumnHeader/ColumnHeader"
 import type { WalletType, market, PortfolioSnapshot } from '@magic-money-tree/shared'
 import Wallet from "./components/Wallet/Wallet"
 import CurrentTask from "./components/CurrentTask/CurrentTask"
@@ -68,85 +68,90 @@ export default function App() {
       } catch (error) {
         console.error('[App] Error fetching data:', error);
       }
+
       if (!cancelled) setTimeout(fetchData, 1000);
     };
 
     const fetchPortfolioHistory = async () => {
       try {
+
         const response = await fetch('/api/portfolio-history', {
           cache: 'no-store',
           headers: { 'Cache-Control': 'no-store' }
         });
 
-        if (!response.ok) {
-          return;
-        }
+        if (!response.ok) return;
 
         const data = await response.json();
 
-        if (!cancelled) {
-          setPortfolioHistory(data);
-        }
+        if (!cancelled) setPortfolioHistory(data);
+
       } catch (error) {
         console.error('[App] Error fetching trading mode:', error);
       }
     };
 
-
-
     fetchTradingMode();
     fetchData();
     fetchPortfolioHistory();
-    console.log(portfolioHistory)
 
     return () => {
       cancelled = true;
     };
+
   }, []);
 
   const isLiveMode = tradingMode === 'live';
 
   const handleModeChange = async () => {
+
     const nextMode = isLiveMode ? 'simulation' : 'live';
 
     if (nextMode === 'live') {
       const confirmed = window.confirm('Enable live trading? Real Binance orders may be placed.');
-      if (!confirmed) {
-        return;
-      }
+      if (!confirmed) return;
     }
 
     const response = await fetch('/api/trading-mode', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mode: nextMode, confirm: nextMode === 'live' })
+      body: JSON.stringify({ 
+        mode: nextMode, 
+        confirm: nextMode === 'live' 
+      })
     });
 
     const data = await response.json();
+
     if (response.ok && data?.tradingMode) {
       setTradingMode(data.tradingMode);
       return;
     }
 
-    if (data?.error) {
-      window.alert(data.error);
-    }
+    if (data?.error) window.alert(data.error);
   };
 
   return <>
     <div className="container">
+
       <div className="row flex-no-grow">
+
         <div className="col center">
-          <Text text='Markets' tag='h1' />
+          <ColumnHeader text='Markets' tag='h1' />
         </div>
+
         <div className="col center">
-          <Text text='Magic Money Tree' tag='h1' attrs={{className: 'title'}} />
+          <ColumnHeader text='Magic Money Tree' tag='h1' attrs={{className: 'title'}} />
         </div>
+
         <div className="col center">
-          <Text text='Transactions' tag='h1' />
+          <ColumnHeader text='Transactions' tag='h1' />
         </div>
+
       </div>
+
       <div className="row flex-grow">
+
         <div className="col center">
           {
             markets.length ? (
@@ -156,24 +161,12 @@ export default function App() {
             ) : null
           }
         </div>
+
         <div className="col center">
           <CurrentTask currentTask={currentTask} />
-          {/* <div style={{ marginTop: '12px', marginBottom: '12px' }}>
-            <label htmlFor="live-trading-toggle" style={{ display: 'block', fontWeight: 700, marginBottom: '6px' }}>
-              Live Trading
-            </label>
-            <label htmlFor="live-trading-toggle" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
-              <input
-                id="live-trading-toggle"
-                type="checkbox"
-                checked={isLiveMode}
-                onChange={handleModeChange}
-              />
-              <span>{isLiveMode ? 'LIVE TRADING' : 'SIMULATION'}</span>
-            </label>
-          </div> */}
           <Wallet wallet={wallet} />
         </div>
+
         <div className="col center">
           {
             transactions.length ? (
@@ -183,11 +176,18 @@ export default function App() {
             ) : null
           }
         </div>
+
       </div>
+
       <div className="row flex-no-grow">
+
         <div className="full-width">
-          <MarketChart title={'Your Money, baby'} history={portfolioHistory} />
+          <MarketChart 
+            title={'Your Money, baby'} 
+            history={portfolioHistory} 
+          />
         </div>
+
       </div>
     </div>
   </>
