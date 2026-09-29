@@ -1,0 +1,190 @@
+import { useState, useEffect } from "react"
+import Text from "./components/Text/Text"
+import type { WalletType, market, PortfolioSnapshot } from '@magic-money-tree/shared'
+import Wallet from "./components/Wallet/Wallet"
+import CurrentTask from "./components/CurrentTask/CurrentTask"
+import MarketChart from "./components/MarketChart/MarketChart"
+import './App.css'
+import StringList from "./components/StringList/StringList"
+
+export default function App() {
+
+  const [wallet, setWallet] = useState({} as WalletType)
+  const [currentTask, setcurrentTask] = useState('Fetching data')
+  const [transactions, setTransactions] = useState([] as string[])
+  const [markets, setMarketChart] = useState([] as string[])
+  const [currentMarket, setCurrentMarket] = useState({} as market)
+  const [tradingMode, setTradingMode] = useState<'simulation' | 'test' | 'live'>('simulation')
+  const [portfolioHistory, setPortfolioHistory] = useState([] as PortfolioSnapshot[])
+
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchTradingMode = async () => {
+      try {
+        const response = await fetch('/api/trading-mode', {
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-store' }
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const data = await response.json();
+        if (!cancelled && data?.tradingMode) {
+          setTradingMode(data.tradingMode);
+        }
+      } catch (error) {
+        console.error('[App] Error fetching trading mode:', error);
+      }
+    };
+
+    const fetchData = async () => {
+      try {
+        const url = `/data?t=${Date.now()}`;
+        const response = await fetch(url, {
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-store' }
+        });
+        if (!response.ok) {
+          return;
+        }
+        if (cancelled) return;
+        const data = await response.json();
+        setWallet(data.wallet);
+        setcurrentTask(data.currentTask);
+        setTransactions(data.transactions.reverse());
+        setMarketChart(data.markets);
+        setCurrentMarket(data.currentMarket);
+        if (data.tradingMode) {
+          setTradingMode(data.tradingMode);
+        }
+      } catch (error) {
+        console.error('[App] Error fetching data:', error);
+      }
+      if (!cancelled) setTimeout(fetchData, 1000);
+    };
+
+    const fetchPortfolioHistory = async () => {
+      try {
+        const response = await fetch('/api/portfolio-history', {
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-store' }
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const data = await response.json();
+
+        if (!cancelled) {
+          setPortfolioHistory(data);
+        }
+      } catch (error) {
+        console.error('[App] Error fetching trading mode:', error);
+      }
+    };
+
+
+
+    fetchTradingMode();
+    fetchData();
+    fetchPortfolioHistory();
+    console.log(portfolioHistory)
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const isLiveMode = tradingMode === 'live';
+
+  const handleModeChange = async () => {
+    const nextMode = isLiveMode ? 'simulation' : 'live';
+
+    if (nextMode === 'live') {
+      const confirmed = window.confirm('Enable live trading? Real Binance orders may be placed.');
+      if (!confirmed) {
+        return;
+      }
+    }
+
+    const response = await fetch('/api/trading-mode', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: nextMode, confirm: nextMode === 'live' })
+    });
+
+    const data = await response.json();
+    if (response.ok && data?.tradingMode) {
+      setTradingMode(data.tradingMode);
+      return;
+    }
+
+    if (data?.error) {
+      window.alert(data.error);
+    }
+  };
+
+  return <>
+    <div className="container">
+      <div className="row flex-no-grow">
+        <div className="col center">
+          <Text text='Markets' tag='h1' />
+        </div>
+        <div className="col center">
+          <Text text='Magic Money Tree' tag='h1' attrs={{className: 'title'}} />
+        </div>
+        <div className="col center">
+          <Text text='Transactions' tag='h1' />
+        </div>
+      </div>
+      <div className="row flex-grow">
+        <div className="col center">
+          {
+            markets.length ? (
+              <StringList 
+                list={markets} 
+              />
+            ) : null
+          }
+        </div>
+        <div className="col center">
+          <CurrentTask currentTask={currentTask} />
+          {/* <div style={{ marginTop: '12px', marginBottom: '12px' }}>
+            <label htmlFor="live-trading-toggle" style={{ display: 'block', fontWeight: 700, marginBottom: '6px' }}>
+              Live Trading
+            </label>
+            <label htmlFor="live-trading-toggle" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+              <input
+                id="live-trading-toggle"
+                type="checkbox"
+                checked={isLiveMode}
+                onChange={handleModeChange}
+              />
+              <span>{isLiveMode ? 'LIVE TRADING' : 'SIMULATION'}</span>
+            </label>
+          </div> */}
+          <Wallet wallet={wallet} />
+        </div>
+        <div className="col center">
+          {
+            transactions.length ? (
+              <StringList 
+                list={transactions} 
+              />
+            ) : null
+          }
+        </div>
+      </div>
+      <div className="row flex-no-grow">
+        <div className="full-width">
+          <MarketChart title={'Your Money, baby'} history={portfolioHistory} />
+        </div>
+      </div>
+    </div>
+  </>
+}

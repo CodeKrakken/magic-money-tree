@@ -1,0 +1,1 @@
+web: cd server && npm install --production && npm run start
