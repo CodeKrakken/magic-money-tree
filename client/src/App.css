@@ -7,7 +7,7 @@
 }
 
 /* set the container width and height to full width and height of the page */
-.container {
+#app {
   width: 100vw;
   height: 100vh;
   display: flex;
@@ -72,10 +72,4 @@
 .flex-grow {
   flex: 1 1 auto;
   overflow: auto
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: center
 }

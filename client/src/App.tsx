@@ -132,7 +132,7 @@ export default function App() {
   };
 
   return <>
-    <div className="container">
+    <div id="app">
 
       <div className="row flex-no-grow">
         <ColumnHeader text='Markets' tag='h1' />
