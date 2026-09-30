@@ -10,6 +10,21 @@ import { fileURLToPath } from 'url';
 import { MongoClient, ServerApiVersion } from 'mongodb';
 import { formatNumber, position, WalletType, market, indexedFrame, PortfolioSnapshot } from '@magic-money-tree/shared'
 import { accelerationThreshold, binanceApiKey, binanceSecretKey, collectionName, dbName, local, LONG_SLOPE, MAX_CONCURRENT_POSITIONS, MINIMUM_POSITION_NOTIONAL, password, POSITION_PERCENTAGE, resolveTradingMode, SHORT_SLOPE, slopeThreshold, stopLossThreshold, targets, TradingMode, username } from './config';
+import { simulatedWallet, state } from './state'
+
+const {  
+  markets,  
+  portfolioHistory
+} = state
+
+let {
+  currentTask,
+  wallet,
+  marketList,
+  tradingMode,
+  viableSymbols,
+  trading
+} = state
 
 dotenv.config();
 
@@ -54,7 +69,6 @@ if (!local) {
 
 const port = process.env.PORT || 5000;
 
-let tradingMode: TradingMode = resolveTradingMode(process.env.TRADING_MODE);
 
 app.get('/api/trading-mode', (req: Request, res: Response) => {
   res.json({ tradingMode });
@@ -152,17 +166,12 @@ let log: log = {
   transactions: [],
 };
 
-let currentTask: string = '';
-let marketList: string[] = [];
-let viableSymbols: string[] = [];
-let markets: { [key: string]: market } = {};
 
 // A signal may remain true for many scans, but it should only create one
 // entry until the signal becomes false and then true again.
 const signalEntryEvents = new Set<string>();
 const previousSignals: Record<string, boolean> = {};
 
-let wallet: WalletType = simulatedWallet();
 let i: number = 0;
 
 /*
@@ -181,7 +190,6 @@ const timeScales: { [key: string]: string } = {
   minutes: 'm',
 };
 
-let trading: Boolean = false;
 
 type SymbolFilterResult = {
   symbol: string;
@@ -1028,33 +1036,6 @@ function isGoodSymbol(symbol: string) {
   )
 }
 
-function simulatedWallet(): WalletType {
-  return {
-    coins: {
-      USDT: {
-        volume: 100,
-        dollarPrice: 1,
-        dollarValue: 100
-      }
-    },
-
-    data: {
-      baseCoin: 'USDT',
-
-      prices: {},
-
-      currentMarket: {
-        name: ''
-      },
-
-      positions: [],
-
-      startingBalance: 100,
-
-      realisedProfit: 0
-    }
-  };
-}
 
 async function updateMarket(
   symbolName: string,
@@ -2102,10 +2083,6 @@ async function simulatedSellOrder(
     console.log(error.message);
   }
 }
-
-const portfolioHistory: PortfolioSnapshot[] = [];
-
-
 
 function recordPortfolioSnapshot() {
   const values: Record<string, number> = {};
