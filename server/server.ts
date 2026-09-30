@@ -9,13 +9,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { MongoClient, ServerApiVersion } from 'mongodb';
 import { formatNumber, position, WalletType, market, indexedFrame, PortfolioSnapshot } from '@magic-money-tree/shared'
+import { accelerationThreshold, binanceApiKey, binanceSecretKey, collectionName, dbName, local, LONG_SLOPE, MAX_CONCURRENT_POSITIONS, MINIMUM_POSITION_NOTIONAL, password, POSITION_PERCENTAGE, resolveTradingMode, SHORT_SLOPE, slopeThreshold, stopLossThreshold, targets, TradingMode, username } from './config';
 
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-const local = process.env.ENVIRONMENT === 'local' || false;
 
 // Server
 
@@ -55,14 +54,6 @@ if (!local) {
 
 const port = process.env.PORT || 5000;
 
-type TradingMode = 'simulation' | 'test' | 'live';
-
-const resolveTradingMode = (value: string | undefined): TradingMode => {
-  if (value === 'test') return 'test';
-  if (value === 'live') return 'live';
-  return 'simulation';
-};
-
 let tradingMode: TradingMode = resolveTradingMode(process.env.TRADING_MODE);
 
 app.get('/api/trading-mode', (req: Request, res: Response) => {
@@ -98,8 +89,6 @@ app.listen(port, async () => {
 
 // Database
 
-const username = process.env.MONGODB_USERNAME;
-const password = process.env.MONGODB_PASSWORD;
 
 const uri =
   `mongodb+srv://${username}:${password}@magic-money-tree.ohcuy3y.mongodb.net/?retryWrites=true&w=majority`;
@@ -114,9 +103,6 @@ const mongo = new MongoClient(
 let database;
 
 let collection: any;
-
-const dbName = "magic-money-tree";
-const collectionName: string = process.env.COLLECTION as string;
 
 // Types
 
@@ -187,38 +173,15 @@ let i: number = 0;
  *
  * If 5% of available USDT is below $10, no position is opened.
  */
-const POSITION_PERCENTAGE = process.env.POSITION_PERCENTAGE as unknown as number
-const MINIMUM_POSITION_NOTIONAL = 10;
 
-const MAX_CONCURRENT_POSITIONS = process.env.MAX_CONCURRENT_POSITIONS as unknown as number;
 
 const fee = 0.001;
-
-const stopLossThreshold = process.env.STOP_LOSS_THRESHOLD as unknown as number;
-
-const slopeThreshold = process.env.SLOPE_THRESHOLD as unknown as number;
-const accelerationThreshold = process.env.ACCELERATION_THRESHOLD as unknown as number;
-
-const targets: {
-  name: string;
-  returnPct: number;
-  fraction: number;
-}[] = [
-  {
-    name: '12% target',
-    returnPct: 0.12,
-    fraction: 1.00
-  }
-];
 
 const timeScales: { [key: string]: string } = {
   minutes: 'm',
 };
 
 let trading: Boolean = false;
-
-const binanceApiKey = process.env.BINANCE_API_KEY ?? '';
-const binanceSecretKey = process.env.BINANCE_SECRET_KEY ?? '';
 
 type SymbolFilterResult = {
   symbol: string;
@@ -1380,12 +1343,12 @@ function addSignalData(market: market) {
 
     const shortSlope =
       regressionSlope(
-        closes.slice(process.env.SHORT_SLOPE as unknown as number)
+        closes.slice(SHORT_SLOPE)
       );
 
     const longSlope =
       regressionSlope(
-        closes.slice(process.env.LONG_SLOPE as unknown as number)
+        closes.slice(LONG_SLOPE)
       );
 
     const acceleration =
