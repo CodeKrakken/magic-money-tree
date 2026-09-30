@@ -1913,7 +1913,7 @@ async function manageOpenPositions() {
      * Single profit target.
      *
      * The entire remaining position is sold once the price
-     * reaches +8% from the entry price.
+     * reaches +12% from the entry price.
      */
     for (
       const target
