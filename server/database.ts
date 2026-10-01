@@ -42,7 +42,11 @@ export async function setUpDB() {
 }
 
 
-export async function pullFromDatabase(wallet: WalletType, log: Log, viableSymbols: string[]) {
+export async function pullFromDatabase(
+  wallet: WalletType, 
+  log: Log, 
+  viableSymbols: string[]
+) {
 
   const data = await collection.findOne({});
 

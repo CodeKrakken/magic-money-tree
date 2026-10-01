@@ -16,7 +16,8 @@ dotenv.config();
 
 const {  
   markets,  
-  portfolioHistory
+  portfolioHistory,
+  log
 } = state
 
 let {
@@ -27,7 +28,6 @@ let {
   viableSymbols,
   trading,
   symbolIndex,
-  log
 } = state
 
 // Server
@@ -126,9 +126,9 @@ function timeNow() {
 }
 
 async function run() {
-  logEntry(log, `Running at ${timeNow()}`);
-  logEntry(log, `Server is ${process.env.ENVIRONMENT}`);
-  logEntry(log, `
+  logEntry(`Running at ${timeNow()}`);
+  logEntry(`Server is ${process.env.ENVIRONMENT}`);
+  logEntry(`
     Strategy: slope/acceleration portfolio | 
     ${MAX_CONCURRENT_POSITIONS} positions | 
     ${POSITION_PERCENTAGE * 100}% available cash per position | 
@@ -136,14 +136,14 @@ async function run() {
   `);
 
   try {
-    logEntry(log, 'Setting up database ...');    
+    logEntry('Setting up database ...');    
     await setUpDB();
-    logEntry(log, 'Fetching market data ...');
+    logEntry('Fetching market data ...');
     viableSymbols = await fetchSymbols() as string[];   
     await pullFromDatabase(wallet, log, viableSymbols);
 
     logEntry(
-      log, 
+      
       `Loaded simulated wallet: $${formatNumber(getCashBalance(), 2)} cash, ${wallet.data.positions.length} open positions`
     );
 
@@ -934,7 +934,6 @@ async function simulatedBuyOrder(
     };
 
     logEntry(
-      log,
       tradeReport,
       'transactions'
     );
@@ -1166,7 +1165,6 @@ async function simulatedSellOrder(
     };
 
     logEntry(
-      log,
       tradeReport,
       'transactions'
     );

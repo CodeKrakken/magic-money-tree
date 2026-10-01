@@ -1,10 +1,12 @@
 import { Log, logEntryType, transaction } from "../shared.types";
 import { writeFile } from 'fs/promises';
+import { state } from "../state";
 
-
+const {  
+  log
+} = state
 
 export function logEntry(
-  log   : Log,
   entry : logEntryType,
   topic : string = 'general'
 ) {
