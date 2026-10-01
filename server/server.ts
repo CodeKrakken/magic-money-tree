@@ -7,10 +7,11 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { MongoClient, ServerApiVersion } from 'mongodb';
-import { formatNumber, position, WalletType, market, indexedFrame, PortfolioSnapshot } from '@magic-money-tree/shared'
-import { accelerationThreshold, binanceApiKey, binanceSecretKey, collectionName, dbName, local, LONG_SLOPE, MAX_CONCURRENT_POSITIONS, MINIMUM_POSITION_NOTIONAL, password, POSITION_PERCENTAGE, resolveTradingMode, SHORT_SLOPE, slopeThreshold, stopLossThreshold, targets, TradingMode, username } from './config';
-import { simulatedWallet, state } from './state'
+import { formatNumber, position, market, indexedFrame, PortfolioSnapshot } from '@magic-money-tree/shared'
+import { accelerationThreshold, binanceApiKey, binanceSecretKey, local, LONG_SLOPE, MAX_CONCURRENT_POSITIONS, MINIMUM_POSITION_NOTIONAL, POSITION_PERCENTAGE, SHORT_SLOPE, slopeThreshold, stopLossThreshold, targets } from './config';
+import { state } from './state'
+import { pullFromDatabase, saveState, setUpDB } from './database';
+import { Log, logEntryType, transaction } from './shared.types';
 
 const {  
   markets,  
@@ -104,25 +105,6 @@ app.listen(port, async () => {
 // Database
 
 
-const uri =
-  `mongodb+srv://${username}:${password}@magic-money-tree.ohcuy3y.mongodb.net/?retryWrites=true&w=majority`;
-
-const mongo = new MongoClient(
-  uri,
-  {
-    serverApi: ServerApiVersion.v1
-  }
-);
-
-let database;
-
-let collection: any;
-
-// Types
-
-interface collection {
-  [key: string]: any
-}
 
 type rawMarket = {
   status                : string
@@ -146,22 +128,13 @@ type rawFrame = [
   string
 ];
 
-type transaction = {
-  text: string,
-  time: string
-}
 
-type logEntryType = string | transaction;
 
-interface log {
-  general: string[];
-  transactions: transaction[];
-  [key: string]: logEntryType[] | undefined;
-}
+
 
 // Data
 
-let log: log = {
+let log: Log = {
   general: [],
   transactions: [],
 };
@@ -220,21 +193,6 @@ let exchangeInfoCache: {
   fetchedAt: number;
   bySymbol: Record<string, SymbolFilterResult>;
 } | null = null;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 function getFilterMapFromExchangeInfo(
   symbolInfo: {
@@ -680,9 +638,19 @@ async function run() {
   try {
     viableSymbols = await fetchSymbols() as string[];
 
-    await setupDB();
-    await pullFromDatabase();
+    currentTask = 'Setting up database ...';
+    logEntry(currentTask);
+    
+    await setUpDB();
+    currentTask = "Database setup complete";
+    logEntry(currentTask);
 
+    logEntry("Fetching data ...");
+    await pullFromDatabase(wallet, log, viableSymbols);
+    
+    console.log(
+      `Loaded simulated wallet: $${formatNumber(getCashBalance(), 2)} cash, ${wallet.data.positions.length} open positions`
+    );
     trading = true;
 
     tick();
@@ -736,79 +704,6 @@ async function fetchSymbols() {
   }
 }
 
-async function setupDB() {
-  currentTask = 'Setting up database ...';
-  logEntry(currentTask);
-
-  await mongo.connect();
-
-  database = mongo.db(dbName);
-  collection = database.collection(collectionName);
-
-  const count = await collection.countDocuments();
-
-  if (count === 0) {
-    console.log('Setting up blank database');
-
-    await collection.insertOne({
-      data: {}
-    });
-  }
-
-  currentTask = "Database setup complete";
-  logEntry(currentTask);
-}
-
-async function pullFromDatabase() {
-  logEntry("Fetching data ...");
-
-  const data = await collection.findOne({});
-
-  if (data?.data?.wallet) {
-    wallet = migrateWallet(data.data.wallet);
-  }
-
-  if (data?.data?.log) {
-    log = data.data.log;
-  }
-
-  if (data?.data?.viableSymbols) {
-    viableSymbols = data.data.viableSymbols;
-  }
-
-  console.log(
-    `Loaded simulated wallet: $${formatNumber(getCashBalance(), 2)} cash, ${wallet.data.positions.length} open positions`
-  );
-}
-
-function migrateWallet(savedWallet: WalletType): WalletType {
-  if (
-    savedWallet?.data?.positions &&
-    Array.isArray(savedWallet.data.positions)
-  ) {
-    return savedWallet;
-  }
-
-  console.log(
-    'Existing wallet uses the old single-position structure. Starting the new portfolio with $100.'
-  );
-
-  return simulatedWallet();
-}
-
-async function saveState() {
-  await collection.replaceOne(
-    {},
-    {
-      data: {
-        wallet: wallet,
-        log: log,
-        viableSymbols: viableSymbols
-      }
-    }
-  );
-}
-
 async function tick() {
   try {
     /*
@@ -816,7 +711,7 @@ async function tick() {
      * refresh the Binance symbol list and begin another scan.
      */
     if (!viableSymbols[i]) {
-      await saveState();
+      await saveState(wallet, log, viableSymbols);
 
       console.log(
         `----- Tick at ${timeNow()} | ${wallet.data.positions.length}/${MAX_CONCURRENT_POSITIONS} positions | $${formatNumber(getPortfolioValue(), 2)} portfolio -----`
