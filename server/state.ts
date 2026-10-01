@@ -3,6 +3,7 @@ import {
   market,
   PortfolioSnapshot
 } from '@magic-money-tree/shared';
+import { simulatedWallet } from './shared.functions';
 
 export type ServerState = {
   wallet: WalletType;
@@ -12,7 +13,7 @@ export type ServerState = {
   markets: Record<string, market>;
   trading: boolean;
   tradingMode: 'simulation' | 'test' | 'live';
-  scanIndex: number;
+  symbolIndex: number;
   portfolioHistory: PortfolioSnapshot[];
 };
 
@@ -24,7 +25,7 @@ export const state: ServerState = {
   markets: {},
   trading: false,
   tradingMode: 'simulation',
-  scanIndex: 0,
+  symbolIndex: 0,
   portfolioHistory: []
 };
 

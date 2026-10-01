@@ -1,6 +1,5 @@
 import dotenv from 'dotenv';
 import { Request, Response } from 'express';
-import { writeFile } from 'fs/promises';
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
@@ -9,8 +8,9 @@ import { formatNumber, position, market, indexedFrame } from '@magic-money-tree/
 import { accelerationThreshold, local, LONG_SLOPE, MAX_CONCURRENT_POSITIONS, MINIMUM_POSITION_NOTIONAL, POSITION_PERCENTAGE, SHORT_SLOPE, slopeThreshold, stopLossThreshold, targets } from './config';
 import { state } from './state'
 import { pullFromDatabase, saveState, setUpDB } from './database';
-import { Log, logEntryType, rawFrame, transaction } from './shared.types';
+import { Log, rawFrame, transaction } from './shared.types';
 import { fetchPrice, fetchSingleHistory, fetchSymbols } from './binance';
+import { logEntry } from './utils/logging';
 
 dotenv.config();
 
@@ -25,7 +25,8 @@ let {
   marketList,
   tradingMode,
   viableSymbols,
-  trading
+  trading,
+  symbolIndex
 } = state
 
 // Server
@@ -115,57 +116,11 @@ let log: Log = {
 const signalEntryEvents = new Set<string>();
 const previousSignals: Record<string, boolean> = {};
 
-let i: number = 0;
-
 const fee = 0.001;
 
 
 
 // Functions
-
-async function writeToFile(fileName: any, data: any) {
-  try {
-    await writeFile(fileName, data);
-    console.log(`Wrote data to ${fileName}`);
-  } catch (error: any) {
-    console.error(
-      `Got an error trying to write the file: ${error.message}`
-    );
-  }
-}
-
-async function run() {
-  currentTask = `Running at ${timeNow()}`;
-
-  console.log(currentTask);
-  console.log(`Server is ${process.env.ENVIRONMENT}`);
-  console.log(
-    `Strategy: slope/acceleration portfolio | ${MAX_CONCURRENT_POSITIONS} positions | ${POSITION_PERCENTAGE * 100}% available cash per position | $${MINIMUM_POSITION_NOTIONAL} minimum`
-  );
-
-  try {
-    viableSymbols = await fetchSymbols() as string[];
-
-    currentTask = 'Setting up database ...';
-    logEntry(currentTask);
-    
-    await setUpDB();
-    currentTask = "Database setup complete";
-    logEntry(currentTask);
-
-    logEntry("Fetching data ...");
-    await pullFromDatabase(wallet, log, viableSymbols);
-    
-    console.log(
-      `Loaded simulated wallet: $${formatNumber(getCashBalance(), 2)} cash, ${wallet.data.positions.length} open positions`
-    );
-    trading = true;
-
-    tick();
-  } catch (error: any) {
-    console.log(error.message);
-  }
-}
 
 function timeNow() {
   const currentTime = Date.now();
@@ -174,27 +129,35 @@ function timeNow() {
   return prettyTime;
 }
 
-function logEntry(
-  entry: logEntryType,
-  topic: string = 'general'
-) {
-  console.log(
-    isTransaction(entry)
-      ? `${entry.time}  |  ${entry.text}`
-      : entry
-  );
+async function run() {
+  logEntry(log, `Running at ${timeNow()}`);
+  logEntry(log, `Server is ${process.env.ENVIRONMENT}`);
+  logEntry(log, `
+    Strategy: slope/acceleration portfolio | 
+    ${MAX_CONCURRENT_POSITIONS} positions | 
+    ${POSITION_PERCENTAGE * 100}% available cash per position | 
+    $${MINIMUM_POSITION_NOTIONAL} minimum
+  `);
 
-  log[topic] = log[topic] ?? [];
-  log[topic]?.push(entry);
+  try {
+    logEntry(log, 'Setting up database ...');    
+    await setUpDB();
+    logEntry(log, 'Fetching market data ...');
+    viableSymbols = await fetchSymbols() as string[];   
+    await pullFromDatabase(wallet, log, viableSymbols);
+
+    logEntry(
+      log, 
+      `Loaded simulated wallet: $${formatNumber(getCashBalance(), 2)} cash, ${wallet.data.positions.length} open positions`
+    );
+
+    trading = true;
+    tick();
+
+  } catch (error: any) {
+    console.log(error.message);
+  }
 }
-
-function isTransaction(
-  entry: logEntryType
-): entry is transaction {
-  return (entry as transaction).time !== undefined;
-}
-
-
 
 async function tick() {
   try {
@@ -202,14 +165,14 @@ async function tick() {
      * Once every market has been checked, save the portfolio,
      * refresh the Binance symbol list and begin another scan.
      */
-    if (!viableSymbols[i]) {
+    if (!viableSymbols[symbolIndex]) {
       await saveState(wallet, log, viableSymbols);
 
       console.log(
         `----- Tick at ${timeNow()} | ${wallet.data.positions.length}/${MAX_CONCURRENT_POSITIONS} positions | $${formatNumber(getPortfolioValue(), 2)} portfolio -----`
       );
 
-      i = 0;
+      symbolIndex = 0;
 
       viableSymbols =
         await fetchSymbols() as string[];
@@ -218,7 +181,7 @@ async function tick() {
     }
 
     const symbolName =
-      viableSymbols[i].replace('/', '');
+      viableSymbols[symbolIndex].replace('/', '');
 
     currentTask =
       `Checking market ${symbolName} ...`;
@@ -227,7 +190,7 @@ async function tick() {
 
     await updateMarket(
       symbolName,
-      i + 1
+      symbolIndex + 1
     );
 
     await refreshWallet();
@@ -266,7 +229,7 @@ async function tick() {
     console.log(error.message);
   }
 
-  i++;
+  symbolIndex++;
 
   /*
    * Preserve the existing continuously-running architecture,
@@ -975,6 +938,7 @@ async function simulatedBuyOrder(
     };
 
     logEntry(
+      log,
       tradeReport,
       'transactions'
     );
@@ -1206,6 +1170,7 @@ async function simulatedSellOrder(
     };
 
     logEntry(
+      log,
       tradeReport,
       'transactions'
     );
