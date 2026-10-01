@@ -4,6 +4,7 @@ import {
   PortfolioSnapshot
 } from '@magic-money-tree/shared';
 import { simulatedWallet } from './shared.functions';
+import { Log } from './shared.types';
 
 export type ServerState = {
   wallet: WalletType;
@@ -15,6 +16,7 @@ export type ServerState = {
   tradingMode: 'simulation' | 'test' | 'live';
   symbolIndex: number;
   portfolioHistory: PortfolioSnapshot[];
+  log: Log
 };
 
 export const state: ServerState = {
@@ -26,7 +28,11 @@ export const state: ServerState = {
   trading: false,
   tradingMode: 'simulation',
   symbolIndex: 0,
-  portfolioHistory: []
+  portfolioHistory: [],
+  log: {
+    general: [],
+    transactions: []
+  }
 };
 
 export const signalEntryEvents =

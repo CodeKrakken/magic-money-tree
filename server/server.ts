@@ -26,14 +26,15 @@ let {
   tradingMode,
   viableSymbols,
   trading,
-  symbolIndex
+  symbolIndex,
+  log
 } = state
 
 // Server
 
 const app = express();
-app.use(express.json());
 
+app.use(express.json());
 app.use(local ? cors({ origin: 'http://localhost:3000' }) : cors());
 
 const __filename = fileURLToPath(import.meta.url);
@@ -107,11 +108,6 @@ app.get('/api/portfolio-history', (_req, res) => {
 });
 
 /////////////////////////////////////////
-
-let log: Log = {
-  general: [],
-  transactions: [],
-};
 
 const signalEntryEvents = new Set<string>();
 const previousSignals: Record<string, boolean> = {};
