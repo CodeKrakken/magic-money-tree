@@ -1,17 +1,18 @@
 import dotenv from 'dotenv';
-import { createHmac } from 'crypto';
 import { Request, Response } from 'express';
 import { writeFile } from 'fs/promises';
-import axios from 'axios';
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { formatNumber, position, market, indexedFrame, PortfolioSnapshot } from '@magic-money-tree/shared'
-import { accelerationThreshold, binanceApiKey, binanceSecretKey, local, LONG_SLOPE, MAX_CONCURRENT_POSITIONS, MINIMUM_POSITION_NOTIONAL, POSITION_PERCENTAGE, SHORT_SLOPE, slopeThreshold, stopLossThreshold, targets } from './config';
+import { formatNumber, position, market, indexedFrame } from '@magic-money-tree/shared'
+import { accelerationThreshold, local, LONG_SLOPE, MAX_CONCURRENT_POSITIONS, MINIMUM_POSITION_NOTIONAL, POSITION_PERCENTAGE, SHORT_SLOPE, slopeThreshold, stopLossThreshold, targets } from './config';
 import { state } from './state'
 import { pullFromDatabase, saveState, setUpDB } from './database';
-import { Log, logEntryType, transaction } from './shared.types';
+import { Log, logEntryType, rawFrame, transaction } from './shared.types';
+import { fetchPrice, fetchSingleHistory, fetchSymbols } from './binance';
+
+dotenv.config();
 
 const {  
   markets,  
@@ -27,17 +28,15 @@ let {
   trading
 } = state
 
-dotenv.config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 // Server
 
 const app = express();
 app.use(express.json());
 
 app.use(local ? cors({ origin: 'http://localhost:3000' }) : cors());
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 if (!local) app.use(express.static(path.join(__dirname, "../../client/build")));
 
@@ -62,6 +61,7 @@ app.get("/data", (req: Request, res: Response) => {
 });
 
 // Serve React app for all other routes
+
 if (!local) {
   app.get("*", (req: Request, res: Response) => {
     res.sendFile(path.join(__dirname, "../../client/build/index.html"));
@@ -69,7 +69,6 @@ if (!local) {
 }
 
 const port = process.env.PORT || 5000;
-
 
 app.get('/api/trading-mode', (req: Request, res: Response) => {
   res.json({ tradingMode });
@@ -102,516 +101,25 @@ app.listen(port, async () => {
   console.log(`Server listening on port ${port}`);
 });
 
-// Database
+app.get('/api/portfolio-history', (_req, res) => {
+  res.json(portfolioHistory);
+});
 
-
-
-type rawMarket = {
-  status                : string
-  symbol                : string
-  isSpotTradingAllowed  : Boolean
-  quoteAsset            : string
-}
-
-type rawFrame = [
-  number,
-  string,
-  string,
-  string,
-  string,
-  string,
-  number,
-  string,
-  number,
-  string,
-  string,
-  string
-];
-
-
-
-
-
-// Data
+/////////////////////////////////////////
 
 let log: Log = {
   general: [],
   transactions: [],
 };
 
-
-// A signal may remain true for many scans, but it should only create one
-// entry until the signal becomes false and then true again.
 const signalEntryEvents = new Set<string>();
 const previousSignals: Record<string, boolean> = {};
 
 let i: number = 0;
 
-/*
- * Strategy position sizing.
- *
- * Each new position uses 5% of currently available USDT.
- * The position must be at least $10.
- *
- * If 5% of available USDT is below $10, no position is opened.
- */
-
-
 const fee = 0.001;
 
-const timeScales: { [key: string]: string } = {
-  minutes: 'm',
-};
 
-
-type SymbolFilterResult = {
-  symbol: string;
-  minQty: string;
-  maxQty: string;
-  stepSize: string;
-  minPrice: string;
-  maxPrice: string;
-  tickSize: string;
-  minNotional: string;
-};
-
-type BinanceOrderState = {
-  accepted: boolean;
-  status: 'accepted' | 'rejected' | 'uncertain' | 'error';
-  message: string;
-  binanceCode?: number;
-  binanceMessage?: string;
-  symbol?: string;
-  side?: 'BUY' | 'SELL';
-  quantity?: string;
-  price?: string;
-};
-
-const EXCHANGE_INFO_CACHE_TTL_MS = 5 * 60 * 1000;
-
-let exchangeInfoCache: {
-  fetchedAt: number;
-  bySymbol: Record<string, SymbolFilterResult>;
-} | null = null;
-
-function getFilterMapFromExchangeInfo(
-  symbolInfo: {
-    symbols: Array<{
-      symbol: string;
-      filters: Array<{
-        filterType: string;
-        minQty?: string;
-        maxQty?: string;
-        stepSize?: string;
-        minPrice?: string;
-        maxPrice?: string;
-        tickSize?: string;
-        minNotional?: string;
-      }>
-    }>
-  }
-): Record<string, SymbolFilterResult> {
-  const bySymbol: Record<string, SymbolFilterResult> = {};
-
-  for (const symbolEntry of symbolInfo.symbols) {
-    const filters = symbolEntry.filters;
-
-    const found = {
-      symbol: symbolEntry.symbol,
-      minQty: '0',
-      maxQty: '0',
-      stepSize: '0',
-      minPrice: '0',
-      maxPrice: '0',
-      tickSize: '0',
-      minNotional: '0'
-    };
-
-    for (const filter of filters) {
-      if (filter.filterType === 'LOT_SIZE') {
-        found.minQty = filter.minQty ?? found.minQty;
-        found.maxQty = filter.maxQty ?? found.maxQty;
-        found.stepSize = filter.stepSize ?? found.stepSize;
-      }
-
-      if (filter.filterType === 'PRICE_FILTER') {
-        found.minPrice = filter.minPrice ?? found.minPrice;
-        found.maxPrice = filter.maxPrice ?? found.maxPrice;
-        found.tickSize = filter.tickSize ?? found.tickSize;
-      }
-
-      if (filter.filterType === 'MIN_NOTIONAL') {
-        found.minNotional = filter.minNotional ?? found.minNotional;
-      }
-
-      if (filter.filterType === 'NOTIONAL') {
-        found.minNotional = filter.minNotional ?? found.minNotional;
-      }
-    }
-
-    bySymbol[symbolEntry.symbol] = found;
-  }
-
-  return bySymbol;
-}
-
-async function refreshExchangeInfoCache(
-  force = false
-): Promise<Record<string, SymbolFilterResult>> {
-  const now = Date.now();
-
-  if (
-    !force &&
-    exchangeInfoCache &&
-    now - exchangeInfoCache.fetchedAt < EXCHANGE_INFO_CACHE_TTL_MS
-  ) {
-    return exchangeInfoCache.bySymbol;
-  }
-
-  const response = await axios.get(
-    'https://api.binance.com/api/v3/exchangeInfo',
-    { timeout: 15000 }
-  );
-
-  const bySymbol = getFilterMapFromExchangeInfo(response.data);
-
-  exchangeInfoCache = {
-    fetchedAt: now,
-    bySymbol
-  };
-
-  return bySymbol;
-}
-
-async function getExchangeFiltersForSymbol(
-  symbol: string
-): Promise<SymbolFilterResult | null> {
-  const bySymbol = await refreshExchangeInfoCache();
-  return bySymbol[symbol] ?? null;
-}
-
-function validateOrderAgainstFilters(
-  symbol: string,
-  side: 'BUY' | 'SELL',
-  quantity: string,
-  price: string,
-  filters: SymbolFilterResult
-):
-  | {
-      ok: true;
-      quantity: string;
-      price: string;
-      notional: string;
-    }
-  | {
-      ok: false;
-      reason: string;
-    } {
-  const normalizedQuantity = normalizeDecimalString(quantity);
-  const normalizedPrice = normalizeDecimalString(price);
-
-  const minQty = normalizeDecimalString(filters.minQty);
-  const maxQty = normalizeDecimalString(filters.maxQty);
-  const stepSize = normalizeDecimalString(filters.stepSize);
-  const minPrice = normalizeDecimalString(filters.minPrice);
-  const maxPrice = normalizeDecimalString(filters.maxPrice);
-  const tickSize = normalizeDecimalString(filters.tickSize);
-  const minNotional = normalizeDecimalString(filters.minNotional);
-
-  let validQuantity = normalizedQuantity;
-
-  if (stepSize !== '0') {
-    validQuantity = roundDownToStep(validQuantity, stepSize);
-  }
-
-  if (
-    compareDecimalStrings(validQuantity, minQty) < 0 &&
-    minQty !== '0'
-  ) {
-    return {
-      ok: false,
-      reason:
-        `${symbol} quantity ${validQuantity} is below MIN_QTY ${minQty}.`
-    };
-  }
-
-  if (
-    maxQty !== '0' &&
-    compareDecimalStrings(validQuantity, maxQty) > 0
-  ) {
-    return {
-      ok: false,
-      reason:
-        `${symbol} quantity ${validQuantity} exceeds MAX_QTY ${maxQty}.`
-    };
-  }
-
-  let validPrice = normalizedPrice;
-
-  if (tickSize !== '0') {
-    validPrice = roundToTickSize(validPrice, tickSize);
-  }
-
-  if (
-    minPrice !== '0' &&
-    compareDecimalStrings(validPrice, minPrice) < 0
-  ) {
-    return {
-      ok: false,
-      reason:
-        `${symbol} price ${validPrice} is below MIN_PRICE ${minPrice}.`
-    };
-  }
-
-  if (
-    maxPrice !== '0' &&
-    compareDecimalStrings(validPrice, maxPrice) > 0
-  ) {
-    return {
-      ok: false,
-      reason:
-        `${symbol} price ${validPrice} exceeds MAX_PRICE ${maxPrice}.`
-    };
-  }
-
-  const notional = multiplyDecimalStrings(
-    validPrice,
-    validQuantity
-  );
-
-  const minNotionalValue =
-    minNotional === '0' ? '0' : minNotional;
-
-  if (
-    minNotionalValue !== '0' &&
-    compareDecimalStrings(notional, minNotionalValue) < 0
-  ) {
-    return {
-      ok: false,
-      reason:
-        `${symbol} order notional ${notional} is below MIN_NOTIONAL ${minNotionalValue}.`
-    };
-  }
-
-  if (
-    side === 'BUY' &&
-    minNotionalValue !== '0' &&
-    compareDecimalStrings(notional, minNotionalValue) < 0
-  ) {
-    return {
-      ok: false,
-      reason:
-        `${symbol} order notional ${notional} is below the minimum notional ${minNotionalValue}.`
-    };
-  }
-
-  return {
-    ok: true,
-    quantity: validQuantity,
-    price: validPrice,
-    notional
-  };
-}
-
-function buildBinanceSignedOrderParams(
-  marketName: string,
-  side: 'BUY' | 'SELL',
-  quantity: string,
-  price: string
-) {
-  const params = new URLSearchParams({
-    symbol: marketName,
-    side,
-    type: 'LIMIT',
-    timeInForce: 'GTC',
-    quantity,
-    price,
-    recvWindow: '60000',
-    timestamp: String(Date.now())
-  });
-
-  const signature = createHmac('sha256', binanceSecretKey)
-    .update(params.toString())
-    .digest('hex');
-
-  return { params, signature };
-}
-
-async function submitBinanceOrder(
-  side: 'BUY' | 'SELL',
-  marketName: string,
-  quantity: string,
-  price: string
-): Promise<BinanceOrderState> {
-  if (tradingMode === 'simulation') {
-    return {
-      accepted: false,
-      status: 'rejected',
-      message: 'Simulation mode does not submit Binance orders.'
-    };
-  }
-
-  if (tradingMode !== 'test' && tradingMode !== 'live') {
-    return {
-      accepted: false,
-      status: 'rejected',
-      message: 'Trading mode is not enabled for Binance orders.'
-    };
-  }
-
-  if (!binanceApiKey || !binanceSecretKey) {
-    return {
-      accepted: false,
-      status: 'error',
-      message:
-        'Binance API credentials are required for test or live orders.'
-    };
-  }
-
-  const filters = await getExchangeFiltersForSymbol(marketName);
-
-  if (!filters) {
-    return {
-      accepted: false,
-      status: 'error',
-      message:
-        `Binance exchange filters are unavailable for ${marketName}.`
-    };
-  }
-
-  const validated = validateOrderAgainstFilters(
-    marketName,
-    side,
-    quantity,
-    price,
-    filters
-  );
-
-  if (!validated.ok) {
-    return {
-      accepted: false,
-      status: 'rejected',
-      message: validated.reason,
-      symbol: marketName,
-      side,
-      quantity,
-      price
-    };
-  }
-
-  const endpoint =
-    tradingMode === 'test'
-      ? 'https://api.binance.com/api/v3/order/test'
-      : 'https://api.binance.com/api/v3/order';
-
-  const { params, signature } =
-    buildBinanceSignedOrderParams(
-      marketName,
-      side,
-      validated.quantity,
-      validated.price
-    );
-
-  try {
-    const response = await axios.post(
-      endpoint,
-      `${params.toString()}&signature=${signature}`,
-      {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'X-MBX-APIKEY': binanceApiKey
-        },
-        timeout: 15000
-      }
-    );
-
-    if (response.status >= 200 && response.status < 300) {
-      const orderData = response.data as {
-        status?: string;
-        orderId?: string;
-        symbol?: string;
-        side?: 'BUY' | 'SELL';
-      };
-
-      const status = orderData.status ?? 'NEW';
-
-      return {
-        accepted: true,
-        status: 'accepted',
-        message:
-          `Binance ${tradingMode} order request accepted for ${marketName}.`,
-        symbol: marketName,
-        side,
-        quantity: validated.quantity,
-        price: validated.price,
-        binanceCode: 200,
-        binanceMessage: status
-      };
-    }
-
-    return {
-      accepted: false,
-      status: 'error',
-      message:
-        `Binance request for ${marketName} returned an unexpected HTTP status.`,
-      symbol: marketName,
-      side,
-      quantity: validated.quantity,
-      price: validated.price,
-      binanceCode: response.status
-    };
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const responseData =
-        error.response?.data as
-          | { code?: number; msg?: string }
-          | undefined;
-
-      if (error.response) {
-        return {
-          accepted: false,
-          status: 'rejected',
-          message:
-            `Binance ${marketName} order rejected: ${responseData?.msg ?? error.message}`,
-          symbol: marketName,
-          side,
-          quantity,
-          price,
-          binanceCode: responseData?.code,
-          binanceMessage:
-            responseData?.msg ?? error.message
-        };
-      }
-
-      return {
-        accepted: false,
-        status: 'uncertain',
-        message:
-          `Binance ${marketName} order response is uncertain because of a network timeout or connection issue. No duplicate retry was attempted.`,
-        symbol: marketName,
-        side,
-        quantity,
-        price,
-        binanceMessage: error.message
-      };
-    }
-
-    return {
-      accepted: false,
-      status: 'error',
-      message:
-        `Binance ${marketName} order failed unexpectedly.`,
-      symbol: marketName,
-      side,
-      quantity,
-      price,
-      binanceMessage:
-        error instanceof Error
-          ? error.message
-          : 'Unknown error'
-    };
-  }
-}
 
 // Functions
 
@@ -686,23 +194,7 @@ function isTransaction(
   return (entry as transaction).time !== undefined;
 }
 
-async function fetchSymbols() {
-  try {
-    const marketsResponse = await axios.get(
-      'https://api.binance.com/api/v3/exchangeInfo'
-    );
 
-    if (marketsResponse) {
-      const viableSymbols =
-        analyseMarkets(marketsResponse.data.symbols);
-
-      return viableSymbols;
-    }
-  } catch (error: any) {
-    console.log(error.message);
-    return [];
-  }
-}
 
 async function tick() {
   try {
@@ -784,33 +276,6 @@ async function tick() {
     tick();
   });
 }
-
-function analyseMarkets(allMarkets: rawMarket[]) {
-  console.log(allMarkets)
-  const goodMarketNames = allMarkets
-    .filter(
-      market =>
-      market.quoteAsset === "USDT" &&
-      market.isSpotTradingAllowed &&
-      market.status === 'TRADING' &&
-      isGoodSymbol(market.symbol)
-    )
-    .map(market => market.symbol);
-
-  return goodMarketNames;
-}
-
-function isGoodSymbol(symbol: string) {
-  return (
-    !symbol.includes('UP')    &&
-    !symbol.includes('DOWN')  &&
-    !symbol.includes('BUSD')  &&
-    !symbol.includes('TUSD')  &&
-    !symbol.includes('USDC')  &&
-    !symbol.includes(':')
-  )
-}
-
 
 async function updateMarket(
   symbolName: string,
@@ -931,60 +396,8 @@ async function refreshWallet() {
   }
 }
 
-async function fetchPrice(marketName: string) {
-  let price = 0;
 
-  try {
-    const symbolName =
-      marketName.replace('/', '');
 
-    const rawPrice =
-      await axios.get(
-        `https://api.binance.com/api/v3/ticker/price?symbol=${symbolName}`,
-        { timeout: 10000 }
-      );
-
-    price = parseFloat(rawPrice.data.price);
-
-    return price;
-  } catch (error: any) {
-    console.log(error.message);
-
-    return price;
-  }
-}
-
-async function fetchSingleHistory(symbolName: string) {
-  try {
-    const histories: {
-      [key: string]: rawFrame[]
-    } = {};
-
-    for (
-      let i = 0;
-      i < Object.keys(timeScales).length;
-      i++
-    ) {
-      const timeScale =
-        Object.keys(timeScales)[i];
-
-      // The final Binance kline is the currently-forming 1-minute candle.
-      // Keep 51 observations so the 50-period regression is available.
-      const history =
-        await axios.get(
-          `https://api.binance.com/api/v3/klines?symbol=${symbolName}&interval=1${timeScales[timeScale]}&limit=51`,
-          { timeout: 10000 }
-        );
-
-      histories[timeScale] =
-        history.data;
-    }
-
-    return histories;
-  } catch (error) {
-    return 'No response.';
-  }
-}
 
 function indexData(
   rawHistories: {
@@ -1890,9 +1303,7 @@ function recordPortfolioSnapshotIfDue() {
   recordPortfolioSnapshot();
 }
 
-app.get('/api/portfolio-history', (_req, res) => {
-  res.json(portfolioHistory);
-});
+
 
 run();
 

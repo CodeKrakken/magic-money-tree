@@ -11,8 +11,24 @@ interface Log {
   [key: string]: logEntryType[] | undefined;
 }
 
+type rawFrame = [
+  number,
+  string,
+  string,
+  string,
+  string,
+  string,
+  number,
+  string,
+  number,
+  string,
+  string,
+  string
+];
+
 export type { 
   Log,
   logEntryType,
-  transaction
+  transaction,
+  rawFrame
 }
