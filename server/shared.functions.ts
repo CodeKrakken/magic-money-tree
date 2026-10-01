@@ -22,3 +22,14 @@ export function simulatedWallet(): WalletType {
     }
   };
 }
+
+export function timeNow() {
+  const currentTime = Date.now();
+  const prettyTime = new Date(currentTime).toLocaleString();
+
+  return prettyTime;
+}
+
+export function getCashBalance(wallet: WalletType) {
+  return wallet.coins.USDT?.volume ?? 0;
+}
