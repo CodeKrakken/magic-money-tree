@@ -5,15 +5,16 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { formatNumber, position, market, indexedFrame } from '@magic-money-tree/shared'
-import { accelerationThreshold, local, LONG_SLOPE, MAX_CONCURRENT_POSITIONS, MINIMUM_POSITION_NOTIONAL, POSITION_PERCENTAGE, SHORT_SLOPE, slopeThreshold, stopLossThreshold, targets } from './config';
-import { state } from './state'
-import { pullFromDatabase, saveState, setUpDB } from './database';
-import { Log, rawFrame, transaction } from './shared.types';
-import { fetchPrice, fetchSingleHistory, fetchSymbols } from './binance';
-import { logEntry } from './utils/logging';
-import { getCashBalance, timeNow } from './shared.functions';
-import { tick } from './tradingLoop';
-import { configureApi } from './api';
+import { accelerationThreshold, local, LONG_SLOPE, MAX_CONCURRENT_POSITIONS, MINIMUM_POSITION_NOTIONAL, POSITION_PERCENTAGE, SHORT_SLOPE, slopeThreshold, stopLossThreshold, targets } from './config.js';
+import { state } from './state.js'
+import { pullFromDatabase, saveState, setUpDB } from './database.js';
+import { Log, rawFrame, transaction } from './shared.types.js';
+import { fetchPrice, fetchSingleHistory, fetchSymbols } from './binance.js';
+import { logEntry } from './utils/logging.js';
+import { getCashBalance, timeNow } from './shared.functions.js';
+import { tick } from './tradingLoop.js';
+import { configureApi } from './api.js';
+import 'dotenv/config';
 
 dotenv.config();
 

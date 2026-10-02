@@ -1,8 +1,8 @@
 import { MongoClient, ServerApiVersion } from 'mongodb';
-import { collectionName, dbName, password, username } from './config';
+import { collectionName, dbName, password, username } from './config.js';
 import { formatNumber, WalletType } from '@magic-money-tree/shared';
-import { Log } from './shared.types';
-import { simulatedWallet } from './shared.functions';
+import { Log } from './shared.types.js';
+import { simulatedWallet } from './shared.functions.js';
 
 const uri =
   `mongodb+srv://${username}:${password}@magic-money-tree.ohcuy3y.mongodb.net/?retryWrites=true&w=majority`;

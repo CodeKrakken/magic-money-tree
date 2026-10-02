@@ -1,6 +1,6 @@
 import type { Express, Request, Response } from 'express';
-import { state } from './state';
-import { local } from './config';
+import { state } from './state.js';
+import { local } from './config.js';
 import path from 'path';
 
 const {  

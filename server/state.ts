@@ -3,8 +3,8 @@ import {
   market,
   PortfolioSnapshot
 } from '@magic-money-tree/shared';
-import { simulatedWallet } from './shared.functions';
-import { Log } from './shared.types';
+import { simulatedWallet } from './shared.functions.js';
+import { Log } from './shared.types.js';
 
 export type ServerState = {
   wallet: WalletType;

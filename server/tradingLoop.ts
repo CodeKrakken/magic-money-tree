@@ -1,11 +1,11 @@
 import { formatNumber, indexedFrame, market, position } from "@magic-money-tree/shared";
-import { fetchPrice, fetchSingleHistory, fetchSymbols } from "./binance";
-import { saveState } from "./database";
-import { getCashBalance, timeNow } from "./shared.functions";
-import { previousSignals, signalEntryEvents, state } from "./state";
-import { accelerationThreshold, LONG_SLOPE, MAX_CONCURRENT_POSITIONS, MINIMUM_POSITION_NOTIONAL, POSITION_PERCENTAGE, SHORT_SLOPE, slopeThreshold, stopLossThreshold, targets } from "./config";
-import { rawFrame, transaction } from "./shared.types";
-import { logEntry } from "./utils/logging";
+import { fetchPrice, fetchSingleHistory, fetchSymbols } from "./binance.js";
+import { saveState } from "./database.js";
+import { getCashBalance, timeNow } from "./shared.functions.js";
+import { previousSignals, signalEntryEvents, state } from "./state.js";
+import { accelerationThreshold, LONG_SLOPE, MAX_CONCURRENT_POSITIONS, MINIMUM_POSITION_NOTIONAL, POSITION_PERCENTAGE, SHORT_SLOPE, slopeThreshold, stopLossThreshold, targets } from "./config.js";
+import { rawFrame, transaction } from "./shared.types.js";
+import { logEntry } from "./utils/logging.js";
 
 const { 
   wallet,

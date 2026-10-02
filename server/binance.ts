@@ -1,8 +1,8 @@
 import axios from "axios";
 import { createHmac } from "crypto";
-import { binanceApiKey, binanceSecretKey } from "./config";
-import { state } from './state'
-import { rawFrame } from "./shared.types";
+import { binanceApiKey, binanceSecretKey } from "./config.js";
+import { state } from './state.js'
+import { rawFrame } from "./shared.types.js";
 
 type SymbolFilterResult = {
   symbol: string;

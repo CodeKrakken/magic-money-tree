@@ -1,6 +1,6 @@
-import { Log, logEntryType, transaction } from "../shared.types";
+import { Log, logEntryType, transaction } from "../shared.types.js";
 import { writeFile } from 'fs/promises';
-import { state } from "../state";
+import { state } from "../state.js";
 
 const {  
   log
