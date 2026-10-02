@@ -17,7 +17,6 @@ const MarketChart = ({
 
 }) => {
 
-  console.log(history)
 
     
   const [line, setLine] = useState<Line>([{ data: [] }])

@@ -485,7 +485,6 @@ export async function fetchSymbols() {
 }
 
 function analyseMarkets(allMarkets: rawMarket[]) {
-  console.log(allMarkets)
   const goodMarketNames = allMarkets
     .filter(
       market =>

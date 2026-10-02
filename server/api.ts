@@ -19,7 +19,6 @@ let {
   symbolIndex,
 } = state
 
-console.log('file laoded')
 
 export function configureApi(
   app: Express

@@ -4,9 +4,6 @@ import { formatNumber, WalletType } from '@magic-money-tree/shared';
 import { Log } from './shared.types.js';
 import { simulatedWallet } from './shared.functions.js';
 
-console.log(username)
-console.log(password)
-
 const uri =
   `mongodb+srv://${username}:${password}@magic-money-tree.ohcuy3y.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -28,11 +25,14 @@ interface collection {
 }
 
 export async function setUpDB() {
-  
+  console.log('Awaiting Mongo Connect')
   await mongo.connect();
-
+  console.log(`Database is going to be mongo db ${dbName}`)
   database = mongo.db(dbName);
+  console.log(database)
+  console.log(`Collection is going to be database collection ${collectionName}`)
   collection = database.collection(collectionName);
+  console.log(collection)
 
   const count = await collection.countDocuments();
 
