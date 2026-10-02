@@ -13,6 +13,7 @@ import { fetchPrice, fetchSingleHistory, fetchSymbols } from './binance';
 import { logEntry } from './utils/logging';
 import { getCashBalance, timeNow } from './shared.functions';
 import { tick } from './tradingLoop';
+import { configureApi } from './api';
 
 dotenv.config();
 
@@ -34,7 +35,7 @@ let {
 
 // Server
 
-const app = express();
+export const app = express();
 
 app.use(express.json());
 app.use(local ? cors({ origin: 'http://localhost:3000' }) : cors());
@@ -44,80 +45,13 @@ const __dirname = path.dirname(__filename);
 
 if (!local) app.use(express.static(path.join(__dirname, "../../client/build")));
 
-app.get("/data", (req: Request, res: Response) => {
-  console.log('[Server] /data requested, currentTask:', currentTask);
-
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
-
-  const dataJSON = JSON.stringify({
-    wallet: wallet,
-    currentTask: currentTask,
-    transactions: log.transactions,
-    markets: marketList,
-    currentMarket: markets[wallet.data.currentMarket.name] ?? null,
-    tradingMode
-  });
-
-  res.setHeader('Content-Type', 'application/json');
-  res.send(dataJSON);
-});
-
-// Serve React app for all other routes
-
-if (!local) {
-  app.get("*", (req: Request, res: Response) => {
-    res.sendFile(path.join(__dirname, "../../client/build/index.html"));
-  });
-}
+configureApi(app);
 
 const port = process.env.PORT || 5000;
-
-app.get('/api/trading-mode', (req: Request, res: Response) => {
-  res.json({ tradingMode });
-});
-
-app.post('/api/trading-mode', (req: Request, res: Response) => {
-  const nextMode = typeof req.body?.mode === 'string'
-    ? req.body.mode.toLowerCase()
-    : '';
-
-  if (
-    nextMode !== 'simulation' &&
-    nextMode !== 'test' &&
-    nextMode !== 'live'
-  ) {
-    res.status(400).json({ error: 'Invalid trading mode.' });
-    return;
-  }
-
-  if (nextMode === 'live' && req.body?.confirm !== true) {
-    res.status(400).json({ error: 'Live trading confirmation is required.' });
-    return;
-  }
-
-  tradingMode = nextMode;
-  res.json({ tradingMode });
-});
 
 app.listen(port, async () => {
   console.log(`Server listening on port ${port}`);
 });
-
-app.get('/api/portfolio-history', (_req, res) => {
-  res.json(portfolioHistory);
-});
-
-/////////////////////////////////////////
-
-
-
-
-
-// Functions
-
-
 
 async function run() {
   logEntry(`Running at ${timeNow()}`);
