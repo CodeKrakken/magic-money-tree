@@ -14,7 +14,6 @@ import { logEntry } from './utils/logging.js';
 import { getCashBalance, timeNow } from './shared.functions.js';
 import { tick } from './tradingLoop.js';
 import { configureApi } from './api.js';
-import 'dotenv/config';
 
 dotenv.config();
 

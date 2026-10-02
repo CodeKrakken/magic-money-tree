@@ -4,6 +4,9 @@ import { formatNumber, WalletType } from '@magic-money-tree/shared';
 import { Log } from './shared.types.js';
 import { simulatedWallet } from './shared.functions.js';
 
+console.log(username)
+console.log(password)
+
 const uri =
   `mongodb+srv://${username}:${password}@magic-money-tree.ohcuy3y.mongodb.net/?retryWrites=true&w=majority`;
 
