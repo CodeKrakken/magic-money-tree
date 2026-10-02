@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import 'dotenv/config';
+
 dotenv.config();
 
 export type TradingMode = 'simulation' | 'test' | 'live';

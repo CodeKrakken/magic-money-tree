@@ -1,4 +1,3 @@
-import dotenv from 'dotenv';
 import { Request, Response } from 'express';
 import express from 'express';
 import cors from 'cors';
@@ -14,6 +13,7 @@ import { logEntry } from './utils/logging.js';
 import { getCashBalance, timeNow } from './shared.functions.js';
 import { tick } from './tradingLoop.js';
 import { configureApi } from './api.js';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
