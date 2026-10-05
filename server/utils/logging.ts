@@ -2,10 +2,6 @@ import { Log, logEntryType, transaction } from "../shared.types.js";
 import { writeFile } from 'fs/promises';
 import { state } from "../state.js";
 
-const {  
-  log
-} = state
-
 export function logEntry(
   entry : logEntryType,
   topic : string = 'general'
@@ -16,8 +12,8 @@ export function logEntry(
       : entry
   );
 
-  log[topic] = log[topic] ?? [];
-  log[topic]?.push(entry);
+  state.log[topic] = state.log[topic] ?? [];
+  state.log[topic]?.push(entry);
 }
 
 function isTransaction(

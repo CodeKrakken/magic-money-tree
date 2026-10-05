@@ -1,5 +1,6 @@
 import { MongoClient, ServerApiVersion } from 'mongodb';
 import { collectionName, dbName, password, username } from './config.js';
+import { state } from './state.js'
 import { formatNumber, WalletType } from '@magic-money-tree/shared';
 import { Log } from './shared.types.js';
 import { simulatedWallet } from './shared.functions.js';
@@ -29,10 +30,8 @@ export async function setUpDB() {
   await mongo.connect();
   console.log(`Database is going to be mongo db ${dbName}`)
   database = mongo.db(dbName);
-  console.log(database)
   console.log(`Collection is going to be database collection ${collectionName}`)
   collection = database.collection(collectionName);
-  console.log(collection)
 
   const count = await collection.countDocuments();
 
@@ -45,24 +44,20 @@ export async function setUpDB() {
 }
 
 
-export async function pullFromDatabase(
-  wallet: WalletType, 
-  log: Log, 
-  viableSymbols: string[]
-) {
+export async function pullFromDatabase() {
 
   const data = await collection.findOne({});
 
   if (data?.data?.wallet) {
-    wallet = migrateWallet(data.data.wallet);
+    state.wallet = migrateWallet(data.data.wallet);
   }
 
   if (data?.data?.log) {
-    log = data.data.log;
+    state.log = data.data.log;
   }
 
   if (data?.data?.viableSymbols) {
-    viableSymbols = data.data.viableSymbols;
+    state.viableSymbols = data.data.viableSymbols;
   }
 
 }

@@ -17,22 +17,6 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const {  
-  markets,  
-  portfolioHistory,
-  log
-} = state
-
-let {
-  currentTask,
-  wallet,
-  marketList,
-  tradingMode,
-  viableSymbols,
-  trading,
-  symbolIndex,
-} = state
-
 // Server
 
 export const app = express();
@@ -67,15 +51,17 @@ async function run() {
     logEntry('Setting up database ...');    
     await setUpDB();
     logEntry('Fetching market data ...');
-    viableSymbols = await fetchSymbols() as string[];   
-    await pullFromDatabase(wallet, log, viableSymbols);
+    state.viableSymbols = await fetchSymbols() as string[];   
+    await pullFromDatabase();
+
+
 
     logEntry(
       
-      `Loaded simulated wallet: $${formatNumber(getCashBalance(wallet), 2)} cash, ${wallet.data.positions.length} open positions`
+      `Loaded simulated wallet: $${formatNumber(getCashBalance(state.wallet), 2)} cash, ${state.wallet.data.positions.length} open positions`
     );
 
-    trading = true;
+    state.trading = true;
     tick();
 
   } catch (error: any) {

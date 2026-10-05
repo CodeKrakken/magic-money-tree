@@ -41,8 +41,6 @@ let exchangeInfoCache: {
   bySymbol: Record<string, SymbolFilterResult>;
 } | null = null;
 
-let { tradingMode } = state
-
 const timeScales: { [key: string]: string } = {
   minutes: 'm',
 };
@@ -296,7 +294,7 @@ async function submitBinanceOrder(
   quantity: string,
   price: string
 ): Promise<BinanceOrderState> {
-  if (tradingMode === 'simulation') {
+  if (state.tradingMode === 'simulation') {
     return {
       accepted: false,
       status: 'rejected',
@@ -304,7 +302,7 @@ async function submitBinanceOrder(
     };
   }
 
-  if (tradingMode !== 'test' && tradingMode !== 'live') {
+  if (state.tradingMode !== 'test' && state.tradingMode !== 'live') {
     return {
       accepted: false,
       status: 'rejected',
@@ -353,7 +351,7 @@ async function submitBinanceOrder(
   }
 
   const endpoint =
-    tradingMode === 'test'
+    state.tradingMode === 'test'
       ? 'https://api.binance.com/api/v3/order/test'
       : 'https://api.binance.com/api/v3/order';
 
@@ -392,7 +390,7 @@ async function submitBinanceOrder(
         accepted: true,
         status: 'accepted',
         message:
-          `Binance ${tradingMode} order request accepted for ${marketName}.`,
+          `Binance ${state.tradingMode} order request accepted for ${marketName}.`,
         symbol: marketName,
         side,
         quantity: validated.quantity,

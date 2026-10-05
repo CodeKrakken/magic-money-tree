@@ -7,22 +7,6 @@ import { accelerationThreshold, LONG_SLOPE, MAX_CONCURRENT_POSITIONS, MINIMUM_PO
 import { rawFrame, transaction } from "./shared.types.js";
 import { logEntry } from "./utils/logging.js";
 
-const { 
-  wallet,
-  log,
-  markets,
-  portfolioHistory
-} = state
-
-let { 
-  symbolIndex,
-  viableSymbols,
-  trading,
-  currentTask,
-  marketList,
-
-} = state
-
 const fee = 0.001;
 
 export async function tick() {
@@ -31,36 +15,36 @@ export async function tick() {
      * Once every market has been checked, save the portfolio,
      * refresh the Binance symbol list and begin another scan.
      */
-    if (!viableSymbols[symbolIndex]) {
-      await saveState(wallet, log, viableSymbols);
+    if (!state.viableSymbols[state.symbolIndex]) {
+      await saveState(state.wallet, state.log, state.viableSymbols);
 
       console.log(
         `
           ----- Tick at ${timeNow()} | 
-          ${wallet.data.positions.length}/${MAX_CONCURRENT_POSITIONS} positions | 
+          ${state.wallet.data.positions.length}/${MAX_CONCURRENT_POSITIONS} positions | 
           $${formatNumber(getPortfolioValue(), 2)} portfolio -----
         `
       );
 
-      symbolIndex = 0;
+      state.symbolIndex = 0;
 
-      viableSymbols =
+      state.viableSymbols =
         await fetchSymbols() as string[];
 
-      trading = true;
+      state.trading = true;
     }
 
     const symbolName =
-      viableSymbols[symbolIndex].replace('/', '');
+      state.viableSymbols[state.symbolIndex].replace('/', '');
 
-    currentTask =
+    state.currentTask =
       `Checking market ${symbolName} ...`;
 
-    console.log(currentTask);
+    console.log(state.currentTask);
 
     await updateMarket(
       symbolName,
-      symbolIndex + 1
+      state.symbolIndex + 1
     );
 
     await refreshWallet();
@@ -92,14 +76,14 @@ export async function tick() {
     const filteredMarkets =
       filterMarkets(sortedMarkets);
 
-    if (trading) {
+    if (state.trading) {
       await trade(filteredMarkets);
     }
   } catch (error: any) {
     console.log(error.message);
   }
 
-  symbolIndex++;
+  state.symbolIndex++;
 
   /*
    * Preserve the existing continuously-running architecture,
@@ -118,10 +102,10 @@ async function updateMarket(
     await fetchSingleHistory(symbolName);
 
   if (id) {
-    currentTask =
+    state.currentTask =
       `Fetching history of ${symbolName} ... ${response === 'No response.' ? response : ''}`;
 
-    console.log(currentTask);
+    console.log(state.currentTask);
   }
 
   if (response !== 'No response.') {
@@ -151,7 +135,7 @@ async function updateMarket(
     }
 
     previousSignals[symbolName] = signalIsActive;
-    markets[symbolName] = currentMarket;
+    state.markets[symbolName] = currentMarket;
   }
 }
 
@@ -165,29 +149,29 @@ function logMarkets(markets: market[]) {
 }
 
 function formatMarketDisplay(markets: market[]) {
-  marketList = markets.map(market => {
+  state.marketList = markets.map(market => {
     return `${market.name} ... shortSlope ${market.shortSlope} | longSlope ${market.longSlope} | acceleration ${market.acceleration} | ${market.signal ? 'SIGNAL' : 'no signal'}`;
   });
 }
 
 async function refreshWallet() {
   try {
-    const coins = Object.keys(wallet.coins);
+    const coins = Object.keys(state.wallet.coins);
 
     for (let i = 0; i < coins.length; i++) {
       const coin = coins[i];
 
       if (coin === 'USDT') {
-        wallet.coins[coin].dollarPrice = 1;
+        state.wallet.coins[coin].dollarPrice = 1;
       } else {
-        wallet.coins[coin].dollarPrice =
+        state.wallet.coins[coin].dollarPrice =
           await fetchPrice(`${coin}USDT`) as number ||
-          wallet.coins[coin].dollarPrice;
+          state.wallet.coins[coin].dollarPrice;
       }
 
-      wallet.coins[coin].dollarValue =
-        wallet.coins[coin].volume *
-        wallet.coins[coin].dollarPrice;
+      state.wallet.coins[coin].dollarValue =
+        state.wallet.coins[coin].volume *
+        state.wallet.coins[coin].dollarPrice;
     }
 
     /*
@@ -195,17 +179,17 @@ async function refreshWallet() {
      * client, but it no longer represents the whole portfolio.
      */
     const openPositions =
-      wallet.data.positions;
+      state.wallet.data.positions;
 
     if (openPositions.length > 0) {
-      wallet.data.currentMarket.name =
+      state.wallet.data.currentMarket.name =
         openPositions[openPositions.length - 1].symbol;
     } else {
-      wallet.data.currentMarket.name = '';
-      wallet.data.prices = {};
+      state.wallet.data.currentMarket.name = '';
+      state.wallet.data.prices = {};
     }
 
-    wallet.data.baseCoin = 'USDT';
+    state.wallet.data.baseCoin = 'USDT';
 
     /*
      * Update legacy price fields from the most recently opened
@@ -215,7 +199,7 @@ async function refreshWallet() {
       openPositions[openPositions.length - 1];
 
     if (currentPosition) {
-      wallet.data.prices = {
+      state.wallet.data.prices = {
         purchasePrice: currentPosition.entryPrice,
         stopLossPrice:
           currentPosition.entryPrice *
@@ -374,7 +358,7 @@ function addSignalData(market: market) {
 function filterMarkets(markets: market[]) {
   return markets.filter(market =>
     market.signal === true &&
-    viableSymbols.includes(market.name)
+    state.viableSymbols.includes(market.name)
   );
 }
 
@@ -491,7 +475,7 @@ async function trade(
   sortedMarkets: market[]
 ) {
   if (
-    wallet.data.positions.length >=
+    state.wallet.data.positions.length >=
     MAX_CONCURRENT_POSITIONS
   ) {
     return;
@@ -513,7 +497,7 @@ async function trade(
   }
 
   const cash =
-    getCashBalance(wallet);
+    getCashBalance(state.wallet);
 
   const portfolioValue =
     getPortfolioValue();
@@ -552,9 +536,9 @@ async function trade(
 
 function sortMarkets() {
   let marketsToSort =
-    Object.keys(markets)
+    Object.keys(state.markets)
       .map(market =>
-        markets[market]
+        state.markets[market]
       );
 
   /*
@@ -585,10 +569,10 @@ function sortMarkets() {
       }
 
       const aIndex =
-        viableSymbols.indexOf(a.name);
+        state.viableSymbols.indexOf(a.name);
 
       const bIndex =
-        viableSymbols.indexOf(b.name);
+        state.viableSymbols.indexOf(b.name);
 
       if (aIndex !== bIndex) {
         return aIndex - bIndex;
@@ -610,7 +594,7 @@ function getPortfolioValue() {
 
   for (
     const coin
-    of Object.values(wallet.coins)
+    of Object.values(state.wallet.coins)
   ) {
     value +=
       coin.volume *
@@ -629,7 +613,7 @@ async function simulatedBuyOrder(
      * concurrent positions.
      */
     if (
-      wallet.data.positions.length >=
+      state.wallet.data.positions.length >=
       MAX_CONCURRENT_POSITIONS
     ) {
       return false;
@@ -640,7 +624,7 @@ async function simulatedBuyOrder(
      * the position.
      */
     const baseVolume =
-      getCashBalance(wallet);
+      getCashBalance(state.wallet);
 
     const maximumAffordableNotional =
       baseVolume / (1 + fee);
@@ -741,7 +725,7 @@ async function simulatedBuyOrder(
         actualPositionNotional * fee,
       targets: positionTargets,
       marketIndex:
-        viableSymbols.indexOf(
+        state.viableSymbols.indexOf(
           market.name
         )
     };
@@ -750,35 +734,35 @@ async function simulatedBuyOrder(
      * Simulated execution:
      * asset purchase + entry fee.
      */
-    wallet.coins.USDT.volume -=
+    state.wallet.coins.USDT.volume -=
       totalCost;
 
-    if (!wallet.coins[asset]) {
-      wallet.coins[asset] = {
+    if (!state.wallet.coins[asset]) {
+      state.wallet.coins[asset] = {
         volume: 0,
         dollarPrice: currentPrice,
         dollarValue: 0
       };
     }
 
-    wallet.coins[asset].volume +=
+    state.wallet.coins[asset].volume +=
       orderQuantity;
 
-    wallet.coins[asset].dollarPrice =
+    state.wallet.coins[asset].dollarPrice =
       currentPrice;
 
-    wallet.coins[asset].dollarValue =
-      wallet.coins[asset].volume *
+    state.wallet.coins[asset].dollarValue =
+      state.wallet.coins[asset].volume *
       currentPrice;
 
-    wallet.data.positions.push(
+    state.wallet.data.positions.push(
       newPosition
     );
 
-    wallet.data.currentMarket.name =
+    state.wallet.data.currentMarket.name =
       market.name;
 
-    wallet.data.prices = {
+    state.wallet.data.prices = {
       purchasePrice: currentPrice,
       stopLossPrice:
         currentPrice *
@@ -791,7 +775,7 @@ async function simulatedBuyOrder(
       time: timeNow(),
 
       text:
-        `Bought ${formatNumber(orderQuantity)} ${asset} @ ${formatNumber(currentPrice)} = $${formatNumber(actualPositionNotional, 2)} + $${formatNumber(actualPositionNotional * fee, 2)} fee | ${formatNumber(POSITION_PERCENTAGE * 100, 1)}% portfolio value | short slope ${market.shortSlope} | Acceleration ${market.acceleration} | Positions ${wallet.data.positions.length}/${MAX_CONCURRENT_POSITIONS}`
+        `Bought ${formatNumber(orderQuantity)} ${asset} @ ${formatNumber(currentPrice)} = $${formatNumber(actualPositionNotional, 2)} + $${formatNumber(actualPositionNotional * fee, 2)} fee | ${formatNumber(POSITION_PERCENTAGE * 100, 1)}% portfolio value | short slope ${market.shortSlope} | Acceleration ${market.acceleration} | Positions ${state.wallet.data.positions.length}/${MAX_CONCURRENT_POSITIONS}`
     };
 
     logEntry(
@@ -800,7 +784,7 @@ async function simulatedBuyOrder(
     );
 
     console.log(
-      `OPEN ${market.name} | $${formatNumber(actualPositionNotional, 2)} | ${formatNumber(POSITION_PERCENTAGE * 100, 1)}% portfolio | ${wallet.data.positions.length}/${MAX_CONCURRENT_POSITIONS}`
+      `OPEN ${market.name} | $${formatNumber(actualPositionNotional, 2)} | ${formatNumber(POSITION_PERCENTAGE * 100, 1)}% portfolio | ${state.wallet.data.positions.length}/${MAX_CONCURRENT_POSITIONS}`
     );
 
     return true;
@@ -813,7 +797,7 @@ async function simulatedBuyOrder(
 async function manageOpenPositions() {
 
   const openPositions =
-    [...wallet.data.positions];
+    [...state.wallet.data.positions];
 
   for (
     const currentPosition
@@ -921,7 +905,7 @@ async function simulatedSellOrder(
 ) {
   try {
     const positionIndex =
-      wallet.data.positions.indexOf(
+      state.wallet.data.positions.indexOf(
         currentPosition
       );
 
@@ -932,7 +916,7 @@ async function simulatedSellOrder(
     }
 
     const position =
-      wallet.data.positions[positionIndex];
+      state.wallet.data.positions[positionIndex];
 
     const actualQuantity =
       Math.min(
@@ -978,27 +962,27 @@ async function simulatedSellOrder(
       netProceeds -
       allocatedEntryCost;
 
-    wallet.coins.USDT.volume +=
+    state.wallet.coins.USDT.volume +=
       netProceeds;
 
     if (
-      wallet.coins[position.asset]
+      state.wallet.coins[position.asset]
     ) {
-      wallet.coins[position.asset].volume -=
+      state.wallet.coins[position.asset].volume -=
         actualQuantity;
 
       if (
-        wallet.coins[position.asset].volume <
+        state.wallet.coins[position.asset].volume <
         0.0000000001
       ) {
-        wallet.coins[position.asset].volume = 0;
+        state.wallet.coins[position.asset].volume = 0;
       }
 
-      wallet.coins[position.asset].dollarPrice =
+      state.wallet.coins[position.asset].dollarPrice =
         sellPrice;
 
-      wallet.coins[position.asset].dollarValue =
-        wallet.coins[position.asset].volume *
+      state.wallet.coins[position.asset].dollarValue =
+        state.wallet.coins[position.asset].volume *
         sellPrice;
     }
 
@@ -1012,7 +996,7 @@ async function simulatedSellOrder(
       position.quantity = 0;
     }
 
-    wallet.data.realisedProfit +=
+    state.wallet.data.realisedProfit +=
       realisedProfit;
 
     const tradeReport: transaction = {
@@ -1030,20 +1014,20 @@ async function simulatedSellOrder(
     if (
       position.quantity <= 0
     ) {
-      wallet.data.positions.splice(
+      state.wallet.data.positions.splice(
         positionIndex,
         1
       );
 
       if (
-        wallet.coins[position.asset] &&
-        !wallet.data.positions.some(
+        state.wallet.coins[position.asset] &&
+        !state.wallet.data.positions.some(
           openPosition =>
             openPosition.asset ===
             position.asset
         )
       ) {
-        delete wallet.coins[
+        delete state.wallet.coins[
           position.asset
         ];
       }
@@ -1061,15 +1045,15 @@ async function simulatedSellOrder(
      * Keep legacy currentMarket/price fields usable.
      */
     const latestPosition =
-      wallet.data.positions[
-        wallet.data.positions.length - 1
+      state.wallet.data.positions[
+        state.wallet.data.positions.length - 1
       ];
 
     if (latestPosition) {
-      wallet.data.currentMarket.name =
+      state.wallet.data.currentMarket.name =
         latestPosition.symbol;
 
-      wallet.data.prices = {
+      state.wallet.data.prices = {
         purchasePrice:
           latestPosition.entryPrice,
 
@@ -1081,8 +1065,8 @@ async function simulatedSellOrder(
           latestPosition.entryPrice
       };
     } else {
-      wallet.data.currentMarket.name = '';
-      wallet.data.prices = {};
+      state.wallet.data.currentMarket.name = '';
+      state.wallet.data.prices = {};
     }
   } catch (error: any) {
     console.log(error.message);
@@ -1092,11 +1076,11 @@ async function simulatedSellOrder(
 function recordPortfolioSnapshot() {
   const values: Record<string, number> = {};
 
-  for (const [asset, coin] of Object.entries(wallet.coins)) {
+  for (const [asset, coin] of Object.entries(state.wallet.coins)) {
     values[asset] = coin.volume * coin.dollarPrice;
   }
 
-  portfolioHistory.push({
+  state.portfolioHistory.push({
     timestamp: Date.now(),
     values,
     total: Object.values(values).reduce(
