@@ -17,6 +17,7 @@ export async function tick() {
      */
     if (!state.viableSymbols[state.symbolIndex]) {
       await saveState(state.wallet, state.log, state.viableSymbols);
+      console.log('Saved to Database')
 
       console.log(
         `

@@ -158,18 +158,18 @@ function validateOrderAgainstFilters(
       ok: false;
       reason: string;
     } {
-  const normalizedQuantity = normalizeDecimalString(quantity);
-  const normalizedPrice = normalizeDecimalString(price);
+  const normalisedQuantity = normaliseDecimalString(quantity);
+  const normalisedPrice = normaliseDecimalString(price);
 
-  const minQty = normalizeDecimalString(filters.minQty);
-  const maxQty = normalizeDecimalString(filters.maxQty);
-  const stepSize = normalizeDecimalString(filters.stepSize);
-  const minPrice = normalizeDecimalString(filters.minPrice);
-  const maxPrice = normalizeDecimalString(filters.maxPrice);
-  const tickSize = normalizeDecimalString(filters.tickSize);
-  const minNotional = normalizeDecimalString(filters.minNotional);
+  const minQty = normaliseDecimalString(filters.minQty);
+  const maxQty = normaliseDecimalString(filters.maxQty);
+  const stepSize = normaliseDecimalString(filters.stepSize);
+  const minPrice = normaliseDecimalString(filters.minPrice);
+  const maxPrice = normaliseDecimalString(filters.maxPrice);
+  const tickSize = normaliseDecimalString(filters.tickSize);
+  const minNotional = normaliseDecimalString(filters.minNotional);
 
-  let validQuantity = normalizedQuantity;
+  let validQuantity = normalisedQuantity;
 
   if (stepSize !== '0') {
     validQuantity = roundDownToStep(validQuantity, stepSize);
@@ -197,7 +197,7 @@ function validateOrderAgainstFilters(
     };
   }
 
-  let validPrice = normalizedPrice;
+  let validPrice = normalisedPrice;
 
   if (tickSize !== '0') {
     validPrice = roundToTickSize(validPrice, tickSize);
