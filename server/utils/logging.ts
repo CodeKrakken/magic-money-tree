@@ -1,25 +1,19 @@
-import { Log, logEntryType, transaction } from "../shared.types.js";
 import { writeFile } from 'fs/promises';
 import { state } from "../state.js";
+import { timeNow } from "../shared.functions.js";
 
 export function logEntry(
-  entry : logEntryType,
-  topic : string = 'general'
+  entry : string,
+  topic : ('general' | 'transactions') = 'general'
 ) {
-  console.log(
-    isTransaction(entry)
-      ? `${(entry).time}  |  ${entry.text}`
-      : entry
-  );
+
+  console.log(`${timeNow()}  |  ${entry}`);
 
   state.log[topic] = state.log[topic] ?? [];
-  state.log[topic]?.push(entry);
-}
-
-function isTransaction(
-  entry: logEntryType
-): entry is transaction {
-  return (entry as transaction).time !== undefined;
+  state.log[topic]?.push({
+    text: entry,
+    time: timeNow()
+  });
 }
 
 async function writeToFile(fileName: any, data: any) {

@@ -4,7 +4,7 @@ import { saveState } from "./database.js";
 import { getCashBalance, timeNow } from "./shared.functions.js";
 import { previousSignals, signalEntryEvents, state } from "./state.js";
 import { accelerationThreshold, LONG_SLOPE, MAX_CONCURRENT_POSITIONS, MINIMUM_POSITION_NOTIONAL, POSITION_PERCENTAGE, SHORT_SLOPE, slopeThreshold, stopLossThreshold, targets } from "./config.js";
-import { rawFrame, transaction } from "./shared.types.js";
+import { rawFrame } from "./shared.types.js";
 import { logEntry } from "./utils/logging.js";
 
 const fee = 0.001;
@@ -772,12 +772,9 @@ async function simulatedBuyOrder(
         currentPrice
     };
 
-    const tradeReport: transaction = {
-      time: timeNow(),
-
-      text:
-        `Bought ${formatNumber(orderQuantity)} ${asset} @ ${formatNumber(currentPrice)} = $${formatNumber(actualPositionNotional, 2)} + $${formatNumber(actualPositionNotional * fee, 2)} fee | ${formatNumber(POSITION_PERCENTAGE * 100, 1)}% portfolio value | short slope ${market.shortSlope} | Acceleration ${market.acceleration} | Positions ${state.wallet.data.positions.length}/${MAX_CONCURRENT_POSITIONS}`
-    };
+    const tradeReport = 
+      `Bought ${formatNumber(orderQuantity)} ${asset} @ ${formatNumber(currentPrice)} = $${formatNumber(actualPositionNotional, 2)} + $${formatNumber(actualPositionNotional * fee, 2)} fee | ${formatNumber(POSITION_PERCENTAGE * 100, 1)}% portfolio value | short slope ${market.shortSlope} | Acceleration ${market.acceleration} | Positions ${state.wallet.data.positions.length}/${MAX_CONCURRENT_POSITIONS}`
+    
 
     logEntry(
       tradeReport,
@@ -1000,12 +997,9 @@ async function simulatedSellOrder(
     state.wallet.data.realisedProfit +=
       realisedProfit;
 
-    const tradeReport: transaction = {
-      time: timeNow(),
-
-      text:
-        `Sold ${formatNumber(actualQuantity)} ${position.asset} @ ${formatNumber(sellPrice)} = $${formatNumber(netProceeds, 2)} net | P/L $${formatNumber(realisedProfit, 4)} | ${sellType}`
-    };
+    const tradeReport = 
+      `Sold ${formatNumber(actualQuantity)} ${position.asset} @ ${formatNumber(sellPrice)} = $${formatNumber(netProceeds, 2)} net | P/L $${formatNumber(realisedProfit, 4)} | ${sellType}`
+    
 
     logEntry(
       tradeReport,

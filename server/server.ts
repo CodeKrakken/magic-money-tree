@@ -7,7 +7,6 @@ import { formatNumber, position, market, indexedFrame } from '@magic-money-tree/
 import { accelerationThreshold, local, LONG_SLOPE, MAX_CONCURRENT_POSITIONS, MINIMUM_POSITION_NOTIONAL, POSITION_PERCENTAGE, SHORT_SLOPE, slopeThreshold, stopLossThreshold, targets } from './config.js';
 import { state } from './state.js'
 import { pullFromDatabase, saveState, setUpDB } from './database.js';
-import { Log, rawFrame, transaction } from './shared.types.js';
 import { fetchPrice, fetchSingleHistory, fetchSymbols } from './binance.js';
 import { logEntry } from './utils/logging.js';
 import { getCashBalance, timeNow } from './shared.functions.js';
@@ -38,7 +37,7 @@ app.listen(port, async () => {
 });
 
 async function run() {
-  logEntry(`Running at ${timeNow()}`);
+  logEntry(`Running`);
   logEntry(`Server is ${process.env.ENVIRONMENT}`);
   logEntry(`
     Strategy: slope/acceleration portfolio | 
@@ -54,10 +53,7 @@ async function run() {
     state.viableSymbols = await fetchSymbols() as string[];   
     await pullFromDatabase();
 
-
-
-    logEntry(
-      
+    logEntry(      
       `Loaded simulated wallet: $${formatNumber(getCashBalance(state.wallet), 2)} cash, ${state.wallet.data.positions.length} open positions`
     );
 

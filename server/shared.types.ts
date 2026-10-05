@@ -1,14 +1,11 @@
-type transaction = {
+type logEntryType = {
   text: string,
   time: string
 }
 
-type logEntryType = string | transaction;
-
 interface Log {
-  general: string[];
-  transactions: transaction[];
-  [key: string]: logEntryType[] | undefined;
+  general: logEntryType[];
+  transactions: logEntryType[];
 }
 
 type rawFrame = [
@@ -29,6 +26,5 @@ type rawFrame = [
 export type { 
   Log,
   logEntryType,
-  transaction,
   rawFrame
 }
