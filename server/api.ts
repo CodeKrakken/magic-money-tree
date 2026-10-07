@@ -4,12 +4,10 @@ import { local } from './config.js';
 import path from 'path';
 
 
-export function configureApi(
-  app: Express
-) {
+export function configureApi(app: Express) {
 
   app.get("/data", (req: Request, res: Response) => {
-    console.log('[Server] /data requested, currentTask:', state.currentTask);
+    console.log(state.currentTask);
 
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     res.setHeader('Pragma', 'no-cache');
