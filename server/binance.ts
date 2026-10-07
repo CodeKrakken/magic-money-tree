@@ -20,7 +20,7 @@ type SymbolFilterResult = {
 let exchangeInfoCache: {
   fetchedAt : number;
   bySymbol  : Record<string, SymbolFilterResult>;
-} | null = null;
+};
 
 const timeScales: { [key: string]: string } = {
   minutes: 'm',
