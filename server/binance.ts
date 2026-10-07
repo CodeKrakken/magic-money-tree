@@ -124,33 +124,35 @@ async function getExchangeFiltersForSymbol(
   return bySymbol[symbol] ?? null;
 }
 
+type OrderSuccess = {
+  ok: true;
+  quantity: string;
+  price: string;
+  notional: string;
+}
+
+type OrderFailure = {
+  ok: false;
+  reason: string;
+}
+
 function validateOrderAgainstFilters(
   symbol: string,
   side: 'BUY' | 'SELL',
   quantity: string,
   price: string,
   filters: SymbolFilterResult
-):
-  | {
-      ok: true;
-      quantity: string;
-      price: string;
-      notional: string;
-    }
-  | {
-      ok: false;
-      reason: string;
-    } {
-  const normalisedQuantity = normaliseDecimalString(quantity);
-  const normalisedPrice = normaliseDecimalString(price);
+) : OrderSuccess | OrderFailure {
 
-  const minQty = normaliseDecimalString(filters.minQty);
-  const maxQty = normaliseDecimalString(filters.maxQty);
-  const stepSize = normaliseDecimalString(filters.stepSize);
-  const minPrice = normaliseDecimalString(filters.minPrice);
-  const maxPrice = normaliseDecimalString(filters.maxPrice);
-  const tickSize = normaliseDecimalString(filters.tickSize);
-  const minNotional = normaliseDecimalString(filters.minNotional);
+  const normalisedQuantity  = normaliseDecimalString(quantity);
+  const normalisedPrice     = normaliseDecimalString(price);
+  const minQty              = normaliseDecimalString(filters.minQty);
+  const maxQty              = normaliseDecimalString(filters.maxQty);
+  const stepSize            = normaliseDecimalString(filters.stepSize);
+  const minPrice            = normaliseDecimalString(filters.minPrice);
+  const maxPrice            = normaliseDecimalString(filters.maxPrice);
+  const tickSize            = normaliseDecimalString(filters.tickSize);
+  const minNotional         = normaliseDecimalString(filters.minNotional);
 
   let validQuantity = normalisedQuantity;
 
@@ -164,8 +166,7 @@ function validateOrderAgainstFilters(
   ) {
     return {
       ok: false,
-      reason:
-        `${symbol} quantity ${validQuantity} is below MIN_QTY ${minQty}.`
+      reason: `${symbol} quantity ${validQuantity} is below MIN_QTY ${minQty}.`
     };
   }
 
@@ -175,8 +176,7 @@ function validateOrderAgainstFilters(
   ) {
     return {
       ok: false,
-      reason:
-        `${symbol} quantity ${validQuantity} exceeds MAX_QTY ${maxQty}.`
+      reason: `${symbol} quantity ${validQuantity} exceeds MAX_QTY ${maxQty}.`
     };
   }
 
