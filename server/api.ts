@@ -36,7 +36,7 @@ export function configureApi(app: Express) {
       ? req.body.mode.toLowerCase()
       : '';
   
-    if (!['simulation', 'live'].includes(nextMode)){
+    if (nextMode !== 'simulation' && nextMode !== 'live') {
       res.status(400).json({ error: 'Invalid trading mode.' });
       return;
     }
@@ -57,8 +57,8 @@ export function configureApi(app: Express) {
   });
 
   if (!local) {
-  app.get("*", (req: Request, res: Response) => {
-    res.sendFile(path.join(__dirname, "../../client/build/index.html"));
-  });
-}
+    app.get("*", (req: Request, res: Response) => {
+      res.sendFile(path.join(__dirname, "../../client/build/index.html"));
+    });
+  }
 }
