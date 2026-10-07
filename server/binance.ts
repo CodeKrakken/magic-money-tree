@@ -4,41 +4,22 @@ import { binanceApiKey, binanceSecretKey } from "./config.js";
 import { state } from './state.js'
 import { rawFrame } from "./shared.types.js";
 
-type SymbolFilterResult = {
-  symbol: string;
-  minQty: string;
-  maxQty: string;
-  stepSize: string;
-  minPrice: string;
-  maxPrice: string;
-  tickSize: string;
-  minNotional: string;
-};
-
-type BinanceOrderState = {
-  accepted: boolean;
-  status: 'accepted' | 'rejected' | 'uncertain' | 'error';
-  message: string;
-  binanceCode?: number;
-  binanceMessage?: string;
-  symbol?: string;
-  side?: 'BUY' | 'SELL';
-  quantity?: string;
-  price?: string;
-};
-
-type rawMarket = {
-  status                : string
-  symbol                : string
-  isSpotTradingAllowed  : Boolean
-  quoteAsset            : string
-}
-
 const EXCHANGE_INFO_CACHE_TTL_MS = 5 * 60 * 1000;
 
+type SymbolFilterResult = {
+  symbol      : string;
+  minQty      : string;
+  maxQty      : string;
+  stepSize    : string;
+  minPrice    : string;
+  maxPrice    : string;
+  tickSize    : string;
+  minNotional : string;
+};
+
 let exchangeInfoCache: {
-  fetchedAt: number;
-  bySymbol: Record<string, SymbolFilterResult>;
+  fetchedAt : number;
+  bySymbol  : Record<string, SymbolFilterResult>;
 } | null = null;
 
 const timeScales: { [key: string]: string } = {
@@ -48,15 +29,15 @@ const timeScales: { [key: string]: string } = {
 function getFilterMapFromExchangeInfo(
   symbolInfo: {
     symbols: Array<{
-      symbol: string;
-      filters: Array<{
-        filterType: string;
-        minQty?: string;
-        maxQty?: string;
-        stepSize?: string;
-        minPrice?: string;
-        maxPrice?: string;
-        tickSize?: string;
+      symbol  : string;
+      filters : Array<{
+        filterType  : string;
+        minQty?     : string;
+        maxQty?     : string;
+        stepSize?   : string;
+        minPrice?   : string;
+        maxPrice?   : string;
+        tickSize?   : string;
         minNotional?: string;
       }>
     }>
@@ -68,35 +49,37 @@ function getFilterMapFromExchangeInfo(
     const filters = symbolEntry.filters;
 
     const found = {
-      symbol: symbolEntry.symbol,
-      minQty: '0',
-      maxQty: '0',
-      stepSize: '0',
-      minPrice: '0',
-      maxPrice: '0',
-      tickSize: '0',
-      minNotional: '0'
+      symbol      : symbolEntry.symbol,
+      minQty      : '0',
+      maxQty      : '0',
+      stepSize    : '0',
+      minPrice    : '0',
+      maxPrice    : '0',
+      tickSize    : '0',
+      minNotional : '0'
     };
 
     for (const filter of filters) {
-      if (filter.filterType === 'LOT_SIZE') {
-        found.minQty = filter.minQty ?? found.minQty;
-        found.maxQty = filter.maxQty ?? found.maxQty;
-        found.stepSize = filter.stepSize ?? found.stepSize;
-      }
+      switch (filter.filterType) {
+        case 'LOT_SIZE':  {
+          found.minQty   = filter.minQty   ?? found.minQty;
+          found.maxQty   = filter.maxQty   ?? found.maxQty;
+          found.stepSize = filter.stepSize ?? found.stepSize;
+          break;
+        }
 
-      if (filter.filterType === 'PRICE_FILTER') {
-        found.minPrice = filter.minPrice ?? found.minPrice;
-        found.maxPrice = filter.maxPrice ?? found.maxPrice;
-        found.tickSize = filter.tickSize ?? found.tickSize;
-      }
+        case 'PRICE_FILTER':  {
+          found.minPrice = filter.minPrice ?? found.minPrice;
+          found.maxPrice = filter.maxPrice ?? found.maxPrice;
+          found.tickSize = filter.tickSize ?? found.tickSize;
+          break;
+        }
 
-      if (filter.filterType === 'MIN_NOTIONAL') {
-        found.minNotional = filter.minNotional ?? found.minNotional;
-      }
-
-      if (filter.filterType === 'NOTIONAL') {
-        found.minNotional = filter.minNotional ?? found.minNotional;
+        case 'MIN_NOTIONAL':
+        case 'NOTIONAL':  {
+          found.minNotional = filter.minNotional ?? found.minNotional;
+          break;
+        }
       }
     }
 
@@ -288,6 +271,18 @@ function buildBinanceSignedOrderParams(
   return { params, signature };
 }
 
+type BinanceOrderState = {
+  accepted: boolean;
+  status: 'accepted' | 'rejected' | 'uncertain' | 'error';
+  message: string;
+  binanceCode?: number;
+  binanceMessage?: string;
+  symbol?: string;
+  side?: 'BUY' | 'SELL';
+  quantity?: string;
+  price?: string;
+};
+
 async function submitBinanceOrder(
   side: 'BUY' | 'SELL',
   marketName: string,
@@ -469,6 +464,13 @@ export async function fetchSymbols() {
     console.log(error.message);
     return [];
   }
+}
+
+type rawMarket = {
+  status                : string
+  symbol                : string
+  isSpotTradingAllowed  : Boolean
+  quoteAsset            : string
 }
 
 function analyseMarkets(allMarkets: rawMarket[]) {
