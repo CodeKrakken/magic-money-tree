@@ -43,6 +43,7 @@ function getFilterMapFromExchangeInfo(
     }>
   }
 ): Record<string, SymbolFilterResult> {
+
   const bySymbol: Record<string, SymbolFilterResult> = {};
 
   for (const symbolEntry of symbolInfo.symbols) {
@@ -59,7 +60,9 @@ function getFilterMapFromExchangeInfo(
       minNotional : '0'
     };
 
+
     for (const filter of filters) {
+
       switch (filter.filterType) {
         case 'LOT_SIZE':  {
           found.minQty   = filter.minQty   ?? found.minQty;
@@ -92,6 +95,7 @@ function getFilterMapFromExchangeInfo(
 async function refreshExchangeInfoCache(
   force = false
 ): Promise<Record<string, SymbolFilterResult>> {
+  
   const now = Date.now();
 
   if (
@@ -120,6 +124,7 @@ async function refreshExchangeInfoCache(
 async function getExchangeFiltersForSymbol(
   symbol: string
 ): Promise<SymbolFilterResult | null> {
+
   const bySymbol = await refreshExchangeInfoCache();
   return bySymbol[symbol] ?? null;
 }
@@ -144,7 +149,6 @@ function validateOrderAgainstFilters(
   filters: SymbolFilterResult
 ) : OrderSuccess | OrderFailure {
 
-  const normalisedQuantity  = normaliseDecimalString(quantity);
   const normalisedPrice     = normaliseDecimalString(price);
   const minQty              = normaliseDecimalString(filters.minQty);
   const maxQty              = normaliseDecimalString(filters.maxQty);
@@ -153,8 +157,8 @@ function validateOrderAgainstFilters(
   const maxPrice            = normaliseDecimalString(filters.maxPrice);
   const tickSize            = normaliseDecimalString(filters.tickSize);
   const minNotional         = normaliseDecimalString(filters.minNotional);
-
-  let validQuantity = normalisedQuantity;
+  
+  let validQuantity         = normaliseDecimalString(quantity);
 
   if (stepSize !== '0') {
     validQuantity = roundDownToStep(validQuantity, stepSize);
@@ -163,79 +167,67 @@ function validateOrderAgainstFilters(
   if (
     compareDecimalStrings(validQuantity, minQty) < 0 &&
     minQty !== '0'
-  ) {
-    return {
-      ok: false,
-      reason: `${symbol} quantity ${validQuantity} is below MIN_QTY ${minQty}.`
-    };
-  }
-
+  ) return {
+    ok: false,
+    reason: `${symbol} quantity ${validQuantity} is below MIN_QTY ${minQty}.`
+  };
+  
   if (
     maxQty !== '0' &&
     compareDecimalStrings(validQuantity, maxQty) > 0
-  ) {
-    return {
-      ok: false,
-      reason: `${symbol} quantity ${validQuantity} exceeds MAX_QTY ${maxQty}.`
-    };
-  }
-
+  ) return {
+    ok: false,
+    reason: `${symbol} quantity ${validQuantity} exceeds MAX_QTY ${maxQty}.`
+  };
+  
   let validPrice = normalisedPrice;
 
-  if (tickSize !== '0') {
-    validPrice = roundToTickSize(validPrice, tickSize);
-  }
+  if (tickSize !== '0') validPrice = roundToTickSize(validPrice, tickSize);
 
   if (
     minPrice !== '0' &&
     compareDecimalStrings(validPrice, minPrice) < 0
-  ) {
-    return {
-      ok: false,
-      reason:
-        `${symbol} price ${validPrice} is below MIN_PRICE ${minPrice}.`
-    };
-  }
-
+  ) return {
+    ok: false,
+    reason:
+      `${symbol} price ${validPrice} is below MIN_PRICE ${minPrice}.`
+  };
+  
   if (
     maxPrice !== '0' &&
     compareDecimalStrings(validPrice, maxPrice) > 0
-  ) {
-    return {
-      ok: false,
-      reason:
-        `${symbol} price ${validPrice} exceeds MAX_PRICE ${maxPrice}.`
-    };
-  }
-
+  ) return {
+    ok: false,
+    reason:
+      `${symbol} price ${validPrice} exceeds MAX_PRICE ${maxPrice}.`
+  };
+  
   const notional = multiplyDecimalStrings(
     validPrice,
     validQuantity
   );
 
-  const minNotionalValue =
-    minNotional === '0' ? '0' : minNotional;
 
   if (
-    minNotionalValue !== '0' &&
-    compareDecimalStrings(notional, minNotionalValue) < 0
+    minNotional !== '0' &&
+    compareDecimalStrings(notional, minNotional) < 0
   ) {
     return {
       ok: false,
       reason:
-        `${symbol} order notional ${notional} is below MIN_NOTIONAL ${minNotionalValue}.`
+        `${symbol} order notional ${notional} is below MIN_NOTIONAL ${minNotional}.`
     };
   }
 
   if (
     side === 'BUY' &&
-    minNotionalValue !== '0' &&
-    compareDecimalStrings(notional, minNotionalValue) < 0
+    minNotional !== '0' &&
+    compareDecimalStrings(notional, minNotional) < 0
   ) {
     return {
       ok: false,
       reason:
-        `${symbol} order notional ${notional} is below the minimum notional ${minNotionalValue}.`
+        `${symbol} order notional ${notional} is below the minimum notional ${minNotional}.`
     };
   }
 
