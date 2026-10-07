@@ -130,35 +130,35 @@ async function getExchangeFiltersForSymbol(
 }
 
 type OrderSuccess = {
-  ok: true;
-  quantity: string;
-  price: string;
-  notional: string;
+  ok        : true;
+  quantity  : string;
+  price     : string;
+  notional  : string;
 }
 
 type OrderFailure = {
-  ok: false;
-  reason: string;
+  ok      : false;
+  reason  : string;
 }
 
 function validateOrderAgainstFilters(
-  symbol: string,
-  side: 'BUY' | 'SELL',
-  quantity: string,
-  price: string,
-  filters: SymbolFilterResult
+  symbol    : string,
+  side      : 'BUY' | 'SELL',
+  quantity  : string,
+  price     : string,
+  filters   : SymbolFilterResult
 ) : OrderSuccess | OrderFailure {
 
-  const normalisedPrice     = normaliseDecimalString(price);
-  const minQty              = normaliseDecimalString(filters.minQty);
-  const maxQty              = normaliseDecimalString(filters.maxQty);
-  const stepSize            = normaliseDecimalString(filters.stepSize);
-  const minPrice            = normaliseDecimalString(filters.minPrice);
-  const maxPrice            = normaliseDecimalString(filters.maxPrice);
-  const tickSize            = normaliseDecimalString(filters.tickSize);
-  const minNotional         = normaliseDecimalString(filters.minNotional);
-  
-  let validQuantity         = normaliseDecimalString(quantity);
+  const minQty          = normaliseDecimalString(filters.minQty);
+  const maxQty          = normaliseDecimalString(filters.maxQty);
+  const stepSize        = normaliseDecimalString(filters.stepSize);
+  const minPrice        = normaliseDecimalString(filters.minPrice);
+  const maxPrice        = normaliseDecimalString(filters.maxPrice);
+  const tickSize        = normaliseDecimalString(filters.tickSize);
+  const minNotional     = normaliseDecimalString(filters.minNotional);
+
+  let validPrice        = normaliseDecimalString(price);
+  let validQuantity     = normaliseDecimalString(quantity);
 
   if (stepSize !== '0') {
     validQuantity = roundDownToStep(validQuantity, stepSize);
@@ -168,38 +168,34 @@ function validateOrderAgainstFilters(
     compareDecimalStrings(validQuantity, minQty) < 0 &&
     minQty !== '0'
   ) return {
-    ok: false,
-    reason: `${symbol} quantity ${validQuantity} is below MIN_QTY ${minQty}.`
+    ok      : false,
+    reason  : `${symbol} quantity ${validQuantity} is below MIN_QTY ${minQty}.`
   };
   
   if (
     maxQty !== '0' &&
     compareDecimalStrings(validQuantity, maxQty) > 0
   ) return {
-    ok: false,
-    reason: `${symbol} quantity ${validQuantity} exceeds MAX_QTY ${maxQty}.`
+    ok      : false,
+    reason  : `${symbol} quantity ${validQuantity} exceeds MAX_QTY ${maxQty}.`
   };
   
-  let validPrice = normalisedPrice;
-
   if (tickSize !== '0') validPrice = roundToTickSize(validPrice, tickSize);
 
   if (
     minPrice !== '0' &&
     compareDecimalStrings(validPrice, minPrice) < 0
   ) return {
-    ok: false,
-    reason:
-      `${symbol} price ${validPrice} is below MIN_PRICE ${minPrice}.`
+    ok      : false,
+    reason  : `${symbol} price ${validPrice} is below MIN_PRICE ${minPrice}.`
   };
   
   if (
     maxPrice !== '0' &&
     compareDecimalStrings(validPrice, maxPrice) > 0
   ) return {
-    ok: false,
-    reason:
-      `${symbol} price ${validPrice} exceeds MAX_PRICE ${maxPrice}.`
+    ok      : false,
+    reason  : `${symbol} price ${validPrice} exceeds MAX_PRICE ${maxPrice}.`
   };
   
   const notional = multiplyDecimalStrings(
@@ -207,15 +203,13 @@ function validateOrderAgainstFilters(
     validQuantity
   );
 
-
   if (
     minNotional !== '0' &&
     compareDecimalStrings(notional, minNotional) < 0
   ) {
     return {
-      ok: false,
-      reason:
-        `${symbol} order notional ${notional} is below MIN_NOTIONAL ${minNotional}.`
+      ok      : false,
+      reason  : `${symbol} order notional ${notional} is below MIN_NOTIONAL ${minNotional}.`
     };
   }
 
@@ -225,16 +219,15 @@ function validateOrderAgainstFilters(
     compareDecimalStrings(notional, minNotional) < 0
   ) {
     return {
-      ok: false,
-      reason:
-        `${symbol} order notional ${notional} is below the minimum notional ${minNotional}.`
+      ok      : false,
+      reason  : `${symbol} order notional ${notional} is below the minimum notional ${minNotional}.`
     };
   }
 
   return {
-    ok: true,
-    quantity: validQuantity,
-    price: validPrice,
+    ok        : true,
+    quantity  : validQuantity,
+    price     : validPrice,
     notional
   };
 }
