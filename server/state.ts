@@ -4,7 +4,7 @@ import {
   PortfolioSnapshot
 } from '@magic-money-tree/shared';
 import { simulatedWallet } from './shared.functions.js';
-import { Log } from './shared.types.js';
+import { Log, TradingMode } from './shared.types.js';
 
 export type ServerState = {
   wallet: WalletType;
@@ -13,7 +13,7 @@ export type ServerState = {
   viableSymbols: string[];
   markets: Record<string, market>;
   trading: boolean;
-  tradingMode: 'simulation' | 'test' | 'live';
+  tradingMode: TradingMode;
   symbolIndex: number;
   portfolioHistory: PortfolioSnapshot[];
   log: Log

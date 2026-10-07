@@ -13,7 +13,7 @@ export default function App() {
   const [currentTask, setcurrentTask] = useState('Fetching data')
   const [transactions, setTransactions] = useState([] as string[])
   const [markets, setMarketChart] = useState([] as string[])
-  const [tradingMode, setTradingMode] = useState<'simulation' | 'test' | 'live'>('simulation')
+  const [tradingMode, setTradingMode] = useState<'simulation' | 'live'>('simulation')
   const [portfolioHistory, setPortfolioHistory] = useState([] as PortfolioSnapshot[])
 
 

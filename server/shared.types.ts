@@ -23,8 +23,13 @@ type rawFrame = [
   string
 ];
 
+
+type TradingMode = 'simulation' | 'live';
+
+
 export type { 
   Log,
   logEntryType,
-  rawFrame
+  rawFrame,
+  TradingMode
 }

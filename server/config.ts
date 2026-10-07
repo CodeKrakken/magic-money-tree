@@ -1,8 +1,7 @@
 import dotenv from 'dotenv';
+import { TradingMode } from './shared.types';
 
 dotenv.config();
-
-export type TradingMode = 'simulation' | 'test' | 'live';
 
 export const local =
   process.env.ENVIRONMENT === 'local';
@@ -58,8 +57,7 @@ export const targets = [
 export function resolveTradingMode(
   value: string | undefined
 ): TradingMode {
-  if (value === 'test') return 'test';
-  if (value === 'live') return 'live';
 
+  if (value === 'live') return 'live';
   return 'simulation';
 }

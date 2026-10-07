@@ -14,12 +14,12 @@ export function configureApi(app: Express) {
     res.setHeader('Expires', '0');
 
     const dataJSON = JSON.stringify({
-      wallet: state.wallet,
-      currentTask: state.currentTask,
-      transactions: state.log.transactions,
-      markets: state.marketList,
-      currentMarket: state.markets[state.wallet.data.currentMarket.name] ?? null,
-      tradingMode: state.tradingMode
+      wallet        : state.wallet,
+      currentTask   : state.currentTask,
+      transactions  : state.log.transactions,
+      markets       : state.marketList,
+      currentMarket : state.markets[state.wallet.data.currentMarket.name] ?? null,
+      tradingMode   : state.tradingMode
     });
 
     res.setHeader('Content-Type', 'application/json');
@@ -36,11 +36,7 @@ export function configureApi(app: Express) {
       ? req.body.mode.toLowerCase()
       : '';
   
-    if (
-      nextMode !== 'simulation' &&
-      nextMode !== 'test' &&
-      nextMode !== 'live'
-    ) {
+    if (!['simulation', 'live'].includes(nextMode)){
       res.status(400).json({ error: 'Invalid trading mode.' });
       return;
     }

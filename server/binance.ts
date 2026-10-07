@@ -302,14 +302,6 @@ async function submitBinanceOrder(
     };
   }
 
-  if (state.tradingMode !== 'test' && state.tradingMode !== 'live') {
-    return {
-      accepted: false,
-      status: 'rejected',
-      message: 'Trading mode is not enabled for Binance orders.'
-    };
-  }
-
   if (!binanceApiKey || !binanceSecretKey) {
     return {
       accepted: false,
@@ -350,10 +342,7 @@ async function submitBinanceOrder(
     };
   }
 
-  const endpoint =
-    state.tradingMode === 'test'
-      ? 'https://api.binance.com/api/v3/order/test'
-      : 'https://api.binance.com/api/v3/order';
+  const endpoint = 'https://api.binance.com/api/v3/order';
 
   const { params, signature } =
     buildBinanceSignedOrderParams(
